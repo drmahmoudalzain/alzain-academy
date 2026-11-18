@@ -4,6 +4,8 @@
     <p><code><%= course.code %></code> · <%= course.track === 'equiv' ? 'قسم المعادلة' : 'مسار البكالوريوس' %> · <%= course.level ? 'المستوى ' + course.level : '' %></p>
   </div>
   <div class="page-header-actions">
+    <a class="btn btn-secondary" href="<%= basePath %>/courses/<%= course.id %>/gradebook">سجل الدرجات</a>
+    <a class="btn btn-secondary" href="<%= basePath %>/courses/<%= course.id %>/edit">تعديل</a>
     <form method="post" action="<%= basePath %>/courses/<%= course.id %>/archive" style="display:inline;">
       <button type="submit" class="btn btn-secondary"><%= course.archived ? 'إعادة تفعيل' : 'أرشفة المقرر' %></button>
     </form>

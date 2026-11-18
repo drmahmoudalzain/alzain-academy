@@ -1,0 +1,115 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>تعديل الاختبار</h2>
+    <p><%= exam.title %> — التعديل فوري.</p>
+  </div>
+</section>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="alert-inline error" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <div><%= error %></div>
+  </div>
+<% } %>
+
+<form method="post" action="<%= basePath %>/exams/<%= exam.id %>/edit" class="table-card" style="margin-bottom:20px;">
+  <div class="table-card-head"><h3>بيانات الاختبار</h3></div>
+  <div class="side-card-body" style="padding:24px;">
+    <div class="form-grid">
+      <label>المقرر *
+        <select name="course_id" required>
+          <% for (const course of courses) { %>
+            <option value="<%= course.id %>" <%= Number(selectedCourse) === course.id ? 'selected' : '' %>><%= course.code %> — <%= course.title %></option>
+          <% } %>
+        </select>
+      </label>
+      <label>عنوان الاختبار *
+        <input type="text" name="title" value="<%= exam.title %>" required maxlength="180">
+      </label>
+      <label>الوصف
+        <textarea name="description" rows="2" maxlength="1000"><%= exam.description || '' %></textarea>
+      </label>
+      <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+        <label>يبدأ
+          <input type="datetime-local" name="starts_at" value="<%= exam.starts_at ? new Date(exam.starts_at).toISOString().slice(0, 16) : '' %>">
+        </label>
+        <label>ينتهي
+          <input type="datetime-local" name="ends_at" value="<%= exam.ends_at ? new Date(exam.ends_at).toISOString().slice(0, 16) : '' %>">
+        </label>
+        <label>المدة (دقيقة)
+          <input type="number" name="duration_min" value="<%= exam.duration_min || 60 %>" min="5" max="600">
+        </label>
+      </div>
+      <label class="checkbox-row" style="display:flex;align-items:center;gap:10px;">
+        <input type="checkbox" name="is_published" <%= exam.is_published ? 'checked' : '' %>>
+        <span>منشور للطلاب</span>
+      </label>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button type="submit" class="btn btn-primary">حفظ التعديلات</button>
+      <a class="btn btn-secondary" href="<%= basePath %>/exams/<%= exam.id %>">إلغاء</a>
+    </div>
+  </div>
+</form>
+
+<!-- الأسئلة -->
+<div class="table-card" style="margin-bottom:20px;">
+  <div class="table-card-head"><h3>الأسئلة (<%= questions.length %>)</h3></div>
+  <div class="side-card-body" style="padding:0;">
+    <% if (questions.length) { %>
+      <div style="display:grid;gap:10px;padding:14px 16px;">
+        <% for (const [index, question] of questions.entries()) { %>
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--bg-subtle);">
+            <div style="display:flex;gap:12px;align-items:center;">
+              <span style="font-family:var(--font-head);color:var(--gold-dark);min-width:24px;"><%= index + 1 %></span>
+              <div>
+                <div style="font-size:0.9rem;line-height:1.6;"><%= question.text %></div>
+                <div class="form-hint"><span class="chip"><%= question.type === 'mcq' ? 'اختيار واحد' : (question.type === 'multi' ? 'متعدد' : (question.type === 'truefalse' ? 'صح/خطأ' : 'مقالي')) %></span> · <%= question.points %> نقطة</div>
+              </div>
+            </div>
+            <form method="post" action="<%= basePath %>/exams/<%= exam.id %>/questions/<%= question.id %>/delete" style="margin:0;">
+              <button class="chip" style="cursor:pointer;border:1px solid var(--danger-border);color:var(--danger);background:var(--danger-bg);" type="submit">حذف</button>
+            </form>
+          </div>
+        <% } %>
+      </div>
+    <% } else { %>
+      <div class="empty-state" style="border:0;"><p>لا توجد أسئلة — أضف أسئلة حتى يتمكن الطلاب من أداء الاختبار.</p></div>
+    <% } %>
+  </div>
+</div>
+
+<!-- إضافة سؤال -->
+<div class="table-card">
+  <div class="table-card-head"><h3>إضافة سؤال</h3></div>
+  <form method="post" action="<%= basePath %>/exams/<%= exam.id %>/questions" class="side-card-body" style="padding:18px;">
+    <div class="form-grid">
+      <div class="form-grid" style="grid-template-columns: 1fr 90px;">
+        <label>النوع
+          <select name="type">
+            <option value="mcq">اختيار من متعدد (واحد)</option>
+            <option value="multi">اختيار متعدد (أكثر من جواب)</option>
+            <option value="truefalse">صح أو خطأ</option>
+            <option value="essay">سؤال مقالي</option>
+          </select>
+        </label>
+        <label>الدرجة
+          <input type="number" name="points" value="2" min="1" max="100">
+        </label>
+      </div>
+      <label>نص السؤال *
+        <textarea name="text" rows="2" required placeholder="اكتب السؤال..."></textarea>
+      </label>
+      <label>الخيارات — سطر لكل خيار (لأسئلة الاختيار)
+        <textarea name="options" rows="4" placeholder="الخيار الأول&#10;الخيار الثاني&#10;الخيار الثالث&#10;الخيار الرابع"></textarea>
+      </label>
+      <label>الإجابة الصحيحة — رقم الخيار (0 = الأول) أو أرقام مفصولة بفواصل للمتعدد، أو 1/0 لصح/خطأ
+        <input type="text" name="correct" dir="ltr" style="text-align:left;" placeholder="0 أو 0,2 أو 1">
+      </label>
+    </div>
+    <div style="margin-top:14px;">
+      <button type="submit" class="btn btn-primary">إضافة السؤال</button>
+    </div>
+  </form>
+</div>

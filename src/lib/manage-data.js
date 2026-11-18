@@ -58,7 +58,7 @@ export async function canManageCourse(user, isOwner, courseId) {
     .maybeSingle();
   if (error) throw error;
   if (!data) return null;
-  if (!isOwner && data.teacher_id !== user.id) return null;
+  if (!isOwner && !user?.is_staff && data.teacher_id !== user.id) return null;
   return data;
 }
 

@@ -1,0 +1,67 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>تعديل المحاضرة</h2>
+    <p><code><%= lecture.course ? lecture.course.code : '' %></code></p>
+  </div>
+</section>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="alert-inline error" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <div><%= error %></div>
+  </div>
+<% } %>
+
+<form method="post" action="<%= basePath %>/lectures/<%= lecture.id %>/edit" class="table-card">
+  <div class="table-scroll">
+    <div class="side-card-body" style="padding:24px;">
+      <div class="form-grid">
+        <label>المقرر *
+          <select name="course_id" required>
+            <% for (const course of courses) { %>
+              <option value="<%= course.id %>" <%= Number(selectedCourse) === course.id ? 'selected' : '' %>><%= course.code %> — <%= course.title %></option>
+            <% } %>
+          </select>
+        </label>
+
+        <label>عنوان المحاضرة *
+          <input type="text" name="title" value="<%= lecture.title %>" required maxlength="180">
+        </label>
+
+        <label>الوصف
+          <textarea name="description" rows="3" maxlength="2000"><%= lecture.description || '' %></textarea>
+        </label>
+
+        <div class="form-grid" style="grid-template-columns: 1.4fr 1fr 1fr;">
+          <label>الموعد
+            <input type="datetime-local" name="scheduled_at" value="<%= lecture.scheduled_at ? new Date(lecture.scheduled_at).toISOString().slice(0, 16) : '' %>">
+          </label>
+          <label>المدة (دقيقة)
+            <input type="number" name="duration_min" value="<%= lecture.duration_min || 120 %>" min="15" max="600">
+          </label>
+          <label>نوع المحاضرة
+            <select name="lecture_type">
+              <option value="direct" <%= lecture.lecture_type === 'direct' ? 'selected' : '' %>>مباشر</option>
+              <option value="online" <%= lecture.lecture_type === 'online' ? 'selected' : '' %>>أونلاين</option>
+              <option value="recorded" <%= lecture.lecture_type === 'recorded' ? 'selected' : '' %>>مسجل</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <label>رابط يوتيوب
+            <input type="url" name="youtube_url" value="<%= lecture.youtube_url || '' %>" dir="ltr" style="text-align:left;">
+          </label>
+          <label>رابط البث
+            <input type="url" name="live_url" value="<%= lecture.live_url || '' %>" dir="ltr" style="text-align:left;">
+          </label>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:18px;">
+        <button type="submit" class="btn btn-primary">حفظ التعديلات</button>
+        <a class="btn btn-secondary" href="<%= basePath %>/lectures/<%= lecture.id %>">إلغاء</a>
+      </div>
+    </div>
+  </div>
+</form>

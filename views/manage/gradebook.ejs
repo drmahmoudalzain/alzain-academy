@@ -1,0 +1,37 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>سجل الدرجات — <%= course.title %></h2>
+    <p><code><%= course.code %></code> · الحضور <%= weights.attendance %>% · الاختبارات <%= weights.exams %>% · الواجبات <%= weights.assignments %>%</p>
+  </div>
+  <div class="page-header-actions">
+    <a class="btn btn-secondary" href="<%= basePath %>/courses/<%= course.id %>">العودة للمقرر</a>
+  </div>
+</section>
+
+<div class="table-card">
+  <div class="table-card-head">
+    <h3>الطلاب (<%= rows.length %>) — متوسط <%= average %>%</h3>
+  </div>
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead>
+        <tr><th>#</th><th>الاسم</th><th>الرقم</th><th>الحضور</th><th>الاختبارات</th><th>الواجبات</th><th>المجموع</th><th>التقدير</th></tr>
+      </thead>
+      <tbody>
+        <% for (const [index, row] of rows.entries()) { const g = row.grade; %>
+          <tr>
+            <td><%= index + 1 %></td>
+            <td><strong><%= row.student.name %></strong></td>
+            <td dir="ltr" style="text-align:left;"><code><%= row.student.university_id ?? '—' %></code></td>
+            <td><%= g.attendance.earned %> / <%= weights.attendance %></td>
+            <td><%= g.exams.earned %> / <%= weights.exams %></td>
+            <td><%= g.assignments.earned %> / <%= weights.assignments %></td>
+            <td><strong><%= g.total %></strong></td>
+            <td><span class="chip"><%= g.letter %></span></td>
+          </tr>
+        <% } %>
+        <% if (!rows.length) { %><tr><td colspan="8" class="muted text-center">لا توجد تسجيلات بعد — سجّل الطلاب في المقرر لعرض الدرجات.</td></tr><% } %>
+      </tbody>
+    </table>
+  </div>
+</div>

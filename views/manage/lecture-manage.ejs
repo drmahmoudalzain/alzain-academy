@@ -4,6 +4,7 @@
     <p><code><%= course ? course.code : '' %></code> · <%= lecture.lecture_type === 'direct' ? 'مباشر' : (lecture.lecture_type === 'online' ? 'أونلاين' : 'مسجل') %> · <%= format.formatDateTime(lecture.scheduled_at) %></p>
   </div>
   <div class="page-header-actions">
+    <a class="btn btn-secondary" href="<%= basePath %>/lectures/<%= lecture.id %>/edit">تعديل</a>
     <form method="post" action="<%= basePath %>/lectures/<%= lecture.id %>/toggle-attendance" style="display:inline;">
       <button type="submit" class="btn <%= lecture.attendance_open ? 'btn-secondary' : 'btn-primary' %>">
         <%= lecture.attendance_open ? 'إغلاق رمز الحضور' : 'فتح تسجيل الحضور' %>

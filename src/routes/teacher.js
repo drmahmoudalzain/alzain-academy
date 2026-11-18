@@ -3,6 +3,7 @@ import { db } from "../lib/supabase.js";
 import { renderPage } from "../lib/render.js";
 import { requirePortal } from "../middleware/auth.js";
 import { createManagementRouter } from "../lib/management.js";
+import { createStudentsRouter } from "../lib/students.js";
 
 const router = express.Router();
 
@@ -61,5 +62,8 @@ router.get("/", requirePortal("teacher"), async (req, res, next) => {
 
 // مسارات الإدارة المشتركة (مقررات/محاضرات/اختبارات/واجبات)
 router.use("/", createManagementRouter({ portalKey: "teacher", basePath: "/teacher", isOwner: false }));
+
+// إدارة الطلاب (الأستاذ يرى فقط طلاب مقرراته)
+router.use("/students", createStudentsRouter({ portalKey: "teacher", basePath: "/teacher/students", isOwner: false }));
 
 export default router;

@@ -3,6 +3,9 @@
     <h2><%= exam.title %></h2>
     <p><code><%= course ? course.code : '' %></code> · <%= attempts.length %> محاولة · <%= questions.length %> أسئلة</p>
   </div>
+  <div class="page-header-actions">
+    <a class="btn btn-secondary" href="<%= basePath %>/exams/<%= exam.id %>/edit">تعديل</a>
+  </div>
 </section>
 
 <div class="table-card" style="margin-bottom:20px;">

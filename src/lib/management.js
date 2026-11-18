@@ -42,10 +42,11 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       ...locals,
     });
 
+  const canManageFlag = (user) => isOwnerMode || Boolean(user?.is_staff);
+
   const ownCourses = async (user) => {
-    const courses = await getManagedCourses(
-      isOwnerMode ? { allTeachers: true } : { teacherId: user.id }
-    );
+    const scopedAll = isOwnerMode || Boolean(user?.is_staff);
+    const courses = await getManagedCourses(scopedAll ? { allTeachers: true } : { teacherId: user.id });
     return courses;
   };
 
@@ -180,6 +181,432 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
     } catch (error) { next(error); }
   });
 
+  // ---------- تعديل المقرر ----------
+  router.get("/courses/:id/edit", guard, async (req, res, next) => {
+    try {
+      const course = await courseOr403(req, res, req.params.id);
+      if (!course) {
+        return res.status(404).render("error", { title: "غير موجود", code: 404, message: "المقرر غير موجود أو لا تملك صلاحية إدارته." });
+      }
+      let teachers = [];
+      if (isOwnerMode) {
+        const { data, error } = await db.from("users").select("id, name").eq("role", "teacher").order("name");
+        if (error) throw error;
+        teachers = data ?? [];
+      }
+      return managePage(res, "manage/course-edit", {
+        title: "تعديل المقرر",
+        pageTitle: "تعديل المقرر",
+        course,
+        teachers,
+        error: null,
+      });
+    } catch (error) { next(error); }
+  });
+
+  router.post("/courses/:id/edit", guard, async (req, res, next) => {
+    try {
+      const course = await courseOr403(req, res, req.params.id);
+      if (!course) {
+        return res.status(404).render("error", { title: "غير موجود", code: 404, message: "لا صلاحية." });
+      }
+
+      const title = String(req.body.title ?? "").trim();
+      const code = String(req.body.code ?? "").trim().toUpperCase();
+      const description = String(req.body.description ?? "").trim() || null;
+      const track = req.body.track === "equiv" ? "equiv" : "bachelor";
+      const level = Math.min(4, Math.max(1, Number(req.body.level ?? 1)));
+      const color = String(req.body.color ?? "#123A63");
+      const attendanceWeight = Number(req.body.attendance_weight ?? 10);
+      const examsWeight = Number(req.body.exams_weight ?? 60);
+      const assignmentsWeight = Number(req.body.assignments_weight ?? 30);
+      const teacherId = isOwnerMode ? Number(req.body.teacher_id) : course.teacher_id;
+
+      const fail = async (message) => {
+        const teachers = isOwnerMode
+          ? (await db.from("users").select("id, name").eq("role", "teacher").order("name")).data ?? []
+          : [];
+        return managePage(res.status(422), "manage/course-edit", {
+          title: "تعديل المقرر",
+          pageTitle: "تعديل المقرر",
+          course,
+          teachers,
+          error: message,
+        });
+      };
+
+      if (title.length < 3) return fail("اسم المقرر قصير جداً.");
+      if (!/^[A-Z0-9-]{3,12}$/.test(code)) return fail("رمز المقرر غير صالح.");
+      if (isOwnerMode && !teacherId) return fail("اختر الأستاذ المسؤول.");
+
+      const clash = await db.from("courses").select("id").eq("code", code).neq("id", course.id).maybeSingle();
+      if (clash.error) throw clash.error;
+      if (clash.data) return fail("رمز المقرر مستخدم في مقرر آخر.");
+
+      const updated = await db
+        .from("courses")
+        .update({
+          title,
+          code,
+          description,
+          track,
+          level,
+          color,
+          attendance_weight: attendanceWeight,
+          exams_weight: examsWeight,
+          assignments_weight: assignmentsWeight,
+          teacher_id: teacherId,
+        })
+        .eq("id", course.id);
+      if (updated.error) throw updated.error;
+
+      return res.redirect(`${basePath}/courses/${course.id}`);
+    } catch (error) { next(error); }
+  });
+
+  // ---------- تعديل المحاضرة ----------
+  router.get("/lectures/:id/edit", guard, async (req, res, next) => {
+    try {
+      const { data: lecture, error } = await db
+        .from("lectures")
+        .select("*, courses(id, title, code, teacher_id)")
+        .eq("id", Number(req.params.id))
+        .maybeSingle();
+      if (error) throw error;
+      if (!lecture) {
+        return res.status(404).render("error", { title: "غير موجود", code: 404, message: "المحاضرة غير موجودة." });
+      }
+      if (!canManageFlag(req.user) && lecture.courses?.teacher_id !== req.user.id) {
+        return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا تملك صلاحية تعديل هذه المحاضرة." });
+      }
+      const courses = await ownCourses(req.user);
+      return managePage(res, "manage/lecture-edit", {
+        title: "تعديل المحاضرة",
+        pageTitle: "تعديل المحاضرة",
+        lecture,
+        courses,
+        selectedCourse: lecture.course_id,
+        error: null,
+      });
+    } catch (error) { next(error); }
+  });
+
+  router.post("/lectures/:id/edit", guard, async (req, res, next) => {
+    try {
+      const { data: lecture, error } = await db
+        .from("lectures")
+        .select("id, course_id, courses(teacher_id)")
+        .eq("id", Number(req.params.id))
+        .maybeSingle();
+      if (error) throw error;
+      if (!lecture) {
+        return res.status(404).render("error", { title: "غير موجود", code: 404, message: "المحاضرة غير موجودة." });
+      }
+      if (!canManageFlag(req.user) && lecture.courses?.teacher_id !== req.user.id) {
+        return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا صلاحية." });
+      }
+
+      const title = String(req.body.title ?? "").trim();
+      const courseId = toInt(req.body.course_id);
+      const newCourse = courseId ? await courseOr403(req, res, courseId) : null;
+
+      if (title.length < 3) {
+        const courses = await ownCourses(req.user);
+        return managePage(res.status(422), "manage/lecture-edit", {
+          title: "تعديل المحاضرة",
+          pageTitle: "تعديل المحاضرة",
+          lecture,
+          courses,
+          selectedCourse: lecture.course_id,
+          error: "عنوان المحاضرة قصير جداً.",
+        });
+      }
+
+      const updated = await db
+        .from("lectures")
+        .update({
+          title,
+          course_id: newCourse ? newCourse.id : lecture.course_id,
+          description: String(req.body.description ?? "").trim() || null,
+          scheduled_at: String(req.body.scheduled_at ?? "").trim() ? new Date(String(req.body.scheduled_at)).toISOString() : null,
+          duration_min: Math.max(15, Number(req.body.duration_min ?? 120)),
+          lecture_type: ["direct", "online", "recorded"].includes(req.body.lecture_type) ? req.body.lecture_type : "direct",
+          youtube_url: String(req.body.youtube_url ?? "").trim() || null,
+          live_url: String(req.body.live_url ?? "").trim() || null,
+        })
+        .eq("id", lecture.id);
+      if (updated.error) throw updated.error;
+
+      return res.redirect(`${basePath}/lectures/${lecture.id}`);
+    } catch (error) { next(error); }
+  });
+
+  // ---------- تعديل الاختبار ----------
+  router.get("/exams/:id/edit", guard, async (req, res, next) => {
+    try {
+      const { data: exam, error } = await db
+        .from("exams")
+        .select("*, courses(id, title, code, teacher_id)")
+        .eq("id", Number(req.params.id))
+        .maybeSingle();
+      if (error) throw error;
+      if (!exam) {
+        return res.status(404).render("error", { title: "غير موجود", code: 404, message: "الاختبار غير موجود." });
+      }
+      if (!canManageFlag(req.user) && exam.courses?.teacher_id !== req.user.id) {
+        return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا تملك صلاحية تعديل هذا الاختبار." });
+      }
+
+      const questionsRes = await db
+        .from("exam_questions")
+        .select("id, type, text, options, points, position, correct_index, correct_indices")
+        .eq("exam_id", exam.id)
+        .order("position");
+      if (questionsRes.error) throw questionsRes.error;
+
+      const courses = await ownCourses(req.user);
+      return managePage(res, "manage/exam-edit", {
+        title: "تعديل الاختبار",
+        pageTitle: "تعديل الاختبار",
+        exam,
+        course: exam.courses,
+        courses,
+        selectedCourse: exam.course_id,
+        questions: questionsRes.data ?? [],
+        error: null,
+      });
+    } catch (error) { next(error); }
+  });
+
+  router.post("/exams/:id/edit", guard, async (req, res, next) => {
+    try {
+      const { data: exam, error } = await db
+        .from("exams")
+        .select("id, course_id, courses(teacher_id)")
+        .eq("id", Number(req.params.id))
+        .maybeSingle();
+      if (error) throw error;
+      if (!exam) {
+        return res.status(404).render("error", { title: "غير موجود", code: 404, message: "الاختبار غير موجود." });
+      }
+      if (!canManageFlag(req.user) && exam.courses?.teacher_id !== req.user.id) {
+        return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا صلاحية." });
+      }
+
+      const title = String(req.body.title ?? "").trim();
+      const courseId = toInt(req.body.course_id);
+      const newCourse = courseId ? await courseOr403(req, res, courseId) : null;
+      const startsAt = String(req.body.starts_at ?? "").trim();
+      const endsAt = String(req.body.ends_at ?? "").trim();
+      const duration = Math.max(5, Number(req.body.duration_min ?? 60));
+      const published = req.body.is_published === "on";
+
+      if (title.length < 3) {
+        const courses = await ownCourses(req.user);
+        const questionsRes = await db.from("exam_questions").select("id, type, text, options, points, position, correct_index, correct_indices").eq("exam_id", exam.id).order("position");
+        return managePage(res.status(422), "manage/exam-edit", {
+          title: "تعديل الاختبار",
+          pageTitle: "تعديل الاختبار",
+          exam,
+          course: exam.courses ?? null,
+          courses,
+          selectedCourse: exam.course_id,
+          questions: questionsRes.data ?? [],
+          error: "عنوان الاختبار قصير جداً.",
+        });
+      }
+
+      const updated = await db
+        .from("exams")
+        .update({
+          title,
+          description: String(req.body.description ?? "").trim() || null,
+          course_id: newCourse ? newCourse.id : exam.course_id,
+          starts_at: startsAt ? new Date(startsAt).toISOString() : null,
+          ends_at: endsAt ? new Date(endsAt).toISOString() : null,
+          duration_min: duration,
+          is_published: published,
+        })
+        .eq("id", exam.id);
+      if (updated.error) throw updated.error;
+
+      return res.redirect(`${basePath}/exams/${exam.id}`);
+    } catch (error) { next(error); }
+  });
+
+  router.post("/exams/:id/questions", guard, async (req, res, next) => {
+    try {
+      const { data: exam, error } = await db
+        .from("exams")
+        .select("id, courses(teacher_id)")
+        .eq("id", Number(req.params.id))
+        .maybeSingle();
+      if (error) throw error;
+      if (!exam) return res.status(404).render("error", { title: "غير موجود", code: 404, message: "الاختبار غير موجود." });
+      if (!canManageFlag(req.user) && exam.courses?.teacher_id !== req.user.id) return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا صلاحية." });
+
+      const type = ["mcq", "multi", "truefalse", "essay"].includes(req.body.type) ? req.body.type : "mcq";
+      const text = String(req.body.text ?? "").trim();
+      const points = Math.max(1, Number(req.body.points ?? 1));
+      const optionsRaw = String(req.body.options ?? "").trim();
+      const options = type === "essay" ? null : optionsRaw.split("\n").map((line) => line.trim()).filter(Boolean);
+      const correctRaw = String(req.body.correct ?? "").trim();
+      let correctIndex = null;
+      let correctIndices = null;
+      if (type === "multi") {
+        correctIndices = correctRaw ? correctRaw.split(",").map((part) => Number(part.trim())).filter((value) => Number.isInteger(value)) : [];
+      } else {
+        const single = Number(correctRaw);
+        correctIndex = Number.isInteger(single) && correctRaw !== "" ? single : null;
+      }
+
+      if (text.length < 3) return res.redirect(`${basePath}/exams/${exam.id}/edit?error=text`);
+
+      const positionRes = await db.from("exam_questions").select("position").eq("exam_id", exam.id).order("position", { ascending: false }).limit(1).maybeSingle();
+      const position = (positionRes.data?.position ?? 0) + 1;
+
+      const inserted = await db.from("exam_questions").insert({
+        exam_id: exam.id,
+        type,
+        text,
+        options: type === "truefalse" ? ["خطأ", "صح"] : options,
+        correct_index: type === "multi" ? null : correctIndex,
+        correct_indices: correctIndices,
+        points,
+        position,
+      });
+      if (inserted.error) throw inserted.error;
+
+      return res.redirect(`${basePath}/exams/${exam.id}/edit`);
+    } catch (error) { next(error); }
+  });
+
+  router.post("/exams/:id/questions/:qid/delete", guard, async (req, res, next) => {
+    try {
+      const examId = Number(req.params.id);
+      const qid = Number(req.params.qid);
+      if (!Number.isInteger(qid)) return res.status(400).render("error", { title: "طلب غير صالح", code: 400, message: "معرّف السؤال غير صحيح." });
+
+      const { data: exam, error } = await db.from("exams").select("id, courses(teacher_id)").eq("id", examId).maybeSingle();
+      if (error) throw error;
+      if (!exam) return res.status(404).render("error", { title: "غير موجود", code: 404, message: "الاختبار غير موجود." });
+      if (!canManageFlag(req.user) && exam.courses?.teacher_id !== req.user.id) return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا صلاحية." });
+
+      const deleted = await db.from("exam_questions").delete().eq("id", qid).eq("exam_id", examId);
+      if (deleted.error) throw deleted.error;
+      return res.redirect(`${basePath}/exams/${exam.id}/edit`);
+    } catch (error) { next(error); }
+  });
+
+  // ---------- تعديل الواجب ----------
+  router.get("/assignments/:id/edit", guard, async (req, res, next) => {
+    try {
+      const { data: assignment, error } = await db
+        .from("assignments")
+        .select("*, courses(id, title, code, teacher_id)")
+        .eq("id", Number(req.params.id))
+        .maybeSingle();
+      if (error) throw error;
+      if (!assignment) {
+        return res.status(404).render("error", { title: "غير موجود", code: 404, message: "الواجب غير موجود." });
+      }
+      if (!canManageFlag(req.user) && assignment.courses?.teacher_id !== req.user.id) {
+        return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا تملك صلاحية تعديل هذا الواجب." });
+      }
+      const courses = await ownCourses(req.user);
+      return managePage(res, "manage/assignment-edit", {
+        title: "تعديل الواجب",
+        pageTitle: "تعديل الواجب",
+        assignment,
+        courses,
+        selectedCourse: assignment.course_id,
+        error: null,
+      });
+    } catch (error) { next(error); }
+  });
+
+  router.post("/assignments/:id/edit", guard, async (req, res, next) => {
+    try {
+      const { data: assignment, error } = await db
+        .from("assignments")
+        .select("id, course_id, courses(teacher_id)")
+        .eq("id", Number(req.params.id))
+        .maybeSingle();
+      if (error) throw error;
+      if (!assignment) {
+        return res.status(404).render("error", { title: "غير موجود", code: 404, message: "الواجب غير موجود." });
+      }
+      if (!canManageFlag(req.user) && assignment.courses?.teacher_id !== req.user.id) {
+        return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا صلاحية." });
+      }
+
+      const title = String(req.body.title ?? "").trim();
+      const courseId = toInt(req.body.course_id);
+      const newCourse = courseId ? await courseOr403(req, res, courseId) : null;
+      const maxPoints = Math.max(1, Number(req.body.max_points ?? 10));
+      const due = String(req.body.due_at ?? "").trim();
+
+      if (title.length < 3) {
+        const courses = await ownCourses(req.user);
+        return managePage(res.status(422), "manage/assignment-edit", {
+          title: "تعديل الواجب",
+          pageTitle: "تعديل الواجب",
+          assignment,
+          courses,
+          selectedCourse: assignment.course_id,
+          error: "عنوان الواجب قصير جداً.",
+        });
+      }
+
+      const updated = await db
+        .from("assignments")
+        .update({
+          title,
+          course_id: newCourse ? newCourse.id : assignment.course_id,
+          description: String(req.body.description ?? "").trim() || null,
+          due_at: due ? new Date(due).toISOString() : null,
+          max_points: maxPoints,
+        })
+        .eq("id", assignment.id);
+      if (updated.error) throw updated.error;
+
+      return res.redirect(`${basePath}/assignments/${assignment.id}`);
+    } catch (error) { next(error); }
+  });
+
+  // ---------- سجل الدرجات ----------
+  router.get("/courses/:id/gradebook", guard, async (req, res, next) => {
+    try {
+      const course = await courseOr403(req, res, req.params.id);
+      if (!course) {
+        return res.status(404).render("error", { title: "غير موجود", code: 404, message: "المقرر غير موجود أو لا تملك صلاحية إدارته." });
+      }
+
+      const students = await getCourseStudents(course.id);
+      const grades = await Promise.all(students.map((student) => getCourseGrade(course, student.id)));
+
+      const rows = students.map((student, index) => ({
+        student,
+        grade: grades[index],
+      })).sort((a, b) => b.grade.total - a.grade.total);
+
+      const average = rows.length ? rows.reduce((sum, row) => sum + row.grade.total, 0) / rows.length : 0;
+
+      return managePage(res, "manage/gradebook", {
+        title: `سجل الدرجات — ${course.title}`,
+        pageTitle: "سجل الدرجات",
+        course,
+        rows,
+        average: Math.round(average * 10) / 10,
+        weights: {
+          attendance: course.attendance_weight ?? 10,
+          exams: course.exams_weight ?? 60,
+          assignments: course.assignments_weight ?? 30,
+        },
+      });
+    } catch (error) { next(error); }
+  });
+
   router.post("/courses/:id/archive", guard, async (req, res, next) => {
     try {
       const course = await courseOr403(req, res, req.params.id);
@@ -309,7 +736,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       if (error) throw error;
       if (!lecture) return res.status(404).render("error", { title: "غير موجود", code: 404, message: "المحاضرة غير موجودة." });
 
-      if (!isOwnerMode && lecture.courses?.teacher_id !== req.user.id) {
+      if (!canManageFlag(req.user) && lecture.courses?.teacher_id !== req.user.id) {
         return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا تملك صلاحية إدارة هذه المحاضرة." });
       }
 
@@ -336,7 +763,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       const { data: lecture, error } = await db.from("lectures").select("id, course_id, attendance_open, attendance_code, courses(teacher_id)").eq("id", Number(req.params.id)).maybeSingle();
       if (error) throw error;
       if (!lecture) return res.status(404).render("error", { title: "غير موجود", code: 404, message: "غير موجودة." });
-      if (!isOwnerMode && lecture.courses?.teacher_id !== req.user.id) return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا صلاحية." });
+      if (!canManageFlag(req.user) && lecture.courses?.teacher_id !== req.user.id) return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا صلاحية." });
 
       const open = !lecture.attendance_open;
       const code = open ? String(Math.floor(100000 + Math.random() * 900000)) : null;
@@ -351,7 +778,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       const { data: lecture, error } = await db.from("lectures").select("id, courses(teacher_id)").eq("id", Number(req.params.id)).maybeSingle();
       if (error) throw error;
       if (!lecture) return res.status(404).render("error", { title: "غير موجود", code: 404, message: "غير موجودة." });
-      if (!isOwnerMode && lecture.courses?.teacher_id !== req.user.id) return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا صلاحية." });
+      if (!canManageFlag(req.user) && lecture.courses?.teacher_id !== req.user.id) return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا صلاحية." });
 
       const text = String(req.body.text ?? "").trim();
       const type = ["mcq", "multi", "poll", "truefalse"].includes(req.body.type) ? req.body.type : "mcq";
@@ -530,7 +957,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
         .maybeSingle();
       if (error) throw error;
       if (!exam) return res.status(404).render("error", { title: "غير موجود", code: 404, message: "الاختبار غير موجود." });
-      if (!isOwnerMode && exam.courses?.teacher_id !== req.user.id) {
+      if (!canManageFlag(req.user) && exam.courses?.teacher_id !== req.user.id) {
         return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا تملك صلاحية هذا الاختبار." });
       }
 
@@ -588,7 +1015,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       const { data: exam, error } = await db.from("exams").select("id, courses(teacher_id)").eq("id", Number(req.params.id)).maybeSingle();
       if (error) throw error;
       if (!exam) return res.status(404).render("error", { title: "غير موجود", code: 404, message: "الاختبار غير موجود." });
-      if (!isOwnerMode && exam.courses?.teacher_id !== req.user.id) return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا صلاحية." });
+      if (!canManageFlag(req.user) && exam.courses?.teacher_id !== req.user.id) return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا صلاحية." });
 
       const answers = Array.isArray(req.body.answers) ? req.body.answers : [req.body.answers];
       const points = Array.isArray(req.body.points) ? req.body.points : [req.body.points];
@@ -716,7 +1143,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
         .maybeSingle();
       if (error) throw error;
       if (!assignment) return res.status(404).render("error", { title: "غير موجود", code: 404, message: "الواجب غير موجود." });
-      if (!isOwnerMode && assignment.courses?.teacher_id !== req.user.id) {
+      if (!canManageFlag(req.user) && assignment.courses?.teacher_id !== req.user.id) {
         return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا صلاحية." });
       }
 
@@ -746,7 +1173,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
         .maybeSingle();
       if (error) throw error;
       if (!assignment) return res.status(404).render("error", { title: "غير موجود", code: 404, message: "الواجب غير موجود." });
-      if (!isOwnerMode && assignment.courses?.teacher_id !== req.user.id) return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا صلاحية." });
+      if (!canManageFlag(req.user) && assignment.courses?.teacher_id !== req.user.id) return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا صلاحية." });
 
       const submissionIds = Array.isArray(req.body.submission_id) ? req.body.submission_id : [req.body.submission_id];
       const points = Array.isArray(req.body.points) ? req.body.points : [req.body.points];

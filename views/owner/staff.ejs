@@ -1,0 +1,40 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>الموظفون</h2>
+    <p>الأساتذة في المنصة — التحكم الكامل بصلاحية «أستاذ كامل».</p>
+  </div>
+  <div class="page-header-actions">
+    <a class="btn btn-primary" href="/owner/users/new?role=teacher">إضافة أستاذ</a>
+  </div>
+</section>
+
+<% if (staff.length) { %>
+  <div class="table-card">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>#</th><th>الاسم</th><th>البريد / اللقب</th><th>المقررات</th><th>النوع</th><th>الحالة</th><th></th></tr></thead>
+        <tbody>
+          <% for (const member of staff) { %>
+            <tr>
+              <td><%= member.id %></td>
+              <td><strong><%= member.name %></strong></td>
+              <td dir="ltr" style="text-align:left;"><code><%= member.email ?? member.position ?? '—' %></code></td>
+              <td><%= member.courseCount %></td>
+              <td>
+                <form method="post" action="/owner/staff/<%= member.id %>/toggle-staff" style="display:inline;">
+                  <button class="chip" style="cursor:pointer;border:1px solid var(--border);background:var(--bg-subtle);" type="submit">
+                    <%= member.is_staff ? 'أستاذ كامل' : 'أستاذ محدود' %>
+                  </button>
+                </form>
+              </td>
+              <td><span class="chip" style="<%= member.is_active ? 'color:var(--success);border-color:var(--success-border);' : 'color:var(--danger);border-color:var(--danger-border);' %>"><%= member.is_active ? 'نشط' : 'موقوف' %></span></td>
+              <td><a class="chip" href="/owner/users">المستخدمون</a></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } else { %>
+  <div class="empty-state"><h3>لا يوجد موظفون</h3><p>لم تُضف أي حسابات أساتذة بعد.</p></div>
+<% } %>

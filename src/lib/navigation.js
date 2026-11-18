@@ -41,6 +41,7 @@ export const NAVIGATION = {
         { label: "لوحة التحكم", href: "/teacher", icon: "home" },
         { label: "مقرراتي", href: "/teacher/courses", icon: "courses" },
         { label: "المحاضرات", href: "/teacher/lectures", icon: "lectures" },
+        { label: "الطلاب", href: "/teacher/students", icon: "users" },
         { label: "الاختبارات", href: "/teacher/exams", icon: "exams" },
         { label: "الواجبات", href: "/teacher/assignments", icon: "assignments" },
       ],
@@ -67,7 +68,9 @@ export const NAVIGATION = {
       items: [
         { label: "لوحة التحكم", href: "/owner", icon: "home" },
         { label: "المستخدمون", href: "/owner/users", icon: "users" },
+        { label: "الموظفون", href: "/owner/staff", icon: "user" },
         { label: "المقررات", href: "/owner/courses", icon: "courses" },
+        { label: "الطلاب", href: "/owner/students", icon: "users" },
         { label: "الإشعارات", href: "/notifications", icon: "bell" },
         { label: "التقارير", href: "/owner/report/html", icon: "grades" },
         { label: "الأرشيف", href: "/owner/archive", icon: "archive" },

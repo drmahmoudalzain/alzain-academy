@@ -70,6 +70,21 @@ router.get("/", async (req, res, next) => {
   }
 });
 
+// ---------- العرض التجريبي ----------
+router.get("/demo", async (req, res, next) => {
+  try {
+    return renderPage(res, "demo", {
+      title: "العرض التجريبي",
+      layout: "base",
+      bodyClass: "site-page",
+      styles: ["/css/views/home.css"],
+      scripts: ["/js/home.js"],
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // ---------- صفحة الدخول ----------
 router.get("/login", async (req, res, next) => {
   try {

@@ -1,0 +1,69 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>تعديل بيانات الطالب</h2>
+    <p><%= student.name %> — التعديل فوري.</p>
+  </div>
+</section>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="alert-inline error" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <div><%= error %></div>
+  </div>
+<% } %>
+<% if (typeof saved !== 'undefined' && saved) { %>
+  <div class="alert-inline success" role="status">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+    <div>تم حفظ التعديلات.</div>
+  </div>
+<% } %>
+
+<form method="post" action="<%= basePath %>/<%= student.id %>" class="table-card">
+  <div class="side-card-body" style="padding:24px;">
+    <div class="form-grid">
+      <label>الاسم الكامل *
+        <input type="text" name="name" value="<%= student.name %>" required maxlength="120">
+      </label>
+      <div class="form-grid" style="grid-template-columns: 1.2fr 1fr;">
+        <label>الرقم الجامعي
+          <input type="text" name="university_id" value="<%= student.university_id ?? '' %>" maxlength="20" dir="ltr" style="text-align:left;">
+        </label>
+        <label>رقم الجوال
+          <input type="text" name="phone" value="<%= student.phone ?? '' %>" maxlength="30" dir="ltr" style="text-align:left;">
+        </label>
+      </div>
+      <label>البريد الإلكتروني
+        <input type="email" name="email" value="<%= student.email ?? '' %>" maxlength="160" dir="ltr" style="text-align:left;">
+      </label>
+      <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+        <label>المسار
+          <select name="track">
+            <option value="bachelor" <%= student.track === 'bachelor' ? 'selected' : '' %>>مسار البكالوريوس</option>
+            <option value="equiv" <%= student.track === 'equiv' ? 'selected' : '' %>>قسم المعادلة</option>
+          </select>
+        </label>
+        <label>المستوى
+          <select name="level">
+            <% for (let i = 1; i <= 4; i += 1) { %><option value="<%= i %>" <%= Number(student.level) === i ? 'selected' : '' %>>المستوى <%= i %></option><% } %>
+          </select>
+        </label>
+        <label>الجنس
+          <select name="gender">
+            <option value="" <%= !student.gender ? 'selected' : '' %>>—</option>
+            <option value="M" <%= student.gender === 'M' ? 'selected' : '' %>>ذكر</option>
+            <option value="F" <%= student.gender === 'F' ? 'selected' : '' %>>أنثى</option>
+          </select>
+        </label>
+      </div>
+      <label class="checkbox-row" style="display:flex;align-items:center;gap:10px;">
+        <input type="checkbox" name="is_active" <%= student.is_active ? 'checked' : '' %>>
+        <span>الحساب نشط — يمكن للطالب تسجيل الدخول</span>
+      </label>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <button type="submit" class="btn btn-primary">حفظ التعديلات</button>
+      <a class="btn btn-secondary" href="<%= basePath %>/<%= student.id %>">إلغاء</a>
+    </div>
+  </div>
+</form>

@@ -1,0 +1,78 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>تعديل المقرر</h2>
+    <p><code><%= course.code %></code> — التعديل فوري.</p>
+  </div>
+</section>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="alert-inline error" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <div><%= error %></div>
+  </div>
+<% } %>
+
+<form method="post" action="<%= basePath %>/courses/<%= course.id %>/edit" class="table-card">
+  <div class="table-scroll">
+    <div class="side-card-body" style="padding:24px;">
+      <div class="form-grid">
+        <div class="form-grid" style="grid-template-columns: 2fr 1fr;">
+          <label>اسم المقرر *
+            <input type="text" name="title" value="<%= course.title %>" required maxlength="160">
+          </label>
+          <label>الرمز *
+            <input type="text" name="code" value="<%= course.code %>" required maxlength="12" dir="ltr" style="text-align:left;text-transform:uppercase;">
+          </label>
+        </div>
+
+        <label>الوصف
+          <textarea name="description" rows="3" maxlength="2000"><%= course.description || '' %></textarea>
+        </label>
+
+        <% if (isOwner && teachers.length) { %>
+          <label>الأستاذ المسؤول
+            <select name="teacher_id">
+              <% for (const teacher of teachers) { %><option value="<%= teacher.id %>" <%= teacher.id === course.teacher_id ? 'selected' : '' %>><%= teacher.name %></option><% } %>
+            </select>
+          </label>
+        <% } %>
+
+        <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
+          <label>المسار
+            <select name="track">
+              <option value="bachelor" <%= course.track === 'bachelor' ? 'selected' : '' %>>مسار البكالوريوس</option>
+              <option value="equiv" <%= course.track === 'equiv' ? 'selected' : '' %>>قسم المعادلة</option>
+            </select>
+          </label>
+          <label>المستوى
+            <select name="level">
+              <% for (let i = 1; i <= 4; i += 1) { %><option value="<%= i %>" <%= Number(course.level) === i ? 'selected' : '' %>>المستوى <%= i %></option><% } %>
+            </select>
+          </label>
+          <label>اللون
+            <input type="color" name="color" value="<%= course.color || '#123A63' %>" style="height:42px;">
+          </label>
+        </div>
+
+        <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
+          <label>وزن الحضور %
+            <input type="number" name="attendance_weight" value="<%= course.attendance_weight ?? 10 %>" min="0" max="100">
+          </label>
+          <label>وزن الاختبارات %
+            <input type="number" name="exams_weight" value="<%= course.exams_weight ?? 60 %>" min="0" max="100">
+          </label>
+          <label>وزن الواجبات %
+            <input type="number" name="assignments_weight" value="<%= course.assignments_weight ?? 30 %>" min="0" max="100">
+          </label>
+        </div>
+      </div>
+
+      <div class="form-hint muted" style="margin-top:14px;">مجموع الأوزان يجب أن يكون 100.</div>
+
+      <div style="display:flex;gap:10px;margin-top:18px;">
+        <button type="submit" class="btn btn-primary">حفظ التعديلات</button>
+        <a class="btn btn-secondary" href="<%= basePath %>/courses/<%= course.id %>">إلغاء</a>
+      </div>
+    </div>
+  </div>
+</form>

@@ -3,6 +3,9 @@
     <h2>تصحيح الواجب</h2>
     <p><%= assignment.title %> — <code><%= course ? course.code : '' %></code></p>
   </div>
+  <div class="page-header-actions">
+    <a class="btn btn-secondary" href="<%= basePath %>/assignments/<%= assignment.id %>/edit">تعديل</a>
+  </div>
 </section>
 
 <div class="table-card" style="margin-bottom:20px;">

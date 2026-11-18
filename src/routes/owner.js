@@ -7,6 +7,7 @@ import { createManagementRouter } from "../lib/management.js";
 import { setSetting } from "../lib/settings.js";
 import { hashPassword } from "../lib/password.js";
 import { getCourseGrade } from "../lib/student-data.js";
+import { createStudentsRouter } from "../lib/students.js";
 
 const router = express.Router();
 
@@ -236,6 +237,64 @@ router.get("/vault", requirePortal("owner"), async (req, res, next) => {
       pageTitle: "خزنة كلمات المرور",
       entries: (data ?? []).map((row) => ({ ...row, user: row.users })),
     });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// إدارة الطلاب (المالك يرى الجميع)
+router.use("/students", createStudentsRouter({ portalKey: "owner", basePath: "/owner/students", isOwner: true }));
+
+// ---------- الموظفون (قائمة الأساتذة) ----------
+router.get("/staff", requirePortal("owner"), async (req, res, next) => {
+  try {
+    const query = String(req.query.q ?? "").trim().toLowerCase();
+
+    const [staffRes, courseCountsRes] = await Promise.all([
+      db.from("users").select("id, name, email, position, is_staff, is_active, last_login, created_at").eq("role", "teacher").order("id"),
+      db.from("courses").select("teacher_id"),
+    ]);
+    if (staffRes.error) throw staffRes.error;
+    if (courseCountsRes.error) throw courseCountsRes.error;
+
+    const counts = new Map();
+    for (const row of courseCountsRes.data ?? []) {
+      counts.set(row.teacher_id, (counts.get(row.teacher_id) ?? 0) + 1);
+    }
+
+    const staff = (staffRes.data ?? [])
+      .filter((user) => {
+        if (!query) return true;
+        return [user.name, user.email, user.position].some((value) =>
+          String(value ?? "").toLowerCase().includes(query)
+        );
+      })
+      .map((user) => ({ ...user, courseCount: counts.get(user.id) ?? 0 }));
+
+    return ownerPage(res, "owner/staff", {
+      title: "الموظفون",
+      pageTitle: "الموظفون",
+      staff,
+      searchAction: "/owner/staff",
+      searchPlaceholder: "ابحث باسم أو بريد...",
+      searchValue: req.query.q ?? "",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post("/staff/:id/toggle-staff", requirePortal("owner"), async (req, res, next) => {
+  try {
+    const id = Number(req.params.id);
+    const { data, error } = await db.from("users").select("id, is_staff, role").eq("id", id).maybeSingle();
+    if (error) throw error;
+    if (!data || data.role !== "teacher") {
+      return res.status(404).render("error", { title: "غير موجود", code: 404, message: "الأستاذ غير موجود." });
+    }
+    const updated = await db.from("users").update({ is_staff: !data.is_staff }).eq("id", id);
+    if (updated.error) throw updated.error;
+    return res.redirect("/owner/staff");
   } catch (error) {
     next(error);
   }
