@@ -1,0 +1,72 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>إضافة محاضرة</h2>
+    <p>بيانات المحاضرة — تفعيل رمز الحضور يولّد رمزاً عشوائياً من 6 أرقام تلقائياً.</p>
+  </div>
+</section>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="alert-inline error" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <div><%= error %></div>
+  </div>
+<% } %>
+
+<form method="post" action="<%= basePath %>/lectures" class="table-card">
+  <div class="table-scroll">
+    <div class="side-card-body" style="padding:24px;">
+      <div class="form-grid">
+        <label>المقرر *
+          <select name="course_id" required>
+            <% for (const course of courses) { %>
+              <option value="<%= course.id %>" <%= selectedCourse === course.id ? 'selected' : '' %>><%= course.code %> — <%= course.title %></option>
+            <% } %>
+          </select>
+        </label>
+
+        <label>عنوان المحاضرة *
+          <input type="text" name="title" required maxlength="180" placeholder="مثال: مصادر القانون المباشرة والاحتياطية">
+        </label>
+
+        <label>الوصف
+          <textarea name="description" rows="3" maxlength="2000" placeholder="محاور المحاضرة..."></textarea>
+        </label>
+
+        <div class="form-grid" style="grid-template-columns: 1.4fr 1fr 1fr;">
+          <label>الموعد
+            <input type="datetime-local" name="scheduled_at">
+          </label>
+          <label>المدة (دقيقة)
+            <input type="number" name="duration_min" value="120" min="15" max="600">
+          </label>
+          <label>نوع المحاضرة
+            <select name="lecture_type">
+              <option value="direct">مباشر</option>
+              <option value="online">أونلاين</option>
+              <option value="recorded">مسجل</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <label>رابط يوتيوب (للمسجلة)
+            <input type="url" name="youtube_url" dir="ltr" style="text-align:left;" placeholder="https://www.youtube.com/watch?v=...">
+          </label>
+          <label>رابط البث (للأونلاين)
+            <input type="url" name="live_url" dir="ltr" style="text-align:left;" placeholder="https://meet.example.com/...">
+          </label>
+        </div>
+
+        <label class="checkbox-row" style="display:flex;align-items:center;gap:10px;">
+          <input type="checkbox" name="attendance_open">
+          <span>فتح تسجيل الحضور برمز — يُنشأ رمز عشوائي من 6 أرقام ويُعرض في صفحة المحاضرة للطلاب</span>
+        </label>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-top:18px;">
+        <button type="submit" class="btn btn-primary">حفظ المحاضرة</button>
+        <a class="btn btn-secondary" href="<%= basePath %>/lectures">إلغاء</a>
+      </div>
+    </div>
+  </div>
+</form>

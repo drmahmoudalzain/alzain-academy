@@ -1,0 +1,43 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2><%= isOwner ? 'كل المقررات' : 'مقرراتي' %></h2>
+    <p><%= isOwner ? 'جميع المقررات في المنصة — الإدارة الكاملة.' : 'المقررات المسندة إليك مع إحصاءات الطلاب والمحتوى.' %></p>
+  </div>
+  <div class="page-header-actions">
+    <a class="btn btn-primary" href="<%= basePath %>/courses/new">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:15px;height:15px;"><path d="M12 5v14M5 12h14"/></svg>
+      مقرر جديد
+    </a>
+  </div>
+</section>
+
+<% let shown = courses; if (searchValue) { const q = String(searchValue).toLowerCase(); shown = courses.filter(c => `${c.title} ${c.code} ${c.teacherName ?? ''}`.toLowerCase().includes(q)); } %>
+
+<% if (shown.length) { %>
+  <div class="table-card">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr><th>الرمز</th><th>المقرر</th><% if (isOwner) { %><th>الأستاذ</th><% } %><th>المستوى</th><th>الطلاب</th><th>المحاضرات</th><th>الاختبارات</th><th>الواجبات</th><th></th></tr>
+        </thead>
+        <tbody>
+          <% for (const course of shown) { %>
+            <tr>
+              <td><code><%= course.code %></code></td>
+              <td><strong><a href="<%= basePath %>/courses/<%= course.id %>" style="color:inherit;text-decoration:none;"><%= course.title %></a></strong></td>
+              <% if (isOwner) { %><td><%= course.teacherName %></td><% } %>
+              <td><%= course.track === 'equiv' ? 'معادلة' : 'بكالوريوس' %> · <%= course.level || '—' %></td>
+              <td><%= course.studentCount %></td>
+              <td><%= course.lectureCount %></td>
+              <td><%= course.examCount %></td>
+              <td><%= course.assignmentCount %></td>
+              <td><a class="chip" href="<%= basePath %>/courses/<%= course.id %>">تفاصيل</a></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } else { %>
+  <div class="empty-state"><h3>لا توجد مقررات</h3><p>لم يُنشأ أي مقرر بعد — ابدأ بإضافة أول مقرر.</p></div>
+<% } %>

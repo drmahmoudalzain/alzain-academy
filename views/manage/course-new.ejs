@@ -1,0 +1,82 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>إضافة مقرر</h2>
+    <p>أدخل بيانات المقرر والأستاذ المسؤول ونسب التقييم.</p>
+  </div>
+</section>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="alert-inline error" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <div><%= error %></div>
+  </div>
+<% } %>
+
+<form method="post" action="<%= basePath %>/courses" class="table-card">
+  <div class="table-scroll">
+    <div class="side-card-body" style="padding:24px;">
+      <div class="form-grid">
+        <div class="form-grid" style="grid-template-columns: 2fr 1fr;">
+          <label>اسم المقرر *
+            <input type="text" name="title" required maxlength="160" placeholder="مثال: القانون الدستوري">
+          </label>
+          <label>الرمز *
+            <input type="text" name="code" required maxlength="12" dir="ltr" style="text-align:left;text-transform:uppercase;" placeholder="LAW101">
+          </label>
+        </div>
+
+        <label>الوصف
+          <textarea name="description" rows="3" maxlength="2000" placeholder="وصف مختصر عن أهداف المقرر..."></textarea>
+        </label>
+
+        <% if (isOwner && teachers.length) { %>
+          <label>الأستاذ المسؤول *
+            <select name="teacher_id" required>
+              <option value="">— اختر —</option>
+              <% for (const teacher of teachers) { %><option value="<%= teacher.id %>"><%= teacher.name %></option><% } %>
+            </select>
+          </label>
+        <% } %>
+
+        <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
+          <label>المسار
+            <select name="track">
+              <option value="bachelor">مسار البكالوريوس</option>
+              <option value="equiv">قسم المعادلة</option>
+            </select>
+          </label>
+          <label>المستوى
+            <select name="level">
+              <option value="1">المستوى الأول</option>
+              <option value="2">المستوى الثاني</option>
+              <option value="3">المستوى الثالث</option>
+              <option value="4">المستوى الرابع</option>
+            </select>
+          </label>
+          <label>اللون
+            <input type="color" name="color" value="#123A63" style="height:42px;">
+          </label>
+        </div>
+
+        <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
+          <label>وزن الحضور %
+            <input type="number" name="attendance_weight" value="10" min="0" max="100">
+          </label>
+          <label>وزن الاختبارات %
+            <input type="number" name="exams_weight" value="60" min="0" max="100">
+          </label>
+          <label>وزن الواجبات %
+            <input type="number" name="assignments_weight" value="30" min="0" max="100">
+          </label>
+        </div>
+      </div>
+
+      <div class="form-hint muted" style="margin-top:14px;">يجب أن يكون مجموع الأوزان 100 — ويُنصح بترك الحضور 10%، الاختبارات 60%، الواجبات 30%.</div>
+
+      <div style="display:flex;gap:10px;margin-top:18px;">
+        <button type="submit" class="btn btn-primary">حفظ المقرر</button>
+        <a class="btn btn-secondary" href="<%= basePath %>/courses">إلغاء</a>
+      </div>
+    </div>
+  </div>
+</form>

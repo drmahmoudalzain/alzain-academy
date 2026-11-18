@@ -40,3 +40,10 @@ export function setSettingCache(key, value) {
 export function isFlagOn(settings, key) {
   return String(settings?.[key] ?? "0") === "1" || String(settings?.[key]).toLowerCase() === "true";
 }
+
+/** تحديث إعداد واحد (للمالك فقط). */
+export async function setSetting(key, value) {
+  const { error } = await db.from("settings").upsert({ key, value: String(value ?? "") });
+  if (error) throw error;
+  setSettingCache(key, String(value ?? ""));
+}

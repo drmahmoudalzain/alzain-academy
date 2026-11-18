@@ -1,0 +1,35 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>خزنة كلمات المرور</h2>
+    <p>كلمات المرور المؤقتة للحسابات الجديدة — متاحة للمالك فقط، وتُبطل تلقائياً بعد أول تغيير.</p>
+  </div>
+</section>
+
+<div class="alert-inline warning" role="note">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+  <div>هذه كلمات المرور المؤقتة المولّدة من النظام. عند تغيير المستخدم لكلمته تصبح القيمة القديمة بلا فائدة. لا تشارك هذه الصفحة مع أي شخص آخر.</div>
+</div>
+
+<% if (entries.length) { %>
+  <div class="table-card">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>#</th><th>الاسم</th><th>الدور</th><th>المعرّف</th><th>كلمة المرور المؤقتة</th><th>آخر تحديث</th></tr></thead>
+        <tbody>
+          <% for (const entry of entries) { %>
+            <tr>
+              <td><%= entry.user_id %></td>
+              <td><strong><%= entry.user ? entry.user.name : '—' %></strong></td>
+              <td><%= entry.user && entry.user.role === 'teacher' ? 'أستاذ' : 'طالب' %></td>
+              <td dir="ltr" style="text-align:left;"><code><%= entry.user ? (entry.user.university_id || entry.user.email || '—') : '—' %></code></td>
+              <td dir="ltr" style="text-align:left;"><code><%= entry.password_plain %></code></td>
+              <td><%= format.formatDateTime(entry.updated_at) %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } else { %>
+  <div class="empty-state"><h3>الخزنة فارغة</h3><p>لا توجد كلمات مرور مؤقتة مولّدة حالياً.</p></div>
+<% } %>

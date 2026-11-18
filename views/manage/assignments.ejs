@@ -1,0 +1,36 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>الواجبات</h2>
+    <p>واجبات مقرراتك — إنشاء ومتابعة التسليمات مع التصحيح.</p>
+  </div>
+  <div class="page-header-actions">
+    <a class="btn btn-primary" href="<%= basePath %>/assignments/new">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:15px;height:15px;"><path d="M12 5v14M5 12h14"/></svg>
+      واجب جديد
+    </a>
+  </div>
+</section>
+
+<% if (assignments.length) { %>
+  <div class="table-card">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>الواجب</th><th>المقرر</th><th>الموعد</th><th>الدرجة القصوى</th><th>التسليمات</th><th></th></tr></thead>
+        <tbody>
+          <% for (const assignment of assignments) { %>
+            <tr>
+              <td><strong><%= assignment.title %></strong></td>
+              <td><code><%= assignment.course ? assignment.course.code : '—' %></code></td>
+              <td><%= assignment.due_at ? format.formatDateTime(assignment.due_at) : 'بدون موعد' %></td>
+              <td><%= assignment.max_points %></td>
+              <td><%= assignment.submissionsCount %></td>
+              <td><a class="chip" href="<%= basePath %>/assignments/<%= assignment.id %>">تصحيح</a></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } else { %>
+  <div class="empty-state"><h3>لا توجد واجبات</h3><p>لم تُنشأ أي واجبات بعد — ابدأ بإضافة أول واجب.</p></div>
+<% } %>

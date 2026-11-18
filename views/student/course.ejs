@@ -1,0 +1,58 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2><%= course.title %></h2>
+    <p><code><%= course.code %></code> · <%= teacher ? teacher.name : 'أستاذ المقرر' %></p>
+  </div>
+</section>
+
+<% if (course.description) { %>
+  <div class="table-card" style="margin-bottom:20px;">
+    <div class="table-card-head"><h3>عن المقرر</h3></div>
+    <div class="side-card-body" style="padding:18px 22px;line-height:2;color:var(--text-secondary);"><%= course.description %></div>
+  </div>
+<% } %>
+
+<!-- ملخص الدرجة -->
+<% const label = gradeLabel(grade.total); %>
+<div class="course-grade-card" style="margin-bottom:20px;">
+  <div class="course-grade-body">
+    <div class="grade-breakdown">
+      <div class="breakdown-row">
+        <div class="breakdown-head"><span>الحضور <span class="badge-weight"><%= grade.attendance.weight %>%</span></span><strong><%= grade.attendance.earned %> / <%= grade.attendance.weight %></strong></div>
+        <div class="breakdown-bar attendance"><span style="width:<%= grade.attendance.ratio %>%"></span></div>
+      </div>
+      <div class="breakdown-row">
+        <div class="breakdown-head"><span>الاختبارات <span class="badge-weight"><%= grade.exams.weight %>%</span></span><strong><%= grade.exams.earned %> / <%= grade.exams.weight %></strong></div>
+        <div class="breakdown-bar exams"><span style="width:<%= grade.exams.ratio %>%"></span></div>
+      </div>
+      <div class="breakdown-row">
+        <div class="breakdown-head"><span>الواجبات <span class="badge-weight"><%= grade.assignments.weight %>%</span></span><strong><%= grade.assignments.earned %> / <%= grade.assignments.weight %></strong></div>
+        <div class="breakdown-bar assignments"><span style="width:<%= grade.assignments.ratio %>%"></span></div>
+      </div>
+    </div>
+    <div class="course-grade-total">
+      <span class="total-label">الدرجة النهائية</span>
+      <span class="total-value" style="--total-color:var(--success);"><%= grade.total %><small>/100 — <%= grade.letter %></small></span>
+    </div>
+  </div>
+</div>
+
+<!-- المحاضرات -->
+<div class="table-card">
+  <div class="table-card-head"><h3>محاضرات المقرر (<%= lectures.length %>)</h3></div>
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead><tr><th>المحاضرة</th><th>الموعد</th><th>النوع</th><th></th></tr></thead>
+      <tbody>
+        <% for (const lecture of lectures) { %>
+          <tr>
+            <td><strong><%= lecture.title %></strong></td>
+            <td><%= format.formatDateTime(lecture.scheduled_at) %></td>
+            <td><span class="chip"><%= lecture.lecture_type === 'direct' ? 'مباشر' : (lecture.lecture_type === 'online' ? 'أونلاين' : 'مسجل') %></span></td>
+            <td><a class="chip" href="/student/lectures/<%= lecture.id %>">عرض</a></td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>

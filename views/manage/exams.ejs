@@ -1,0 +1,37 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>الاختبارات</h2>
+    <p>اختبارات مقرراتك — إنشاء ومتابعة المحاولات وتصحيح الأسئلة المقالية.</p>
+  </div>
+  <div class="page-header-actions">
+    <a class="btn btn-primary" href="<%= basePath %>/exams/new">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:15px;height:15px;"><path d="M12 5v14M5 12h14"/></svg>
+      اختبار جديد
+    </a>
+  </div>
+</section>
+
+<% if (exams.length) { %>
+  <div class="table-card">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>الاختبار</th><th>المقرر</th><th>يبدأ</th><th>الأسئلة</th><th>المحاولات</th><th>الحالة</th><th></th></tr></thead>
+        <tbody>
+          <% for (const exam of exams) { %>
+            <tr>
+              <td><strong><%= exam.title %></strong></td>
+              <td><code><%= exam.course ? exam.course.code : '—' %></code></td>
+              <td><%= exam.starts_at ? format.formatDateTime(exam.starts_at) : '—' %></td>
+              <td><%= exam.questionsCount %></td>
+              <td><%= exam.attemptsCount %></td>
+              <td><span class="chip"><%= exam.is_published ? 'منشور' : 'مسودة' %></span></td>
+              <td><a class="chip" href="<%= basePath %>/exams/<%= exam.id %>">إدارة</a></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } else { %>
+  <div class="empty-state"><h3>لا توجد اختبارات</h3><p>لم تُنشأ أي اختبارات بعد — ابدأ بإضافة أول اختبار.</p></div>
+<% } %>

@@ -3,6 +3,9 @@
     <h2>المستخدمون</h2>
     <p>جميع حسابات المنصة — الأساتذة والطلاب.</p>
   </div>
+  <div class="page-header-actions">
+    <a class="btn btn-primary" href="/owner/users/new">إضافة مستخدم</a>
+  </div>
 </section>
 
 <div class="filter-tabs" style="margin-bottom:16px;">
@@ -16,7 +19,7 @@
     <div class="table-scroll">
       <table class="data-table">
         <thead>
-          <tr><th>#</th><th>الاسم</th><th>الدور</th><th>المعرّف</th><th>المسار/المستوى</th><th>الحالة</th><th>آخر دخول</th></tr>
+          <tr><th>#</th><th>الاسم</th><th>الدور</th><th>المعرّف</th><th>المسار/المستوى</th><th>الحالة</th><th>آخر دخول</th><th>إجراءات</th></tr>
         </thead>
         <tbody>
           <% for (const user of users) { %>
@@ -28,6 +31,14 @@
               <td><%= user.role === 'student' ? (user.track === 'equiv' ? 'قسم المعادلة' : 'البكالوريوس') + (user.level ? ' — م' + user.level : '') : (user.position || 'عضو هيئة التدريس') %></td>
               <td><span class="chip" style="<%= user.is_active ? 'border-color:var(--success-border);color:var(--success);' : 'border-color:var(--danger-border);color:var(--danger);' %>"><%= user.is_active ? 'نشط' : 'موقوف' %></span></td>
               <td class="muted"><%= user.last_login ? format.formatDateTime(user.last_login) : '—' %></td>
+              <td style="white-space:nowrap;">
+                <form method="post" action="/owner/users/<%= user.id %>/toggle" style="display:inline;">
+                  <button type="submit" class="chip" style="cursor:pointer;border:1px solid var(--border);background:var(--bg-subtle);"><%= user.is_active ? 'إيقاف' : 'تفعيل' %></button>
+                </form>
+                <form method="post" action="/owner/users/<%= user.id %>/reset-password" style="display:inline;">
+                  <button type="submit" class="chip" style="cursor:pointer;border:1px solid var(--border);background:var(--bg-subtle);">إعادة كلمة المرور</button>
+                </form>
+              </td>
             </tr>
           <% } %>
         </tbody>

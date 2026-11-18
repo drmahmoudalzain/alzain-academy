@@ -1,0 +1,44 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>المحاضرات</h2>
+    <p>كل محاضرات مقرراتك — مع حالة الحضور ورمز التسجيل.</p>
+  </div>
+  <div class="page-header-actions">
+    <a class="btn btn-primary" href="<%= basePath %>/lectures/new">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:15px;height:15px;"><path d="M12 5v14M5 12h14"/></svg>
+      محاضرة جديدة
+    </a>
+  </div>
+</section>
+
+<div class="filter-tabs" style="margin-bottom:16px;">
+  <a class="filter-tab <%= type === 'all' ? 'active' : '' %>" href="<%= basePath %>/lectures">الكل</a>
+  <a class="filter-tab <%= type === 'direct' ? 'active' : '' %>" href="<%= basePath %>/lectures?type=direct">مباشر</a>
+  <a class="filter-tab <%= type === 'online' ? 'active' : '' %>" href="<%= basePath %>/lectures?type=online">أونلاين</a>
+  <a class="filter-tab <%= type === 'recorded' ? 'active' : '' %>" href="<%= basePath %>/lectures?type=recorded">مسجل</a>
+</div>
+
+<% if (lectures.length) { %>
+  <div class="table-card">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>المحاضرة</th><th>المقرر</th><th>الموعد</th><th>النوع</th><th>الحضور</th><th>رمز الحضور</th><th></th></tr></thead>
+        <tbody>
+          <% for (const lecture of lectures) { %>
+            <tr>
+              <td><strong><%= lecture.title %></strong></td>
+              <td><code><%= lecture.course ? lecture.course.code : '—' %></code></td>
+              <td><%= format.formatDateTime(lecture.scheduled_at) %></td>
+              <td><span class="chip"><%= lecture.lecture_type === 'direct' ? 'مباشر' : (lecture.lecture_type === 'online' ? 'أونلاين' : 'مسجل') %></span></td>
+              <td><%= lecture.attendanceCount %> حضور</td>
+              <td><%= lecture.attendance_open ? (lecture.attendance_code || 'مفتوح') : 'مغلق' %></td>
+              <td><a class="chip" href="<%= basePath %>/lectures/<%= lecture.id %>">إدارة</a></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } else { %>
+  <div class="empty-state"><h3>لا توجد محاضرات</h3><p>لم تُسجّل أي محاضرة بعد — ابدأ بإضافة أول محاضرة.</p></div>
+<% } %>

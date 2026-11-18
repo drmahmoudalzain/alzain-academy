@@ -16,6 +16,7 @@ import {
   getNotifications,
   getPoints,
   gradeLabel,
+  isEnrolled,
 } from "../lib/student-data.js";
 import { formatDate, formatPercent, isPast, sameDay } from "../lib/format.js";
 
@@ -934,6 +935,82 @@ router.get("/points", requirePortal("student"), async (req, res, next) => {
       weekly,
       myRank: leaderboard.find((row) => row.isMe)?.rank ?? null,
       flash: flashFrom(req.query),
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ---------- مقرراتي ----------
+router.get("/courses", requirePortal("student"), async (req, res, next) => {
+  try {
+    const studentId = req.user.id;
+    const { courses, courseIds } = await courseContext(studentId);
+    const [attendance, badges] = await Promise.all([
+      getAttendanceSummary(studentId, courseIds),
+      loadBadges(studentId, courseIds),
+    ]);
+
+    for (const course of courses) {
+      const courseLectures = attendance.lectures.filter((lecture) => lecture.course_id === course.id);
+      const past = courseLectures.filter((lecture) => lecture.scheduled_at && new Date(lecture.scheduled_at).getTime() <= Date.now());
+      const attendedCount = courseLectures.filter((lecture) => attendance.attended.has(lecture.id)).length;
+      course.progress = past.length ? Math.round((attendedCount / past.length) * 100) : 0;
+      course.totalLectures = courseLectures.length;
+    }
+
+    res.locals.navBadges = badges;
+    return portalPage(res, "student/courses", {
+      title: "مقرراتي",
+      pageTitle: "مقرراتي",
+      courses,
+      attendance,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/courses/:id", requirePortal("student"), async (req, res, next) => {
+  try {
+    const studentId = req.user.id;
+    const courseId = Number(req.params.id);
+    if (!(await isEnrolled(studentId, courseId))) {
+      return renderPage(res.status(404), "error", {
+        title: "المقرر غير موجود",
+        layout: "base",
+        styles: ["/css/views/home.css"],
+        bodyClass: "site-page",
+        code: 404,
+        message: "المقرر غير موجود أو لا تملك صلاحية الوصول إليه.",
+      });
+    }
+
+    const { data: course, error } = await db
+      .from("courses")
+      .select("*")
+      .eq("id", courseId)
+      .maybeSingle();
+    if (error) throw error;
+
+    const [teacherRes, lecturesRes, grade, badges] = await Promise.all([
+      db.from("users").select("id, name, position, email").eq("id", course.teacher_id).maybeSingle(),
+      db.from("lectures").select("id, title, lecture_type, scheduled_at, duration_min, attendance_open").eq("course_id", courseId).order("scheduled_at", { ascending: false }),
+      getCourseGrade(course, studentId),
+      courseContext(studentId).then(({ courseIds }) => loadBadges(studentId, courseIds)),
+    ]);
+    if (teacherRes.error) throw teacherRes.error;
+    if (lecturesRes.error) throw lecturesRes.error;
+
+    res.locals.navBadges = badges;
+    return portalPage(res, "student/course", {
+      title: course.title,
+      pageTitle: "تفاصيل المقرر",
+      course,
+      gradeLabel,
+      teacher: teacherRes.data ?? null,
+      lectures: lecturesRes.data ?? [],
+      grade,
     });
   } catch (error) {
     next(error);

@@ -8,6 +8,9 @@ import authRouter from "./src/routes/auth.js";
 import ownerRouter from "./src/routes/owner.js";
 import teacherRouter from "./src/routes/teacher.js";
 import studentRouter from "./src/routes/student.js";
+import { createNotificationsRouter } from "./src/lib/notifications.js";
+import { createAssistantRouter } from "./src/lib/assistant.js";
+import { createLibraryRouter } from "./src/lib/library.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -57,6 +60,9 @@ app.use("/", authRouter);
 app.use("/owner", ownerRouter);
 app.use("/teacher", teacherRouter);
 app.use("/student", studentRouter);
+app.use("/notifications", createNotificationsRouter());
+app.use("/assistant", createAssistantRouter());
+app.use("/library", createLibraryRouter());
 
 app.use((req, res) => {
   res.status(404);
@@ -74,6 +80,14 @@ app.use((req, res) => {
 app.use((error, req, res, _next) => {
   console.error("خطأ غير متوقع:", error);
   if (res.headersSent) return;
+  if (String(error?.message ?? "").includes("invalid input syntax for type bigint")) {
+    return renderPage(res.status(400), "error", {
+      title: "طلب غير صالح",
+      layout: "auth",
+      code: 400,
+      message: "معرّف رقمي غير صحيح في الطلب.",
+    }).catch(() => res.type("text/plain").send("400 — طلب غير صالح"));
+  }
   res.status(500);
   renderPage(res, "error", {
     title: "خطأ في الخادم",

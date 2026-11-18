@@ -1,0 +1,73 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>الإعدادات</h2>
+    <p>إعدادات المنصة العامة — التعديل فوري ويسري على جميع المستخدمين.</p>
+  </div>
+</section>
+
+<% if (saved) { %>
+  <div class="alert-inline success" role="status">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+    <div>تم حفظ الإعدادات.</div>
+  </div>
+<% } %>
+
+<form method="post" action="/owner/settings">
+
+  <div class="table-card" style="margin-bottom:20px;">
+    <div class="table-card-head"><h3>الهوية</h3></div>
+    <div class="side-card-body" style="padding:24px;">
+      <div class="form-grid">
+        <label>اسم المنصة
+          <input type="text" name="platform_name" value="<%= settings.platform_name || '' %>" maxlength="160">
+        </label>
+        <label>الشعار / الوصف المختصر
+          <textarea name="platform_tagline" rows="2" maxlength="400"><%= settings.platform_tagline || '' %></textarea>
+        </label>
+        <label>علامة مائية (تظهر على ملفات العرض)
+          <input type="text" name="watermark_text" value="<%= settings.watermark_text || '' %>" maxlength="120">
+        </label>
+        <label>العنوان اللاتيني<
+          <input type="text" name="watermark_latin" value="<%= settings.watermark_latin || '' %>" maxlength="120" dir="ltr" style="text-align:left;">
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-card" style="margin-bottom:20px;">
+    <div class="table-card-head"><h3>البوابات والتسجيل</h3></div>
+    <div class="side-card-body" style="padding:24px;">
+      <label class="checkbox-row" style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <input type="checkbox" name="owner_all_gates" <%= settings.owner_all_gates === '1' ? 'checked' : '' %>>
+        <span><strong>المالك يستطيع دخول بوابتي الأستاذ والطالب</strong> — بخلاف ذلك فدخول المالك محصور ببوابة المالك (+ 403 لأي بوابة أخرى).</span>
+      </label>
+      <label class="checkbox-row" style="display:flex;align-items:center;gap:10px;">
+        <input type="checkbox" name="allow_student_register" <%= settings.allow_student_register === '1' ? 'checked' : '' %>>
+        <span><strong>السماح بتسجيل طلاب جدد</strong> — يظهر خيار «طلب التسجيل» للطلاب الجدد من صفحة الدخول.</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="table-card" style="margin-bottom:20px;">
+    <div class="table-card-head"><h3>المساعد الذكي (Gemini)</h3></div>
+    <div class="side-card-body" style="padding:24px;">
+      <p class="muted" style="margin-top:0;">ادخل مفتاح Google AI (Gemini) لتفعيل المساعد — بعد الحفظ سيعمل المساعد لكل المستخدمين.</p>
+      <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+        <label>المزوّد
+          <input type="text" name="ai_provider" value="<%= settings.ai_provider || 'gemini' %>" dir="ltr" style="text-align:left;">
+        </label>
+        <label>النموذج
+          <input type="text" name="ai_model" value="<%= settings.ai_model || 'gemini-2.5-flash' %>" dir="ltr" style="text-align:left;">
+        </label>
+      </div>
+      <label style="margin-top:12px;display:grid;gap:7px;font-size:0.84rem;color:var(--text-secondary);font-weight:500;">مفتاح API
+        <input type="password" name="ai_api_key" value="<%= settings.ai_api_key || '' %>" autocomplete="off" placeholder="AIza..." dir="ltr" style="text-align:left;">
+      </label>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:10px;">
+    <button type="submit" class="btn btn-primary">حفظ الإعدادات</button>
+    <a class="btn btn-secondary" href="/owner">إلغاء</a>
+  </div>
+</form>

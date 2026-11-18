@@ -1,0 +1,89 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2><%= exam.title %></h2>
+    <p><code><%= course ? course.code : '' %></code> · <%= attempts.length %> محاولة · <%= questions.length %> أسئلة</p>
+  </div>
+</section>
+
+<div class="table-card" style="margin-bottom:20px;">
+  <div class="table-card-head"><h3>تفاصيل الاختبار</h3></div>
+  <div class="table-scroll">
+    <table class="data-table">
+      <tbody>
+        <tr><th scope="row">المنشور</th><td><span class="chip"><%= exam.is_published ? 'منشور' : 'مسودة' %></span></td></tr>
+        <tr><th scope="row">المدة</th><td><%= exam.duration_min || 60 %> دقيقة</td></tr>
+        <tr><th scope="row">يبدأ</th><td><%= exam.starts_at ? format.formatDateTime(exam.starts_at) : '—' %></td></tr>
+        <tr><th scope="row">ينتهي</th><td><%= exam.ends_at ? format.formatDateTime(exam.ends_at) : '—' %></td></tr>
+        <tr><th scope="row">عدد الأسئلة</th><td><%= questions.length %></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- محاولات الطلاب -->
+<div class="table-card" style="margin-bottom:20px;">
+  <div class="table-card-head"><h3>محاولات الطلاب (<%= attempts.length %>)</h3></div>
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead><tr><th>#</th><th>الطالب</th><th>الرقم</th><th>بدأ</th><th>سلّم</th><th>الدرجة</th><th>الحالة</th></tr></thead>
+      <tbody>
+        <% if (attempts.length) { %>
+          <% for (const attempt of attempts) { %>
+            <tr>
+              <td><%= attempt.id %></td>
+              <td><strong><%= attempt.user ? attempt.user.name : 'مستخدم #' + attempt.student_id %></strong></td>
+              <td dir="ltr" style="text-align:left;"><code><%= attempt.user ? (attempt.user.university_id ?? '—') : '—' %></code></td>
+              <td><%= format.formatDateTime(attempt.started_at) %></td>
+              <td><%= attempt.submitted_at ? format.formatDateTime(attempt.submitted_at) : 'لم يسلّم' %></td>
+              <td><strong><%= attempt.score != null ? attempt.score : '—' %></strong></td>
+              <td><span class="chip"><%= attempt.status === 'graded' ? 'مُصحّح' : (attempt.status === 'submitted' ? 'بانتظار التصحيح' : 'قيد التنفيذ') %></span></td>
+            </tr>
+          <% } %>
+        <% } else { %>
+          <tr><td colspan="7" class="muted text-center">لم يبدأ أي طالب الاختبار بعد.</td></tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- تصحيح الأسئلة المقالية -->
+<% const essayAttempts = attempts.filter(a => (a.essayAnswers || []).length) %>
+<% if (essayAttempts.length) { %>
+  <form method="post" action="<%= basePath %>/exams/<%= exam.id %>/grade-essay">
+    <div class="table-card">
+      <div class="table-card-head">
+        <h3>تصحيح الأسئلة المقالية (<%= essayAttempts.length %>)</h3>
+        <button type="submit" class="btn btn-primary btn-sm">حفظ التصحيح وإعادة احتساب الدرجة</button>
+      </div>
+      <div class="side-card-body" style="padding:16px 18px;display:grid;gap:16px;">
+        <% for (const attempt of essayAttempts) { %>
+          <% for (const answer of attempt.essayAnswers) { const q = answer.question; %>
+            <div style="border:1px solid var(--border);border-radius:12px;padding:14px;background:var(--bg-subtle);">
+              <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px;">
+                <div>
+                  <strong><%= attempt.user ? attempt.user.name : 'طالب #' + attempt.student_id %></strong>
+                  <span class="muted"> — سؤال مقالي (<%= q ? q.points : '' %> نقطة)</span>
+                </div>
+                <span class="chip">#<%= q ? q.position : '' %></span>
+              </div>
+              <p style="line-height:1.8;"><%= q ? q.text : '' %></p>
+              <pre style="white-space:pre-wrap;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:12px;margin:0;line-height:1.9;"><%= answer.text || '(بدون إجابة)' %></pre>
+              <div class="form-grid" style="grid-template-columns: 130px 1fr;margin-top:10px;">
+                <input type="hidden" name="answers" value="<%= answer.id %>">
+                <label>الدرجة
+                  <input type="number" name="points" value="<%= answer.points != null ? answer.points : '' %>" min="0" max="<%= q ? q.points : 100 %>" step="0.5" required>
+                </label>
+                <label>ملاحظة للطالب
+                  <input type="text" name="feedback" value="<%= answer.feedback || '' %>" placeholder="ملاحظة اختيارية...">
+                </label>
+              </div>
+            </div>
+          <% } %>
+        <% } %>
+      </div>
+    </div>
+  </form>
+<% } else if (essayIds.length) { %>
+  <div class="empty-state"><h3>لا توجد إجابات مقالية بعد</h3><p>عندما يسلّم الطلاب الاختبار وتوجد أسئلة مقالية ستظهر هنا للتصحيح.</p></div>
+<% } %>

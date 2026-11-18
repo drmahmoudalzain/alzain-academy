@@ -1,0 +1,36 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2><%= resetExisting ? 'إعادة تعيين كلمة المرور' : 'تم إنشاء الحساب' %></h2>
+    <p>كلمة المرور المؤقتة معروضة مرة واحدة فقط في هذه الصفحة — احتفظ بها أو سلّمها للمستخدم بأمان.</p>
+  </div>
+</section>
+
+<div class="table-card" style="max-width:620px;">
+  <div class="table-card-head"><h3>بيانات الدخول</h3></div>
+  <div class="side-card-body" style="padding:24px;">
+    <div class="table-scroll">
+      <table class="data-table">
+        <tbody>
+          <% if (newUser.university_id) { %><tr><th scope="row">الرقم الجامعي</th><td dir="ltr" style="text-align:left;"><code><%= newUser.university_id %></code></td></tr><% } %>
+          <% if (newUser.email) { %><tr><th scope="row">البريد</th><td dir="ltr" style="text-align:left;"><code><%= newUser.email %></code></td></tr><% } %>
+          <tr><th scope="row">الاسم</th><td><strong><%= newUser.name %></strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div style="margin:18px 0;">
+      <div class="form-hint mb-0" style="margin-bottom:6px;">كلمة المرور المؤقتة</div>
+      <code dir="ltr" style="display:block;font-size:1.3rem;letter-spacing:0.08em;background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:10px;padding:12px 16px;user-select:all;text-align:left;"><%= tempPassword %></code>
+    </div>
+
+    <div class="alert-inline warning" role="note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      <div>سيُطلب من المستخدم تغيير كلمة المرور فوراً عند أول دخول. تُحفظ النسخة الأصلية في <a href="/owner/vault">خزنة كلمات المرور</a>.</div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:16px;">
+      <a class="btn btn-primary" href="/owner/users">العودة إلى المستخدمين</a>
+      <a class="btn btn-secondary" href="/owner/vault">خزنة كلمات المرور</a>
+    </div>
+  </div>
+</div>

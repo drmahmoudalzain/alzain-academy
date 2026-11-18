@@ -1,0 +1,60 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2><%= item.title %></h2>
+    <p><%= item.library_sections ? item.library_sections.name : 'المكتبة' %></p>
+  </div>
+</section>
+
+<div class="table-card" style="margin-bottom:20px;">
+  <div class="table-card-head"><h3>بطاقة العنصر</h3></div>
+  <div class="table-scroll">
+    <table class="data-table">
+      <tbody>
+        <tr><th scope="row">النوع</th><td><span class="chip"><%= item.kind === 'book' ? 'كتاب' : (item.kind === 'research' ? 'بحث' : (item.kind === 'video' ? 'فيديو' : 'رابط')) %></span></td></tr>
+        <% if (item.researcher) { %><tr><th scope="row">الباحث/المؤلف</th><td><%= item.researcher %></td></tr><% } %>
+        <% if (item.journal) { %><tr><th scope="row">المجلة/الجهة</th><td><%= item.journal %></td></tr><% } %>
+        <% if (item.publish_year) { %><tr><th scope="row">سنة النشر</th><td><%= item.publish_year %></td></tr><% } %>
+        <% if (item.doi) { %><tr><th scope="row">DOI</th><td dir="ltr" style="text-align:left;"><code><%= item.doi %></code></td></tr><% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<% if (item.abstract) { %>
+  <div class="table-card" style="margin-bottom:20px;">
+    <div class="table-card-head"><h3>الملخص</h3></div>
+    <div class="side-card-body" style="padding:18px 22px;line-height:2;color:var(--text-secondary);"><%= item.abstract %></div>
+  </div>
+<% } %>
+
+<% if (item.description) { %>
+  <div class="table-card" style="margin-bottom:20px;">
+    <div class="table-card-head"><h3>الوصف</h3></div>
+    <div class="side-card-body" style="padding:18px 22px;line-height:1.9;color:var(--text-secondary);"><%= item.description %></div>
+  </div>
+<% } %>
+
+<% const isYoutube = item.filename && /youtu\.?be|youtube\.com/.test(item.filename);
+   const embed = isYoutube && item.filename.match(/[?&]v=([\w-]{6,})/)?.[1] ? `https://www.youtube.com/embed/${item.filename.match(/[?&]v=([\w-]{6,})/)[1]}?rel=0` : (isYoutube && /youtu\.be\/([\w-]{6,})/.test(item.filename) ? `https://www.youtube.com/embed/${item.filename.match(/youtu\.be\/([\w-]{6,})/)[1]}?rel=0` : null);
+   const isUrl = item.filename && /^https?:\/\//.test(item.filename); %>
+
+<% if (embed) { %>
+  <div class="video-wrapper" style="border-radius:14px;overflow:hidden;border:1px solid var(--border);margin-bottom:12px;">
+    <iframe src="<%= embed %>" title="<%= item.title %>" width="100%" height="420" style="border:0;" allowfullscreen loading="lazy"></iframe>
+  </div>
+  <p class="muted" style="font-size:0.78rem;">نسخة خاصة — غير مسموح بالمشاركة خارج الأكاديمية.</p>
+<% } else if (isUrl) { %>
+  <a class="btn btn-primary" href="<%= item.filename %>" target="_blank" rel="noopener noreferrer">فتح / تحميل العنصر</a>
+<% } else if (item.filename) { %>
+  <div class="alert-inline info" role="note">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <div>الملف متوفر داخل منصة الأكاديمية فقط — تواصل مع إدارة المكتبة للوصول إليه.</div>
+  </div>
+<% } else { %>
+  <div class="alert-inline info" role="note">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    <div>لا توجد نسخة رقمية متاحة لهذا العنصر بعد — راجع الفهرس أو تواصل مع إدارة المكتبة.</div>
+  </div>
+<% } %>
+
+<div style="margin-top:18px;"><a class="btn btn-secondary" href="/library">العودة إلى المكتبة</a></div>

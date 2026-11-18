@@ -1,0 +1,52 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>تصحيح الواجب</h2>
+    <p><%= assignment.title %> — <code><%= course ? course.code : '' %></code></p>
+  </div>
+</section>
+
+<div class="table-card" style="margin-bottom:20px;">
+  <div class="table-card-head"><h3>تفاصيل الواجب</h3></div>
+  <div class="table-scroll">
+    <table class="data-table">
+      <tbody>
+        <tr><th scope="row">الدرجة القصوى</th><td><%= assignment.max_points %></td></tr>
+        <tr><th scope="row">آخر موعد</th><td><%= assignment.due_at ? format.formatDateTime(assignment.due_at) : 'بدون موعد' %></td></tr>
+        <tr><th scope="row">عدد التسليمات</th><td><%= submissions.length %></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<% if (submissions.length) { %>
+  <form method="post" action="<%= basePath %>/assignments/<%= assignment.id %>/grade">
+    <div class="table-card">
+      <div class="table-card-head">
+        <h3>التسليمات (<%= submissions.length %>)</h3>
+        <button type="submit" class="btn btn-primary btn-sm">حفظ التصحيح</button>
+      </div>
+      <div class="side-card-body" style="padding:16px 18px;display:grid;gap:14px;">
+        <% for (const submission of submissions) { %>
+          <div style="border:1px solid var(--border);border-radius:12px;padding:14px;background:var(--bg-subtle);">
+            <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:8px;">
+              <strong><%= submission.user ? submission.user.name : 'مستخدم #' + submission.student_id %></strong>
+              <span class="muted">سُلّم <%= format.formatDateTime(submission.submitted_at) %></span>
+            </div>
+            <pre style="white-space:pre-wrap;background:var(--bg-surface);border:1px solid var(--border);border-radius:10px;padding:12px;margin:0;max-height:220px;overflow:auto;line-height:1.9;"><%= submission.text %></pre>
+            <div class="form-grid" style="grid-template-columns: 120px 1fr;margin-top:10px;">
+              <input type="hidden" name="submission_id" value="<%= submission.id %>">
+              <label>الدرجة
+                <input type="number" name="points" value="<%= submission.points != null ? submission.points : '' %>" min="0" max="<%= assignment.max_points %>" step="0.5" required>
+              </label>
+              <label>ملاحظة للطالب
+                <input type="text" name="feedback" value="<%= submission.feedback || '' %>" placeholder="ملاحظة اختيارية...">
+              </label>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </form>
+<% } else { %>
+  <div class="empty-state"><h3>لا توجد تسليمات بعد</h3><p>عندما يسلّم الطلاب واجباتهم ستظهر هنا للتصحيح.</p></div>
+<% } %>

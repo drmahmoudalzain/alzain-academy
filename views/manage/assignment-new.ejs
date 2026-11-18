@@ -1,0 +1,46 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>إضافة واجب</h2>
+    <p>بيانات الواجب — وحدد آخر موعد للتسليم والدرجة القصوى.</p>
+  </div>
+</section>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="alert-inline error" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <div><%= error %></div>
+  </div>
+<% } %>
+
+<form method="post" action="<%= basePath %>/assignments" class="table-card">
+  <div class="side-card-body" style="padding:24px;">
+    <div class="form-grid">
+      <label>المقرر *
+        <select name="course_id" required>
+          <% for (const course of courses) { %>
+            <option value="<%= course.id %>" <%= selectedCourse === course.id ? 'selected' : '' %>><%= course.code %> — <%= course.title %></option>
+          <% } %>
+        </select>
+      </label>
+      <label>عنوان الواجب *
+        <input type="text" name="title" required maxlength="180" placeholder="مثال: بحث — مصادر القانون">
+      </label>
+      <label>التعليمات
+        <textarea name="description" rows="5" maxlength="4000" placeholder="المطلوب من الطلاب بالتفصيل..."></textarea>
+      </label>
+      <div class="form-grid" style="grid-template-columns: 1.4fr 1fr;">
+        <label>آخر موعد للتسليم
+          <input type="datetime-local" name="due_at">
+        </label>
+        <label>الدرجة القصوى
+          <input type="number" name="max_points" value="10" min="1" max="1000" step="0.5">
+        </label>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:18px;">
+      <button type="submit" class="btn btn-primary">حفظ الواجب</button>
+      <a class="btn btn-secondary" href="<%= basePath %>/assignments">إلغاء</a>
+    </div>
+  </div>
+</form>

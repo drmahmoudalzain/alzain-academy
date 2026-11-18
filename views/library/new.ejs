@@ -1,0 +1,71 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>إضافة عنصر للمكتبة</h2>
+    <p>أضف كتاباً أو بحثاً أو درساً فيديو — يُحفظ في القسم المختار.</p>
+  </div>
+</section>
+
+<% if (error) { %>
+  <div class="alert-inline error" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <div><%= error %></div>
+  </div>
+<% } %>
+
+<form method="post" action="/library" class="table-card">
+  <div class="side-card-body" style="padding:24px;">
+    <div class="form-grid">
+      <label>القسم *
+        <select name="section_id">
+          <% for (const section of sections) { %><option value="<%= section.id %>"><%= section.name %></option><% } %>
+        </select>
+      </label>
+      <label>أو أنشئ قسماً جديداً
+        <input type="text" name="new_section" placeholder="اسم القسم الجديد (اختياري)">
+      </label>
+      <label>العنوان *
+        <input type="text" name="title" required maxlength="220" placeholder="مثال: القانون المدني — المطّلع">
+      </label>
+      <label>الوصف / الملخص
+        <textarea name="abstract" rows="3" maxlength="3000" placeholder="ملخص مختصر..."></textarea>
+      </label>
+
+      <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+        <label>النوع
+          <select name="kind">
+            <option value="book">كتاب</option>
+            <option value="research">بحث علمي</option>
+            <option value="video">فيديو / درس</option>
+            <option value="link">رابط</option>
+          </select>
+        </label>
+        <label>سنة النشر
+          <input type="number" name="publish_year" min="1900" max="2100" placeholder="2026">
+        </label>
+      </div>
+
+      <label>الرابط (URL)
+        <span class="form-hint">رابط مباشر للكتاب أو الفيديو أو DOI — مثال: رابط يوتيوب للدروس</span>
+        <input type="url" name="url" dir="ltr" style="text-align:left;" placeholder="https://...">
+      </label>
+
+      <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+        <label>الباحث / المؤلف
+          <input type="text" name="researcher" maxlength="120" placeholder="مثال: د. عبد الكريم زيدان">
+        </label>
+        <label>المجلة / الدار
+          <input type="text" name="journal" maxlength="160" placeholder="مثال: مجلة العلوم القانونية">
+        </label>
+      </div>
+
+      <label>DOI
+        <input type="text" name="doi" dir="ltr" style="text-align:left;" placeholder="10.xxxx/xxxxx">
+      </label>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:18px;">
+      <button type="submit" class="btn btn-primary">حفظ العنصر</button>
+      <a class="btn btn-secondary" href="/library">إلغاء</a>
+    </div>
+  </div>
+</form>

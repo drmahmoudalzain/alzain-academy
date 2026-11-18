@@ -1,0 +1,48 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>التقرير الشامل</h2>
+    <p>ملخص المنصة لكل الطلاب — تُطبع أو تُحفظ PDF من المتصفح.</p>
+  </div>
+  <div class="page-header-actions">
+    <a class="btn btn-secondary" href="/owner/report/csv">تحميل CSV</a>
+    <button class="btn btn-primary" onclick="window.print()">طباعة / حفظ PDF</button>
+  </div>
+</section>
+
+<div class="table-card">
+  <div class="table-card-head">
+    <h3>أكاديمية آل الزين للعلوم القانونية والعدلية — تقرير الطلاب الشامل</h3>
+    <span class="chip"><%= generatedAt.toLocaleString('ar', { numberingSystem: 'latn' }) %></span>
+  </div>
+  <div style="overflow-x:auto;">
+    <table class="data-table">
+      <thead>
+        <tr><th>#</th><th>الاسم</th><th>الرقم الجامعي</th><th>المقررات</th><th>متوسط الدرجات</th><th>نسبة الحضور</th><th>النقاط</th></tr>
+      </thead>
+      <tbody>
+        <% for (const student of students) { %>
+          <tr>
+            <td><%= student.id %></td>
+            <td><strong><%= student.name %></strong></td>
+            <td dir="ltr" style="text-align:left;"><code><%= student.code %></code></td>
+            <td><%= student.courses %></td>
+            <td><%= student.average %>%</td>
+            <td><%= student.attendanceRate %>%</td>
+            <td><%= student.points %></td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+@media print {
+  .sidebar, .topbar, .sidebar-overlay, .page-header-actions, form button, .app-footer { display: none !important; }
+  .app { display: block; }
+  .main { margin: 0 !important; }
+  body { background: #fff !important; }
+  .content { padding: 0 !important; }
+  .table-card { box-shadow: none; border: 1px solid #ddd; }
+}
+</style>

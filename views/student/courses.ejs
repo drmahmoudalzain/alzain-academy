@@ -1,0 +1,40 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>مقرراتي</h2>
+    <p>المقررات المسجّل فيها — مع تقدّمك وعدد المحاضرات في كل مقرر.</p>
+  </div>
+</section>
+
+<% if (courses.length) { %>
+  <div class="courses-grades-grid">
+    <% for (const course of courses) { %>
+      <a class="course-grade-card" href="/student/courses/<%= course.id %>" style="text-decoration:none;color:inherit;display:block;">
+        <div class="course-grade-head">
+          <div class="course-grade-icon" style="--course-color:<%= course.color || '#123A63' %>;"><%= course.code.slice(0, 2) %></div>
+          <div class="course-grade-info">
+            <h3><%= course.title %></h3>
+            <div class="meta">
+              <span><%= course.code %></span>
+              <span class="dot"></span>
+              <span><%= course.track === 'equiv' ? 'قسم المعادلة' : 'البكالوريوس' %> · <%= course.level ? 'المستوى ' + course.level : '' %></span>
+            </div>
+          </div>
+        </div>
+        <div class="course-grade-body">
+          <div class="course-grade-total" style="margin-top:0;padding-top:0;border-top:0;">
+            <span class="total-label">الحضور</span>
+            <span class="total-value" style="--total-color:var(--success);"><%= course.progress %><small>%</small></span>
+          </div>
+          <div class="grade-breakdown" style="margin-top:12px;">
+            <div class="breakdown-row">
+              <div class="breakdown-head"><span>المحاضرات</span><strong><%= course.totalLectures %> محاضرة</strong></div>
+              <div class="breakdown-bar attendance"><span style="width:<%= course.progress %>%"></span></div>
+            </div>
+          </div>
+        </div>
+      </a>
+    <% } %>
+  </div>
+<% } else { %>
+  <div class="empty-state"><h3>لا توجد مقررات</h3><p>تواصل مع إدارة الأكاديمية لتسجيل مقرراتك.</p></div>
+<% } %>

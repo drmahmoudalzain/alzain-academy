@@ -1,0 +1,108 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2><%= lecture.title %></h2>
+    <p><code><%= course ? course.code : '' %></code> · <%= lecture.lecture_type === 'direct' ? 'مباشر' : (lecture.lecture_type === 'online' ? 'أونلاين' : 'مسجل') %> · <%= format.formatDateTime(lecture.scheduled_at) %></p>
+  </div>
+  <div class="page-header-actions">
+    <form method="post" action="<%= basePath %>/lectures/<%= lecture.id %>/toggle-attendance" style="display:inline;">
+      <button type="submit" class="btn <%= lecture.attendance_open ? 'btn-secondary' : 'btn-primary' %>">
+        <%= lecture.attendance_open ? 'إغلاق رمز الحضور' : 'فتح تسجيل الحضور' %>
+      </button>
+    </form>
+  </div>
+</section>
+
+<!-- رمز الحضور -->
+<div class="table-card" style="margin-bottom:20px;">
+  <div class="table-card-head"><h3>رمز الحضور</h3></div>
+  <div class="side-card-body" style="padding:18px 22px;display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+    <% if (lecture.attendance_open) { %>
+      <div style="font-family:var(--font-head);font-size:2.4rem;letter-spacing:0.35em;color:var(--navy-dark);background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:12px;padding:10px 26px;direction:ltr;"><%= lecture.attendance_code %></div>
+      <div>
+        <strong>تسجيل الحضور مفتوح</strong>
+        <p class="muted mb-0" style="margin:4px 0 0;">اطلب من الطلاب إدخال هذا الرمز من صفحة المحاضرة.</p>
+      </div>
+    <% } else { %>
+      <div>
+        <strong>تسجيل الحضور مغلق</strong>
+        <p class="muted mb-0" style="margin:4px 0 0;">فعّل التسجيل لفتح رمز جديد للطلبة.</p>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<div class="grid-2" style="margin-bottom:20px;">
+  <!-- الحضور -->
+  <div class="table-card">
+    <div class="table-card-head"><h3>الحضور (<%= attendance.length %>)</h3></div>
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>#</th><th>الطالب</th><th>الرقم</th><th>طريقة التسجيل</th><th>الوقت</th></tr></thead>
+        <tbody>
+          <% if (attendance.length) { %>
+            <% for (const row of attendance) { %>
+              <tr>
+                <td><%= row.user ? row.user.id : row.student_id %></td>
+                <td><strong><%= row.user ? row.user.name : '—' %></strong></td>
+                <td dir="ltr" style="text-align:left;"><code><%= row.user ? (row.user.university_id ?? '—') : '—' %></code></td>
+                <td><%= row.method === 'code' ? 'رمز' : 'تلقائي' %></td>
+                <td><%= format.formatDateTime(row.created_at) %></td>
+              </tr>
+            <% } %>
+          <% } else { %>
+            <tr><td colspan="5" class="muted text-center">لا يوجد حضور مسجل بعد.</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- الأسئلة التفاعلية -->
+  <div class="table-card">
+    <div class="table-card-head"><h3>الأسئلة التفاعلية (<%= questions.length %>)</h3></div>
+    <div class="side-card-body" style="padding:16px 18px;">
+      <% if (questions.length) { %>
+        <ul style="list-style:none;padding:0;margin:0 0 14px;display:grid;gap:8px;">
+          <% for (const q of questions) { %>
+            <li style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg-subtle);">
+              <span class="chip" style="flex:none;"><%= q.type === 'poll' ? 'استطلاع' : (q.type === 'multi' ? 'متعدد' : 'واحد') %></span>
+              <span style="font-size:0.9rem;line-height:1.7;"><%= q.text %></span>
+            </li>
+          <% } %>
+        </ul>
+      <% } else { %>
+        <p class="muted" style="margin-top:0;">لا توجد أسئلة تفاعلية بعد.</p>
+      <% } %>
+
+      <form method="post" action="<%= basePath %>/lectures/<%= lecture.id %>/questions" class="form-grid">
+        <strong style="font-size:0.88rem;">إضافة سؤال</strong>
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+          <label>النوع
+            <select name="type">
+              <option value="mcq">اختيار من متعدد</option>
+              <option value="multi">اختيار متعدد</option>
+              <option value="poll">استطلاع رأي</option>
+              <option value="truefalse">صح أو خطأ</option>
+            </select>
+          </label>
+          <label>الدرجة الصحيحة *<br>
+            <span class="form-hint">رقم الخيار الصحيح (أو قائمة مفصولة بفواصل للمتعدد)</span>
+            <input type="text" name="correct_indices" dir="ltr" style="text-align:left;" placeholder="0 أو 0,2">
+          </label>
+        </div>
+        <label>نص السؤال *
+          <textarea name="text" rows="2" required maxlength="400" placeholder="اكتب السؤال..."></textarea>
+        </label>
+        <label>الخيارات
+          <span class="form-hint">خيار واحد في كل سطر</span>
+          <textarea name="options" rows="4" placeholder="الخيار الأول&#10;الخيار الثاني&#10;الخيار الثالث"></textarea>
+        </label>
+        <button type="submit" class="btn btn-primary">حفظ السؤال</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div style="display:flex;gap:10px;">
+  <a class="btn btn-secondary" href="<%= basePath %>/lectures">العودة إلى المحاضرات</a>
+</div>

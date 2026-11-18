@@ -1,0 +1,69 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>الإشعارات</h2>
+    <p><% if (unreadCount) { %>لديك <%= unreadCount %> إشعار غير مقروء.<% } else { %>لا توجد إشعارات جديدة.<% } %></p>
+  </div>
+  <div class="page-header-actions">
+    <% if (unreadCount) { %>
+      <form method="post" action="/notifications/read-all" style="display:inline;">
+        <button class="btn btn-secondary" type="submit">تعليم الكل كمقروء</button>
+      </form>
+    <% } %>
+  </div>
+</section>
+
+<% if (canSend) { %>
+  <div class="table-card" style="margin-bottom:20px;">
+    <div class="table-card-head"><h3>إرسال إشعار</h3></div>
+    <form method="post" action="/notifications/send" class="side-card-body" style="padding:16px 18px;">
+      <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+        <label>الفئة
+          <select name="audience">
+            <option value="all">الجميع</option>
+            <option value="course">مقرر محدد</option>
+          </select>
+        </label>
+        <label>المقرر
+          <select name="course_id">
+            <option value="">—</option>
+            <% for (const course of sendCourses) { %><option value="<%= course.id %>"><%= course.code %> — <%= course.title %></option><% } %>
+          </select>
+        </label>
+      </div>
+      <label style="margin-top:12px;display:grid;gap:7px;font-size:0.84rem;color:var(--text-secondary);font-weight:500;">العنوان *
+        <input type="text" name="title" required maxlength="120" placeholder="مثال: فتح اختبار نهاية الفصل">
+      </label>
+      <label style="margin-top:12px;display:grid;gap:7px;font-size:0.84rem;color:var(--text-secondary);font-weight:500;">الرسالة
+        <textarea name="body" rows="2" maxlength="500" placeholder="تفاصيل قصيرة..."></textarea>
+      </label>
+      <label style="margin-top:12px;display:grid;gap:7px;font-size:0.84rem;color:var(--text-secondary);font-weight:500;">رابط (اختياري)
+        <input type="text" name="link" maxlength="200" placeholder="/student/exams" dir="ltr" style="text-align:left;">
+      </label>
+      <div style="margin-top:12px;"><button type="submit" class="btn btn-primary btn-sm">إرسال الإشعار</button></div>
+    </form>
+  </div>
+<% } %>
+
+<% if (items.length) { %>
+  <div class="notifications-list" style="display:grid;gap:10px;">
+    <% for (const item of items) { %>
+      <div class="notif-item <%= item.isRead ? '' : 'unread' %>" style="background:var(--bg-surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;">
+        <div class="notif-icon <%= item.isRead ? '' : 'gold' %>" style="flex:none;width:38px;height:38px;border-radius:10px;display:grid;place-items:center;background:<%= item.isRead ? 'var(--bg-subtle)' : 'rgba(212,160,23,0.15)' %>;color:<%= item.isRead ? 'var(--text-muted)' : 'var(--gold-dark)' %>;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:18px;height:18px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </div>
+        <div class="notif-content" style="flex:1;">
+          <h5 style="margin:0 0 4px;"><%= item.title %></h5>
+          <% if (item.body) { %><p style="margin:0;color:var(--text-secondary);line-height:1.8;"><%= item.body %></p><% } %>
+          <div style="display:flex;gap:12px;align-items:center;margin-top:8px;font-size:0.75rem;color:var(--text-muted);">
+            <span><%= format.relativeTime(item.created_at) %></span>
+            <span>·</span>
+            <span><%= item.audience === 'all' ? 'الجميع' : (item.audience === 'course' ? 'مقرر' : 'خاص') %></span>
+            <% if (item.link) { %><a href="<%= item.link %>" style="color:var(--green);font-weight:600;">فتح ←</a><% } %>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+<% } else { %>
+  <div class="empty-state"><h3>لا توجد إشعارات</h3><p>عندما تصدر إدارة الأكاديمية إشعاراً سيظهر هنا.</p></div>
+<% } %>
