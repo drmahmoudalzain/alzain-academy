@@ -1,0 +1,76 @@
+<% if (flash) { %>
+  <div class="alert-inline <%= flash.tone %>" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <div><%= flash.text %></div>
+  </div>
+<% } %>
+
+<section class="page-header">
+  <div class="page-header-info">
+    <h2><%= assignment.title %></h2>
+    <p><%= assignment.course ? `${assignment.course.code} — ${assignment.course.title}` : '' %></p>
+  </div>
+</section>
+
+<div class="table-card" style="margin-bottom:18px;">
+  <div class="table-card-head"><h3>تفاصيل الواجب</h3></div>
+  <div class="table-scroll">
+    <table class="data-table">
+      <tbody>
+        <tr><th scope="row">المقرر</th><td><strong><%= assignment.course ? `${assignment.course.code} — ${assignment.course.title}` : '—' %></strong></td></tr>
+        <tr><th scope="row">الدرجة القصوى</th><td><%= assignment.max_points %> نقطة</td></tr>
+        <tr><th scope="row">آخر موعد</th><td><%= assignment.due_at ? format.formatDateTime(assignment.due_at) : 'بدون موعد' %></td></tr>
+        <tr><th scope="row">تاريخ النشر</th><td><%= format.formatDateTime(assignment.created_at) %></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<% if (assignment.description) { %>
+  <div class="table-card" style="margin-bottom:18px;">
+    <div class="table-card-head"><h3>التعليمات</h3></div>
+    <div class="side-card-body" style="padding:20px 22px; line-height:2; color:var(--text-secondary);"><%= assignment.description %></div>
+  </div>
+<% } %>
+
+<% if (submission) { %>
+  <div class="table-card">
+    <div class="table-card-head">
+      <h3>تسليمك</h3>
+      <% if (submission.graded_at) { %><span class="chip">مُصحّح — <%= submission.points != null ? submission.points : '—' %> / <%= assignment.max_points %></span><% } else { %><span class="chip">بانتظار التصحيح</span><% } %>
+    </div>
+    <div class="side-card-body" style="padding:20px 22px;">
+      <p class="muted" style="margin-bottom:10px;">سُلّم في <%= format.formatDateTime(submission.submitted_at) %></p>
+      <pre style="white-space:pre-wrap; word-break:break-word; line-height:1.9; background:var(--bg-subtle); border:1px solid var(--border); border-radius:10px; padding:14px; margin:0;"><%= submission.text %></pre>
+      <% if (submission.feedback) { %>
+        <div class="alert-inline info" role="note" style="margin-top:14px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <div><strong>ملاحظة الأستاذ:</strong> <%= submission.feedback %></div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <div style="margin-top:18px;"><a class="btn btn-secondary" href="/student/assignments">العودة إلى الواجبات</a></div>
+<% } else { %>
+  <div class="table-card">
+    <div class="table-card-head"><h3>تسليم الواجب</h3></div>
+    <div class="side-card-body" style="padding:20px 22px;">
+      <% if (pastDue) { %>
+        <div class="overdue-box">فات موعد التسليم، لم يعد بالإمكان إرسال هذا الواجب.</div>
+        <a class="btn btn-secondary" href="/student/assignments">العودة</a>
+      <% } else { %>
+        <form method="post" action="/student/assignments/<%= assignment.id %>/submit" class="form-grid">
+          <label>إجابتك
+            <span class="form-hint">اكتب إجابتك أو الحل النهائي — يمكن لاحقاً إرفاق ملف مع الأستاذ.</span>
+            <textarea name="text" required minlength="10" placeholder="اكتب إجابتك هنا..."></textarea>
+          </label>
+          <div class="form-hint muted">التسليم نهائي بعد الإرسال، ولا يمكن التراجع عنه.</div>
+          <button type="submit" class="btn btn-primary btn-block">إرسال التسليم</button>
+        </form>
+      <% } %>
+    </div>
+  </div>
+
+  <div style="margin-top:18px;"><a class="btn btn-secondary" href="/student/assignments">العودة إلى الواجبات</a></div>
+<% } %>

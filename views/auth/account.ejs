@@ -1,67 +1,69 @@
-<section class="page-head">
-  <div>
-    <p class="eyebrow"><%= portal.label %></p>
-    <h1 class="page-title">حسابي</h1>
-    <p class="page-sub">بياناتك الشخصية وكلمة المرور.</p>
-  </div>
-</section>
-
+<!-- تنبيهات -->
 <% if (mustChange) { %>
-  <div class="alert alert--notice">
-    يُنصح بتغيير كلمة المرور المؤقتة الآن، ثم متابعة العمل.
+  <div class="alert-inline warning" role="status">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <div>يُنصح بتغيير كلمة المرور المؤقتة الآن ثم متابعة العمل.</div>
   </div>
 <% } %>
 <% if (notice) { %>
-  <div class="alert alert--success"><%= notice %></div>
+  <div class="alert-inline success" role="status">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+    <div><%= notice %></div>
+  </div>
 <% } %>
 <% if (error) { %>
-  <div class="alert alert--error" role="alert"><%= error %></div>
+  <div class="alert-inline error" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <div><%= error %></div>
+  </div>
 <% } %>
 
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>حسابي</h2>
+    <p>بياناتك الشخصية وكلمة المرور — تظهر للأساتذة والزملاء داخل المنصة.</p>
+  </div>
+</section>
+
 <div class="grid-2">
-  <section class="panel">
-    <header class="panel-head">
-      <h2>الملف الشخصي</h2>
-      <p>يظهر اسمك للأساتذة والزملاء داخل المنصة.</p>
-    </header>
 
-    <form method="post" action="/account/profile" class="form">
-      <label class="field">
-        <span class="field-label">الاسم الكامل</span>
-        <input class="input" type="text" name="name" value="<%= profile.name %>" required maxlength="120">
-      </label>
-      <label class="field">
-        <span class="field-label">البريد الإلكتروني</span>
-        <input class="input" type="email" name="email" value="<%= profile.email %>" maxlength="160">
-      </label>
-      <label class="field">
-        <span class="field-label">رقم الجوال</span>
-        <input class="input" type="text" name="phone" value="<%= profile.phone %>" maxlength="30" dir="ltr">
-      </label>
-      <button class="btn btn-primary" type="submit">حفظ الملف الشخصي</button>
-    </form>
-  </section>
+  <!-- الملف الشخصي -->
+  <div class="table-card">
+    <div class="table-card-head"><h3>الملف الشخصي</h3></div>
+    <div class="side-card-body" style="padding:20px 22px;">
+      <form method="post" action="/account/profile" class="form-grid">
+        <label>الاسم الكامل
+          <input type="text" name="name" value="<%= profile.name %>" required maxlength="120">
+        </label>
+        <label>البريد الإلكتروني
+          <input type="email" name="email" value="<%= profile.email %>" maxlength="160" dir="ltr" style="text-align:left;">
+        </label>
+        <label>رقم الجوال
+          <input type="text" name="phone" value="<%= profile.phone %>" maxlength="30" dir="ltr" style="text-align:left;">
+        </label>
+        <button class="btn btn-primary btn-block" type="submit">حفظ الملف الشخصي</button>
+      </form>
+    </div>
+  </div>
 
-  <section class="panel">
-    <header class="panel-head">
-      <h2>كلمة المرور</h2>
-      <p>8 أحرف على الأقل، ويُفضّل خليط من الحروف والأرقام.</p>
-    </header>
+  <!-- كلمة المرور -->
+  <div class="table-card">
+    <div class="table-card-head"><h3>كلمة المرور</h3></div>
+    <div class="side-card-body" style="padding:20px 22px;">
+      <p class="muted mb-0" style="margin-bottom:14px;">ثمانية أحرف على الأقل — يُفضّل خليط من الحروف والأرقام.</p>
+      <form method="post" action="/account/password" class="form-grid">
+        <label>كلمة المرور الحالية
+          <input type="password" name="current" autocomplete="current-password" required>
+        </label>
+        <label>كلمة المرور الجديدة
+          <input type="password" name="next" autocomplete="new-password" minlength="8" required>
+        </label>
+        <label>تأكيد كلمة المرور
+          <input type="password" name="confirm" autocomplete="new-password" minlength="8" required>
+        </label>
+        <button class="btn btn-primary btn-block" type="submit">تغيير كلمة المرور</button>
+      </form>
+    </div>
+  </div>
 
-    <form method="post" action="/account/password" class="form">
-      <label class="field">
-        <span class="field-label">كلمة المرور الحالية</span>
-        <input class="input" type="password" name="current" autocomplete="current-password" required>
-      </label>
-      <label class="field">
-        <span class="field-label">كلمة المرور الجديدة</span>
-        <input class="input" type="password" name="next" autocomplete="new-password" minlength="8" required>
-      </label>
-      <label class="field">
-        <span class="field-label">تأكيد كلمة المرور</span>
-        <input class="input" type="password" name="confirm" autocomplete="new-password" minlength="8" required>
-      </label>
-      <button class="btn btn-primary" type="submit">تغيير كلمة المرور</button>
-    </form>
-  </section>
 </div>

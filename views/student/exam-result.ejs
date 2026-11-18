@@ -1,0 +1,60 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>نتيجة الاختبار</h2>
+    <p><%= exam.title %><% if (exam.courses) { %> — <%= exam.courses.code %><% } %></p>
+  </div>
+</section>
+
+<div class="gpa-hero" style="margin-bottom:20px;">
+  <div class="gpa-circle" style="--angle:<%= percent %>%;">
+    <div class="gpa-circle-inner">
+      <span class="gpa-value"><%= format.formatNumber(attempt.score || 0) %></span>
+      <span class="gpa-label">من <%= totalPoints %></span>
+    </div>
+  </div>
+  <div class="gpa-info">
+    <h2><%= grade.text %>، <span class="name"><%= user.name.split(' ')[0] %></span></h2>
+    <p>نتيجتك كانت <%= percent %>%. يمكنك مراجعة إجاباتك أدناه.</p>
+    <div class="gpa-badges">
+      <span class="gpa-badge green">الحالة: <%= attempt.status === 'graded' ? 'مُصحّح' : 'بانتظار التصحيح' %></span>
+      <span class="gpa-badge">التسليم: <%= attempt.submitted_at ? format.formatDateTime(attempt.submitted_at) : '—' %></span>
+    </div>
+  </div>
+</div>
+
+<div class="table-card">
+  <div class="table-card-head"><h3>مراجعة الإجابات</h3></div>
+  <div class="table-scroll">
+    <table class="data-table">
+      <thead>
+        <tr><th>#</th><th>السؤال</th><th>نوعه</th><th>نتيجتك</th><th class="center" style="text-align:center;">النقاط</th></tr>
+      </thead>
+      <tbody>
+        <% for (const [index, question] of questions.entries()) { const a = question.answer || {};
+             const got = a.points != null ? Number(a.points) : null; %>
+          <tr>
+            <td><strong><%= index + 1 %></strong></td>
+            <td style="max-width:420px;"><%= question.text %></td>
+            <td><span class="chip"><%= question.type === 'mcq' ? 'اختيار واحد' : (question.type === 'multi' ? 'اختيار متعدد' : (question.type === 'truefalse' ? 'صح/خطأ' : 'مقالي')) %></span></td>
+            <td>
+              <% if (question.type === 'essay') { %>
+                <span class="muted">تتطلب مراجعة الأستاذ</span>
+              <% } else if (got === 0) { %>
+                <span style="color:#C73838;font-weight:600;">خاطئة</span>
+              <% } else if (got != null && got > 0) { %>
+                <span style="color:#166E3F;font-weight:600;">صحيحة</span>
+              <% } else { %>
+                <span class="muted">—</span>
+              <% } %>
+            </td>
+            <td style="text-align:center;font-variant-numeric:tabular-nums;"><strong><%= got != null ? got : '—' %></strong></td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div style="margin-top:18px;">
+  <a class="btn btn-primary" href="/student/exams">العودة إلى الاختبارات</a>
+</div>

@@ -1,0 +1,124 @@
+<!-- تنبيهات -->
+<% if (flash) { %>
+  <div class="alert-inline <%= flash.tone %>" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <div><%= flash.text %></div>
+  </div>
+<% } %>
+
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>واجباتي</h2>
+    <p>الواجبات المنشورة في مقرراتك — التسليم المنتظم يُحتسب في درجتك ونقاطك.</p>
+  </div>
+</section>
+
+<section class="mini-stats">
+  <div class="mini-stat all">
+    <div class="mini-stat-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    </div>
+    <div class="mini-stat-body">
+      <div class="mini-stat-label">إجمالي الواجبات</div>
+      <div class="mini-stat-value"><%= counts.all %> <small>واجبات</small></div>
+    </div>
+  </div>
+  <div class="mini-stat pending">
+    <div class="mini-stat-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    </div>
+    <div class="mini-stat-body">
+      <div class="mini-stat-label">قيد الانتظار</div>
+      <div class="mini-stat-value"><%= counts.pending %> <small>واجبات</small></div>
+    </div>
+  </div>
+  <div class="mini-stat submitted">
+    <div class="mini-stat-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15l2 2 4-4"/></svg>
+    </div>
+    <div class="mini-stat-body">
+      <div class="mini-stat-label">مُسلَّمة</div>
+      <div class="mini-stat-value"><%= counts.submitted %> <small>واجبات</small></div>
+    </div>
+  </div>
+  <div class="mini-stat graded">
+    <div class="mini-stat-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <div class="mini-stat-body">
+      <div class="mini-stat-label">مُصحّحة</div>
+      <div class="mini-stat-value"><%= counts.graded %> <small>واجبات</small></div>
+    </div>
+  </div>
+</section>
+
+<% if (assignments.length) { %>
+  <section class="assignments-grid">
+    <% for (const assignment of assignments) { %>
+      <article class="assignment-card <%= assignment.status === 'late' ? 'overdue' : '' %>" data-status="<%= assignment.status === 'late' ? 'pending' : assignment.status %>" data-course="<%= assignment.course ? assignment.course.id : '' %>">
+        <div class="assignment-card-top"></div>
+        <div class="assignment-card-body">
+          <div class="assignment-card-head">
+            <span class="assignment-type-badge">واجب</span>
+            <% if (assignment.status === 'pending') { %>
+              <span class="assignment-status pending">قيد الانتظار</span>
+            <% } else if (assignment.status === 'submitted') { %>
+              <span class="assignment-status submitted">مُسلَّم</span>
+            <% } else if (assignment.status === 'graded') { %>
+              <span class="assignment-status submitted">مُصحّح</span>
+            <% } else { %>
+              <span class="assignment-status late">فات موعده</span>
+            <% } %>
+          </div>
+
+          <div class="assignment-course-line">
+            <span class="assignment-course-dot" style="--course-color:<%= assignment.course ? (assignment.course.color || '#123A63') : '#123A63' %>;"></span>
+            <%= assignment.course ? `${assignment.course.code} — ${assignment.course.title}` : '' %>
+          </div>
+
+          <h3 class="assignment-title"><%= assignment.title %></h3>
+          <% if (assignment.description) { %><p class="assignment-desc"><%= assignment.description %></p><% } %>
+
+          <div class="assignment-meta-grid">
+            <div class="assignment-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <span><strong><%= assignment.max_points %></strong> نقطة</span>
+            </div>
+            <div class="assignment-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              <span><%= assignment.due_at ? format.formatDate(assignment.due_at) : 'بدون موعد' %></span>
+            </div>
+          </div>
+
+          <% if (assignment.submission && assignment.submission.graded_at) { %>
+            <div class="grade-box">
+              <div class="grade-label">درجتك</div>
+              <div class="grade-badge"><%= assignment.submission.points != null ? assignment.submission.points : '—' %> / <%= assignment.max_points %></div>
+              <% if (assignment.submission.feedback) { %><div class="grade-feedback"><%= assignment.submission.feedback %></div><% } %>
+            </div>
+          <% } else if (assignment.submission) { %>
+            <div class="submitted-info">
+              <div class="submitted-info-head">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:16px;height:16px;"><path d="M20 6L9 17l-5-5"/></svg>
+                تم التسليم <%= format.formatDate(assignment.submission.submitted_at) %>
+              </div>
+            </div>
+          <% } else if (assignment.status === 'late') { %>
+            <div class="overdue-box">فات موعد التسليم النهائي لهذا الواجب.</div>
+          <% } %>
+        </div>
+        <div class="assignment-card-actions">
+          <a class="btn <%= assignment.status === 'pending' || assignment.status === 'late' ? 'btn-primary' : 'btn-secondary' %>" href="/student/assignments/<%= assignment.id %>">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            <%= assignment.submission ? 'عرض التسليم' : (assignment.status === 'late' ? 'التفاصيل' : 'سلّم الواجب') %>
+          </a>
+        </div>
+      </article>
+    <% } %>
+  </section>
+<% } else { %>
+  <div class="empty-state">
+    <h3>لا توجد واجبات منشورة</h3>
+    <p>عندما ينشر الأستاذ واجباً في أحد مقرراتك سيظهر هنا.</p>
+  </div>
+<% } %>

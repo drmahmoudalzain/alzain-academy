@@ -1,0 +1,145 @@
+<!-- رأس الصفحة -->
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>محاضراتي</h2>
+    <p>كل محاضرات مقرراتك — المباشرة والأونلاين والمسجة — مع حالة حضورك ونقاطك.</p>
+  </div>
+</section>
+
+<!-- إحصاءات سريعة -->
+<section class="mini-stats">
+  <div class="mini-stat all">
+    <div class="mini-stat-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+    </div>
+    <div class="mini-stat-body">
+      <div class="mini-stat-label">إجمالي المحاضرات</div>
+      <div class="mini-stat-value"><%= counts.all %> <small>محاضرة</small></div>
+    </div>
+  </div>
+  <div class="mini-stat attended">
+    <div class="mini-stat-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <div class="mini-stat-body">
+      <div class="mini-stat-label">حضرتها</div>
+      <div class="mini-stat-value"><%= attendance.attendedCount %> <small>محاضرة</small></div>
+    </div>
+  </div>
+  <div class="mini-stat upcoming">
+    <div class="mini-stat-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    </div>
+    <div class="mini-stat-body">
+      <div class="mini-stat-label">قادمة</div>
+      <div class="mini-stat-value"><%= attendance.upcomingCount %> <small>محاضرات</small></div>
+    </div>
+  </div>
+  <div class="mini-stat missed">
+    <div class="mini-stat-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+    </div>
+    <div class="mini-stat-body">
+      <div class="mini-stat-label">فائتة</div>
+      <div class="mini-stat-value"><%= attendance.missedCount %> <small>محاضرة</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- الفلاتر -->
+<section class="filters-bar">
+  <div class="filter-tabs" role="tablist" aria-label="تصفية المحاضرات">
+    <a class="filter-tab <%= activeType === 'all' ? 'active' : '' %>" href="/student/lectures" aria-selected="<%= activeType === 'all' %>">الكل <span class="tab-count"><%= counts.all %></span></a>
+    <a class="filter-tab <%= activeType === 'direct' ? 'active' : '' %>" href="/student/lectures?type=direct" aria-selected="<%= activeType === 'direct' %>">مباشر <span class="tab-count"><%= counts.direct %></span></a>
+    <a class="filter-tab <%= activeType === 'online' ? 'active' : '' %>" href="/student/lectures?type=online" aria-selected="<%= activeType === 'online' %>">أونلاين <span class="tab-count"><%= counts.online %></span></a>
+    <a class="filter-tab <%= activeType === 'recorded' ? 'active' : '' %>" href="/student/lectures?type=recorded" aria-selected="<%= activeType === 'recorded' %>">مسجل <span class="tab-count"><%= counts.recorded %></span></a>
+  </div>
+  <div class="filter-spacer"></div>
+  <select class="filter-select" id="courseFilter" aria-label="تصفية حسب المقرر">
+    <option value="all">كل المقررات</option>
+    <% for (const course of courses) { %>
+      <option value="<%= course.id %>"><%= course.code %> — <%= course.title %></option>
+    <% } %>
+  </select>
+</section>
+
+<!-- بطاقات المحاضرات -->
+<% if (lectures.length) { %>
+  <section class="lectures-grid" id="lecturesGrid">
+    <% for (const lecture of lectures) { const md = format.monthDay(lecture.scheduled_at); %>
+      <article class="lecture-card <%= lecture.lecture_type %> <%= lecture.state === 'live' ? 'live' : '' %>" data-type="<%= lecture.lecture_type %>" data-course="<%= lecture.course ? lecture.course.id : '' %>">
+        <% if (lecture.state === 'live') { %><div class="live-indicator">جارية الآن</div><% } %>
+        <div class="lecture-card-top"></div>
+        <div class="lecture-card-body">
+          <div class="lecture-card-head">
+            <span class="lecture-type-badge <%= lecture.lecture_type %>">
+              <%= lecture.lecture_type === 'direct' ? 'مباشر' : (lecture.lecture_type === 'online' ? 'أونلاين' : 'مسجل') %>
+            </span>
+            <% if (lecture.state === 'live') { %>
+              <span class="lecture-status live">مباشر الآن</span>
+            <% } else if (lecture.attended) { %>
+              <span class="lecture-status attended">حاضرت</span>
+            <% } else if (lecture.state === 'finished') { %>
+              <span class="lecture-status finished">منتهية</span>
+            <% } else { %>
+              <span class="lecture-status upcoming">قادمة</span>
+            <% } %>
+          </div>
+
+          <div class="lecture-course-line">
+            <span class="lecture-course-dot" style="--course-color:<%= lecture.course ? (lecture.course.color || '#123A63') : '#123A63' %>;"></span>
+            <%= lecture.course ? `${lecture.course.code} — ${lecture.course.title}` : 'مقرر عام' %>
+          </div>
+
+          <h3 class="lecture-card-title"><%= lecture.title %></h3>
+
+          <div class="lecture-meta-grid">
+            <div class="lecture-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              <span><%= md.day %> <%= md.month %> · <%= format.formatTime(lecture.scheduled_at) %></span>
+            </div>
+            <div class="lecture-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4"/></svg>
+              <span><strong><%= lecture.duration_min || 120 %></strong> دقيقة</span>
+            </div>
+            <div class="lecture-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13.5V10a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-.5"/><path d="M8 12h.01M12 12h.01"/></svg>
+              <span><%= lecture.lecture_type === 'recorded' ? 'مسجلة' : (lecture.lecture_type === 'direct' ? 'قاعة' : 'عن بُعد') %></span>
+            </div>
+            <div class="lecture-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <span>حتى <strong>10 نقاط</strong></span>
+            </div>
+          </div>
+
+          <div class="lecture-instructor">
+            <div class="lecture-instructor-avatar" style="background:linear-gradient(135deg,#166E3F,#1E8A50);"><%= (lecture.course && lecture.course.teacherName ? lecture.course.teacherName : 'م').trim().charAt(0) %></div>
+            <div class="lecture-instructor-info">
+              <strong><%= lecture.course ? lecture.course.teacherName : 'أستاذ المقرر' %></strong>
+              <span><%= lecture.course ? lecture.course.teacherPosition : '' %></span>
+            </div>
+          </div>
+
+          <div class="attendance-bar-wrap">
+            <div class="attendance-label">
+              <span>الحضور</span>
+              <span><%= lecture.attended ? 'مسجّل' : 'لم يُسجّل بعد' %></span>
+            </div>
+            <div class="attendance-bar"><span style="width:<%= lecture.attended ? 100 : 0 %>%"></span></div>
+          </div>
+        </div>
+        <div class="lecture-card-actions">
+          <a class="btn <%= lecture.state === 'live' ? 'btn-primary' : 'btn-secondary' %>" href="/student/lectures/<%= lecture.id %>">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            <%= lecture.state === 'live' ? 'انضم الآن' : 'عرض' %>
+          </a>
+        </div>
+      </article>
+    <% } %>
+  </section>
+<% } else { %>
+  <div class="empty-state">
+    <h3>لا توجد محاضرات مطابقة</h3>
+    <p>لا توجد محاضرات ضمن هذا التصنيف حالياً. جرّب تغيير الفلتر.</p>
+  </div>
+<% } %>

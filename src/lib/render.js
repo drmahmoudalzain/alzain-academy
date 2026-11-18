@@ -1,3 +1,5 @@
+import * as format from "./format.js";
+
 // عرض صفحة داخل تخطيط (layout) دون حزمة خارجية.
 export function renderView(res, view, locals) {
   return new Promise((resolve, reject) => {
@@ -6,8 +8,13 @@ export function renderView(res, view, locals) {
 }
 
 export async function renderPage(res, view, locals = {}) {
-  const layout = locals.layout ?? "app";
-  const body = await renderView(res, view, locals);
-  const html = await renderView(res, `layouts/${layout}`, { ...locals, body });
+  const layout = locals.layout ?? "portal";
+  const data = { ...locals, format };
+  const body = await renderView(res, view, data);
+  if (layout === false) {
+    res.type("html").send(body);
+    return;
+  }
+  const html = await renderView(res, `layouts/${layout}`, { ...data, body });
   res.type("html").send(html);
 }

@@ -1,0 +1,144 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>درجاتي</h2>
+    <p>سجل أكاديمي شامل بدرجاتك في مقرراتك الحالية، بمكونات الحضور والاختبارات والواجبات.</p>
+  </div>
+</section>
+
+<section class="gpa-hero">
+  <div class="gpa-circle" style="background: conic-gradient(var(--gold) 0deg, var(--gold) <%= Math.round(average * 3.6) %>deg, rgba(241,244,248,0.09) <%= Math.round(average * 3.6) %>deg 360deg);">
+    <div class="gpa-circle-inner">
+      <span class="gpa-value"><%= gpa %></span>
+      <span class="gpa-label">GPA</span>
+    </div>
+  </div>
+  <div class="gpa-info">
+    <h2>معدلك التراكمي، <span class="name"><%= user.name.split(' ')[0] %></span></h2>
+    <p>متوسط درجاتك في مقرراتك الحالية <strong><%= average %>%</strong>. حافظ على حضورك وسلّم واجباتك في وقتها لرفع معدلك.</p>
+    <div class="gpa-badges">
+      <span class="gpa-badge green">نسبة الحضور: <%= attendanceRate %>%</span>
+      <span class="gpa-badge">النقاط: <%= format.formatNumber(points) %></span>
+    </div>
+  </div>
+  <div class="gpa-quick-stats">
+    <div class="quick-stat">
+      <div class="quick-stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      </div>
+      <div class="quick-stat-body">
+        <span class="quick-stat-label">المقررات</span>
+        <span class="quick-stat-value"><%= coursesCount %> مقررات</span>
+      </div>
+    </div>
+    <div class="quick-stat">
+      <div class="quick-stat-icon blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+      </div>
+      <div class="quick-stat-body">
+        <span class="quick-stat-label">متوسط الدرجات</span>
+        <span class="quick-stat-value"><%= average %>%</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<nav class="tabs-nav" role="tablist">
+  <button class="tab-btn active" data-tab="overview" role="tab" aria-selected="true"><span class="label">نظرة عامة</span></button>
+  <button class="tab-btn" data-tab="gradebook" role="tab" aria-selected="false"><span class="label">سجل الدرجات</span></button>
+</nav>
+
+<div class="tab-pane active" data-pane="overview">
+  <% if (grades.length) { %>
+    <div class="courses-grades-grid">
+      <% for (const grade of grades) { const label = gradeLabel(grade.total); %>
+        <div class="course-grade-card">
+          <div class="course-grade-head">
+            <div class="course-grade-icon" style="--course-color:<%= grade.course.color || '#123A63' %>;"><%= grade.course.code.slice(0, 2) %></div>
+            <div class="course-grade-info">
+              <h3><%= grade.course.title %></h3>
+              <div class="meta">
+                <span><%= grade.course.code %></span>
+                <span class="dot"></span>
+                <span><%= grade.course.level ? `المستوى ${grade.course.level}` : '—' %></span>
+              </div>
+            </div>
+            <span class="course-grade-badge <%= label.tone %>"><%= label.text %></span>
+          </div>
+          <div class="course-grade-body">
+            <div class="grade-breakdown">
+              <div class="breakdown-row">
+                <div class="breakdown-head">
+                  <span>الحضور <span class="badge-weight"><%= grade.attendance.weight %>%</span></span>
+                  <strong><%= grade.attendance.earned %> / <%= grade.attendance.weight %></strong>
+                </div>
+                <div class="breakdown-bar attendance"><span style="width:<%= grade.attendance.ratio %>%"></span></div>
+              </div>
+              <div class="breakdown-row">
+                <div class="breakdown-head">
+                  <span>الاختبارات <span class="badge-weight"><%= grade.exams.weight %>%</span></span>
+                  <strong><%= grade.exams.earned %> / <%= grade.exams.weight %></strong>
+                </div>
+                <div class="breakdown-bar exams"><span style="width:<%= grade.exams.ratio %>%"></span></div>
+              </div>
+              <div class="breakdown-row">
+                <div class="breakdown-head">
+                  <span>الواجبات <span class="badge-weight"><%= grade.assignments.weight %>%</span></span>
+                  <strong><%= grade.assignments.earned %> / <%= grade.assignments.weight %></strong>
+                </div>
+                <div class="breakdown-bar assignments"><span style="width:<%= grade.assignments.ratio %>%"></span></div>
+              </div>
+            </div>
+            <div class="course-grade-total">
+              <span class="total-label">الدرجة النهائية</span>
+              <span class="total-value" style="--total-color:var(--success);"><%= grade.total %><small>/100 — <%= grade.letter %></small></span>
+            </div>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  <% } else { %>
+    <div class="empty-state">
+      <h3>لا توجد درجات بعد</h3>
+      <p>سجّل في مقرراتك وستظهر درجاتك هنا مع كل مقرر.</p>
+    </div>
+  <% } %>
+</div>
+
+<div class="tab-pane" data-pane="gradebook">
+  <div class="gradebook-wrapper">
+    <div style="overflow-x:auto;">
+      <table class="gradebook-table">
+        <thead>
+          <tr>
+            <th>المقرر</th>
+            <th>الحضور (<%= '10' %>%)</th>
+            <th>الاختبارات (60%)</th>
+            <th>الواجبات (30%)</th>
+            <th>المجموع</th>
+            <th>التقدير</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const grade of grades) { %>
+            <tr>
+              <td class="course-row">
+                <div class="course-cell">
+                  <div class="course-cell-icon" style="--course-color:<%= grade.course.color || '#123A63' %>;"><%= grade.course.code.slice(0, 2) %></div>
+                  <div class="course-cell-info">
+                    <strong><%= grade.course.title %></strong>
+                    <span><%= grade.course.code %></span>
+                  </div>
+                </div>
+              </td>
+              <td><%= grade.attendance.earned %> / <%= grade.attendance.weight %></td>
+              <td><%= grade.exams.earned %> / <%= grade.exams.weight %></td>
+              <td><%= grade.assignments.earned %> / <%= grade.assignments.weight %></td>
+              <td class="grade-cell"><%= grade.total %></td>
+              <td class="gpa-cell"><%= grade.letter %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

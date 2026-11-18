@@ -1,93 +1,144 @@
-<%
-  const fmt = (value) => value
-    ? new Date(value).toLocaleString('ar', { dateStyle: 'medium', timeStyle: 'short' })
-    : '—';
-%>
-
-<section class="page-head">
-  <div>
-    <p class="eyebrow"><%= portal.label %></p>
-    <h1 class="page-title">لوحة المالك</h1>
-    <p class="page-sub">نظرة عامة على الأكاديمية وحالة النظام.</p>
+<!-- بطاقة الترحيب -->
+<section class="welcome-card">
+  <div class="welcome-content">
+    <div class="welcome-tag">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l9-4 9 4v6c0 4.5-3.5 8-9 9-5.5-1-9-4.5-9-9V7z"/><path d="M9 12l2 2 4-4"/></svg>
+      مرحباً بك في الإدارة
+    </div>
+    <h2>صباح الخير، <span class="name"><%= user.name.split(' ')[0] %></span></h2>
+    <p>إليك نظرة عامة على المنصة الآن — المستخدمين والمحتوى ونشاط الأمان.</p>
+    <div class="welcome-actions">
+      <a class="btn btn-gold" href="/owner/users">إدارة المستخدمين</a>
+      <a class="btn btn-outline" href="/owner/archive">سجل الأرشيف</a>
+    </div>
   </div>
-  <span class="pill pill--gold">كل الصلاحيات</span>
 </section>
 
-<div class="stats-grid">
-  <article class="stat-card">
-    <span class="stat-label">الأساتذة</span>
-    <span class="stat-value"><%= stats.teachers %></span>
-  </article>
-  <article class="stat-card">
-    <span class="stat-label">الطلاب</span>
-    <span class="stat-value"><%= stats.students %></span>
-  </article>
-  <article class="stat-card">
-    <span class="stat-label">المقررات</span>
-    <span class="stat-value"><%= stats.courses %></span>
-  </article>
-  <article class="stat-card">
-    <span class="stat-label">المحاضرات</span>
-    <span class="stat-value"><%= stats.lectures %></span>
-  </article>
-  <article class="stat-card">
-    <span class="stat-label">الاختبارات</span>
-    <span class="stat-value"><%= stats.exams %></span>
-  </article>
-  <article class="stat-card">
-    <span class="stat-label">سجلات الأرشيف</span>
-    <span class="stat-value"><%= stats.archived %></span>
-  </article>
-</div>
+<!-- إحصاءات المنصة -->
+<section class="stats-grid">
+  <div class="stat-card students">
+    <div class="stat-head">
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+    </div>
+    <div class="stat-label">الأساتذة</div>
+    <div class="stat-value"><%= stats.teachers %></div>
+  </div>
+  <div class="stat-card attendance">
+    <div class="stat-head">
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+    </div>
+    <div class="stat-label">الطلاب</div>
+    <div class="stat-value"><%= stats.students %></div>
+  </div>
+  <div class="stat-card points">
+    <div class="stat-head">
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      </div>
+    </div>
+    <div class="stat-label">المقررات</div>
+    <div class="stat-value"><%= stats.courses %></div>
+  </div>
+  <div class="stat-card exams">
+    <div class="stat-head">
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+      </div>
+    </div>
+    <div class="stat-label">المحاضرات</div>
+    <div class="stat-value"><%= stats.lectures %></div>
+  </div>
+</section>
 
-<div class="grid-2">
-  <section class="panel">
-    <header class="panel-head">
-      <h2>آخر محاولات الدخول المرفوضة</h2>
-      <p>تُسجَّل تلقائياً في الأرشيف باسم <code>login_denied</code> للتدقيق.</p>
-    </header>
+<section class="dashboard-grid">
+  <div class="stack">
+    <!-- محاولات الدخول المرفوضة -->
+    <div class="table-card">
+      <div class="table-card-head">
+        <h3>أحدث المحاولات المرفوضة</h3>
+        <a class="card-link" href="/owner/archive">
+          الأرشيف
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:15px;height:15px;"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+      <% if (denied.length) { %>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>الوقت</th><th>المستخدم</th><th>المطلوب</th><th>المعرّف</th></tr></thead>
+            <tbody>
+              <% for (const row of denied) { const d = row.data || {}; %>
+                <tr>
+                  <td><%= format.formatDateTime(row.archived_at) %></td>
+                  <td><strong><%= d.user_name || d.name || ('مستخدم #' + (d.user_id || '—')) %></strong></td>
+                  <td><%= row.label || d.portal || 'بوابة غير معلومة' %></td>
+                  <td dir="ltr" style="text-align:left;"><code><%= d.identifier || '—' %></code></td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="empty-state" style="border:0;">
+          <h3>لا توجد محاولات مرفوضة</h3>
+          <p>ستظهر هنا محاولات الدخول غير المصرّح بها تلقائياً.</p>
+        </div>
+      <% } %>
+    </div>
 
-    <% if (!denied.length) { %>
-      <p class="empty">لا توجد محاولات مرفوضة حتى الآن.</p>
-    <% } else { %>
-      <div class="table-wrap">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>المعرّف</th>
-              <th>البوابة</th>
-              <th>IP</th>
-              <th>الوقت</th>
-            </tr>
-          </thead>
+    <!-- ملخص سريع -->
+    <div class="table-card">
+      <div class="table-card-head"><h3>ملخص المحتوى</h3></div>
+      <div class="table-scroll">
+        <table class="data-table">
           <tbody>
-            <% for (const row of denied) { %>
-              <tr>
-                <td><span dir="ltr"><%= row.data?.identifier ?? row.data?.email ?? '—' %></span></td>
-                <td><%= row.data?.portal_label ?? row.data?.portal ?? '—' %></td>
-                <td><span dir="ltr"><%= row.data?.ip ?? '—' %></span></td>
-                <td><%= fmt(row.archived_at) %></td>
-              </tr>
-            <% } %>
+            <tr><th scope="row">الاختبارات</th><td><strong><%= stats.exams %></strong></td></tr>
+            <tr><th scope="row">سجلات الأرشيف</th><td><strong><%= stats.archived %></strong></td></tr>
           </tbody>
         </table>
       </div>
-    <% } %>
-  </section>
+    </div>
+  </div>
 
-  <section class="panel">
-    <header class="panel-head">
-      <h2>الوحدات القادمة</h2>
-      <p>هيكل التطبيق جاهز، وهذه الوحدات ستُبنى عليه بالترتيب.</p>
-    </header>
+  <div class="stack">
+    <!-- إجراءات سريعة -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          إدارة المنصة
+        </div>
+      </div>
+      <div class="quick-actions">
+        <a class="action-btn" href="/owner/users">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <span>المستخدمون</span>
+        </a>
+        <a class="action-btn" href="/owner/archive">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="5" rx="1"/><path d="M4 9v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9"/></svg>
+          </div>
+          <span>الأرشيف</span>
+        </a>
+        <a class="action-btn green" href="/account">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <span>حسابي</span>
+        </a>
+      </div>
+    </div>
 
-    <ul class="module-list">
-      <li><span>إدارة الأساتذة والطلاب</span><span class="pill">المرحلة التالية</span></li>
-      <li><span>المقررات والمحاضرات والحضور</span><span class="pill">قيد البناء</span></li>
-      <li><span>الاختبارات والواجبات والتصحيح</span><span class="pill">قيد البناء</span></li>
-      <li><span>النقاط وسجل النقاط</span><span class="pill">قيد البناء</span></li>
-      <li><span>المكتبة العلمية والبحوث</span><span class="pill">قيد البناء</span></li>
-      <li><span>الأرشيف والتصدير والتقارير</span><span class="pill">قيد البناء</span></li>
-    </ul>
-  </section>
-</div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">وضع البوابات</div></div>
+      <div class="card-body" style="color:var(--text-secondary);line-height:1.9;">
+        <p class="mb-0">البوابة الحالية: <strong>بوابة المالك</strong> — الدخول محصور بحساب المالك. عند تفعيل مفتاح <code>owner_all_gates</code> من الإعدادات يمكن للمالك دخول بوابات الأساتذة والطلاب أيضاً.</p>
+      </div>
+    </div>
+  </div>
+</section>

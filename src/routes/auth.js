@@ -63,7 +63,7 @@ router.get("/", async (req, res, next) => {
       layout: "base",
       bodyClass: "site-page",
       styles: ["/css/views/home.css"],
-      scripts: ["/js/views/home.js"],
+      scripts: ["/js/home.js"],
     });
   } catch (error) {
     next(error);
@@ -211,7 +211,7 @@ router.get("/account", requireAuth, async (req, res, next) => {
     const portalKey = await primaryPortal(req.user);
     return renderPage(res, "auth/account", {
       title: "حسابي",
-      layout: "app",
+      layout: "portal", pageTitle: "حسابي",
       portal: PORTALS[portalKey],
       mustChange: req.user.must_change_password || req.query.first === "1",
       notice: req.query.saved ? "تم حفظ التغييرات." : null,
@@ -228,7 +228,7 @@ router.post("/account/password", requireAuth, async (req, res, next) => {
   const back = (status, error, notice = null) =>
     renderPage(res.status(status), "auth/account", {
       title: "حسابي",
-      layout: "app",
+      layout: "portal", pageTitle: "حسابي",
       portal: PORTALS[portalKey],
       mustChange: true,
       notice,
@@ -278,7 +278,7 @@ router.post("/account/profile", requireAuth, async (req, res, next) => {
   const back = (status, error) =>
     renderPage(res.status(status), "auth/account", {
       title: "حسابي",
-      layout: "app",
+      layout: "portal", pageTitle: "حسابي",
       portal: PORTALS[portalKey],
       mustChange: req.user.must_change_password,
       notice: null,

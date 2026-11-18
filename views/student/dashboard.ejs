@@ -1,75 +1,291 @@
-<%
-  const fmt = (value) => value
-    ? new Date(value).toLocaleString('ar', { dateStyle: 'medium', timeStyle: 'short' })
-    : 'غير مجدول';
-%>
-
-<section class="page-head">
-  <div>
-    <p class="eyebrow"><%= portal.label %></p>
-    <h1 class="page-title">لوحة الطالب</h1>
-    <p class="page-sub">مقرراتك ونقاطك ومحاضراتك القادمة.</p>
+<!-- بطاقة الترحيب -->
+<section class="welcome-card">
+  <div class="welcome-content">
+    <div class="welcome-tag">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20 6L9 17l-5-5"/>
+      </svg>
+      يوم دراسي موفق
+    </div>
+    <h2>أهلاً بعودتك، <span class="name"><%= user.name.split(' ')[0] %></span></h2>
+    <p>
+      لديك <strong><%= todayCount %> محاضرات</strong> اليوم،
+      و<strong><%= stats.upcomingExams %> اختبارات</strong> قادمة،
+      و<strong><%= assignments.length %> واجبات</strong> بانتظار تسليمك.
+    </p>
+    <div class="welcome-actions">
+      <% if (upcomingLectures.length) { %>
+        <a class="btn btn-gold" href="/student/lectures/<%= upcomingLectures[0].id %>">
+          ابدأ التعلّم
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6"/>
+          </svg>
+        </a>
+      <% } %>
+      <a class="btn btn-outline" href="/student/lectures">الجدول الأسبوعي</a>
+    </div>
   </div>
-  <span class="pill pill--student">طالب</span>
+
+  <div class="welcome-illustration" aria-hidden="true">
+    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M32 6v46"/>
+      <path d="M20 52h24"/>
+      <circle cx="32" cy="10" r="3.2" fill="currentColor" stroke="none"/>
+      <path d="M10 18h44"/>
+      <path d="M10 18L4 32h12L10 18z"/>
+      <path d="M54 18L48 32h12L54 18z"/>
+      <path d="M4 32a6 6 0 0 0 12 0"/>
+      <path d="M48 32a6 6 0 0 0 12 0"/>
+    </svg>
+  </div>
 </section>
 
-<div class="stats-grid stats-grid--3">
-  <article class="stat-card">
-    <span class="stat-label">المقررات المسجلة</span>
-    <span class="stat-value"><%= stats.courses %></span>
-  </article>
-  <article class="stat-card">
-    <span class="stat-label">مجموع النقاط</span>
-    <span class="stat-value"><%= stats.points %></span>
-  </article>
-  <article class="stat-card">
-    <span class="stat-label">محاضرات قادمة</span>
-    <span class="stat-value"><%= stats.lectures %></span>
-  </article>
-</div>
+<!-- بطاقات الإحصاءات -->
+<section class="stats-grid">
+  <div class="stat-card students">
+    <div class="stat-head">
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+          <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+        </svg>
+      </div>
+      <span class="stat-trend">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17l5-5 5 5M7 7l5 5 5-5"/></svg>
+        نشط
+      </span>
+    </div>
+    <div class="stat-label">المقررات المسجلة</div>
+    <div class="stat-value"><%= stats.courses %> <small>مقررات</small></div>
+  </div>
 
-<div class="grid-2">
-  <section class="panel">
-    <header class="panel-head">
-      <h2>مقرراتي</h2>
-      <p>المقررات المسجّل بها في مسارك الحالي.</p>
-    </header>
+  <div class="stat-card attendance">
+    <div class="stat-head">
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <path d="M22 4L12 14l-3-3"/>
+        </svg>
+      </div>
+    </div>
+    <div class="stat-label">نسبة الحضور</div>
+    <div class="stat-value"><%= stats.attendanceRate %><small>%</small></div>
+  </div>
 
-    <% if (!courses.length) { %>
-      <p class="empty">لم تُسجَّل في أي مقرر بعد. راجع إدارة الأكاديمية.</p>
-    <% } else { %>
-      <div class="course-cards">
-        <% for (const course of courses) { %>
-          <article class="course-card" style="--course-color: <%= course.color || '#123A63' %>">
-            <span class="course-code" dir="ltr"><%= course.code %></span>
-            <h3><%= course.title %></h3>
-            <p><%= course.track === 'equiv' ? 'قسم المعادلة' : `المستوى ${course.level ?? '—'}` %></p>
-          </article>
+  <div class="stat-card points">
+    <div class="stat-head">
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+      </div>
+      <span class="stat-trend">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17l5-5 5 5M7 7l5 5 5-5"/></svg>
+        +<%= points.weekPoints %>
+      </span>
+    </div>
+    <div class="stat-label">إجمالي النقاط</div>
+    <div class="stat-value"><%= format.formatNumber(stats.points) %> <small>نقطة</small></div>
+  </div>
+
+  <div class="stat-card exams">
+    <div class="stat-head">
+      <div class="stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 6v6l4 2"/>
+        </svg>
+      </div>
+    </div>
+    <div class="stat-label">اختبارات قادمة</div>
+    <div class="stat-value"><%= stats.upcomingExams %> <small>اختبارات</small></div>
+  </div>
+</section>
+
+<!-- الشبكة الرئيسية -->
+<section class="dashboard-grid">
+
+  <div class="stack">
+
+    <!-- المقررات -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          مقرراتي النشطة
+        </div>
+        <a href="/student/grades" class="card-link">
+          الدرجات
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+      <div class="card-body">
+        <% if (courses.length) { %>
+          <div class="courses-list">
+            <% for (const course of courses) { %>
+              <div class="course-item">
+                <div class="course-icon" style="--course-color:<%= course.color || '#123A63' %>;">
+                  <span><%= course.code.slice(0, 2) %></span>
+                </div>
+                <div class="course-info">
+                  <h4><%= course.title %></h4>
+                  <div class="course-meta">
+                    <span><%= course.code %> · <%= course.track === 'equiv' ? 'قسم المعادلة' : 'مسار البكالوريوس' %></span>
+                    <span><%= course.teacherName %></span>
+                  </div>
+                </div>
+                <div class="course-progress">
+                  <span class="progress-label"><%= course.progress %>%</span>
+                  <div class="progress-bar"><span style="width:<%= course.progress %>%"></span></div>
+                </div>
+              </div>
+            <% } %>
+          </div>
+        <% } else { %>
+          <div class="empty-state"><h3>لا توجد مقررات مسجلة</h3><p>تواصل مع إدارة الأكاديمية لتسجيل مقرراتك.</p></div>
         <% } %>
       </div>
-    <% } %>
-  </section>
+    </div>
 
-  <section class="panel">
-    <header class="panel-head">
-      <h2>محاضرات قادمة</h2>
-      <p>مواعيد المحاضرات المعلنة في المنصة.</p>
-    </header>
-
-    <% if (!lectures.length) { %>
-      <p class="empty">لا توجد محاضرات مجدولة حالياً.</p>
-    <% } else { %>
-      <ul class="timeline">
-        <% for (const lecture of lectures) { %>
-          <li>
-            <span class="timeline-dot" aria-hidden="true"></span>
-            <span class="timeline-body">
-              <strong><%= lecture.title %></strong>
-              <small><%= fmt(lecture.scheduled_at) %></small>
-            </span>
-          </li>
+    <!-- المحاضرات القادمة -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
+          </svg>
+          المحاضرات القادمة
+        </div>
+        <a href="/student/lectures" class="card-link">
+          الكل
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+      <div class="card-body no-pad">
+        <% if (upcomingLectures.length) { %>
+          <div class="lectures-list">
+            <% for (const lecture of upcomingLectures) { const md = format.monthDay(lecture.scheduled_at); %>
+              <a class="lecture-item <%= lecture.attendance_open ? 'live' : '' %>" href="/student/lectures/<%= lecture.id %>">
+                <div class="lecture-date">
+                  <span class="day"><%= md.day %></span>
+                  <span class="month"><%= md.month %></span>
+                </div>
+                <div class="lecture-info">
+                  <h4><%= lecture.title %></h4>
+                  <div class="lecture-sub">
+                    <span><%= format.formatTime(lecture.scheduled_at) %></span>
+                    <span><%= lecture.course ? lecture.course.code : '' %></span>
+                  </div>
+                </div>
+                <span class="lecture-type <%= lecture.lecture_type %>"><%= lecture.lecture_type === 'direct' ? 'مباشر' : (lecture.lecture_type === 'online' ? 'أونلاين' : 'مسجل') %></span>
+              </a>
+            <% } %>
+          </div>
+        <% } else { %>
+          <div class="empty-state" style="border:0;"><h3>لا توجد محاضرات قادمة</h3><p>ستظهر هنا المحاضرات المجدولة قريباً.</p></div>
         <% } %>
-      </ul>
-    <% } %>
-  </section>
-</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="stack">
+
+    <!-- بطاقة النقاط -->
+    <div class="points-card">
+      <div class="points-head">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+        </svg>
+        <h3>نقاطي</h3>
+      </div>
+
+      <div class="points-value">
+        <span class="num"><%= format.formatNumber(points.total) %></span>
+        <span class="unit">نقطة</span>
+      </div>
+
+      <div class="points-meta"><span class="up">+<%= points.weekPoints %></span> هذا الأسبوع</div>
+
+      <div class="points-breakdown">
+        <div class="points-row"><span class="label"><span class="dot att"></span>الحضور</span><strong><%= points.byType.attendance %></strong></div>
+        <div class="points-row"><span class="label"><span class="dot int"></span>التفاعل</span><strong><%= points.byType.interaction %></strong></div>
+        <div class="points-row"><span class="label"><span class="dot asg"></span>الواجبات</span><strong><%= points.byType.assignment %></strong></div>
+      </div>
+
+      <a class="btn btn-outline btn-block mt-0" href="/student/points">سجل النقاط الكامل</a>
+    </div>
+
+    <!-- الإشعارات -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          الإشعارات
+        </div>
+      </div>
+      <div class="card-body no-pad">
+        <% if (notifications.length) { %>
+          <div class="notifications-list">
+            <% for (const notif of notifications) { %>
+              <div class="notif-item unread">
+                <div class="notif-icon gold">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15l2 2 4-4"/></svg>
+                </div>
+                <div class="notif-content">
+                  <h5><%= notif.title %></h5>
+                  <p><%= notif.body %></p>
+                  <time><%= format.relativeTime(notif.created_at) %></time>
+                </div>
+              </div>
+            <% } %>
+          </div>
+        <% } else { %>
+          <div class="empty-state" style="border:0;"><p>لا توجد إشعارات جديدة.</p></div>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- إجراءات سريعة -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          إجراءات سريعة
+        </div>
+      </div>
+      <div class="quick-actions">
+        <a class="action-btn" href="/student/assignments">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </div>
+          <span>تسليم واجب</span>
+        </a>
+        <a class="action-btn green" href="/student/exams">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+          </div>
+          <span>الاختبارات</span>
+        </a>
+        <a class="action-btn blue" href="/student/points">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </div>
+          <span>نقاطي</span>
+        </a>
+        <a class="action-btn" href="/account">
+          <div class="icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <span>حسابي</span>
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>

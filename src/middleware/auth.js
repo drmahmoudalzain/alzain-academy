@@ -39,7 +39,10 @@ export async function attachUser(req, res, next) {
     req.user = data.users;
     req.sessionTokenHash = tokenHash;
     res.locals.user = data.users;
-    res.locals.homePath = PORTALS[await primaryPortal(data.users)]?.home ?? "/";
+    const portalKey = await primaryPortal(data.users);
+    res.locals.homePath = PORTALS[portalKey]?.home ?? "/";
+    res.locals.nav = NAVIGATION[portalKey] ?? [];
+    res.locals.navBadges = {};
   } catch (error) {
     console.error("تعذر التحقق من الجلسة:", error.message ?? error);
   }

@@ -1,0 +1,51 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>مقرراتي</h2>
+    <p>المقررات المسندة إليك مع عدد الطلاب والمحاضرات والاختبارات.</p>
+  </div>
+</section>
+
+<% let shown = courses; if (searchValue) { const q = String(searchValue).toLowerCase(); shown = courses.filter(c => `${c.title} ${c.code}`.toLowerCase().includes(q)); } %>
+
+<% if (shown.length) { %>
+  <div class="courses-grades-grid">
+    <% for (const course of shown) { %>
+      <div class="course-grade-card">
+        <div class="course-grade-head">
+          <div class="course-grade-icon" style="--course-color:<%= course.color || '#123A63' %>;"><%= course.code.slice(0, 2) %></div>
+          <div class="course-grade-info">
+            <h3><%= course.title %></h3>
+            <div class="meta">
+              <span><%= course.code %></span>
+              <span class="dot"></span>
+              <span><%= course.track === 'equiv' ? 'قسم المعادلة' : 'البكالوريوس' %><%= course.level ? ' — المستوى ' + course.level : '' %></span>
+            </div>
+          </div>
+          <% if (course.archived) { %><span class="course-grade-badge good">مؤرشف</span><% } %>
+        </div>
+        <div class="course-grade-body">
+          <div class="grade-breakdown">
+            <div class="breakdown-row">
+              <div class="breakdown-head"><span>الطلاب</span><strong><%= course.studentCount %> طالب</strong></div>
+              <div class="breakdown-bar attendance"><span style="width:<%= Math.min(100, course.studentCount * 10) %>%"></span></div>
+            </div>
+            <div class="breakdown-row">
+              <div class="breakdown-head"><span>المحاضرات</span><strong><%= course.lectureCount %> محاضرة</strong></div>
+              <div class="breakdown-bar exams"><span style="width:<%= Math.min(100, course.lectureCount * 10) %>%"></span></div>
+            </div>
+            <div class="breakdown-row">
+              <div class="breakdown-head"><span>الاختبارات</span><strong><%= course.examCount %> اختبارات</strong></div>
+              <div class="breakdown-bar assignments"><span style="width:<%= Math.min(100, course.examCount * 25) %>%"></span></div>
+            </div>
+          </div>
+          <div class="course-grade-total">
+            <span class="total-label">أوزان التقييم</span>
+            <span class="total-value" style="--total-color:var(--info);">حضور <%= course.attendance_weight || 10 %> · اختبارات <%= course.exams_weight || 60 %> · واجبات <%= course.assignments_weight || 30 %></span>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+<% } else { %>
+  <div class="empty-state"><h3>لا توجد مقررات</h3><p>لم تُسنَد إليك مقررات بعد.</p></div>
+<% } %>

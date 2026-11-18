@@ -1,0 +1,233 @@
+<form id="examForm" method="post" action="/student/exams/<%= exam.id %>/submit">
+  <div class="exam-app">
+
+    <header class="exam-topbar">
+      <div class="topbar-brand">
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:38px;height:38px;"><path d="M32 6v46"/><path d="M20 52h24"/><circle cx="32" cy="10" r="3" fill="currentColor" stroke="none"/><path d="M10 18h44"/><path d="M10 18L4 32h12L10 18z"/><path d="M54 18L48 32h12L54 18z"/><path d="M4 32a6 6 0 0 0 12 0"/><path d="M48 32a6 6 0 0 0 12 0"/></svg>
+        <div class="topbar-brand-text">
+          <strong><%= exam.title %></strong>
+          <small><%= exam.courses ? `${exam.courses.code} — ${exam.courses.title}` : '' %></small>
+        </div>
+      </div>
+
+      <div class="topbar-info">
+        <div class="topbar-info-item">
+          <span class="label">السؤال</span>
+          <span class="value"><span data-bind="current">1</span> / <%= questions.length %></span>
+        </div>
+        <div class="topbar-divider"></div>
+        <div class="topbar-info-item">
+          <span class="label">الإجابات</span>
+          <span class="value"><span data-bind="answered">0</span> / <%= questions.length %></span>
+        </div>
+        <div class="topbar-divider"></div>
+        <div class="topbar-info-item">
+          <span class="label">الدرجة</span>
+          <span class="value"><%= totalPoints %> نقطة</span>
+        </div>
+      </div>
+
+      <div class="exam-timer" id="examTimer" role="timer" aria-live="polite">
+        <div class="exam-timer-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <div class="exam-timer-body">
+          <span class="exam-timer-label">الوقت المتبقي</span>
+          <span class="exam-timer-value" id="timerValue">--:--</span>
+        </div>
+      </div>
+
+      <button type="button" class="topbar-exit" id="exitBtn" aria-label="إنهاء وتسليم الاختبار">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+        <span>إنهاء وتسليم</span>
+      </button>
+    </header>
+
+    <main class="exam-main">
+
+      <aside class="questions-map" aria-label="خريطة الأسئلة">
+        <div class="map-header">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:17px;height:17px;"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            خريطة الأسئلة
+          </h3>
+          <span class="map-counter"><span data-bind="answered">0</span>/<%= questions.length %></span>
+        </div>
+        <div class="map-body">
+          <div class="map-legend">
+            <div class="legend-item"><span class="legend-dot answered"></span> مُجابة</div>
+            <div class="legend-item"><span class="legend-dot current"></span> السؤال الحالي</div>
+            <div class="legend-item"><span class="legend-dot empty"></span> لم تُجب</div>
+            <div class="legend-item"><span class="legend-dot flagged"></span> مُعلَّمة</div>
+          </div>
+          <div class="map-grid" id="mapGrid"></div>
+          <div class="map-stats">
+            <div class="map-stat answered">
+              <div class="map-stat-value" data-bind="answered">0</div>
+              <div class="map-stat-label">مُجابة</div>
+            </div>
+            <div class="map-stat remaining">
+              <div class="map-stat-value" data-bind="remaining"><%= questions.length %></div>
+              <div class="map-stat-label">متبقية</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <section class="question-area" aria-live="polite">
+        <div class="question-header">
+          <div class="question-info">
+            <span class="question-number-badge">سؤال <strong><span data-bind="current">1</span></strong> / <%= questions.length %></span>
+            <span class="question-type-tag mcq" id="qTypeTag">اختر</span>
+            <span class="question-points-tag">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:14px;height:14px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <span id="qPoints">0</span> نقطة
+            </span>
+          </div>
+          <button type="button" class="flag-btn" id="flagBtn" aria-label="تعليم السؤال للمراجعة">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:15px;height:15px;"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg>
+            <span>علّم للمراجعة</span>
+          </button>
+        </div>
+
+        <div class="question-body" id="questionBody">
+          <% for (const [index, question] of questions.entries()) { %>
+            <div class="exam-question <%= index === 0 ? 'active' : '' %>"
+                 data-type="<%= question.type %>"
+                 data-type-label="<%= question.type === 'mcq' ? 'اختيار من متعدد' : (question.type === 'multi' ? 'اختيار متعدد' : (question.type === 'truefalse' ? 'صح أو خطأ' : 'سؤال مقالي')) %>"
+                 data-points="<%= question.points %>">
+              <div class="question-text"><%= index + 1 %>. <%= question.text %></div>
+
+              <% if (question.type === 'essay') { %>
+                <textarea class="essay-area" name="q_<%= question.id %>" placeholder="اكتب إجابتك هنا..." rows="8"><%= question.answer ? question.answer.text ?? '' : '' %></textarea>
+              <% } else if (question.type === 'truefalse') { %>
+                <div class="tf-options">
+                  <label class="tf-option <%= question.answer && question.answer.choice_index === 1 ? 'selected' : '' %>">
+                    <input type="radio" name="q_<%= question.id %>" value="true" <%= question.answer && question.answer.choice_index === 1 ? 'checked' : '' %> hidden>
+                    <span class="tf-icon">صح</span>
+                  </label>
+                  <label class="tf-option <%= question.answer && question.answer.choice_index === 0 ? 'selected' : '' %>">
+                    <input type="radio" name="q_<%= question.id %>" value="false" <%= question.answer && question.answer.choice_index === 0 ? 'checked' : '' %> hidden>
+                    <span class="tf-icon">خطأ</span>
+                  </label>
+                </div>
+              <% } else if (question.type === 'multi') { %>
+                <div class="options-list">
+                  <% question.options.forEach((option, i) => { const checked = question.answer && (question.answer.choice_indices || []).includes(i); %>
+                    <label class="option-card <%= checked ? 'selected' : '' %>">
+                      <input type="checkbox" name="q_<%= question.id %>" value="<%= i %>" <%= checked ? 'checked' : '' %> hidden>
+                      <span class="option-letter"><%= ['أ','ب','ج','د','هـ'][i] || i + 1 %></span>
+                      <span class="option-text"><%= option %></span>
+                      <span class="option-check square"></span>
+                    </label>
+                  <% }) %>
+                </div>
+              <% } else { %>
+                <div class="options-list">
+                  <% question.options.forEach((option, i) => { const checked = question.answer && question.answer.choice_index === i; %>
+                    <label class="option-card <%= checked ? 'selected' : '' %>">
+                      <input type="radio" name="q_<%= question.id %>" value="<%= i %>" <%= checked ? 'checked' : '' %> hidden>
+                      <span class="option-letter"><%= ['أ','ب','ج','د','هـ'][i] || i + 1 %></span>
+                      <span class="option-text"><%= option %></span>
+                      <span class="option-check"></span>
+                    </label>
+                  <% }) %>
+                </div>
+              <% } %>
+            </div>
+          <% } %>
+        </div>
+
+        <div class="question-footer">
+          <div class="question-footer-left">
+            <button type="button" class="btn btn-secondary" id="prevBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:16px;height:16px;"><path d="M9 18l6-6-6-6"/></svg>
+              السابق
+            </button>
+          </div>
+          <div class="question-footer-right">
+            <button type="button" class="btn btn-secondary btn-sm" id="clearBtn">مسح الإجابة</button>
+            <button type="button" class="btn btn-primary" id="nextBtn">
+              التالي
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:16px;height:16px;"><path d="M15 18l-6-6 6-6"/></svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side-info">
+        <div class="side-card">
+          <div class="side-card-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:17px;height:17px;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <h4>معلومات الاختبار</h4>
+          </div>
+          <div class="side-card-body">
+            <div class="info-list">
+              <div class="info-item"><span class="info-item-label">المقرر</span><span class="info-item-value"><%= exam.courses ? exam.courses.code : '—' %></span></div>
+              <div class="info-item"><span class="info-item-label">عدد الأسئلة</span><span class="info-item-value"><%= questions.length %> سؤال</span></div>
+              <div class="info-item"><span class="info-item-label">الدرجة الكلية</span><span class="info-item-value gold"><%= totalPoints %> نقطة</span></div>
+              <div class="info-item"><span class="info-item-label">الوقت المتاح</span><span class="info-item-value"><%= exam.duration_min || 60 %> دقيقة</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="side-card">
+          <div class="side-card-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:17px;height:17px;"><path d="M12 20V10M18 20V4M6 20v-4"/></svg>
+            <h4>التقدم</h4>
+          </div>
+          <div class="progress-side">
+            <div class="progress-side-label">
+              <span>أجبت على</span>
+              <strong><span data-bind="answered">0</span> من <%= questions.length %></strong>
+            </div>
+            <div class="progress-side-bar"><span id="sideProgressBar" style="width:0%"></span></div>
+          </div>
+        </div>
+
+        <div class="side-card tips-card">
+          <div class="side-card-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:17px;height:17px;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <h4>تنبيهات</h4>
+          </div>
+          <div class="side-card-body">
+            <div class="tips-card">
+              <div class="tip-item">يمكنك التنقل بين الأسئلة بحرية.</div>
+              <div class="tip-item">استخدم «علّم للمراجعة» للرجوع إلى السؤال لاحقاً.</div>
+              <div class="tip-item">عند انتهاء الوقت يُسلَّم الاختبار تلقائياً.</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+    </main>
+  </div>
+
+  <!-- نافذة التأكيد -->
+  <div class="modal-overlay" id="submitModal" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        </div>
+        <h2 class="modal-title">هل أنت متأكد من تسليم الاختبار؟</h2>
+        <p class="modal-subtitle">بعد التسليم، لا يمكنك تعديل إجاباتك أو العودة إلى الاختبار.</p>
+      </div>
+      <div class="modal-body">
+        <div class="submit-summary">
+          <div class="summary-item total"><div class="summary-value"><%= questions.length %></div><div class="summary-label">إجمالي الأسئلة</div></div>
+          <div class="summary-item answered"><div class="summary-value" id="modalAnswered">0</div><div class="summary-label">مُجابة</div></div>
+          <div class="summary-item remaining"><div class="summary-value" id="modalRemaining"><%= questions.length %></div><div class="summary-label">لم تُجب</div></div>
+        </div>
+        <div class="modal-warning">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:18px;height:18px;flex:none;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          <div><strong>تنبيه:</strong> الأسئلة التي لم تُجب عليها ستُحتسب خاطئة.</div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" id="modalCancel">عودة للاختبار</button>
+        <button type="button" class="btn btn-success" id="modalConfirm">تأكيد التسليم</button>
+      </div>
+    </div>
+  </div>
+</form>

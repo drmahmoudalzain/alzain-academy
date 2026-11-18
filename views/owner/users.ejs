@@ -1,0 +1,39 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>المستخدمون</h2>
+    <p>جميع حسابات المنصة — الأساتذة والطلاب.</p>
+  </div>
+</section>
+
+<div class="filter-tabs" style="margin-bottom:16px;">
+  <a class="filter-tab <%= role === 'all' ? 'active' : '' %>" href="/owner/users">الكل<span class="tab-count"><%= users.length %></span></a>
+  <a class="filter-tab <%= role === 'teacher' ? 'active' : '' %>" href="/owner/users?role=teacher">الأساتذة</a>
+  <a class="filter-tab <%= role === 'student' ? 'active' : '' %>" href="/owner/users?role=student">الطلاب</a>
+</div>
+
+<% if (users.length) { %>
+  <div class="table-card">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr><th>#</th><th>الاسم</th><th>الدور</th><th>المعرّف</th><th>المسار/المستوى</th><th>الحالة</th><th>آخر دخول</th></tr>
+        </thead>
+        <tbody>
+          <% for (const user of users) { %>
+            <tr>
+              <td><%= user.id %></td>
+              <td><strong><%= user.name %></strong></td>
+              <td><%= user.role === 'teacher' ? 'أستاذ' : 'طالب' %></td>
+              <td dir="ltr" style="text-align:left;"><code><%= user.university_id || user.email || '—' %></code></td>
+              <td><%= user.role === 'student' ? (user.track === 'equiv' ? 'قسم المعادلة' : 'البكالوريوس') + (user.level ? ' — م' + user.level : '') : (user.position || 'عضو هيئة التدريس') %></td>
+              <td><span class="chip" style="<%= user.is_active ? 'border-color:var(--success-border);color:var(--success);' : 'border-color:var(--danger-border);color:var(--danger);' %>"><%= user.is_active ? 'نشط' : 'موقوف' %></span></td>
+              <td class="muted"><%= user.last_login ? format.formatDateTime(user.last_login) : '—' %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } else { %>
+  <div class="empty-state"><h3>لا توجد نتائج</h3><p>لا يوجد مستخدمون مطابقون لبحثك.</p></div>
+<% } %>

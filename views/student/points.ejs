@@ -1,0 +1,225 @@
+<!-- رأس الصفحة -->
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>نقاطي</h2>
+    <p>نقاطك المكتسبة من الحضور والتفاعل وتسليم الواجبات — تظهر هنا مع تفاصيل كل نقطة.</p>
+  </div>
+</section>
+
+<section class="points-hero">
+  <div class="points-info">
+    <span class="points-tag">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      إنجازك الأكاديمي
+    </span>
+    <h2>نقاطك، <span class="name"><%= user.name.split(' ')[0] %></span></h2>
+    <p>جمعت <strong><%= format.formatNumber(points.total) %> نقطة</strong> عبر حضورك، تفاعلك مع الأسئلة، وتسليمك المنتظم للواجبات.</p>
+  </div>
+  <div class="points-total-box">
+    <div class="points-total-icon">
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    </div>
+    <div class="points-total-value"><%= format.formatNumber(points.total) %></div>
+    <div class="points-total-label">إجمالي النقاط</div>
+    <span class="points-trend">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:13px;height:13px;"><path d="M7 17l5-5 5 5M7 7l5 5 5-5"/></svg>
+      +<%= points.weekPoints %> هذا الأسبوع
+    </span>
+  </div>
+</section>
+
+<section class="stats-grid">
+  <div class="stat-card attendance">
+    <div class="stat-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14l-3-3"/></svg>
+    </div>
+    <div class="stat-body">
+      <div class="stat-label">نقاط الحضور</div>
+      <div class="stat-value"><%= points.byType.attendance %> <small>نقطة</small></div>
+    </div>
+  </div>
+  <div class="stat-card interaction">
+    <div class="stat-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    </div>
+    <div class="stat-body">
+      <div class="stat-label">نقاط التفاعل</div>
+      <div class="stat-value"><%= points.byType.interaction %> <small>نقطة</small></div>
+    </div>
+  </div>
+  <div class="stat-card assignments">
+    <div class="stat-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+    </div>
+    <div class="stat-body">
+      <div class="stat-label">نقاط الواجبات</div>
+      <div class="stat-value"><%= points.byType.assignment %> <small>نقطة</small></div>
+    </div>
+  </div>
+  <div class="stat-card rank">
+    <div class="stat-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+    </div>
+    <div class="stat-body">
+      <div class="stat-label">ترتيبك</div>
+      <div class="stat-value">#<%= myRank || '—' %></div>
+    </div>
+  </div>
+</section>
+
+<section class="source-cards-grid">
+  <div class="source-card attendance">
+    <div class="source-head">
+      <div class="source-title">
+        <div class="source-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="M22 4L12 14l-3-3"/></svg>
+        </div>
+        الحضور
+      </div>
+      <span class="source-percent"><%= points.total ? Math.round((points.byType.attendance / points.total) * 100) : 0 %>%</span>
+    </div>
+    <div class="source-value"><%= points.byType.attendance %> <small>نقطة</small></div>
+    <div class="source-desc">1 نقطة لكل 10 دقائق حضور — بحد أقصى 10 نقاط لكل محاضرة</div>
+    <div class="source-bar"><span style="width:<%= points.total ? (points.byType.attendance / points.total) * 100 : 0 %>%"></span></div>
+  </div>
+
+  <div class="source-card interaction">
+    <div class="source-head">
+      <div class="source-title">
+        <div class="source-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        التفاعل
+      </div>
+      <span class="source-percent"><%= points.total ? Math.round((points.byType.interaction / points.total) * 100) : 0 %>%</span>
+    </div>
+    <div class="source-value"><%= points.byType.interaction %> <small>نقطة</small></div>
+    <div class="source-desc">إجابات صحيحة على أسئلة المحاضرات والاستطلاعات</div>
+    <div class="source-bar"><span style="width:<%= points.total ? (points.byType.interaction / points.total) * 100 : 0 %>%"></span></div>
+  </div>
+
+  <div class="source-card assignments">
+    <div class="source-head">
+      <div class="source-title">
+        <div class="source-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        </div>
+        الواجبات
+      </div>
+      <span class="source-percent"><%= points.total ? Math.round((points.byType.assignment / points.total) * 100) : 0 %>%</span>
+    </div>
+    <div class="source-value"><%= points.byType.assignment %> <small>نقطة</small></div>
+    <div class="source-desc">تسليم في الوقت + إجابات صحيحة</div>
+    <div class="source-bar"><span style="width:<%= points.total ? (points.byType.assignment / points.total) * 100 : 0 %>%"></span></div>
+  </div>
+</section>
+
+<nav class="tabs-nav" role="tablist">
+  <button class="tab-btn active" data-tab="ledger" role="tab" aria-selected="true"><span class="label">سجل النقاط</span></button>
+  <button class="tab-btn" data-tab="analytics" role="tab" aria-selected="false"><span class="label">تحليل النقاط</span></button>
+  <button class="tab-btn" data-tab="leaderboard" role="tab" aria-selected="false"><span class="label">لوحة الشرف</span></button>
+</nav>
+
+<div class="tab-pane active" data-pane="ledger">
+  <div class="ledger-wrapper">
+    <div class="ledger-toolbar">
+      <div class="ledger-toolbar-left">
+        <h3>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:17px;height:17px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          سجل النقاط
+        </h3>
+        <div class="filter-pills" role="tablist" aria-label="تصفية النقاط">
+          <button class="filter-pill active" data-filter="all" role="tab" aria-selected="true"><span class="dot"></span>الكل</button>
+          <button class="filter-pill" data-filter="attendance" role="tab" aria-selected="false"><span class="dot" style="color:var(--info);"></span>الحضور</button>
+          <button class="filter-pill" data-filter="interaction" role="tab" aria-selected="false"><span class="dot" style="color:var(--gold);"></span>التفاعل</button>
+          <button class="filter-pill" data-filter="assignment" role="tab" aria-selected="false"><span class="dot" style="color:var(--green);"></span>الواجبات</button>
+        </div>
+      </div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="ledger-table" id="ledgerTable">
+        <thead>
+          <tr><th>المصدر</th><th>المقرر</th><th>البيان</th><th>التاريخ</th><th class="center">النقاط</th></tr>
+        </thead>
+        <tbody id="ledgerBody">
+          <% for (const row of points.rows) { %>
+            <tr data-source="<%= row.source_type %>">
+              <td><span class="ledger-source <%= row.source_type %>"><%= row.source_type === 'attendance' ? 'الحضور' : (row.source_type === 'interaction' ? 'التفاعل' : 'الواجبات') %></span></td>
+              <td><span class="ledger-course"><%= row.courses ? row.courses.code : '—' %></span></td>
+              <td><%= row.source_detail || (row.source_type === 'attendance' ? 'تسجيل الحضور' : '—') %></td>
+              <td><span class="ledger-date"><%= format.formatDate(row.created_at) %></span></td>
+              <td class="center"><strong class="ledger-points">+<%= row.points %></strong></td>
+            </tr>
+          <% } %>
+          <% if (!points.rows.length) { %>
+            <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:28px;">لا توجد نقاط مسجلة بعد — احضر محاضراتك وسلّم واجباتك لتكسب نقاطك.</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="tab-pane" data-pane="analytics">
+  <div class="analytics-grid">
+    <div class="chart-card">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:17px;height:17px;"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        توزيع مصادر النقاط
+      </h3>
+      <div class="donut-wrap">
+        <div class="donut" style="background: conic-gradient(var(--info) 0deg, var(--info) <%= points.total ? (points.byType.attendance / points.total) * 360 : 0 %>deg, var(--gold) <%= points.total ? (points.byType.attendance / points.total) * 360 : 0 %>deg, var(--gold) <%= points.total ? ((points.byType.attendance + points.byType.interaction) / points.total) * 360 : 0 %>deg, var(--green) <%= points.total ? ((points.byType.attendance + points.byType.interaction) / points.total) * 360 : 0 %>deg, var(--green) 360deg);">
+          <div class="donut-inner">
+            <strong><%= format.formatNumber(points.total) %></strong>
+            <span>إجمالي</span>
+          </div>
+        </div>
+        <div class="donut-legend">
+          <div class="legend-row"><span class="dot att"></span><span class="label">الحضور</span><span class="val"><%= points.byType.attendance %></span><span class="pct"><%= points.total ? Math.round((points.byType.attendance / points.total) * 100) : 0 %>%</span></div>
+          <div class="legend-row"><span class="dot int"></span><span class="label">التفاعل</span><span class="val"><%= points.byType.interaction %></span><span class="pct"><%= points.total ? Math.round((points.byType.interaction / points.total) * 100) : 0 %>%</span></div>
+          <div class="legend-row"><span class="dot asg"></span><span class="label">الواجبات</span><span class="val"><%= points.byType.assignment %></span><span class="pct"><%= points.total ? Math.round((points.byType.assignment / points.total) * 100) : 0 %>%</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <h3>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:17px;height:17px;"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="10"/></svg>
+        نقاط آخر 7 أيام
+      </h3>
+      <div class="weekly-chart">
+        <% for (const day of weekly) { %>
+          <div class="week-col">
+            <div class="week-value"><%= day.total %></div>
+            <div class="week-bar <%= day.total ? '' : 'empty' %>" style="height:<%= day.height %>%"></div>
+            <div class="week-label"><%= day.label %></div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tab-pane" data-pane="leaderboard">
+  <div class="table-card">
+    <div class="table-card-head"><h3>لوحة الشرف</h3></div>
+    <div class="side-card-body" style="padding:0;">
+      <% if (leaderboard.length) { %>
+        <div class="leaderboard" style="padding:10px 12px;">
+          <% for (const row of leaderboard) { %>
+            <div class="leaderboard-row <%= row.isMe ? 'me' : '' %>">
+              <span class="rank-badge rank-<%= row.rank <= 3 ? row.rank : '' %>"><%= row.rank %></span>
+              <div class="leaderboard-avatar"><%= row.name.trim().charAt(0) %></div>
+              <div class="leaderboard-info">
+                <strong><%= row.name %><% if (row.isMe) { %> (أنت)<% } %></strong>
+              </div>
+              <div class="leaderboard-points"><%= format.formatNumber(row.total) %> نقطة</div>
+            </div>
+          <% } %>
+        </div>
+      <% } else { %>
+        <div class="empty-state" style="border:0;"><h3>لوحة الشرف فارغة</h3><p>كن أول من يكسب نقاطاً في المنصة!</p></div>
+      <% } %>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,36 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>الأرشيف</h2>
+    <p>السجلات المؤرشفة (30 يومًا فقط) — بما فيها محاولات الدخول المرفوضة.</p>
+  </div>
+</section>
+
+<div class="filter-tabs" style="margin-bottom:16px;">
+  <a class="filter-tab <%= type === 'all' ? 'active' : '' %>" href="/owner/archive">الكل</a>
+  <a class="filter-tab <%= type === 'login_denied' ? 'active' : '' %>" href="/owner/archive?type=login_denied">دخول مرفوض</a>
+</div>
+
+<% if (records.length) { %>
+  <div class="table-card">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr><th>#</th><th>الوقت</th><th>النوع</th><th>الوصف</th><th>التفاصيل</th></tr>
+        </thead>
+        <tbody>
+          <% for (const record of records) { const d = record.data || {}; %>
+            <tr>
+              <td><%= record.id %></td>
+              <td><%= format.formatDateTime(record.archived_at) %></td>
+              <td><span class="chip"><%= record.table_name %></span></td>
+              <td><strong><%= record.label || 'سجل مؤرشف' %></strong></td>
+              <td class="muted" style="max-width:340px;"><%= [d.identifier, d.ip, d.portal ? 'البوابة: ' + d.portal : null, d.user_id ? 'المستخدم: #' + d.user_id : null].filter(Boolean).join(' · ') || '—' %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } else { %>
+  <div class="empty-state"><h3>الأرشيف فارغ</h3><p>لا توجد سجلات مطابقة حالياً.</p></div>
+<% } %>

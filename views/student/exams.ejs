@@ -1,0 +1,117 @@
+<!-- رأس الصفحة -->
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>اختباراتي</h2>
+    <p>الاختبارات المنشورة في مقرراتك — المفتوحة والقادمة والمنتهية.</p>
+  </div>
+</section>
+
+<!-- إحصاءات سريعة -->
+<section class="mini-stats">
+  <div class="mini-stat all">
+    <div class="mini-stat-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+    </div>
+    <div class="mini-stat-body">
+      <div class="mini-stat-label">إجمالي الاختبارات</div>
+      <div class="mini-stat-value"><%= counts.all %> <small>اختبارات</small></div>
+    </div>
+  </div>
+  <div class="mini-stat pending">
+    <div class="mini-stat-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    </div>
+    <div class="mini-stat-body">
+      <div class="mini-stat-label">مفتوحة الآن</div>
+      <div class="mini-stat-value"><%= counts.open %> <small>اختبارات</small></div>
+    </div>
+  </div>
+  <div class="mini-stat">
+    <div class="mini-stat-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+    </div>
+    <div class="mini-stat-body">
+      <div class="mini-stat-label">قادمة</div>
+      <div class="mini-stat-value"><%= counts.upcoming %> <small>اختبارات</small></div>
+    </div>
+  </div>
+  <div class="mini-stat graded">
+    <div class="mini-stat-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <div class="mini-stat-body">
+      <div class="mini-stat-label">مكتملة</div>
+      <div class="mini-stat-value"><%= counts.finished %> <small>اختبارات</small></div>
+    </div>
+  </div>
+</section>
+
+<!-- بطاقات الاختبارات -->
+<% if (exams.length) { %>
+  <section class="assignments-grid">
+    <% for (const exam of exams) { %>
+      <article class="assignment-card" data-status="<%= exam.status %>">
+        <div class="assignment-card-top"></div>
+        <div class="assignment-card-body">
+          <div class="assignment-card-head">
+            <span class="assignment-type-badge">اختبار</span>
+            <% if (exam.status === 'open') { %>
+              <span class="assignment-status urgent">مفتوح الآن</span>
+            <% } else if (exam.status === 'upcoming') { %>
+              <span class="assignment-status pending">لم يبدأ</span>
+            <% } else if (exam.status === 'closed') { %>
+              <span class="assignment-status late">مغلق</span>
+            <% } else { %>
+              <span class="assignment-status submitted">تم التسليم</span>
+            <% } %>
+          </div>
+
+          <div class="assignment-course-line">
+            <span class="assignment-course-dot" style="--course-color:<%= exam.course ? (exam.course.color || '#123A63') : '#123A63' %>;"></span>
+            <%= exam.course ? `${exam.course.code} — ${exam.course.title}` : '' %>
+          </div>
+
+          <h3 class="assignment-title"><%= exam.title %></h3>
+          <% if (exam.description) { %><p class="assignment-desc"><%= exam.description %></p><% } %>
+
+          <div class="assignment-meta-grid">
+            <div class="assignment-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+              <span><strong><%= exam.questionCount %></strong> أسئلة</span>
+            </div>
+            <div class="assignment-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              <span><strong><%= exam.totalPoints %></strong> نقطة</span>
+            </div>
+            <div class="assignment-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              <span><%= exam.duration_min || 60 %> دقيقة</span>
+            </div>
+            <div class="assignment-meta-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              <span><%= format.formatDate(exam.starts_at) %></span>
+            </div>
+          </div>
+
+          <% if (exam.attempt && exam.attempt.status !== 'in_progress') { %>
+            <div class="grade-box">
+              <div class="grade-label">درجتك</div>
+              <div class="grade-badge"><%= format.formatNumber(exam.attempt.score) %> / <%= exam.totalPoints %></div>
+            </div>
+          <% } %>
+        </div>
+        <div class="assignment-card-actions">
+          <a class="btn <%= exam.status === 'open' ? 'btn-primary' : 'btn-secondary' %>" href="/student/exams/<%= exam.id %>">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            <%= exam.status === 'finished' ? 'عرض النتيجة' : (exam.status === 'open' ? (exam.attempt ? 'متابعة الاختبار' : 'ابدأ الاختبار') : 'التفاصيل') %>
+          </a>
+        </div>
+      </article>
+    <% } %>
+  </section>
+<% } else { %>
+  <div class="empty-state">
+    <h3>لا توجد اختبارات منشورة</h3>
+    <p>عندما ينشر الأستاذ اختباراً في أحد مقرراتك سيظهر هنا.</p>
+  </div>
+<% } %>

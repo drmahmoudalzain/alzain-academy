@@ -1,0 +1,321 @@
+<!-- تنبيهات -->
+<% if (flash) { %>
+  <div class="alert-inline <%= flash.tone %>" role="alert">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+    </svg>
+    <div><%= flash.text %></div>
+  </div>
+<% } %>
+
+<!-- رأس المحاضرة -->
+<section class="lecture-hero">
+  <div class="lecture-hero-top">
+    <span class="hero-badge <%= lecture.lecture_type %>">
+      <%= lecture.lecture_type === 'direct' ? 'محاضرة مباشرة' : (lecture.lecture_type === 'online' ? 'أونلاين' : 'محاضرة مسجلة') %>
+    </span>
+    <% if (isLive && lecture.attendance_open) { %>
+      <span class="hero-badge status-live">جارية الآن</span>
+    <% } %>
+  </div>
+  <h1><%= lecture.title %></h1>
+  <div class="lecture-hero-course">
+    <span class="dot"></span>
+    <span><%= lecture.course ? `${lecture.course.code} — ${lecture.course.title}` : '' %></span>
+    <span style="color:rgba(241,244,248,0.4);">•</span>
+    <span><%= lecture.course && lecture.course.level ? `المستوى ${lecture.course.level}` : '' %></span>
+  </div>
+  <div class="lecture-hero-meta">
+    <div class="hero-meta-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      <span><%= format.formatDate(lecture.scheduled_at) %> · <strong><%= format.formatTime(lecture.scheduled_at) %></strong></span>
+    </div>
+    <div class="hero-meta-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4"/></svg>
+      <span>المدة <strong><%= lecture.duration_min || 120 %> دقيقة</strong></span>
+    </div>
+    <div class="hero-meta-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span><%= teacher ? teacher.name : 'أستاذ المقرر' %></span>
+    </div>
+    <div class="hero-meta-item">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      <span>حتى <strong>10 نقاط</strong></span>
+    </div>
+  </div>
+</section>
+
+<div class="lecture-layout">
+  <div>
+
+    <!-- مشغّل المحاضرة -->
+    <section class="video-section">
+      <% if (lecture.youtubeEmbed) { %>
+        <div class="video-wrapper" style="background:#000;">
+          <iframe src="<%= lecture.youtubeEmbed %>" title="<%= lecture.title %>" width="100%" height="100%" style="min-height:280px;border:0;" allowfullscreen loading="lazy"></iframe>
+        </div>
+        <div class="video-footer">
+          <div class="video-footer-info">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            المحاضرة متاحة الآن للعرض
+          </div>
+        </div>
+      <% } else if (lecture.live_url) { %>
+        <div class="video-wrapper">
+          <div class="video-overlay">
+            <div class="video-live-badge">مباشر الآن</div>
+          </div>
+          <a class="video-play" href="<%= lecture.live_url %>" target="_blank" rel="noopener noreferrer" aria-label="الانضمام للبث المباشر">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:34px;height:34px;"><path d="M8 5v14l11-7z"/></svg>
+          </a>
+        </div>
+        <div class="video-footer">
+          <div class="video-footer-info">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            البث المباشر نشط الآن
+          </div>
+          <div class="video-footer-actions">
+            <a class="btn btn-primary btn-sm" href="<%= lecture.live_url %>" target="_blank" rel="noopener noreferrer">الانضمام للبث</a>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="video-wrapper">
+          <div class="video-overlay">
+            <div class="video-live-badge" style="background:var(--navy-light);">محاضرة مسجلة</div>
+          </div>
+          <div class="video-play" aria-hidden="true" style="cursor:default;opacity:0.85;">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:34px;height:34px;"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+        </div>
+        <div class="video-footer">
+          <div class="video-footer-info">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            <% if (lecture.recording_note) { %><%= lecture.recording_note %><% } else { %>الفيديو المسجل سيُضاف قريباً<% } %>
+          </div>
+        </div>
+      <% } %>
+    </section>
+
+    <div class="info-banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      <div>
+        <strong>نظام الحضور الذكي:</strong> يُحتسب حضورك تلقائياً بمجرد بقائك في صفحة المحاضرة، ويمكنك تأكيده بإدخال رمز الحضور الذي يعرضه الأستاذ.
+      </div>
+    </div>
+
+    <!-- التبويبات -->
+    <div class="tabs-container">
+      <div class="tabs-nav" role="tablist">
+        <button class="tab-btn active" data-tab="desc" role="tab" aria-selected="true"><span>الوصف</span></button>
+        <button class="tab-btn" data-tab="files" role="tab" aria-selected="false"><span>الملفات</span><span class="tab-count"><%= files.length %></span></button>
+        <button class="tab-btn" data-tab="questions" role="tab" aria-selected="false"><span>الأسئلة</span><span class="tab-count"><%= questions.length %></span></button>
+        <button class="tab-btn" data-tab="attendance" role="tab" aria-selected="false"><span>الحضور والنقاط</span></button>
+      </div>
+      <div class="tab-content">
+
+        <div class="tab-pane active" data-pane="desc">
+          <div class="desc-content">
+            <p><%= lecture.description || 'لا يوجد وصف تفصيلي لهذه المحاضرة بعد.' %></p>
+            <h4>المتطلبات</h4>
+            <p>يُنصح بمراجعة محاضرات المقرر السابقة قبل المتابعة.</p>
+            <h4>المخرجات التعليمية</h4>
+            <ul>
+              <li>فهم المفاهيم والقضايا التي تتناولها المحاضرة.</li>
+              <li>تطبيقها عملياً عبر الأسئلة التفاعلية والحضور.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="tab-pane" data-pane="files">
+          <% if (files.length) { %>
+            <div class="files-list">
+              <% for (const file of files) { const ext = (file.original_name || '').split('.').pop().toLowerCase(); %>
+                <div class="file-item">
+                  <div class="file-icon <%= ext === 'pdf' ? 'pdf' : (ext === 'doc' || ext === 'docx' ? 'doc' : 'ppt') %>">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                  </div>
+                  <div class="file-info">
+                    <strong><%= file.original_name || file.filename %></strong>
+                    <span><%= file.size ? Math.round(file.size / 1024) + ' KB' : '' %></span>
+                    <span><%= (file.mime || 'ملف').toUpperCase() %></span>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+          <% } else { %>
+            <div class="empty-state"><h3>لا توجد ملفات بعد</h3><p>سيُضيف الأستاذ مواد المحاضرة هنا عند توفرها.</p></div>
+          <% } %>
+        </div>
+
+        <div class="tab-pane" data-pane="questions">
+          <% if (questions.length) { %>
+            <div class="questions-list">
+              <% for (const question of questions) { const answered = Boolean(question.answer); %>
+                <div class="question-card" data-question="<%= question.id %>" data-type="<%= question.type %>">
+                  <div class="question-head">
+                    <span class="question-num"><%= question.id %></span>
+                    <span class="question-type-tag <%= question.type %>"><%= question.type === 'poll' ? 'استطلاع رأي' : (question.type === 'multi' ? 'اختيار متعدد' : 'اختيار واحد') %></span>
+                    <span class="question-status-<%= answered ? 'answered' : 'open' %>"><%= answered ? 'أُجيبت' : 'مفتوح' %></span>
+                  </div>
+                  <div class="question-body">
+                    <div class="question-text"><%= question.text %></div>
+                    <div class="options-list">
+                      <% const opts = question.options || []; opts.forEach((option, i) => { %>
+                        <button class="option-btn <%= answered && (question.answer.choice_index === i || (question.answer.choice_indices || []).includes(i)) ? 'selected' : '' %>" type="button" data-index="<%= i %>" <%= answered ? 'disabled' : '' %>>
+                          <span class="option-marker"><%= ['أ','ب','ج','د','هـ'][i] || i + 1 %></span>
+                          <span><%= option %></span>
+                        </button>
+                      <% }) %>
+                    </div>
+                    <% if (!answered) { %>
+                      <div class="question-footer">
+                        <span class="question-points">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                          1 نقطة
+                        </span>
+                        <button class="btn btn-primary btn-sm submit-answer" disabled>تأكيد الإجابة</button>
+                      </div>
+                    <% } else { %>
+                      <div class="question-footer">
+                        <span class="question-points">تم تسجيل إجابتك</span>
+                      </div>
+                    <% } %>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+          <% } else { %>
+            <div class="empty-state"><h3>لا توجد أسئلة تفاعلية</h3><p>ستظهر هنا أسئلة المحاضرة فور طرحها.</p></div>
+          <% } %>
+        </div>
+
+        <div class="tab-pane" data-pane="attendance">
+          <div class="attendance-panel">
+            <div class="attendance-hero">
+              <h3>تتبّع الحضور الذكي</h3>
+              <p>يُسجَّل حضورك أثناء بقائك في هذه الصفحة. النقاط تُحتسب بناءً على مدة حضورك.</p>
+              <div class="attendance-timer">
+                <span id="attendanceTimer">00:00:00</span>
+                <small>مدة الحضور</small>
+              </div>
+              <div class="attendance-progress">
+                <div class="attendance-progress-label">
+                  <span>التقدم نحو 10 نقاط</span>
+                  <span id="pointsEarned">0 / 10 نقاط</span>
+                </div>
+                <div class="attendance-progress-bar"><span id="attendanceProgress" style="width:<%= presencePercent %>%"></span></div>
+              </div>
+            </div>
+
+            <div class="heartbeat-indicator">
+              <span class="heartbeat-dot"></span>
+              <span>نبضة نشطة — يتم تتبّع حضورك الآن</span>
+            </div>
+
+            <div class="attendance-code-box">
+              <h4>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                رمز الحضور
+              </h4>
+              <% if (attendance) { %>
+                <div class="alert-inline success" role="status">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+                  <div>حضورك مسجّل — <%= format.formatDateTime(attendance.created_at) %></div>
+                </div>
+              <% } else { %>
+                <p>أدخل رمز الحضور الذي يعرضه الأستاذ أثناء المحاضرة.</p>
+                <form class="code-input-row" method="post" action="/student/lectures/<%= lecture.id %>/attendance">
+                  <input type="text" name="code" placeholder="أدخل الرمز هنا" maxlength="8" inputmode="numeric" autocomplete="off" required aria-label="رمز الحضور">
+                  <button type="submit" class="btn btn-green">تأكيد</button>
+                </form>
+              <% } %>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- العمود الجانبي -->
+  <div>
+    <div class="side-card">
+      <div class="side-card-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <h3>أستاذ المقرر</h3>
+      </div>
+      <div class="side-card-body">
+        <div class="instructor-card">
+          <div class="instructor-avatar-lg"><%= teacher ? teacher.name.trim().charAt(0) : 'م' %></div>
+          <div class="instructor-info-lg">
+            <strong><%= teacher ? teacher.name : 'أستاذ المقرر' %></strong>
+            <span><%= teacher ? (teacher.position || 'عضو هيئة التدريس') : '' %></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-card">
+      <div class="side-card-header">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <h3>معلومات المحاضرة</h3>
+      </div>
+      <div class="side-card-body">
+        <div class="info-list">
+          <div class="info-row">
+            <div class="info-row-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+            </div>
+            <div class="info-row-body">
+              <div class="info-row-label">نوع المحاضرة</div>
+              <div class="info-row-value"><%= lecture.lecture_type === 'direct' ? 'مباشرة' : (lecture.lecture_type === 'online' ? 'أونلاين' : 'مسجلة') %></div>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-row-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <div class="info-row-body">
+              <div class="info-row-label">الموعد</div>
+              <div class="info-row-value"><%= format.formatDateTime(lecture.scheduled_at) %></div>
+            </div>
+          </div>
+          <div class="info-row">
+            <div class="info-row-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <div class="info-row-body">
+              <div class="info-row-label">النقاط المكتسبة</div>
+              <div class="info-row-value">حتى <strong id="presenceMinutes"><%= presenceMinutes %></strong> دقيقة حضور</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <% if (related.length) { %>
+      <div class="side-card">
+        <div class="side-card-header">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <h3>محاضرات ذات صلة</h3>
+        </div>
+        <div class="side-card-body" style="padding:10px 12px;">
+          <div class="related-lectures">
+            <% for (const item of related) { %>
+              <a href="/student/lectures/<%= item.id %>" class="related-item">
+                <div class="related-icon <%= item.lecture_type %>">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                </div>
+                <div class="related-info">
+                  <strong><%= item.title %></strong>
+                  <span><%= format.formatDate(item.scheduled_at) %> · <%= item.duration_min || 120 %> د</span>
+                </div>
+              </a>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    <% } %>
+  </div>
+</div>
