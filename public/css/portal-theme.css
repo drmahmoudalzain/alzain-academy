@@ -1,0 +1,252 @@
+/* =========================================================
+   ملحقات بوابة آل الزين — تعديلات صغيرة فوق أنماط التصاميم
+   ========================================================= */
+
+/* لون هوية البوابة: أخضر للطالب (الأصل)، ذهبي للمالك، أزرق للأساتذة. */
+body.portal-owner {
+  --green: #B5870F;
+  --green-light: #D4A017;
+}
+
+body.portal-teacher {
+  --green: #1B4A7A;
+  --green-light: #2A5F94;
+}
+
+body.portal {
+  background: var(--bg-page);
+}
+
+/* قائمة المستخدم في الشريط الجانبي */
+.sidebar-user { padding: 12px; }
+
+.user-card {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: start;
+}
+
+.sidebar-logout-form {
+  margin: 0;
+  display: flex;
+}
+
+.sidebar-logout {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  border: 1px solid rgba(241, 244, 248, 0.14);
+  background: rgba(241, 244, 248, 0.04);
+  color: rgba(241, 244, 248, 0.62);
+  cursor: pointer;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+.sidebar-logout:hover {
+  background: rgba(199, 56, 56, 0.16);
+  border-color: rgba(199, 56, 56, 0.4);
+  color: #FCA5A5;
+}
+
+.sidebar-logout svg { width: 17px; height: 17px; }
+
+.inline-form { margin: 0; display: inline-flex; }
+
+/* غطاء الشريط الجانبي على الشاشات الصغيرة */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 65;
+  background: rgba(7, 20, 38, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+@media (min-width: 901px) {
+  .sidebar-overlay { display: none !important; }
+}
+
+/* بحث غير فعّال */
+.search-box--static input:disabled {
+  cursor: default;
+  opacity: 0.75;
+}
+
+/* عناصر مساعدة */
+.stack { display: grid; gap: 20px; }
+.muted { color: var(--text-muted); }
+.text-center { text-align: center; }
+.mt-0 { margin-top: 0; }
+.mb-0 { margin-bottom: 0; }
+
+.empty-state {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--text-muted);
+  background: var(--bg-surface);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-lg, 16px);
+}
+
+.empty-state h3 {
+  color: var(--text-primary);
+  margin: 0 0 8px;
+  font-family: var(--font-head);
+  font-size: 1.35rem;
+}
+
+.empty-state p { margin: 0; font-size: 0.9rem; }
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.alert-inline {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 0.86rem;
+  margin-bottom: 18px;
+  border: 1px solid transparent;
+}
+
+.alert-inline svg { width: 18px; height: 18px; flex: none; margin-top: 2px; }
+.alert-inline.success { background: var(--success-bg); border-color: var(--success-border); color: #14532D; }
+.alert-inline.error { background: var(--danger-bg); border-color: var(--danger-border); color: #7F1D1D; }
+.alert-inline.info { background: var(--info-bg); border-color: var(--info-border); color: #1E3A5F; }
+.alert-inline.warning { background: var(--warning-bg); border-color: var(--warning-border); color: #78350F; }
+
+/* جداول عامة */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.data-table th {
+  text-align: start;
+  padding: 12px 16px;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.76rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-subtle);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--border-soft);
+  color: var(--text-secondary);
+  vertical-align: middle;
+}
+
+.data-table tbody tr:last-child td { border-bottom: 0; }
+.data-table tbody tr:hover { background: var(--bg-subtle); }
+.data-table strong { color: var(--text-primary); }
+
+.table-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg, 16px);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.table-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.table-card-head h3 {
+  margin: 0;
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  color: var(--text-primary);
+}
+
+.table-scroll { overflow-x: auto; }
+
+/* نماذج داخل صفحات البوابة */
+.form-grid { display: grid; gap: 16px; }
+
+.form-grid label {
+  display: grid;
+  gap: 7px;
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.form-grid input,
+.form-grid textarea,
+.form-grid select {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-surface);
+  font: inherit;
+  color: var(--text-primary);
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
+}
+
+.form-grid input:focus,
+.form-grid textarea:focus,
+.form-grid select:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.14);
+}
+
+.form-grid textarea { min-height: 130px; resize: vertical; line-height: 1.8; }
+
+.btn[disabled] { opacity: 0.5; cursor: not-allowed; }
+.btn-block { width: 100%; justify-content: center; }
+
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 14px;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-family: var(--font-head);
+  font-size: 1.3rem;
+  color: var(--text-primary);
+}
+
+.section-heading a { font-size: 0.82rem; color: var(--green); font-weight: 600; }
+
+/* إخفاء أيقونات قديمة في أنماط التصميم عند الحاجة */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

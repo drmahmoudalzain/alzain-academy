@@ -16,6 +16,7 @@ import {
   primaryPortal,
 } from "../lib/portals.js";
 import { archiveDeniedLogin } from "../lib/archive.js";
+import { LOGIN_COPY } from "../lib/login-copy.js";
 import { renderPage } from "../lib/render.js";
 import { env } from "../lib/env.js";
 import { requireAuth } from "../middleware/auth.js";
@@ -58,8 +59,11 @@ async function roleLabel(user) {
 router.get("/", async (req, res, next) => {
   try {
     return renderPage(res, "landing", {
-      title: "بوابات الدخول",
-      layout: "auth",
+      title: "الرئيسية",
+      layout: "base",
+      bodyClass: "site-page",
+      styles: ["/css/views/home.css"],
+      scripts: ["/js/views/home.js"],
     });
   } catch (error) {
     next(error);
@@ -75,8 +79,11 @@ router.get("/login", async (req, res, next) => {
     const portal = PORTALS[role];
     return renderPage(res, "auth/login", {
       title: `الدخول — ${portal.label}`,
-      layout: "auth",
+      layout: "base",
+      bodyClass: `login-page login-${role}`,
+      styles: [`/css/views/${role}.css`, "/css/login-extra.css"],
       portal,
+      copy: LOGIN_COPY[role],
       identifier: "",
       error: null,
       notice: req.query.expired ? "انتهت الجلسة، يرجى تسجيل الدخول من جديد." : null,
@@ -102,8 +109,11 @@ router.post("/login", async (req, res, next) => {
   const fail = (status, error, user = null) =>
     renderPage(res.status(status), "auth/login", {
       title: `الدخول — ${portal.label}`,
-      layout: "auth",
+      layout: "base",
+      bodyClass: `login-page login-${portalKey}`,
+      styles: [`/css/views/${portalKey}.css`, "/css/login-extra.css"],
       portal,
+      copy: LOGIN_COPY[portalKey],
       identifier,
       error,
       notice: null,

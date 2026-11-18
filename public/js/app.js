@@ -61,7 +61,7 @@
       link.rel = "stylesheet";
       document.head.appendChild(link);
     }
-    link.href = "/css/views/" + view + ".css";
+    link.href = "css/views/" + view + ".css";
   }
 
   function runScript(text) {
@@ -78,13 +78,13 @@
     loadCss(view);
 
     try {
-      const res = await fetch("/views/" + view + ".html", { cache: "no-cache" });
+      const res = await fetch("views/" + view + ".html", { cache: "no-cache" });
       if (!res.ok) throw new Error("HTTP " + res.status);
       const html = await res.text();
       ROOT.innerHTML = html;
 
       // تحميل JS الخاص بالعرض
-      const jsRes = await fetch("/js/views/" + view + ".js", { cache: "no-cache" });
+      const jsRes = await fetch("js/views/" + view + ".js", { cache: "no-cache" });
       if (jsRes.ok) {
         const js = await jsRes.text();
         runScript(js);

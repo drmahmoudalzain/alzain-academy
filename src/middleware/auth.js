@@ -7,6 +7,7 @@ import {
 } from "../lib/session.js";
 import { getSettings, isFlagOn } from "../lib/settings.js";
 import { PORTALS, canEnterPortal, primaryPortal } from "../lib/portals.js";
+import { NAVIGATION } from "../lib/navigation.js";
 import { renderPage } from "../lib/render.js";
 
 /** يقرأ الكوكي ويجلب المستخدم من جدول sessions (تجزئة الرمز فقط). */
@@ -77,6 +78,8 @@ export function requirePortal(portalKey) {
       if (!allowed) return forbidden(req, res, portalKey);
 
       res.locals.portal = PORTALS[portalKey];
+      res.locals.nav = NAVIGATION[portalKey] ?? [];
+      res.locals.navBadges = res.locals.navBadges ?? {};
       next();
     } catch (error) {
       next(error);

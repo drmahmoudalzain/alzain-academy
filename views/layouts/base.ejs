@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title><%= title %> — <%= settings.platform_name || 'أكاديمية آل الزين' %></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+  <% for (const href of (styles || [])) { %>
+    <link rel="stylesheet" href="<%= href %>">
+  <% } %>
+</head>
+<body class="<%= bodyClass || '' %>">
+  <%- body %>
+  <% for (const src of (scripts || [])) { %>
+    <script src="<%= src %>" defer></script>
+  <% } %>
+</body>
+</html>
