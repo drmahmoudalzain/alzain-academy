@@ -1,4 +1,5 @@
-(function () {
+
+    (function () {
       'use strict';
 
       // ============ تفعيل تأثير التمرير على الهيدر ============
@@ -126,3 +127,4 @@
 
       console.log('%c[AlZain Academy]', 'color:#D4A017;font-weight:bold;font-size:14px;', 'الصفحة الرئيسية جاهزة');
     })();
+  

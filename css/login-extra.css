@@ -1,0 +1,18 @@
+/* ملحقات صفحة الدخول */
+.field-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.session-note {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.login-shell .form-footer {
+  flex-wrap: wrap;
+  gap: 8px;
+}
