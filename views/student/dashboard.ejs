@@ -1,0 +1,75 @@
+<%
+  const fmt = (value) => value
+    ? new Date(value).toLocaleString('ar', { dateStyle: 'medium', timeStyle: 'short' })
+    : 'غير مجدول';
+%>
+
+<section class="page-head">
+  <div>
+    <p class="eyebrow"><%= portal.label %></p>
+    <h1 class="page-title">لوحة الطالب</h1>
+    <p class="page-sub">مقرراتك ونقاطك ومحاضراتك القادمة.</p>
+  </div>
+  <span class="pill pill--student">طالب</span>
+</section>
+
+<div class="stats-grid stats-grid--3">
+  <article class="stat-card">
+    <span class="stat-label">المقررات المسجلة</span>
+    <span class="stat-value"><%= stats.courses %></span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">مجموع النقاط</span>
+    <span class="stat-value"><%= stats.points %></span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">محاضرات قادمة</span>
+    <span class="stat-value"><%= stats.lectures %></span>
+  </article>
+</div>
+
+<div class="grid-2">
+  <section class="panel">
+    <header class="panel-head">
+      <h2>مقرراتي</h2>
+      <p>المقررات المسجّل بها في مسارك الحالي.</p>
+    </header>
+
+    <% if (!courses.length) { %>
+      <p class="empty">لم تُسجَّل في أي مقرر بعد. راجع إدارة الأكاديمية.</p>
+    <% } else { %>
+      <div class="course-cards">
+        <% for (const course of courses) { %>
+          <article class="course-card" style="--course-color: <%= course.color || '#123A63' %>">
+            <span class="course-code" dir="ltr"><%= course.code %></span>
+            <h3><%= course.title %></h3>
+            <p><%= course.track === 'equiv' ? 'قسم المعادلة' : `المستوى ${course.level ?? '—'}` %></p>
+          </article>
+        <% } %>
+      </div>
+    <% } %>
+  </section>
+
+  <section class="panel">
+    <header class="panel-head">
+      <h2>محاضرات قادمة</h2>
+      <p>مواعيد المحاضرات المعلنة في المنصة.</p>
+    </header>
+
+    <% if (!lectures.length) { %>
+      <p class="empty">لا توجد محاضرات مجدولة حالياً.</p>
+    <% } else { %>
+      <ul class="timeline">
+        <% for (const lecture of lectures) { %>
+          <li>
+            <span class="timeline-dot" aria-hidden="true"></span>
+            <span class="timeline-body">
+              <strong><%= lecture.title %></strong>
+              <small><%= fmt(lecture.scheduled_at) %></small>
+            </span>
+          </li>
+        <% } %>
+      </ul>
+    <% } %>
+  </section>
+</div>

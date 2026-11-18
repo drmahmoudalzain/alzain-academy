@@ -1,0 +1,56 @@
+<section class="login-wrap">
+  <div class="login-card login-card--<%= portal.theme %>">
+    <aside class="login-aside">
+      <p class="login-eyebrow"><%= portal.latin %></p>
+      <h2><%= portal.label %></h2>
+      <span class="login-rule" aria-hidden="true"></span>
+      <p>هذه البوابة مخصصة لـ<%= portal.audience %> فقط. أي حساب من فئة أخرى سيُرفض ويُسجَّل.</p>
+      <ul class="login-points">
+        <li>اتصال آمن بجلسة مشفّرة</li>
+        <li>فصل صارم بين البوابات</li>
+        <li>تسجيل محاولات الدخول المرفوضة</li>
+      </ul>
+    </aside>
+
+    <div class="login-form-side">
+      <div class="login-head">
+        <h1>تسجيل الدخول</h1>
+        <p>أدخل بياناتك للوصول إلى <%= portal.label %>.</p>
+      </div>
+
+      <% if (error) { %>
+        <div class="alert alert--error" role="alert"><%= error %></div>
+      <% } %>
+      <% if (notice) { %>
+        <div class="alert alert--notice" role="status"><%= notice %></div>
+      <% } %>
+
+      <form method="post" action="/login" class="form" autocomplete="on">
+        <input type="hidden" name="portal" value="<%= portal.key %>">
+        <% if (next) { %><input type="hidden" name="next" value="<%= next %>"><% } %>
+
+        <label class="field">
+          <span class="field-label">البريد الإلكتروني أو الرقم الجامعي</span>
+          <input class="input" type="text" name="identifier" value="<%= identifier %>"
+                 autocomplete="username" required autofocus>
+        </label>
+
+        <label class="field">
+          <span class="field-label">كلمة المرور</span>
+          <span class="input-group">
+            <input class="input" type="password" name="password" id="password"
+                   autocomplete="current-password" required>
+            <button class="input-action" type="button" data-toggle-password="password"
+                    aria-label="إظهار كلمة المرور">إظهار</button>
+          </span>
+        </label>
+
+        <button class="btn btn-primary btn-block" type="submit">دخول <%= portal.short %></button>
+      </form>
+
+      <div class="login-links">
+        <a href="/">← العودة إلى اختيار البوابة</a>
+      </div>
+    </div>
+  </div>
+</section>

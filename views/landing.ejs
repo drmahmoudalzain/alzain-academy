@@ -1,0 +1,31 @@
+<section class="hero">
+  <p class="eyebrow">أكاديمية متخصصة في العلوم القانونية والعدلية</p>
+  <h1 class="hero-title">
+    مرحباً بكم في<br>
+    <span class="hero-accent"><%= settings.platform_name %></span>
+  </h1>
+  <p class="hero-lede">
+    <%= settings.platform_tagline %>
+    <span class="hero-note">اختر بوابة الدخول المناسبة — كل بوابة مخصصة لفئة واحدة فقط.</span>
+  </p>
+
+  <div class="portal-grid">
+    <% for (const [index, key] of ['owner', 'teacher', 'student'].entries()) { const item = portals[key]; %>
+      <a class="portal-card portal-card--<%= item.theme %>" href="/login?role=<%= key %>">
+        <span class="portal-index"><%= String(index + 1).padStart(2, '0') %></span>
+        <span class="portal-body">
+          <span class="portal-latin"><%= item.latin %></span>
+          <span class="portal-title"><%= item.label %></span>
+          <span class="portal-audience">مخصصة لـ<%= item.audience %></span>
+        </span>
+        <span class="portal-arrow" aria-hidden="true">←</span>
+      </a>
+    <% } %>
+  </div>
+
+  <div class="hero-foot">
+    <span>الدخول محمي بفصل صارم بين البوابات على مستوى الخادم.</span>
+    <span class="hero-foot-sep" aria-hidden="true"></span>
+    <span>تُسجَّل كل محاولة دخول مرفوضة للتدقيق.</span>
+  </div>
+</section>

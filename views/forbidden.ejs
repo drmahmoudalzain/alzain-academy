@@ -1,0 +1,26 @@
+<section class="center-wrap">
+  <div class="state-card">
+    <p class="state-code">403</p>
+    <span class="state-rule" aria-hidden="true"></span>
+    <h1>دخول غير مسموح</h1>
+    <p class="state-text">
+      <%= attemptedPortal.label %> مخصصة لـ<%= attemptedPortal.audience %> فقط،
+      وحسابك لا يملك صلاحية الدخول إليها.
+    </p>
+
+    <% if (ownPortal) { %>
+      <div class="state-actions">
+        <a class="btn btn-primary" href="<%= ownPortal.home %>">انتقل إلى <%= ownPortal.label %></a>
+        <a class="btn btn-ghost" href="/">اختيار بوابة أخرى</a>
+      </div>
+      <p class="state-hint">
+        <% if (ownPortal.key === 'owner') { %>
+          بصفتك المالك، يمكنك دخول البوابات الأخرى فقط عند تفعيل مفتاح
+          <code>owner_all_gates</code> من الإعدادات.
+        <% } else { %>
+          استخدم دائماً بوابتك الخاصة — <a href="/login?role=<%= ownPortal.key %>">تسجيل الدخول من هنا</a>.
+        <% } %>
+      </p>
+    <% } %>
+  </div>
+</section>

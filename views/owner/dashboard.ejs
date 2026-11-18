@@ -1,0 +1,93 @@
+<%
+  const fmt = (value) => value
+    ? new Date(value).toLocaleString('ar', { dateStyle: 'medium', timeStyle: 'short' })
+    : '—';
+%>
+
+<section class="page-head">
+  <div>
+    <p class="eyebrow"><%= portal.label %></p>
+    <h1 class="page-title">لوحة المالك</h1>
+    <p class="page-sub">نظرة عامة على الأكاديمية وحالة النظام.</p>
+  </div>
+  <span class="pill pill--gold">كل الصلاحيات</span>
+</section>
+
+<div class="stats-grid">
+  <article class="stat-card">
+    <span class="stat-label">الأساتذة</span>
+    <span class="stat-value"><%= stats.teachers %></span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">الطلاب</span>
+    <span class="stat-value"><%= stats.students %></span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">المقررات</span>
+    <span class="stat-value"><%= stats.courses %></span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">المحاضرات</span>
+    <span class="stat-value"><%= stats.lectures %></span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">الاختبارات</span>
+    <span class="stat-value"><%= stats.exams %></span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">سجلات الأرشيف</span>
+    <span class="stat-value"><%= stats.archived %></span>
+  </article>
+</div>
+
+<div class="grid-2">
+  <section class="panel">
+    <header class="panel-head">
+      <h2>آخر محاولات الدخول المرفوضة</h2>
+      <p>تُسجَّل تلقائياً في الأرشيف باسم <code>login_denied</code> للتدقيق.</p>
+    </header>
+
+    <% if (!denied.length) { %>
+      <p class="empty">لا توجد محاولات مرفوضة حتى الآن.</p>
+    <% } else { %>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>المعرّف</th>
+              <th>البوابة</th>
+              <th>IP</th>
+              <th>الوقت</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% for (const row of denied) { %>
+              <tr>
+                <td><span dir="ltr"><%= row.data?.identifier ?? row.data?.email ?? '—' %></span></td>
+                <td><%= row.data?.portal_label ?? row.data?.portal ?? '—' %></td>
+                <td><span dir="ltr"><%= row.data?.ip ?? '—' %></span></td>
+                <td><%= fmt(row.archived_at) %></td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </section>
+
+  <section class="panel">
+    <header class="panel-head">
+      <h2>الوحدات القادمة</h2>
+      <p>هيكل التطبيق جاهز، وهذه الوحدات ستُبنى عليه بالترتيب.</p>
+    </header>
+
+    <ul class="module-list">
+      <li><span>إدارة الأساتذة والطلاب</span><span class="pill">المرحلة التالية</span></li>
+      <li><span>المقررات والمحاضرات والحضور</span><span class="pill">قيد البناء</span></li>
+      <li><span>الاختبارات والواجبات والتصحيح</span><span class="pill">قيد البناء</span></li>
+      <li><span>النقاط وسجل النقاط</span><span class="pill">قيد البناء</span></li>
+      <li><span>المكتبة العلمية والبحوث</span><span class="pill">قيد البناء</span></li>
+      <li><span>الأرشيف والتصدير والتقارير</span><span class="pill">قيد البناء</span></li>
+    </ul>
+  </section>
+</div>

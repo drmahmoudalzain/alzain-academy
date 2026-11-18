@@ -1,0 +1,12 @@
+<section class="center-wrap">
+  <div class="state-card">
+    <p class="state-code"><%= code %></p>
+    <span class="state-rule" aria-hidden="true"></span>
+    <h1><%= title %></h1>
+    <p class="state-text"><%= message %></p>
+    <div class="state-actions">
+      <a class="btn btn-primary" href="/">الصفحة الرئيسية</a>
+      <% if (user) { %><a class="btn btn-ghost" href="/account">حسابي</a><% } %>
+    </div>
+  </div>
+</section>

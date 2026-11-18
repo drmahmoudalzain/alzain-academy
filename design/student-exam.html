@@ -1,0 +1,2302 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B2545" />
+  <meta name="description" content="أداء الاختبار — أكاديمية آل الزين للعلوم القانونية والعدلية" />
+  <title>أداء الاختبار — أكاديمية آل الزين</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* =========================================================
+       النظام اللوني الموحّد
+       ========================================================= */
+    :root {
+      --navy-dark:    #0B2545;
+      --navy-mid:     #123A63;
+      --navy-light:   #1B4A7A;
+      --navy-glow:    #2A5F94;
+      --gold:         #D4A017;
+      --gold-light:   #E8BC3A;
+      --gold-dark:    #B5870F;
+      --green:        #166E3F;
+      --green-light:  #1E8A50;
+
+      --bg-page:      #F1F4F8;
+      --bg-surface:   #FFFFFF;
+      --bg-subtle:    #F8FAFC;
+      --bg-sidebar:   #0B2545;
+
+      --text-primary:   #0B2545;
+      --text-secondary: #4A5A6F;
+      --text-muted:     #7A8A9F;
+      --text-soft:      #A0AEBF;
+      --text-inverse:   #F1F4F8;
+
+      --border:       #E2E8F0;
+      --border-soft:  #EDF1F6;
+      --border-strong:#CBD5E1;
+
+      --success:      #166E3F;
+      --success-bg:   #ECFDF5;
+      --success-border: #A7F3D0;
+      --warning:      #D4A017;
+      --warning-bg:   #FFFBEB;
+      --warning-border: #FDE68A;
+      --danger:       #C73838;
+      --danger-bg:    #FEF2F2;
+      --danger-border:#FECACA;
+      --info:         #2A5F94;
+      --info-bg:      #EFF6FF;
+      --info-border:  #BFDBFE;
+
+      --font-head: 'Amiri', 'Times New Roman', serif;
+      --font-body: 'Tajawal', 'Segoe UI', system-ui, sans-serif;
+
+      --shadow-xs: 0 1px 2px rgba(11, 37, 69, 0.04);
+      --shadow-sm: 0 1px 3px rgba(11, 37, 69, 0.06), 0 1px 2px rgba(11, 37, 69, 0.03);
+      --shadow-md: 0 4px 12px -2px rgba(11, 37, 69, 0.08), 0 2px 6px -1px rgba(11, 37, 69, 0.04);
+      --shadow-lg: 0 12px 32px -8px rgba(11, 37, 69, 0.12), 0 4px 12px -4px rgba(11, 37, 69, 0.06);
+      --shadow-xl: 0 24px 48px -12px rgba(11, 37, 69, 0.18);
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-xl: 24px;
+
+      --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-page);
+      color: var(--text-primary);
+      line-height: 1.7;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    img, svg { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+    ul { list-style: none; }
+
+    ::selection { background: var(--gold); color: var(--navy-dark); }
+
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 8px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-soft); }
+
+    :focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+
+    /* =========================================================
+       الهيكل العام
+       ========================================================= */
+    .exam-app {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* =========================================================
+       الشريط العلوي
+       ========================================================= */
+    .exam-topbar {
+      background: var(--navy-dark);
+      color: var(--text-inverse);
+      padding: 0 24px;
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+    }
+
+    .topbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      min-width: 0;
+    }
+    .topbar-brand svg {
+      width: 32px;
+      height: 32px;
+      color: var(--gold);
+      filter: drop-shadow(0 0 6px rgba(212,160,23,0.4));
+      flex-shrink: 0;
+    }
+    .topbar-brand-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+      min-width: 0;
+    }
+    .topbar-brand-text strong {
+      font-family: var(--font-head);
+      font-size: 0.95rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .topbar-brand-text small {
+      font-size: 0.66rem;
+      color: rgba(241,244,248,0.6);
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* مركز المعلومات */
+    .topbar-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex: 1;
+      justify-content: center;
+      min-width: 0;
+    }
+    .topbar-info-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1.3;
+      min-width: 0;
+    }
+    .topbar-info-item .label {
+      font-size: 0.68rem;
+      color: rgba(241,244,248,0.55);
+      font-weight: 500;
+      letter-spacing: 0.2px;
+    }
+    .topbar-info-item .value {
+      font-family: var(--font-head);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      white-space: nowrap;
+    }
+    .topbar-divider {
+      width: 1px;
+      height: 32px;
+      background: rgba(241,244,248,0.12);
+    }
+
+    /* مؤقت الاختبار */
+    .exam-timer {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 18px;
+      border-radius: 12px;
+      background: rgba(212,160,23,0.15);
+      border: 1.5px solid var(--gold);
+      flex-shrink: 0;
+      transition: all 0.3s var(--ease);
+    }
+    .exam-timer.warning {
+      background: rgba(212,160,23,0.25);
+      border-color: var(--gold-light);
+      animation: timerPulse 1.5s ease-in-out infinite;
+    }
+    .exam-timer.danger {
+      background: rgba(199,56,56,0.2);
+      border-color: #FF8A8A;
+      animation: timerPulseDanger 1s ease-in-out infinite;
+    }
+    @keyframes timerPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(212,160,23,0.4); }
+      50%      { box-shadow: 0 0 0 8px rgba(212,160,23,0); }
+    }
+    @keyframes timerPulseDanger {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(199,56,56,0.6); }
+      50%      { box-shadow: 0 0 0 8px rgba(199,56,56,0); }
+    }
+
+    .exam-timer-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(212,160,23,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold-light);
+      flex-shrink: 0;
+    }
+    .exam-timer.danger .exam-timer-icon {
+      background: rgba(199,56,56,0.25);
+      color: #FF8A8A;
+    }
+    .exam-timer-icon svg { width: 20px; height: 20px; }
+
+    .exam-timer-body {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+    .exam-timer-label {
+      font-size: 0.66rem;
+      color: rgba(241,244,248,0.65);
+      font-weight: 500;
+      letter-spacing: 0.3px;
+    }
+    .exam-timer.danger .exam-timer-label { color: rgba(255,180,180,0.8); }
+    .exam-timer-value {
+      font-family: 'Tajawal', monospace;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--gold-light);
+      letter-spacing: 1px;
+      direction: ltr;
+      line-height: 1.1;
+    }
+    .exam-timer.danger .exam-timer-value { color: #FF8A8A; }
+
+    /* زر الإنهاء */
+    .topbar-exit {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 10px;
+      background: rgba(241,244,248,0.08);
+      border: 1px solid rgba(241,244,248,0.15);
+      color: var(--text-inverse);
+      font-size: 0.82rem;
+      font-weight: 600;
+      transition: all 0.25s var(--ease);
+      flex-shrink: 0;
+    }
+    .topbar-exit:hover {
+      background: rgba(199,56,56,0.2);
+      border-color: #FF8A8A;
+      color: #FFB4B4;
+    }
+    .topbar-exit svg { width: 16px; height: 16px; }
+
+    /* =========================================================
+       المحتوى الرئيسي
+       ========================================================= */
+    .exam-main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 300px 1fr 280px;
+      gap: 20px;
+      padding: 20px 24px;
+      max-width: 1600px;
+      width: 100%;
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    /* =========================================================
+       الشريط الجانبي الأيمن: خريطة الأسئلة
+       ========================================================= */
+    .questions-map {
+      position: sticky;
+      top: 96px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .map-header {
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border-soft);
+      background: var(--bg-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .map-header h3 {
+      font-family: var(--font-head);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .map-header h3 svg {
+      width: 16px;
+      height: 16px;
+      color: var(--gold);
+    }
+    .map-counter {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: var(--navy-dark);
+      color: var(--gold-light);
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .map-body {
+      padding: 16px;
+    }
+
+    .map-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px dashed var(--border-soft);
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.76rem;
+      color: var(--text-secondary);
+    }
+    .legend-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      border: 1.5px solid transparent;
+    }
+    .legend-dot.answered {
+      background: var(--success);
+      border-color: var(--success);
+    }
+    .legend-dot.current {
+      background: var(--gold);
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(212,160,23,0.2);
+    }
+    .legend-dot.empty {
+      background: var(--bg-subtle);
+      border-color: var(--border);
+    }
+    .legend-dot.flagged {
+      background: var(--warning-bg);
+      border-color: var(--gold);
+      position: relative;
+    }
+    .legend-dot.flagged::after {
+      content: '';
+      position: absolute;
+      top: 1px;
+      inset-inline-end: 1px;
+      width: 5px;
+      height: 5px;
+      background: var(--gold);
+      border-radius: 50%;
+    }
+
+    .map-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .map-btn {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      background: var(--bg-subtle);
+      border: 1.5px solid var(--border);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s var(--ease);
+      position: relative;
+      cursor: pointer;
+    }
+    .map-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold-dark);
+      transform: translateY(-1px);
+    }
+    .map-btn.answered {
+      background: var(--success);
+      border-color: var(--success);
+      color: white;
+    }
+    .map-btn.answered:hover {
+      background: var(--green-light);
+      border-color: var(--green-light);
+      color: white;
+    }
+    .map-btn.current {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--navy-dark);
+      box-shadow: 0 0 0 3px rgba(212,160,23,0.25);
+      transform: scale(1.05);
+    }
+    .map-btn.flagged::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      inset-inline-end: 2px;
+      width: 6px;
+      height: 6px;
+      background: var(--danger);
+      border-radius: 50%;
+      box-shadow: 0 0 0 1.5px var(--bg-surface);
+    }
+
+    .map-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding-top: 14px;
+      border-top: 1px dashed var(--border-soft);
+    }
+    .map-stat {
+      text-align: center;
+      padding: 8px;
+      border-radius: 8px;
+      background: var(--bg-subtle);
+    }
+    .map-stat-value {
+      font-family: var(--font-head);
+      font-size: 1.15rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+    .map-stat-label {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .map-stat.answered .map-stat-value { color: var(--success); }
+    .map-stat.remaining .map-stat-value { color: var(--gold-dark); }
+
+    /* =========================================================
+       منطقة السؤال
+       ========================================================= */
+    .question-area {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .question-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border-soft);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--bg-subtle);
+      flex-wrap: wrap;
+    }
+
+    .question-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .question-number-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: var(--navy-dark);
+      color: var(--gold-light);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+    .question-number-badge strong {
+      font-family: var(--font-head);
+      font-size: 1.1rem;
+    }
+
+    .question-type-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+    .question-type-tag svg { width: 12px; height: 12px; }
+    .question-type-tag.mcq {
+      background: var(--warning-bg);
+      color: var(--gold-dark);
+      border: 1px solid var(--warning-border);
+    }
+    .question-type-tag.multi {
+      background: rgba(139,92,246,0.08);
+      color: #8B5CF6;
+      border: 1px solid rgba(139,92,246,0.25);
+    }
+    .question-type-tag.truefalse {
+      background: var(--info-bg);
+      color: var(--info);
+      border: 1px solid var(--info-border);
+    }
+    .question-type-tag.essay {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid var(--success-border);
+    }
+
+    .question-points-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-size: 0.74rem;
+      font-weight: 600;
+    }
+    .question-points-tag svg { width: 12px; height: 12px; color: var(--gold); }
+
+    .flag-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 8px;
+      background: var(--bg-surface);
+      border: 1.5px solid var(--border);
+      color: var(--text-secondary);
+      font-size: 0.78rem;
+      font-weight: 600;
+      transition: all 0.2s var(--ease);
+      flex-shrink: 0;
+    }
+    .flag-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold-dark);
+    }
+    .flag-btn.flagged {
+      background: var(--warning-bg);
+      border-color: var(--gold);
+      color: var(--gold-dark);
+    }
+    .flag-btn.flagged svg { fill: var(--gold); }
+    .flag-btn svg { width: 14px; height: 14px; transition: fill 0.2s; }
+
+    /* جسم السؤال */
+    .question-body {
+      flex: 1;
+      padding: 28px 32px;
+    }
+
+    .question-text {
+      font-family: var(--font-head);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.7;
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px dashed var(--border-soft);
+    }
+
+    /* الخيارات */
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .option-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 18px;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--border);
+      background: var(--bg-surface);
+      cursor: pointer;
+      transition: all 0.25s var(--ease);
+      position: relative;
+      font-family: inherit;
+      text-align: start;
+      width: 100%;
+    }
+    .option-card:hover {
+      border-color: var(--gold);
+      background: rgba(212,160,23,0.02);
+      transform: translateX(-2px);
+    }
+    .option-card.selected {
+      border-color: var(--gold);
+      background: rgba(212,160,23,0.06);
+      box-shadow: 0 0 0 4px rgba(212,160,23,0.1);
+    }
+    .option-card.correct {
+      border-color: var(--success);
+      background: var(--success-bg);
+    }
+    .option-card.wrong {
+      border-color: var(--danger);
+      background: var(--danger-bg);
+    }
+
+    .option-letter {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: var(--bg-subtle);
+      border: 1.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      flex-shrink: 0;
+      transition: all 0.25s var(--ease);
+    }
+    .option-card:hover .option-letter {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--navy-dark);
+    }
+    .option-card.selected .option-letter {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--navy-dark);
+    }
+
+    .option-text {
+      flex: 1;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      line-height: 1.65;
+      padding-top: 4px;
+      font-weight: 500;
+    }
+
+    .option-check {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 6px;
+      transition: all 0.25s var(--ease);
+    }
+    .option-card.selected .option-check {
+      background: var(--gold);
+      border-color: var(--gold);
+    }
+    .option-card.selected .option-check::after {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--navy-dark);
+      border-radius: 50%;
+    }
+
+    /* Checkbox للأسئلة متعددة الإجابات */
+    .option-check.square { border-radius: 6px; }
+    .option-card.selected .option-check.square::after {
+      content: '✓';
+      width: auto;
+      height: auto;
+      background: none;
+      color: var(--navy-dark);
+      font-size: 0.85rem;
+      font-weight: 900;
+      border-radius: 0;
+    }
+
+    /* True/False options */
+    .tf-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      max-width: 500px;
+    }
+    .tf-option {
+      padding: 28px 20px;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--border);
+      background: var(--bg-surface);
+      cursor: pointer;
+      transition: all 0.25s var(--ease);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      font-family: inherit;
+    }
+    .tf-option:hover {
+      border-color: var(--gold);
+      transform: translateY(-2px);
+    }
+    .tf-option.selected {
+      border-color: var(--gold);
+      background: rgba(212,160,23,0.06);
+      box-shadow: 0 0 0 4px rgba(212,160,23,0.1);
+    }
+    .tf-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-subtle);
+      border: 2px solid var(--border);
+      transition: all 0.25s var(--ease);
+    }
+    .tf-icon svg { width: 26px; height: 26px; color: var(--text-muted); }
+    .tf-option.selected .tf-icon {
+      background: var(--gold);
+      border-color: var(--gold);
+    }
+    .tf-option.selected .tf-icon svg { color: var(--navy-dark); }
+    .tf-option span {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text-primary);
+    }
+
+    /* Essay textarea */
+    .essay-area {
+      width: 100%;
+      min-height: 240px;
+      padding: 16px 18px;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--border);
+      background: var(--bg-surface);
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--text-primary);
+      line-height: 1.8;
+      resize: vertical;
+      transition: all 0.25s var(--ease);
+    }
+    .essay-area:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px rgba(212,160,23,0.1);
+    }
+    .essay-area::placeholder {
+      color: var(--text-soft);
+    }
+    .essay-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .essay-meta .char-count {
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+
+    /* شريط التنقل السفلي */
+    .question-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+      border-top: 1px solid var(--border-soft);
+      background: var(--bg-subtle);
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .question-footer-left,
+    .question-footer-right {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 22px;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 0.86rem;
+      font-weight: 700;
+      transition: all 0.3s var(--ease);
+      white-space: nowrap;
+      cursor: pointer;
+      border: 1.5px solid transparent;
+      line-height: 1.4;
+    }
+    .btn svg { width: 16px; height: 16px; }
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 0.8rem;
+      border-radius: 8px;
+    }
+    .btn-sm svg { width: 14px; height: 14px; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      color: var(--navy-dark);
+      box-shadow: 0 4px 12px -2px rgba(212,160,23,0.4);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px -2px rgba(212,160,23,0.6);
+    }
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .btn-secondary {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      border-color: var(--border);
+      box-shadow: var(--shadow-xs);
+    }
+    .btn-secondary:hover {
+      border-color: var(--text-soft);
+      background: var(--bg-subtle);
+    }
+    .btn-secondary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-success {
+      background: linear-gradient(135deg, var(--green-light), var(--green));
+      color: white;
+      box-shadow: 0 4px 12px -2px rgba(22,110,63,0.4);
+    }
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px -2px rgba(22,110,63,0.6);
+    }
+
+    /* =========================================================
+       الشريط الجانبي الأيسر: معلومات
+       ========================================================= */
+    .side-info {
+      position: sticky;
+      top: 96px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .side-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .side-card-header {
+      padding: 14px 18px;
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border-soft);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .side-card-header svg {
+      width: 16px;
+      height: 16px;
+      color: var(--gold);
+    }
+    .side-card-header h4 {
+      font-family: var(--font-head);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .side-card-body { padding: 14px 18px; }
+
+    .info-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.82rem;
+    }
+    .info-item-label {
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .info-item-value {
+      color: var(--text-primary);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .info-item-value.green { color: var(--success); }
+    .info-item-value.gold  { color: var(--gold-dark); }
+    .info-item-value.blue  { color: var(--info); }
+
+    /* شريط التقدم */
+    .progress-side {
+      padding: 14px 18px;
+    }
+    .progress-side-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    .progress-side-label strong {
+      color: var(--text-primary);
+      font-weight: 700;
+    }
+    .progress-side-bar {
+      height: 8px;
+      background: var(--border-soft);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .progress-side-bar > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--gold-light));
+      border-radius: 99px;
+      transition: width 0.5s var(--ease-out);
+    }
+
+    /* بطاقة تعليمات */
+    .tips-card .side-card-body {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .tip-item {
+      display: flex;
+      gap: 8px;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+    .tip-item::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      background: var(--gold);
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 8px;
+    }
+
+    /* =========================================================
+       Modal تأكيد التسليم
+       ========================================================= */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 37, 69, 0.7);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 300;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: fadeIn 0.3s var(--ease);
+    }
+    .modal-overlay.open { display: flex; }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal {
+      background: var(--bg-surface);
+      border-radius: var(--radius-xl);
+      max-width: 520px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 30px 80px -20px rgba(11,37,69,0.4);
+      animation: modalIn 0.4s var(--ease-out);
+      position: relative;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-header {
+      padding: 26px 28px 20px;
+      border-bottom: 1px solid var(--border-soft);
+      position: relative;
+      text-align: center;
+    }
+    .modal-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 40px;
+      left: 40px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      border-radius: 0 0 3px 3px;
+    }
+
+    .modal-icon {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: var(--warning-bg);
+      border: 2px solid var(--warning-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold-dark);
+      margin: 0 auto 16px;
+    }
+    .modal-icon svg { width: 34px; height: 34px; }
+    .modal-icon.danger {
+      background: var(--danger-bg);
+      border-color: var(--danger-border);
+      color: var(--danger);
+    }
+
+    .modal-title {
+      font-family: var(--font-head);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .modal-subtitle {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    .modal-body { padding: 22px 28px; }
+
+    .submit-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .summary-item {
+      padding: 14px 10px;
+      border-radius: 10px;
+      background: var(--bg-subtle);
+      text-align: center;
+      border: 1px solid var(--border-soft);
+    }
+    .summary-value {
+      font-family: var(--font-head);
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+    .summary-label {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+    .summary-item.answered .summary-value { color: var(--success); }
+    .summary-item.remaining .summary-value { color: var(--danger); }
+    .summary-item.total .summary-value { color: var(--text-primary); }
+
+    .modal-warning {
+      display: flex;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: var(--warning-bg);
+      border: 1px solid var(--warning-border);
+      font-size: 0.82rem;
+      color: var(--gold-dark);
+      line-height: 1.6;
+    }
+    .modal-warning svg {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      padding: 18px 28px 24px;
+      border-top: 1px solid var(--border-soft);
+    }
+    .modal-actions .btn {
+      flex: 1;
+      justify-content: center;
+      padding: 12px 20px;
+    }
+
+    /* =========================================================
+       Toast
+       ========================================================= */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 400;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+      max-width: 90vw;
+    }
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      background: var(--navy-dark);
+      color: white;
+      font-size: 0.86rem;
+      font-weight: 600;
+      box-shadow: 0 12px 32px -8px rgba(11,37,69,0.4);
+      animation: toastIn 0.35s var(--ease-out);
+      pointer-events: auto;
+    }
+    .toast svg { width: 18px; height: 18px; flex-shrink: 0; }
+    .toast.success { background: var(--success); }
+    .toast.warning { background: var(--gold-dark); }
+    .toast.danger  { background: var(--danger); }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .toast.hide {
+      animation: toastOut 0.3s var(--ease) forwards;
+    }
+    @keyframes toastOut {
+      to { opacity: 0; transform: translateY(20px); }
+    }
+
+    /* =========================================================
+       Responsive
+       ========================================================= */
+    @media (max-width: 1300px) {
+      .exam-main { grid-template-columns: 260px 1fr; }
+      .side-info { display: none; }
+    }
+
+    @media (max-width: 900px) {
+      .exam-main {
+        grid-template-columns: 1fr;
+        padding: 16px;
+        gap: 16px;
+      }
+      .questions-map {
+        position: static;
+        order: 2;
+      }
+      .question-area { order: 1; }
+      .map-body { padding: 12px; }
+      .map-grid { grid-template-columns: repeat(8, 1fr); }
+
+      .exam-topbar {
+        padding: 0 16px;
+        height: auto;
+        min-height: 68px;
+        flex-wrap: wrap;
+        gap: 10px;
+        padding-top: 10px;
+        padding-bottom: 10px;
+      }
+      .topbar-brand-text small { display: none; }
+      .topbar-brand-text strong { font-size: 0.85rem; }
+      .topbar-info { order: 3; flex-basis: 100%; justify-content: space-around; gap: 8px; }
+      .topbar-info-item .label { font-size: 0.62rem; }
+      .topbar-info-item .value { font-size: 0.85rem; }
+      .exam-timer { padding: 8px 12px; }
+      .exam-timer-icon { width: 30px; height: 30px; }
+      .exam-timer-icon svg { width: 16px; height: 16px; }
+      .exam-timer-value { font-size: 1.15rem; }
+      .topbar-exit { padding: 8px 12px; font-size: 0.78rem; }
+      .topbar-exit span { display: none; }
+    }
+
+    @media (max-width: 640px) {
+      .exam-main { padding: 12px; }
+      .question-body { padding: 20px; }
+      .question-text { font-size: 1.05rem; padding-bottom: 14px; margin-bottom: 16px; }
+      .question-header { padding: 14px 18px; }
+      .question-footer { padding: 14px 18px; }
+      .question-footer-left,
+      .question-footer-right {
+        flex: 1 1 100%;
+      }
+      .question-footer .btn { flex: 1; justify-content: center; }
+      .tf-options { grid-template-columns: 1fr; }
+      .option-card { padding: 14px; }
+      .option-letter { width: 30px; height: 30px; font-size: 0.82rem; }
+      .option-text { font-size: 0.88rem; }
+      .map-grid { grid-template-columns: repeat(6, 1fr); }
+      .modal { border-radius: var(--radius-lg); }
+      .modal-header { padding: 20px 20px 16px; }
+      .modal-body { padding: 18px 20px; }
+      .modal-actions { padding: 16px 20px 20px; flex-direction: column-reverse; }
+      .submit-summary { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="exam-app">
+
+    <!-- ========================================================
+         الشريط العلوي
+         ======================================================== -->
+    <header class="exam-topbar">
+
+      <div class="topbar-brand">
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M32 6v46" />
+          <path d="M20 52h24" />
+          <circle cx="32" cy="10" r="3" fill="currentColor" stroke="none" />
+          <path d="M10 18h44" />
+          <path d="M10 18L4 32h12L10 18z" />
+          <path d="M54 18L48 32h12L54 18z" />
+          <path d="M4 32a6 6 0 0 0 12 0" />
+          <path d="M48 32a6 6 0 0 0 12 0" />
+        </svg>
+        <div class="topbar-brand-text">
+          <strong>اختبار منتصف الفصل — SQL</strong>
+          <small>CS201 — قواعد البيانات</small>
+        </div>
+      </div>
+
+      <div class="topbar-info">
+        <div class="topbar-info-item">
+          <span class="label">السؤال</span>
+          <span class="value"><span id="currentQNum">1</span> / 20</span>
+        </div>
+        <div class="topbar-divider"></div>
+        <div class="topbar-info-item">
+          <span class="label">الإجابات</span>
+          <span class="value"><span id="answeredCount">0</span> / 20</span>
+        </div>
+        <div class="topbar-divider"></div>
+        <div class="topbar-info-item">
+          <span class="label">الدرجة</span>
+          <span class="value">40 نقطة</span>
+        </div>
+      </div>
+
+      <div class="exam-timer" id="examTimer" role="timer" aria-live="polite">
+        <div class="exam-timer-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 6v6l4 2" />
+          </svg>
+        </div>
+        <div class="exam-timer-body">
+          <span class="exam-timer-label">الوقت المتبقي</span>
+          <span class="exam-timer-value" id="timerValue">59:42</span>
+        </div>
+      </div>
+
+      <button class="topbar-exit" id="exitBtn" aria-label="إنهاء وتسليم الاختبار">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+        </svg>
+        <span>إنهاء وتسليم</span>
+      </button>
+
+    </header>
+
+    <!-- ========================================================
+         المحتوى الرئيسي
+         ======================================================== -->
+    <main class="exam-main">
+
+      <!-- ============ خريطة الأسئلة (يمين) ============ -->
+      <aside class="questions-map" aria-label="خريطة الأسئلة">
+        <div class="map-header">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+            خريطة الأسئلة
+          </h3>
+          <span class="map-counter"><span id="mapAnswered">0</span>/20</span>
+        </div>
+        <div class="map-body">
+
+          <div class="map-legend">
+            <div class="legend-item">
+              <span class="legend-dot answered"></span>
+              مُجابة
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot current"></span>
+              السؤال الحالي
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot empty"></span>
+              لم تُجب
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot flagged"></span>
+              مُعلَّمة للمراجعة
+            </div>
+          </div>
+
+          <div class="map-grid" id="mapGrid">
+            <!-- الأسئلة تُولّد عبر JS -->
+          </div>
+
+          <div class="map-stats">
+            <div class="map-stat answered">
+              <div class="map-stat-value" id="mapStatAnswered">0</div>
+              <div class="map-stat-label">مُجابة</div>
+            </div>
+            <div class="map-stat remaining">
+              <div class="map-stat-value" id="mapStatRemaining">20</div>
+              <div class="map-stat-label">متبقية</div>
+            </div>
+          </div>
+
+        </div>
+      </aside>
+
+      <!-- ============ منطقة السؤال ============ -->
+      <section class="question-area" id="questionArea" aria-live="polite">
+
+        <div class="question-header">
+          <div class="question-info">
+            <span class="question-number-badge">
+              سؤال <strong id="qNumBadge">1</strong> / 20
+            </span>
+            <span class="question-type-tag mcq" id="qTypeTag">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" />
+              </svg>
+              اختيار من متعدد
+            </span>
+            <span class="question-points-tag" id="qPointsTag">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+              <span id="qPoints">2</span> نقطة
+            </span>
+          </div>
+
+          <button class="flag-btn" id="flagBtn" aria-label="تعليم السؤال للمراجعة">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7" />
+            </svg>
+            <span>علّم للمراجعة</span>
+          </button>
+        </div>
+
+        <div class="question-body" id="questionBody">
+          <!-- يُولّد عبر JS -->
+        </div>
+
+        <div class="question-footer">
+          <div class="question-footer-left">
+            <button class="btn btn-secondary" id="prevBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+              السابق
+            </button>
+          </div>
+          <div class="question-footer-right">
+            <button class="btn btn-secondary btn-sm" id="clearBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+              </svg>
+              مسح الإجابة
+            </button>
+            <button class="btn btn-primary" id="nextBtn">
+              التالي
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ============ الشريط الجانبي (يسار) ============ -->
+      <aside class="side-info">
+
+        <div class="side-card">
+          <div class="side-card-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 16v-4M12 8h.01" />
+            </svg>
+            <h4>معلومات الاختبار</h4>
+          </div>
+          <div class="side-card-body">
+            <div class="info-list">
+              <div class="info-item">
+                <span class="info-item-label">المقرر</span>
+                <span class="info-item-value">CS201</span>
+              </div>
+              <div class="info-item">
+                <span class="info-item-label">عدد الأسئلة</span>
+                <span class="info-item-value">20 سؤال</span>
+              </div>
+              <div class="info-item">
+                <span class="info-item-label">الدرجة الكلية</span>
+                <span class="info-item-value gold">40 نقطة</span>
+              </div>
+              <div class="info-item">
+                <span class="info-item-label">مدة الاختبار</span>
+                <span class="info-item-value">60 دقيقة</span>
+              </div>
+              <div class="info-item">
+                <span class="info-item-label">المحاولات</span>
+                <span class="info-item-value blue">محاولة واحدة</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="side-card">
+          <div class="side-card-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <path d="M22 4L12 14l-3-3" />
+            </svg>
+            <h4>التقدم</h4>
+          </div>
+          <div class="progress-side">
+            <div class="progress-side-label">
+              <span>أجبت على</span>
+              <strong><span id="sideAnswered">0</span> من 20</strong>
+            </div>
+            <div class="progress-side-bar">
+              <span id="sideProgressBar" style="width:0%"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="side-card tips-card">
+          <div class="side-card-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.3h6c0-1 .4-1.8 1-2.3A7 7 0 0 0 12 2z" />
+            </svg>
+            <h4>تنبيهات</h4>
+          </div>
+          <div class="side-card-body">
+            <div class="tips-card">
+              <div class="tip-item">يُحفظ تقدّمك تلقائياً كل 30 ثانية.</div>
+              <div class="tip-item">يمكنك التنقل بين الأسئلة بحرية.</div>
+              <div class="tip-item">عند انتهاء الوقت يُسلَّم الاختبار تلقائياً.</div>
+              <div class="tip-item">استخدم زر «علّم للمراجعة» للرجوع للسؤال لاحقاً.</div>
+            </div>
+          </div>
+        </div>
+
+      </aside>
+
+    </main>
+
+  </div>
+
+  <!-- ========================================================
+       Modal تأكيد التسليم
+       ======================================================== -->
+  <div class="modal-overlay" id="submitModal" role="dialog" aria-modal="true" aria-labelledby="submitModalTitle">
+    <div class="modal">
+
+      <div class="modal-header">
+        <div class="modal-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <path d="M12 9v4M12 17h.01" />
+          </svg>
+        </div>
+        <h2 class="modal-title" id="submitModalTitle">هل أنت متأكد من تسليم الاختبار؟</h2>
+        <p class="modal-subtitle">بعد التسليم، لا يمكنك تعديل إجاباتك أو العودة للاختبار.</p>
+      </div>
+
+      <div class="modal-body">
+
+        <div class="submit-summary">
+          <div class="summary-item total">
+            <div class="summary-value">20</div>
+            <div class="summary-label">إجمالي الأسئلة</div>
+          </div>
+          <div class="summary-item answered">
+            <div class="summary-value" id="modalAnswered">0</div>
+            <div class="summary-label">مُجابة</div>
+          </div>
+          <div class="summary-item remaining">
+            <div class="summary-value" id="modalRemaining">20</div>
+            <div class="summary-label">لم تُجب</div>
+          </div>
+        </div>
+
+        <div class="modal-warning">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 16v-4M12 8h.01" />
+          </svg>
+          <div>
+            <strong>تنبيه:</strong> الأسئلة التي لم تُجب عليها ستُحتسب خاطئة تلقائياً. تأكد من مراجعة جميع الأسئلة قبل التسليم.
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="modalCancel">عودة للاختبار</button>
+        <button class="btn btn-success" id="modalConfirm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 6L9 17l-5-5" />
+          </svg>
+          تأكيد التسليم
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // =========================================================
+      // بيانات الاختبار (20 سؤالاً)
+      // =========================================================
+      const questions = [
+        {
+          id: 1,
+          type: 'mcq',
+          points: 2,
+          text: 'أي مما يلي يُعدّ من أوامر SQL الأساسية لاسترجاع البيانات من جدول؟',
+          options: ['INSERT', 'SELECT', 'UPDATE', 'DELETE'],
+          correct: 1
+        },
+        {
+          id: 2,
+          type: 'mcq',
+          points: 2,
+          text: 'ما هو المفتاح الذي يميّز كل صف في الجدول بشكل فريد؟',
+          options: ['Foreign Key', 'Primary Key', 'Candidate Key', 'Composite Key'],
+          correct: 1
+        },
+        {
+          id: 3,
+          type: 'truefalse',
+          points: 2,
+          text: 'يمكن أن يحتوي الجدول على أكثر من مفتاح أساسي واحد.',
+          correct: false
+        },
+        {
+          id: 4,
+          type: 'multi',
+          points: 3,
+          text: 'أي من العبارات التالية صحيحة بخصوص جملة JOIN؟ (اختر كل ما ينطبق)',
+          options: [
+            'INNER JOIN يُرجع الصفوف المتطابقة في الجدولين فقط',
+            'LEFT JOIN يُرجع جميع صفوف الجدول الأيسر',
+            'RIGHT JOIN يُرجع جميع صفوف الجدول الأيمن',
+            'FULL JOIN يُرجع جميع الصفوف من الجدولين'
+          ],
+          correct: [0, 1, 2, 3]
+        },
+        {
+          id: 5,
+          type: 'mcq',
+          points: 2,
+          text: 'أي جملة SQL تُستخدم لتصفية نتائج الاستعلام؟',
+          options: ['ORDER BY', 'GROUP BY', 'WHERE', 'HAVING'],
+          correct: 2
+        },
+        {
+          id: 6,
+          type: 'mcq',
+          points: 2,
+          text: 'ما وظيفة الأمر DISTINCT في SQL؟',
+          options: [
+            'ترتيب النتائج',
+            'إزالة الصفوف المكررة',
+            'تصفية الصفوف',
+            'تجميع الصفوف'
+          ],
+          correct: 1
+        },
+        {
+          id: 7,
+          type: 'truefalse',
+          points: 2,
+          text: 'يمكن استخدام الدالة COUNT() لعدّ الصفوف في جدول.',
+          correct: true
+        },
+        {
+          id: 8,
+          type: 'mcq',
+          points: 2,
+          text: 'أي مما يلي ليس من أنواع البيانات في SQL؟',
+          options: ['INTEGER', 'VARCHAR', 'BOOLEAN', 'ARRAYLIST'],
+          correct: 3
+        },
+        {
+          id: 9,
+          type: 'mcq',
+          points: 2,
+          text: 'ما الفرق الرئيسي بين HAVING و WHERE؟',
+          options: [
+            'لا يوجد فرق',
+            'WHERE تُستخدم قبل التجميع، HAVING بعده',
+            'HAVING أسرع من WHERE',
+            'WHERE تعمل فقط على النصوص'
+          ],
+          correct: 1
+        },
+        {
+          id: 10,
+          type: 'essay',
+          points: 4,
+          text: 'اشرح بإيجاز الفرق بين INNER JOIN و LEFT JOIN، مع ذكر مثال تطبيقي على كل منهما.'
+        },
+        {
+          id: 11,
+          type: 'mcq',
+          points: 2,
+          text: 'أي جملة تُستخدم لإنشاء جدول جديد في قاعدة البيانات؟',
+          options: ['CREATE TABLE', 'ADD TABLE', 'NEW TABLE', 'MAKE TABLE'],
+          correct: 0
+        },
+        {
+          id: 12,
+          type: 'mcq',
+          points: 2,
+          text: 'ما وظيفة القيد FOREIGN KEY؟',
+          options: [
+            'يضمن تفرد كل صف',
+            'يربط بين جدولين ويضمن التكامل المرجعي',
+            'يمنع القيم الفارغة',
+            'يرتب البيانات تلقائياً'
+          ],
+          correct: 1
+        },
+        {
+          id: 13,
+          type: 'truefalse',
+          points: 2,
+          text: 'يمكن أن تحتوي قاعدة البيانات على أكثر من جدول.',
+          correct: true
+        },
+        {
+          id: 14,
+          type: 'mcq',
+          points: 2,
+          text: 'أي من الدوال التالية تُرجع متوسط القيم؟',
+          options: ['SUM()', 'COUNT()', 'AVG()', 'MAX()'],
+          correct: 2
+        },
+        {
+          id: 15,
+          type: 'multi',
+          points: 3,
+          text: 'أي من الأوامر التالية يُستخدم لتعديل البيانات؟ (اختر كل ما ينطبق)',
+          options: ['INSERT', 'UPDATE', 'DELETE', 'SELECT'],
+          correct: [0, 1, 2]
+        },
+        {
+          id: 16,
+          type: 'mcq',
+          points: 2,
+          text: 'ما الفرق بين TRUNCATE و DELETE؟',
+          options: [
+            'لا يوجد فرق',
+            'TRUNCATE أسرع ولا يمكن التراجع عنه بسهولة',
+            'DELETE أسرع من TRUNCATE',
+            'DELETE يحذف الجدول بالكامل'
+          ],
+          correct: 1
+        },
+        {
+          id: 17,
+          type: 'mcq',
+          points: 2,
+          text: 'أي مما يلي يُعدّ من مستويات التطبيع (Normalization)؟',
+          options: ['1NF', '2NF', '3NF', 'كل ما سبق'],
+          correct: 3
+        },
+        {
+          id: 18,
+          type: 'mcq',
+          points: 2,
+          text: 'ما وظيفة INDEX في قاعدة البيانات؟',
+          options: [
+            'تحسين أداء الاستعلامات',
+            'حذف البيانات',
+            'إنشاء نسخ احتياطية',
+            'ضغط البيانات'
+          ],
+          correct: 0
+        },
+        {
+          id: 19,
+          type: 'truefalse',
+          points: 2,
+          text: 'يمكن استخدام Subquery داخل جملة SELECT.',
+          correct: true
+        },
+        {
+          id: 20,
+          type: 'essay',
+          points: 4,
+          text: 'اذكر ثلاثة من مزايا استخدام قواعد البيانات العلائقية مقارنة بتخزين البيانات في ملفات نصية بسيطة.'
+        }
+      ];
+
+      const TOTAL_QUESTIONS = questions.length;
+      const TOTAL_SECONDS = 60 * 60; // 60 دقيقة
+
+      // =========================================================
+      // الحالة
+      // =========================================================
+      let currentIndex = 0;
+      let remainingSeconds = 59 * 60 + 42; // 59:42
+      let answers = {};           // { qIndex: value }
+      let flags = {};             // { qIndex: true }
+      let timerInterval = null;
+      let hasSubmitted = false;
+
+      // =========================================================
+      // العناصر
+      // =========================================================
+      const timerEl = document.getElementById('examTimer');
+      const timerValue = document.getElementById('timerValue');
+      const mapGrid = document.getElementById('mapGrid');
+      const mapAnswered = document.getElementById('mapAnswered');
+      const mapStatAnswered = document.getElementById('mapStatAnswered');
+      const mapStatRemaining = document.getElementById('mapStatRemaining');
+      const answeredCount = document.getElementById('answeredCount');
+      const sideAnswered = document.getElementById('sideAnswered');
+      const sideProgressBar = document.getElementById('sideProgressBar');
+      const currentQNum = document.getElementById('currentQNum');
+      const qNumBadge = document.getElementById('qNumBadge');
+      const qTypeTag = document.getElementById('qTypeTag');
+      const qPoints = document.getElementById('qPoints');
+      const questionBody = document.getElementById('questionBody');
+      const flagBtn = document.getElementById('flagBtn');
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const exitBtn = document.getElementById('exitBtn');
+      const submitModal = document.getElementById('submitModal');
+      const modalCancel = document.getElementById('modalCancel');
+      const modalConfirm = document.getElementById('modalConfirm');
+      const modalAnswered = document.getElementById('modalAnswered');
+      const modalRemaining = document.getElementById('modalRemaining');
+      const toastContainer = document.getElementById('toastContainer');
+
+      // =========================================================
+      // توليد خريطة الأسئلة
+      // =========================================================
+      function buildMap() {
+        mapGrid.innerHTML = '';
+        questions.forEach((q, i) => {
+          const btn = document.createElement('button');
+          btn.className = 'map-btn';
+          btn.textContent = i + 1;
+          btn.dataset.index = i;
+          btn.setAttribute('aria-label', `السؤال ${i + 1}`);
+          btn.addEventListener('click', () => goToQuestion(i));
+          mapGrid.appendChild(btn);
+        });
+      }
+
+      // =========================================================
+      // تحديث الخريطة والإحصاءات
+      // =========================================================
+      function updateMapState() {
+        const mapBtns = mapGrid.querySelectorAll('.map-btn');
+        let answered = 0;
+
+        mapBtns.forEach((btn, i) => {
+          btn.classList.remove('answered', 'current', 'flagged');
+
+          if (answers[i] !== undefined && answers[i] !== null && answers[i] !== '' &&
+              !(Array.isArray(answers[i]) && answers[i].length === 0)) {
+            btn.classList.add('answered');
+            answered++;
+          }
+          if (i === currentIndex) {
+            btn.classList.add('current');
+          }
+          if (flags[i]) {
+            btn.classList.add('flagged');
+          }
+        });
+
+        const remaining = TOTAL_QUESTIONS - answered;
+
+        mapAnswered.textContent = answered;
+        mapStatAnswered.textContent = answered;
+        mapStatRemaining.textContent = remaining;
+        answeredCount.textContent = answered;
+        sideAnswered.textContent = answered;
+        sideProgressBar.style.width = (answered / TOTAL_QUESTIONS * 100) + '%';
+      }
+
+      // =========================================================
+      // عرض السؤال
+      // =========================================================
+      function renderQuestion() {
+        const q = questions[currentIndex];
+
+        // تحديث الرأس
+        currentQNum.textContent = currentIndex + 1;
+        qNumBadge.textContent = currentIndex + 1;
+        qPoints.textContent = q.points;
+
+        // نوع السؤال
+        qTypeTag.className = 'question-type-tag ' + q.type;
+        const typeLabels = {
+          mcq: 'اختيار من متعدد',
+          multi: 'متعدد الإجابات',
+          truefalse: 'صح / خطأ',
+          essay: 'سؤال مقالي'
+        };
+        const typeIcons = {
+          mcq: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/>',
+          multi: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+          truefalse: '<path d="M20 6L9 17l-5-5"/><path d="M18 19l-6-6M12 19l6-6"/>',
+          essay: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>'
+        };
+        qTypeTag.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            ${typeIcons[q.type]}
+          </svg>
+          ${typeLabels[q.type]}
+        `;
+
+        // تحديث حالة زر التعليم
+        if (flags[currentIndex]) {
+          flagBtn.classList.add('flagged');
+          flagBtn.querySelector('span').textContent = 'مُعلَّم للمراجعة';
+        } else {
+          flagBtn.classList.remove('flagged');
+          flagBtn.querySelector('span').textContent = 'علّم للمراجعة';
+        }
+
+        // بناء جسم السؤال
+        let html = `<div class="question-text">${q.text}</div>`;
+
+        if (q.type === 'mcq' || q.type === 'multi') {
+          const currentValue = answers[currentIndex];
+          html += '<div class="options-list">';
+          q.options.forEach((opt, i) => {
+            const isSelected = q.type === 'mcq'
+              ? currentValue === i
+              : (Array.isArray(currentValue) && currentValue.includes(i));
+
+            const letters = ['أ', 'ب', 'ج', 'د', 'هـ'];
+            html += `
+              <button type="button" class="option-card ${isSelected ? 'selected' : ''}" data-option-index="${i}">
+                <span class="option-letter">${letters[i]}</span>
+                <span class="option-text">${opt}</span>
+                <span class="option-check ${q.type === 'multi' ? 'square' : ''}"></span>
+              </button>
+            `;
+          });
+          html += '</div>';
+        } else if (q.type === 'truefalse') {
+          const currentValue = answers[currentIndex];
+          html += `
+            <div class="tf-options">
+              <button type="button" class="tf-option ${currentValue === true ? 'selected' : ''}" data-tf="true">
+                <div class="tf-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M20 6L9 17l-5-5"/>
+                  </svg>
+                </div>
+                <span>صح</span>
+              </button>
+              <button type="button" class="tf-option ${currentValue === false ? 'selected' : ''}" data-tf="false">
+                <div class="tf-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M18 6L6 18M6 6l12 12"/>
+                  </svg>
+                </div>
+                <span>خطأ</span>
+              </button>
+            </div>
+          `;
+        } else if (q.type === 'essay') {
+          const currentValue = answers[currentIndex] || '';
+          html += `
+            <textarea class="essay-area" id="essayInput" placeholder="اكتب إجابتك هنا بالتفصيل..." maxlength="2000">${currentValue}</textarea>
+            <div class="essay-meta">
+              <span>اكتب إجابة وافية ومدعومة بالأمثلة</span>
+              <span class="char-count"><span id="charCount">${currentValue.length}</span> / 2000 حرف</span>
+            </div>
+          `;
+        }
+
+        questionBody.innerHTML = html;
+
+        // ربط الأحداث
+        if (q.type === 'mcq' || q.type === 'multi') {
+          questionBody.querySelectorAll('.option-card').forEach((btn) => {
+            btn.addEventListener('click', () => selectOption(parseInt(btn.dataset.optionIndex, 10), q.type));
+          });
+        } else if (q.type === 'truefalse') {
+          questionBody.querySelectorAll('.tf-option').forEach((btn) => {
+            btn.addEventListener('click', () => {
+              const val = btn.dataset.tf === 'true';
+              answers[currentIndex] = val;
+              renderQuestion();
+              updateMapState();
+            });
+          });
+        } else if (q.type === 'essay') {
+          const essayInput = document.getElementById('essayInput');
+          const charCount = document.getElementById('charCount');
+          if (essayInput) {
+            essayInput.addEventListener('input', () => {
+              answers[currentIndex] = essayInput.value;
+              charCount.textContent = essayInput.value.length;
+              updateMapState();
+            });
+          }
+        }
+
+        // تحديث الأزرار
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex === TOTAL_QUESTIONS - 1;
+
+        updateMapState();
+
+        // تمرير لأعلى منطقة السؤال
+        document.getElementById('questionArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      // =========================================================
+      // اختيار خيار
+      // =========================================================
+      function selectOption(optionIndex, type) {
+        if (type === 'mcq') {
+          answers[currentIndex] = optionIndex;
+        } else if (type === 'multi') {
+          const current = Array.isArray(answers[currentIndex]) ? [...answers[currentIndex]] : [];
+          const idx = current.indexOf(optionIndex);
+          if (idx > -1) {
+            current.splice(idx, 1);
+          } else {
+            current.push(optionIndex);
+          }
+          answers[currentIndex] = current;
+        }
+        renderQuestion();
+      }
+
+      // =========================================================
+      // التنقل
+      // =========================================================
+      function goToQuestion(index) {
+        if (index < 0 || index >= TOTAL_QUESTIONS) return;
+        currentIndex = index;
+        renderQuestion();
+      }
+
+      prevBtn.addEventListener('click', () => {
+        if (currentIndex > 0) goToQuestion(currentIndex - 1);
+      });
+
+      nextBtn.addEventListener('click', () => {
+        if (currentIndex < TOTAL_QUESTIONS - 1) goToQuestion(currentIndex + 1);
+      });
+
+      clearBtn.addEventListener('click', () => {
+        delete answers[currentIndex];
+        renderQuestion();
+        showToast('تم مسح الإجابة', 'warning');
+      });
+
+      // =========================================================
+      // تعليم للمراجعة
+      // =========================================================
+      flagBtn.addEventListener('click', () => {
+        flags[currentIndex] = !flags[currentIndex];
+        if (!flags[currentIndex]) delete flags[currentIndex];
+        renderQuestion();
+        showToast(
+          flags[currentIndex] ? 'تم تعليم السؤال للمراجعة' : 'تم إلغاء التعليم',
+          flags[currentIndex] ? 'warning' : 'success'
+        );
+      });
+
+      // =========================================================
+      // المؤقت
+      // =========================================================
+      function formatTime(sec) {
+        const m = Math.floor(sec / 60);
+        const s = sec % 60;
+        return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      }
+
+      function updateTimer() {
+        timerValue.textContent = formatTime(remainingSeconds);
+
+        timerEl.classList.remove('warning', 'danger');
+
+        if (remainingSeconds <= 300 && remainingSeconds > 60) {
+          timerEl.classList.add('warning');
+        } else if (remainingSeconds <= 60) {
+          timerEl.classList.add('danger');
+        }
+
+        if (remainingSeconds <= 0) {
+          clearInterval(timerInterval);
+          handleAutoSubmit();
+        }
+      }
+
+      function startTimer() {
+        updateTimer();
+        timerInterval = setInterval(() => {
+          remainingSeconds--;
+          updateTimer();
+        }, 1000);
+      }
+
+      // =========================================================
+      // نافذة التسليم
+      // =========================================================
+      function openSubmitModal() {
+        let answered = 0;
+        questions.forEach((q, i) => {
+          const val = answers[i];
+          if (val !== undefined && val !== null && val !== '' &&
+              !(Array.isArray(val) && val.length === 0)) {
+            answered++;
+          }
+        });
+        modalAnswered.textContent = answered;
+        modalRemaining.textContent = TOTAL_QUESTIONS - answered;
+        submitModal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeSubmitModal() {
+        submitModal.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+
+      exitBtn.addEventListener('click', openSubmitModal);
+      modalCancel.addEventListener('click', closeSubmitModal);
+
+      submitModal.addEventListener('click', (e) => {
+        if (e.target === submitModal) closeSubmitModal();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && submitModal.classList.contains('open')) {
+          closeSubmitModal();
+        }
+      });
+
+      // =========================================================
+      // تأكيد التسليم
+      // =========================================================
+      modalConfirm.addEventListener('click', () => {
+        if (hasSubmitted) return;
+        hasSubmitted = true;
+
+        const originalHTML = modalConfirm.innerHTML;
+        modalConfirm.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation: spin 0.8s linear infinite;">
+            <path d="M21 12a9 9 0 1 1-6.22-8.56" />
+          </svg>
+          جارٍ التسليم...
+        `;
+        modalConfirm.disabled = true;
+
+        setTimeout(() => {
+          closeSubmitModal();
+          clearInterval(timerInterval);
+          showSuccessState();
+        }, 1500);
+      });
+
+      // =========================================================
+      // التسليم التلقائي
+      // =========================================================
+      function handleAutoSubmit() {
+        if (hasSubmitted) return;
+        hasSubmitted = true;
+        clearInterval(timerInterval);
+        showToast('انتهى وقت الاختبار — تم التسليم تلقائياً', 'danger', 4000);
+        setTimeout(() => showSuccessState(), 1000);
+      }
+
+      function showSuccessState() {
+        document.querySelector('.exam-main').innerHTML = `
+          <div style="grid-column:1/-1;display:flex;align-items:center;justify-content:center;min-height:70vh;padding:20px;">
+            <div style="background:var(--bg-surface);border-radius:var(--radius-xl);padding:48px 36px;max-width:520px;text-align:center;box-shadow:var(--shadow-xl);border:1px solid var(--border);">
+              <div style="width:96px;height:96px;border-radius:50%;background:var(--success-bg);border:2px solid var(--success-border);display:flex;align-items:center;justify-content:center;margin:0 auto 24px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:48px;height:48px;">
+                  <path d="M20 6L9 17l-5-5"/>
+                </svg>
+              </div>
+              <h2 style="font-family:var(--font-head);font-size:1.75rem;font-weight:700;color:var(--text-primary);margin-bottom:12px;">تم تسليم الاختبار بنجاح</h2>
+              <p style="font-size:0.95rem;color:var(--text-secondary);line-height:1.75;margin-bottom:28px;">
+                سيتم تصحيح إجاباتك تلقائياً وإشعارك بالنتيجة عند اكتمال التصحيح. يمكنك متابعة النتيجة من صفحة الاختبارات.
+              </p>
+              <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                <a href="#" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--navy-dark);border-radius:12px;font-weight:700;font-size:0.88rem;box-shadow:0 6px 16px -4px rgba(212,160,23,0.5);text-decoration:none;">
+                  العودة للاختبارات
+                </a>
+                <a href="#" style="display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:var(--bg-subtle);color:var(--text-primary);border:1px solid var(--border);border-radius:12px;font-weight:700;font-size:0.88rem;text-decoration:none;">
+                  لوحة التحكم
+                </a>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // =========================================================
+      // Toast
+      // =========================================================
+      function showToast(message, type = 'info', duration = 2800) {
+        const icons = {
+          success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+          warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg>',
+          danger: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>',
+          info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>'
+        };
+        const toast = document.createElement('div');
+        toast.className = 'toast ' + type;
+        toast.innerHTML = icons[type] + '<span>' + message + '</span>';
+        toastContainer.appendChild(toast);
+        setTimeout(() => {
+          toast.classList.add('hide');
+          setTimeout(() => toast.remove(), 300);
+        }, duration);
+      }
+
+      // =========================================================
+      // حفظ تلقائي
+      // =========================================================
+      setInterval(() => {
+        if (!hasSubmitted) {
+          const saved = { answers, flags, currentIndex, remainingSeconds };
+          try {
+            localStorage.setItem('exam_draft_cs201', JSON.stringify(saved));
+          } catch (e) {}
+        }
+      }, 30000);
+
+      // =========================================================
+      // تحذير عند مغادرة الصفحة
+      // =========================================================
+      window.addEventListener('beforeunload', (e) => {
+        if (!hasSubmitted) {
+          e.preventDefault();
+          e.returnValue = '';
+        }
+      });
+
+      // =========================================================
+      // الحركة
+      // =========================================================
+      const styleEl = document.createElement('style');
+      styleEl.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+      document.head.appendChild(styleEl);
+
+      // =========================================================
+      // التهيئة
+      // =========================================================
+      buildMap();
+      renderQuestion();
+      startTimer();
+
+      console.log(
+        '%c[AlZain Academy]',
+        'color:#D4A017;font-weight:bold;font-size:13px;',
+        'صفحة الاختبار جاهزة — 20 سؤالاً، مؤقت 59:42'
+      );
+    })();
+  </script>
+
+</body>
+</html>

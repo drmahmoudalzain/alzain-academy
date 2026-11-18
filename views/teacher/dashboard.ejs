@@ -1,0 +1,69 @@
+<section class="page-head">
+  <div>
+    <p class="eyebrow"><%= portal.label %></p>
+    <h1 class="page-title">لوحة الأستاذ</h1>
+    <p class="page-sub">مقرراتك ومحاضراتك واختباراتك في مكان واحد.</p>
+  </div>
+  <span class="pill pill--teacher">أستاذ</span>
+</section>
+
+<div class="stats-grid stats-grid--4">
+  <article class="stat-card">
+    <span class="stat-label">مقرراتي</span>
+    <span class="stat-value"><%= stats.courses %></span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">الطلاب المسجلون</span>
+    <span class="stat-value"><%= stats.students %></span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">المحاضرات</span>
+    <span class="stat-value"><%= stats.lectures %></span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-label">الاختبارات</span>
+    <span class="stat-value"><%= stats.exams %></span>
+  </article>
+</div>
+
+<section class="panel">
+  <header class="panel-head">
+    <h2>أحدث المقررات</h2>
+    <p>إدارة المقررات ستُضاف في المرحلة التالية.</p>
+  </header>
+
+  <% if (!courses.length) { %>
+    <p class="empty">لم تُنشئ أي مقرر بعد.</p>
+  <% } else { %>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>الرمز</th>
+            <th>المقرر</th>
+            <th>المسار</th>
+            <th>المستوى</th>
+            <th>الحالة</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (const course of courses) { %>
+            <tr>
+              <td><span class="code" dir="ltr"><%= course.code %></span></td>
+              <td><%= course.title %></td>
+              <td><%= course.track === 'equiv' ? 'المعادلة' : 'بكالوريوس' %></td>
+              <td><%= course.level ?? '—' %></td>
+              <td>
+                <% if (course.archived) { %>
+                  <span class="pill pill--muted">مؤرشف</span>
+                <% } else { %>
+                  <span class="pill pill--ok">نشط</span>
+                <% } %>
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>

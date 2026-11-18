@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#166E3F" />
+  <meta name="description" content="بوابة الطلاب — أكاديمية آل الزين للعلوم القانونية والعدلية. تابع مقرراتك، محاضراتك، اختباراتك، ودرجاتك." />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>بوابة الطلاب | أكاديمية آل الزين للعلوم القانونية والعدلية</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* =========================================================
+       المتغيرات
+       ========================================================= */
+    :root {
+      --navy-dark:   #0B2545;
+      --navy-mid:    #123A63;
+      --navy-light:  #1B4A7A;
+
+      --gold:        #D4A017;
+      --gold-light:  #E8BC3A;
+      --gold-dark:   #B5870F;
+
+      --green:        #166E3F;
+      --green-light:  #1E8A50;
+      --green-bright: #27A862;
+      --green-soft:   #7DCBA0;
+      --green-pale:   #B8E8CB;
+
+      --cream:       #FAF6EC;
+      --cream-warm:  #F5EEDC;
+      --white:       #FFFFFF;
+
+      --text-dark:   #1A2A3F;
+      --text-mid:    #4A5A6F;
+      --text-muted:  #7A8A9F;
+      --text-soft:   #A0AEBF;
+
+      --border:      #D9E2EC;
+      --border-soft: #E8EEF5;
+      --border-faint:#F2F6FA;
+
+      --error:       #C73838;
+      --error-bg:    #FEF2F2;
+      --error-border:#F5C6C6;
+
+      --student-accent:       #166E3F;
+      --student-accent-light: #1E8A50;
+      --student-accent-bright:#27A862;
+      --student-accent-soft:  #7DCBA0;
+
+      --font-head: 'Amiri', 'Times New Roman', serif;
+      --font-body: 'Tajawal', 'Segoe UI', system-ui, sans-serif;
+
+      --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* =========================================================
+       إعادة الضبط
+       ========================================================= */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body { height: 100%; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-body);
+      color: var(--text-dark);
+      line-height: 1.7;
+      background: var(--cream);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    img, svg { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+    ul { list-style: none; }
+
+    ::selection { background: var(--student-accent); color: white; }
+
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: var(--cream); }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(var(--student-accent-bright), var(--student-accent));
+      border-radius: 10px;
+      border: 2px solid var(--cream);
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--student-accent);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+
+    /* =========================================================
+       التخطيط
+       ========================================================= */
+    .login-shell {
+      display: grid;
+      grid-template-columns: 520px 1fr;
+      min-height: 100vh;
+    }
+
+    /* =========================================================
+       جانب النموذج
+       ========================================================= */
+    .form-side {
+      background: var(--cream);
+      background-image:
+        radial-gradient(circle at 100% 0%, rgba(22, 110, 63, 0.06), transparent 50%),
+        radial-gradient(circle at 0% 100%, rgba(212, 160, 23, 0.035), transparent 55%);
+      padding: 28px clamp(24px, 3.5vw, 48px);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-y: auto;
+      z-index: 2;
+    }
+
+    .form-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+      gap: 12px;
+      flex-wrap: wrap;
+      animation: fadeDown 0.7s var(--ease-out);
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.86rem;
+      font-weight: 500;
+      color: var(--text-mid);
+      padding: 8px 16px 8px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border-soft);
+      background: rgba(255, 255, 255, 0.6);
+      transition: all 0.3s var(--ease);
+      backdrop-filter: blur(8px);
+    }
+    .back-link:hover {
+      color: var(--student-accent);
+      border-color: var(--student-accent);
+      background: white;
+      transform: translateX(-3px);
+    }
+    .back-link svg {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.3s var(--ease);
+    }
+    .back-link:hover svg { transform: translateX(3px); }
+
+    /* مبدل البوابات */
+    .portal-switcher {
+      display: flex;
+      gap: 3px;
+      padding: 4px;
+      border-radius: 999px;
+      background: rgba(11, 37, 69, 0.05);
+      border: 1px solid var(--border-soft);
+      font-size: 0.78rem;
+      font-weight: 500;
+    }
+    .portal-switcher a,
+    .portal-switcher .active {
+      padding: 7px 14px;
+      border-radius: 999px;
+      transition: all 0.3s var(--ease);
+      white-space: nowrap;
+    }
+    .portal-switcher a { color: var(--text-mid); }
+    .portal-switcher a:hover { color: var(--navy-dark); background: rgba(255, 255, 255, 0.5); }
+    .portal-switcher .active {
+      background: var(--student-accent);
+      color: white;
+      font-weight: 700;
+      box-shadow: 0 2px 10px -2px rgba(22, 110, 63, 0.45);
+    }
+
+    /* بطاقة النموذج */
+    .form-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-width: 440px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 40px 36px;
+      background: var(--white);
+      border-radius: 24px;
+      box-shadow:
+        0 30px 60px -20px rgba(11, 37, 69, 0.14),
+        0 10px 30px -15px rgba(11, 37, 69, 0.08),
+        0 0 0 1px rgba(11, 37, 69, 0.03);
+      position: relative;
+      animation: fadeUp 0.9s var(--ease-out) 0.1s both;
+    }
+
+    .form-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 40px;
+      left: 40px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--student-accent-bright), transparent);
+      border-radius: 0 0 3px 3px;
+    }
+
+    /* شارة الدور */
+    .role-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 16px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, rgba(22, 110, 63, 0.14), rgba(22, 110, 63, 0.04));
+      border: 1px solid rgba(22, 110, 63, 0.32);
+      color: var(--student-accent);
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      align-self: flex-start;
+      letter-spacing: 0.2px;
+    }
+    .role-badge svg { width: 16px; height: 16px; }
+
+    .form-card h1 {
+      font-family: var(--font-head);
+      font-size: clamp(1.85rem, 3vw, 2.2rem);
+      font-weight: 700;
+      color: var(--navy-dark);
+      line-height: 1.3;
+      margin-bottom: 10px;
+      letter-spacing: 0.2px;
+    }
+
+    .form-sub {
+      font-size: 0.93rem;
+      color: var(--text-mid);
+      margin-bottom: 26px;
+      line-height: 1.65;
+    }
+
+    /* التنبيهات */
+    .alert {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-size: 0.85rem;
+      line-height: 1.55;
+      animation: fadeIn 0.35s var(--ease);
+    }
+    .alert svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .alert strong {
+      display: block;
+      margin-bottom: 2px;
+      font-weight: 700;
+      font-size: 0.86rem;
+    }
+    .alert span { display: block; opacity: 0.88; }
+
+    .alert.error {
+      background: var(--error-bg);
+      border: 1px solid var(--error-border);
+      color: var(--error);
+    }
+
+    .alert.warning {
+      background: rgba(22, 110, 63, 0.06);
+      border: 1px solid rgba(22, 110, 63, 0.25);
+      color: var(--student-accent);
+    }
+
+    .alert.info {
+      background: rgba(212, 160, 23, 0.06);
+      border: 1px solid rgba(212, 160, 23, 0.28);
+      color: var(--gold-dark);
+    }
+
+    /* الحقول */
+    .field { margin-bottom: 18px; }
+
+    .field label {
+      display: block;
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--navy-dark);
+      margin-bottom: 8px;
+      letter-spacing: 0.1px;
+    }
+
+    .field .label-hint {
+      font-size: 0.74rem;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-inline-start: 6px;
+    }
+
+    .input-wrap { position: relative; }
+
+    .input-icon {
+      position: absolute;
+      inset-inline-start: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      transition: color 0.3s var(--ease);
+      pointer-events: none;
+    }
+    .input-icon svg { width: 18px; height: 18px; }
+
+    .input-wrap input {
+      width: 100%;
+      padding: 14px 16px;
+      padding-inline-start: 44px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--navy-dark);
+      background: #FBFBF8;
+      border: 1.5px solid var(--border-soft);
+      border-radius: 12px;
+      transition: all 0.3s var(--ease);
+      outline: none;
+      font-weight: 500;
+    }
+
+    .input-wrap input::placeholder {
+      color: var(--text-soft);
+      font-size: 0.88rem;
+      font-weight: 400;
+    }
+
+    .input-wrap input:hover {
+      background: white;
+      border-color: var(--border);
+    }
+
+    .input-wrap input:focus {
+      background: white;
+      border-color: var(--student-accent);
+      box-shadow: 0 0 0 4px rgba(22, 110, 63, 0.12);
+    }
+
+    .input-wrap input:focus ~ .input-icon {
+      color: var(--student-accent);
+    }
+
+    .input-wrap.password input {
+      padding-inline-end: 46px;
+    }
+
+    /* حقل الرقم الجامعي (مخصص للطالب) */
+    .input-wrap.university-id input {
+      font-family: 'Tajawal', monospace;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .toggle-pwd {
+      position: absolute;
+      inset-inline-end: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      color: var(--text-muted);
+      transition: all 0.25s var(--ease);
+    }
+    .toggle-pwd:hover {
+      background: rgba(22, 110, 63, 0.1);
+      color: var(--student-accent);
+    }
+    .toggle-pwd svg { width: 18px; height: 18px; }
+    .toggle-pwd .eye-off { display: none; }
+    .toggle-pwd.revealed .eye-on { display: none; }
+    .toggle-pwd.revealed .eye-off { display: block; }
+
+    /* الصف */
+    .form-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      font-size: 0.85rem;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .checkbox {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+      color: var(--text-mid);
+      font-weight: 500;
+    }
+    .checkbox input {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border: 1.5px solid var(--border);
+      border-radius: 5px;
+      background: #FBFBF8;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s var(--ease);
+      flex-shrink: 0;
+    }
+    .checkbox input:hover { border-color: var(--student-accent); }
+    .checkbox input:checked {
+      background: var(--student-accent);
+      border-color: var(--student-accent);
+    }
+    .checkbox input:checked::after {
+      content: '';
+      position: absolute;
+      top: 1px;
+      left: 5px;
+      width: 5px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .forgot {
+      color: var(--student-accent);
+      font-weight: 600;
+      transition: color 0.3s var(--ease);
+    }
+    .forgot:hover { color: var(--navy-dark); text-decoration: underline; }
+
+    /* زر الإرسال */
+    .submit-btn {
+      width: 100%;
+      padding: 15px 20px;
+      background: linear-gradient(135deg, var(--student-accent-bright), var(--student-accent));
+      color: white;
+      font-family: inherit;
+      font-size: 0.98rem;
+      font-weight: 700;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 8px 24px -6px rgba(22, 110, 63, 0.5);
+      transition: all 0.3s var(--ease);
+      position: relative;
+      overflow: hidden;
+      letter-spacing: 0.2px;
+    }
+
+    .submit-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #34B972, var(--student-accent-bright));
+      opacity: 0;
+      transition: opacity 0.3s var(--ease);
+    }
+
+    .submit-btn > * { position: relative; z-index: 1; }
+    .submit-btn svg {
+      width: 18px;
+      height: 18px;
+      transform: scaleX(-1);
+      transition: transform 0.3s var(--ease-out);
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 34px -6px rgba(22, 110, 63, 0.7);
+    }
+    .submit-btn:hover::before { opacity: 1; }
+    .submit-btn:hover svg { transform: scaleX(-1) translateX(-4px); }
+    .submit-btn:active { transform: translateY(0); }
+    .submit-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .submit-btn.loading .btn-text,
+    .submit-btn.loading svg { opacity: 0; }
+    .submit-btn.loading::after {
+      content: '';
+      position: absolute;
+      inset-inline-start: 50%;
+      top: 50%;
+      width: 20px;
+      height: 20px;
+      margin: -10px -10px 0 0;
+      border: 2.5px solid rgba(255, 255, 255, 0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+
+    /* فاصل أو */
+    .divider-or {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+    .divider-or::before,
+    .divider-or::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-soft);
+    }
+
+    /* زر التسجيل (إن كان مسموحاً) */
+    .register-hint {
+      text-align: center;
+      font-size: 0.86rem;
+      color: var(--text-mid);
+    }
+    .register-hint a {
+      color: var(--student-accent);
+      font-weight: 700;
+      transition: color 0.3s var(--ease);
+    }
+    .register-hint a:hover {
+      color: var(--navy-dark);
+      text-decoration: underline;
+    }
+    .register-hint.disabled {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+    .register-hint.disabled strong {
+      color: var(--gold-dark);
+      font-weight: 700;
+    }
+
+    /* ملاحظة أمنية */
+    .security-note {
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px dashed var(--border-soft);
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 0.77rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .security-note svg {
+      width: 16px;
+      height: 16px;
+      color: var(--student-accent);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* بيانات تجريبية */
+    .demo-hint {
+      margin-top: 14px;
+      font-size: 0.8rem;
+    }
+    .demo-hint summary {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 8px;
+      transition: all 0.25s var(--ease);
+      list-style: none;
+      user-select: none;
+    }
+    .demo-hint summary::-webkit-details-marker { display: none; }
+    .demo-hint summary:hover {
+      background: rgba(22, 110, 63, 0.08);
+      color: var(--student-accent);
+    }
+    .demo-hint summary svg { width: 14px; height: 14px; }
+    .demo-hint[open] summary {
+      color: var(--student-accent);
+      background: rgba(22, 110, 63, 0.06);
+    }
+
+    .demo-content {
+      margin-top: 10px;
+      padding: 14px;
+      border-radius: 10px;
+      background: rgba(22, 110, 63, 0.04);
+      border: 1px dashed rgba(22, 110, 63, 0.28);
+      color: var(--text-mid);
+      font-size: 0.78rem;
+      line-height: 1.65;
+      animation: fadeIn 0.3s var(--ease);
+    }
+    .demo-content p { margin-bottom: 10px; }
+    .demo-content code {
+      display: inline-block;
+      background: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.72rem;
+      color: var(--navy-dark);
+      border: 1px solid var(--border-soft);
+      direction: ltr;
+    }
+    .demo-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: white;
+      border: 1px solid var(--border-soft);
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--navy-dark);
+      transition: all 0.25s var(--ease);
+      margin-top: 4px;
+    }
+    .demo-btn:hover {
+      border-color: var(--student-accent);
+      background: rgba(22, 110, 63, 0.05);
+      color: var(--student-accent);
+    }
+    .demo-btn svg { width: 13px; height: 13px; }
+
+    /* تذييل النموذج */
+    .form-footer {
+      margin-top: 28px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+    .form-footer a {
+      color: var(--text-mid);
+      transition: color 0.3s var(--ease);
+    }
+    .form-footer a:hover { color: var(--student-accent); }
+    .form-footer .sep { opacity: 0.4; margin: 0 4px; }
+
+    /* =========================================================
+       الجانب البصري (يسار) — أخضر
+       ========================================================= */
+    .visual-side {
+      background: linear-gradient(155deg, #0D3325 0%, #0F4230 45%, #072819 100%);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: clamp(28px, 3vw, 44px) clamp(30px, 4vw, 60px);
+      color: var(--cream-warm);
+    }
+
+    .visual-bg {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      will-change: transform;
+    }
+    .orb-1 {
+      width: 520px;
+      height: 520px;
+      top: -180px;
+      left: -100px;
+      background: radial-gradient(circle, rgba(39, 168, 98, 0.5), transparent 70%);
+      animation: float 24s ease infinite;
+    }
+    .orb-2 {
+      width: 560px;
+      height: 560px;
+      bottom: -260px;
+      right: -140px;
+      background: radial-gradient(circle, rgba(212, 160, 23, 0.22), transparent 70%);
+      animation: float 30s ease infinite reverse;
+    }
+    .orb-3 {
+      width: 420px;
+      height: 420px;
+      top: 38%;
+      left: 45%;
+      background: radial-gradient(circle, rgba(125, 203, 160, 0.32), transparent 70%);
+      animation: float 34s ease infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50%      { transform: translate(40px, -30px) scale(1.08); }
+    }
+
+    .pattern {
+      position: absolute;
+      inset: 0;
+      opacity: 0.07;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'><g fill='none' stroke='%237DCBA0' stroke-width='1'><path d='M60 0 L120 60 L60 120 L0 60 Z'/><circle cx='60' cy='60' r='28'/><path d='M0 0 L120 120 M120 0 L0 120'/></g></svg>");
+      background-size: 240px 240px;
+      mix-blend-mode: screen;
+    }
+
+    .visual-top {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-head);
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      animation: fadeDown 0.8s var(--ease-out) 0.2s both;
+    }
+    .visual-top svg {
+      width: 34px;
+      height: 34px;
+      color: var(--student-accent-soft);
+      filter: drop-shadow(0 0 10px rgba(125, 203, 160, 0.6));
+      flex-shrink: 0;
+    }
+
+    .visual-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      z-index: 2;
+      padding: 40px 0 24px;
+    }
+
+    /* شعار الموازين - نسخة الطالب */
+    .emblem-large {
+      width: 128px;
+      height: 128px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      margin-bottom: 28px;
+      background:
+        radial-gradient(circle at 30% 25%, rgba(125, 203, 160, 0.3), transparent 60%),
+        rgba(9, 39, 26, 0.6);
+      border: 1.5px solid var(--student-accent-soft);
+      box-shadow:
+        0 0 0 8px rgba(39, 168, 98, 0.12),
+        0 20px 50px -12px rgba(39, 168, 98, 0.55),
+        inset 0 0 30px rgba(39, 168, 98, 0.15);
+      position: relative;
+      animation: fadeUp 1s var(--ease-out) 0.3s both, pulseGlow 4s ease-in-out infinite 1.3s;
+    }
+    .emblem-large::before {
+      content: '';
+      position: absolute;
+      inset: -14px;
+      border-radius: 50%;
+      border: 1px dashed rgba(125, 203, 160, 0.4);
+      animation: rotate 30s linear infinite;
+    }
+    .emblem-large svg {
+      width: 64px;
+      height: 64px;
+      color: var(--student-accent-soft);
+      filter: drop-shadow(0 0 10px rgba(125, 203, 160, 0.8));
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% {
+        box-shadow:
+          0 0 0 8px rgba(39, 168, 98, 0.12),
+          0 20px 50px -12px rgba(39, 168, 98, 0.55),
+          inset 0 0 30px rgba(39, 168, 98, 0.15);
+      }
+      50% {
+        box-shadow:
+          0 0 0 12px rgba(39, 168, 98, 0.16),
+          0 24px 60px -10px rgba(39, 168, 98, 0.75),
+          inset 0 0 40px rgba(39, 168, 98, 0.22);
+      }
+    }
+    @keyframes rotate { to { transform: rotate(360deg); } }
+
+    .visual-content h2 {
+      font-family: var(--font-head);
+      font-size: clamp(1.9rem, 3vw, 2.4rem);
+      font-weight: 700;
+      color: var(--cream-warm);
+      margin-bottom: 14px;
+      letter-spacing: 0.3px;
+      background: linear-gradient(180deg, #FFFFFF 0%, #B8E8CB 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: fadeUp 1s var(--ease-out) 0.45s both;
+    }
+
+    .green-line {
+      width: 90px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--student-accent-soft), transparent);
+      margin-bottom: 16px;
+      position: relative;
+      animation: fadeUp 1s var(--ease-out) 0.5s both;
+    }
+    .green-line::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(45deg);
+      width: 6px;
+      height: 6px;
+      background: var(--student-accent-soft);
+      box-shadow: 0 0 10px var(--student-accent-soft);
+    }
+
+    .visual-lead {
+      font-size: 0.95rem;
+      color: rgba(241, 244, 248, 0.72);
+      max-width: 380px;
+      margin-bottom: 34px;
+      line-height: 1.85;
+      animation: fadeUp 1s var(--ease-out) 0.55s both;
+    }
+
+    /* صلاحيات الطالب */
+    .privileges {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-width: 420px;
+      width: 100%;
+      animation: fadeUp 1s var(--ease-out) 0.65s both;
+    }
+
+    .privileges li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(125, 203, 160, 0.18);
+      text-align: start;
+      transition: all 0.35s var(--ease);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .privileges li::before {
+      content: '';
+      position: absolute;
+      inset-inline-start: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 0;
+      background: var(--student-accent-soft);
+      border-radius: 0 3px 3px 0;
+      transition: height 0.35s var(--ease);
+    }
+
+    .privileges li:hover {
+      background: rgba(39, 168, 98, 0.1);
+      border-color: rgba(125, 203, 160, 0.45);
+      transform: translateX(-4px);
+    }
+    .privileges li:hover::before { height: 60%; }
+
+    .privileges li > svg {
+      width: 20px;
+      height: 20px;
+      color: var(--student-accent-soft);
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    .privileges strong {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--cream-warm);
+      margin-bottom: 2px;
+    }
+    .privileges span {
+      display: block;
+      font-size: 0.77rem;
+      color: rgba(241, 244, 248, 0.55);
+      line-height: 1.5;
+    }
+
+    /* شارة النقاط (تذكيرية) */
+    .points-highlight {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: rgba(212, 160, 23, 0.12);
+      border: 1px solid rgba(212, 160, 23, 0.35);
+      margin-top: 18px;
+      font-size: 0.78rem;
+      color: var(--gold-light);
+      font-weight: 700;
+      animation: fadeUp 1s var(--ease-out) 0.78s both;
+    }
+    .points-highlight svg { width: 16px; height: 16px; }
+
+    /* تذييل الجانب البصري */
+    .visual-footer {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      animation: fadeUp 1s var(--ease-out) 0.85s both;
+    }
+
+    .seal {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: rgba(39, 168, 98, 0.12);
+      border: 1px solid rgba(125, 203, 160, 0.3);
+      backdrop-filter: blur(8px);
+    }
+    .seal.gold {
+      background: rgba(212, 160, 23, 0.08);
+      border-color: rgba(212, 160, 23, 0.3);
+    }
+    .seal svg {
+      width: 22px;
+      height: 22px;
+      color: var(--student-accent-soft);
+      flex-shrink: 0;
+    }
+    .seal.gold svg { color: var(--gold-light); }
+    .seal strong {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--student-accent-soft);
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .seal.gold strong { color: var(--gold-light); }
+    .seal span {
+      display: block;
+      font-size: 0.68rem;
+      color: rgba(241, 244, 248, 0.5);
+      line-height: 1.4;
+    }
+
+    /* بطاقة تنبيه أسفل الجانب البصري */
+    .visual-note {
+      position: relative;
+      z-index: 2;
+      margin-top: 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: 12px;
+      background: rgba(212, 160, 23, 0.06);
+      border: 1px solid rgba(212, 160, 23, 0.22);
+      animation: fadeUp 1s var(--ease-out) 0.95s both;
+    }
+    .visual-note svg {
+      width: 18px;
+      height: 18px;
+      color: var(--gold-light);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .visual-note p {
+      font-size: 0.76rem;
+      color: rgba(241, 244, 248, 0.68);
+      line-height: 1.55;
+      text-align: start;
+    }
+    .visual-note strong { color: var(--gold-light); font-weight: 700; }
+
+    /* =========================================================
+       الحركات
+       ========================================================= */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* =========================================================
+       الاستجابة
+       ========================================================= */
+    @media (max-width: 1100px) {
+      .login-shell { grid-template-columns: 460px 1fr; }
+      .form-card { padding: 36px 30px; }
+      .privileges li { padding: 10px 14px; }
+    }
+
+    @media (max-width: 900px) {
+      .login-shell { grid-template-columns: 1fr; }
+      .visual-side { display: none; }
+      .form-side {
+        padding: 24px clamp(20px, 5vw, 40px);
+        min-height: 100vh;
+      }
+      .form-card { max-width: 480px; padding: 38px 30px; }
+    }
+
+    @media (max-width: 560px) {
+      .form-topbar { margin-bottom: 24px; flex-wrap: wrap; }
+      .portal-switcher {
+        font-size: 0.74rem;
+        order: -1;
+        width: 100%;
+        justify-content: center;
+      }
+      .portal-switcher a,
+      .portal-switcher .active { padding: 6px 11px; }
+      .form-card {
+        padding: 32px 22px;
+        border-radius: 18px;
+      }
+      .form-card::before { right: 20px; left: 20px; }
+      .form-card h1 { font-size: 1.75rem; }
+      .form-sub { font-size: 0.88rem; }
+      .form-footer { font-size: 0.72rem; }
+      .security-note { font-size: 0.73rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-shell">
+
+    <!-- ========================================================
+         جانب النموذج
+         ======================================================== -->
+    <main class="form-side">
+
+      <div class="form-topbar">
+        <a href="/" class="back-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+          العودة للرئيسية
+        </a>
+
+        <div class="portal-switcher" role="tablist" aria-label="تبديل البوابة">
+          <a href="/login?role=owner">المالك</a>
+          <a href="/login?role=teacher">الأساتذة</a>
+          <span class="active" aria-current="page">الطلاب</span>
+        </div>
+      </div>
+
+      <div class="form-card">
+
+        <div class="role-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M3 7l9-4 9 4v6c0 4.5-3.5 8-9 9-5.5-1-9-4.5-9-9V7z" />
+            <path d="M9 12l2 2 4-4" />
+          </svg>
+          طالب
+        </div>
+
+        <h1>أهلاً بك</h1>
+        <p class="form-sub">سجّل الدخول للوصول إلى مقرراتك، محاضراتك، اختباراتك، ودرجاتك.</p>
+
+        <!-- تنبيه خطأ -->
+        <div class="alert error" id="errorAlert" hidden role="alert">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 8v4M12 16h.01" />
+          </svg>
+          <div>
+            <strong id="errorTitle">تعذر تسجيل الدخول</strong>
+            <span id="errorMsg">تأكد من صحة الرقم الجامعي وكلمة المرور.</span>
+          </div>
+        </div>
+
+        <!-- تنبيه دور غير مطابق -->
+        <div class="alert warning" id="roleAlert" hidden role="alert">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="M12 8v4M12 16h.01" />
+          </svg>
+          <div>
+            <strong>هذه البوابة مخصصة للطلاب فقط</strong>
+            <span>حسابك الحالي لا يمتلك صلاحية الدخول من هنا — استخدم بوابتك الخاصة بحسب دورك.</span>
+          </div>
+        </div>
+
+        <!-- تنبيه تغيير كلمة المرور -->
+        <div class="alert info" id="mustChangeAlert" hidden role="alert">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="11" width="18" height="11" rx="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            <circle cx="12" cy="16" r="1" fill="currentColor" />
+          </svg>
+          <div>
+            <strong>يجب تغيير كلمة المرور</strong>
+            <span>سيُطلب منك تغيير كلمة المرور المؤقتة فور تسجيل الدخول.</span>
+          </div>
+        </div>
+
+        <form id="loginForm" novalidate>
+
+          <div class="field">
+            <label for="identifier">
+              الرقم الجامعي
+              <span class="label-hint">أو البريد الإلكتروني</span>
+            </label>
+            <div class="input-wrap university-id">
+              <span class="input-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="5" width="20" height="14" rx="2" />
+                  <path d="M2 10h20M6 15h4" />
+                </svg>
+              </span>
+              <input
+                type="text"
+                id="identifier"
+                name="identifier"
+                placeholder="2024001"
+                autocomplete="username"
+                spellcheck="false"
+                inputmode="text"
+                dir="ltr"
+                required
+                aria-describedby="identifierHint"
+              />
+            </div>
+            <span id="identifierHint" style="display:none;">الرقم الجامعي المكوّن من 7 أرقام أو البريد الإلكتروني</span>
+          </div>
+
+          <div class="field">
+            <label for="password">كلمة المرور</label>
+            <div class="input-wrap password">
+              <span class="input-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              </span>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="••••••••••"
+                autocomplete="current-password"
+                required
+              />
+              <button
+                type="button"
+                class="toggle-pwd"
+                id="togglePwd"
+                aria-label="إظهار كلمة المرور"
+                aria-pressed="false"
+              >
+                <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                  <path d="M1 1l22 22" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <label class="checkbox">
+              <input type="checkbox" id="remember" name="remember" />
+              <span>تذكرني على هذا الجهاز</span>
+            </label>
+            <a href="/forgot-password" class="forgot">نسيت كلمة المرور؟</a>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submitBtn">
+            <span class="btn-text">تسجيل الدخول</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </button>
+        </form>
+
+        <!-- فاصل -->
+        <div class="divider-or">أو</div>
+
+        <!-- رابط التسجيل -->
+        <div class="register-hint">
+          <span>طالب جديد؟</span>
+          <a href="#" id="registerLink">اطلب التسجيل في الأكاديمية</a>
+        </div>
+
+        <!-- ملاحظة أمنية -->
+        <div class="security-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="M9 12l2 2 4-4" />
+          </svg>
+          <span>تُسجَّل جميع محاولات الدخول (ناجحة أو مرفوضة) في سجل التدقيق الأمني للمنصة.</span>
+        </div>
+
+        <!-- بيانات تجريبية -->
+        <details class="demo-hint">
+          <summary>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4" />
+            </svg>
+            بيانات الدخول التجريبية
+          </summary>
+          <div class="demo-content">
+            <p>
+              للتجربة فقط — استخدم الرقم الجامعي <code>2024001</code> وكلمة المرور <code>Student1234</code>
+            </p>
+            <button
+              type="button"
+              class="demo-btn"
+              id="fillDemo"
+              data-id="2024001"
+              data-password="Student1234"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              تعبئة تلقائية
+            </button>
+          </div>
+        </details>
+      </div>
+
+      <div class="form-footer">
+        <span>© 2026 أكاديمية آل الزين</span>
+        <span class="sep">•</span>
+        <a href="#">سياسة الخصوصية</a>
+        <span class="sep">•</span>
+        <a href="#">المساعدة</a>
+      </div>
+    </main>
+
+    <!-- ========================================================
+         الجانب البصري
+         ======================================================== -->
+    <aside class="visual-side" aria-hidden="true">
+
+      <div class="visual-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="pattern"></div>
+      </div>
+
+      <div class="visual-top">
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M32 6v46" />
+          <path d="M20 52h24" />
+          <circle cx="32" cy="10" r="3" fill="currentColor" stroke="none" />
+          <path d="M10 18h44" />
+          <path d="M10 18L4 32h12L10 18z" />
+          <path d="M54 18L48 32h12L54 18z" />
+          <path d="M4 32a6 6 0 0 0 12 0" />
+          <path d="M48 32a6 6 0 0 0 12 0" />
+        </svg>
+        <span>أكاديمية آل الزين</span>
+      </div>
+
+      <div class="visual-content">
+
+        <div class="emblem-large">
+          <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M32 6v46" />
+            <path d="M20 52h24" />
+            <circle cx="32" cy="10" r="3.2" fill="currentColor" stroke="none" />
+            <path d="M10 18h44" />
+            <path d="M10 18L4 32h12L10 18z" />
+            <path d="M54 18L48 32h12L54 18z" />
+            <path d="M4 32a6 6 0 0 0 12 0" />
+            <path d="M48 32a6 6 0 0 0 12 0" />
+          </svg>
+        </div>
+
+        <h2>بوابة الطلاب</h2>
+        <div class="green-line"></div>
+        <p class="visual-lead">
+          رحلتك التعليمية القانونية تبدأ من هنا — تابع دروسك، أنجز واجباتك، واجمع نقاطك.
+        </p>
+
+        <ul class="privileges">
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+            <div>
+              <strong>مقرراتك ومحاضراتك</strong>
+              <span>مشاهدة المحاضرات المسجلة والمباشرة</span>
+            </div>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+            <div>
+              <strong>الاختبارات والواجبات</strong>
+              <span>أداء وتسليم مع تصحيح فوري</span>
+            </div>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+            <div>
+              <strong>نقاطك ودرجاتك</strong>
+              <span>متابعة تحصيلك الأكاديمي أولاً بأول</span>
+            </div>
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+            <div>
+              <strong>المكتبة القانونية</strong>
+              <span>آلاف المراجع والبحوث في متناولك</span>
+            </div>
+          </li>
+        </ul>
+
+        <div class="points-highlight">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+          </svg>
+          +10 نقاط لكل محاضرة بحد أقصى
+        </div>
+      </div>
+
+      <div class="visual-footer">
+        <div class="seal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <path d="M22 4L12 14l-3-3" />
+          </svg>
+          <div>
+            <strong>تعلّم متكامل</strong>
+            <span>محاضرات + تطبيق + تقييم</span>
+          </div>
+        </div>
+        <div class="seal gold">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+          </svg>
+          <div>
+            <strong>نظام النقاط</strong>
+            <span>حضور + تفاعل + واجبات</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="visual-note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 16v-4M12 8h.01" />
+        </svg>
+        <p>
+          <strong>ملاحظة:</strong> التسجيل متاح فقط عند تفعيل إعدادات المنصة. تواصل مع إدارة الأكاديمية لطلب حساب طالب جديد.
+        </p>
+      </div>
+    </aside>
+
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const form            = document.getElementById('loginForm');
+      const identifierInput = document.getElementById('identifier');
+      const pwdInput        = document.getElementById('password');
+      const submitBtn       = document.getElementById('submitBtn');
+      const togglePwd       = document.getElementById('togglePwd');
+      const errorAlert      = document.getElementById('errorAlert');
+      const roleAlert       = document.getElementById('roleAlert');
+      const mustChangeAlert = document.getElementById('mustChangeAlert');
+      const errorTitle      = document.getElementById('errorTitle');
+      const errorMsg        = document.getElementById('errorMsg');
+      const fillDemo        = document.getElementById('fillDemo');
+      const registerLink    = document.getElementById('registerLink');
+
+      // إظهار/إخفاء كلمة المرور
+      if (togglePwd) {
+        togglePwd.addEventListener('click', () => {
+          const isPwd = pwdInput.type === 'password';
+          pwdInput.type = isPwd ? 'text' : 'password';
+          togglePwd.classList.toggle('revealed', isPwd);
+          togglePwd.setAttribute('aria-pressed', String(isPwd));
+          togglePwd.setAttribute('aria-label', isPwd ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور');
+          pwdInput.focus();
+        });
+      }
+
+      // تعبئة البيانات التجريبية
+      if (fillDemo) {
+        fillDemo.addEventListener('click', () => {
+          identifierInput.value = fillDemo.dataset.id;
+          pwdInput.value = fillDemo.dataset.password;
+          identifierInput.dispatchEvent(new Event('input', { bubbles: true }));
+          pwdInput.dispatchEvent(new Event('input', { bubbles: true }));
+          identifierInput.focus();
+        });
+      }
+
+      // اكتشاف حالات URL
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('error') === 'role' || params.get('denied') === '1') {
+        roleAlert.hidden = false;
+      }
+      if (params.get('error') === 'invalid') {
+        errorTitle.textContent = 'بيانات الدخول غير صحيحة';
+        errorMsg.textContent = 'تحقق من الرقم الجامعي وكلمة المرور ثم أعد المحاولة.';
+        errorAlert.hidden = false;
+      }
+      if (params.get('error') === 'inactive') {
+        errorTitle.textContent = 'الحساب غير مُفعَّل';
+        errorMsg.textContent = 'حسابك الحالي غير مفعّل — يرجى التواصل مع إدارة المنصة.';
+        errorAlert.hidden = false;
+      }
+      if (params.get('must_change') === '1') {
+        mustChangeAlert.hidden = false;
+      }
+
+      // إظهار خطأ
+      function showError(title, msg) {
+        errorTitle.textContent = title;
+        errorMsg.textContent = msg;
+        errorAlert.hidden = false;
+        errorAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      // التحقق
+      function validate() {
+        const id = identifierInput.value.trim();
+        const pwd = pwdInput.value;
+
+        if (!id) {
+          showError('حقل مطلوب', 'يرجى إدخال الرقم الجامعي أو البريد الإلكتروني.');
+          identifierInput.focus();
+          return false;
+        }
+
+        // إذا أدخل بريداً إلكترونياً، تحقق من صيغته
+        if (id.includes('@')) {
+          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          if (!emailRegex.test(id)) {
+            showError('بريد غير صالح', 'يرجى إدخال بريد إلكتروني بصيغة صحيحة أو رقم جامعي.');
+            identifierInput.focus();
+            return false;
+          }
+        } else {
+          // الرقم الجامعي: أرقام فقط (يمكن أن يكون 7 أو 8 أو 9 أرقام)
+          const idRegex = /^\d{5,12}$/;
+          if (!idRegex.test(id)) {
+            showError('رقم جامعي غير صالح', 'الرقم الجامعي يجب أن يتكون من أرقام فقط (5 إلى 12 رقماً).');
+            identifierInput.focus();
+            return false;
+          }
+        }
+
+        if (!pwd) {
+          showError('حقل مطلوب', 'يرجى إدخال كلمة المرور.');
+          pwdInput.focus();
+          return false;
+        }
+        if (pwd.length < 6) {
+          showError('كلمة المرور قصيرة', 'يجب أن تكون كلمة المرور 6 أحرف على الأقل.');
+          pwdInput.focus();
+          return false;
+        }
+        return true;
+      }
+
+      // إرسال
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        errorAlert.hidden = true;
+        roleAlert.hidden = true;
+        mustChangeAlert.hidden = true;
+
+        if (!validate()) return;
+
+        submitBtn.classList.add('loading');
+        submitBtn.disabled = true;
+
+        setTimeout(() => {
+          submitBtn.classList.remove('loading');
+          submitBtn.disabled = false;
+          showError(
+            'هذه واجهة تجريبية',
+            'لم يتم ربط النموذج بالخادم بعد — سيتم تفعيل المصادقة عند اكتمال البناء.'
+          );
+        }, 1600);
+      });
+
+      // مسح عند الكتابة
+      [identifierInput, pwdInput].forEach((input) => {
+        input.addEventListener('input', () => {
+          errorAlert.hidden = true;
+          roleAlert.hidden = true;
+          mustChangeAlert.hidden = true;
+        });
+      });
+
+      // ESC
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          errorAlert.hidden = true;
+          roleAlert.hidden = true;
+          mustChangeAlert.hidden = true;
+        }
+      });
+
+      // زر التسجيل (إن كان معطّلاً)
+      if (registerLink) {
+        registerLink.addEventListener('click', (e) => {
+          e.preventDefault();
+          showError(
+            'التسجيل مغلق',
+            'التسجيل حالياً مغلق — يرجى التواصل مع إدارة المنصة لطلب حساب طالب جديد.'
+          );
+        });
+      }
+
+      console.log(
+        '%c[AlZain Academy]',
+        'color:#166E3F;font-weight:bold;font-size:13px;',
+        'بوابة الطلاب جاهزة — وضع تجريبي'
+      );
+    })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,18 @@
+# توحيد نهايات الأسطر داخل المستودع (مهم للعمل الجماعي على Windows/Linux)
+* text=auto
+
+*.js   text eol=lf
+*.mjs  text eol=lf
+*.json text eol=lf
+*.ejs  text eol=lf
+*.css  text eol=lf
+*.html text eol=lf
+*.md   text eol=lf
+*.sql  text eol=lf
+*.txt  text eol=lf
+
+# الملفات الثنائية لا تُحوّل
+*.docx binary
+*.png  binary
+*.jpg  binary
+*.pdf  binary

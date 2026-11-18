@@ -1,0 +1,22 @@
+# أسرار وبيئة محلية
+.env
+.env.*
+!.env.example
+*.local
+
+# ملفات الأسرار المحلية (لا ترفع أبداً)
+كلمة مرور سوبابيس.txt
+secrets/
+*.pem
+
+# Node
+node_modules/
+npm-debug.log*
+
+# نظام التشغيل
+Thumbs.db
+.DS_Store
+
+# مخرجات مؤقتة
+tmp/
+*.log
