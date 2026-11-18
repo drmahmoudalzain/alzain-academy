@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B2545" />
+  <title>أكاديمية آل الزين للعلوم القانونية والعدلية</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/app.css">
+  <style>
+    #spa-root { min-height: 100vh; }
+    .spa-loading {
+      min-height: 60vh;
+      display: grid;
+      place-items: center;
+      color: #b9cbe0;
+      font-family: 'Tajawal', sans-serif;
+      font-size: 16px;
+      gap: 12px;
+    }
+    .spa-loading .dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #D4A017; display: inline-block;
+      animation: spaPulse 1.2s ease-in-out infinite;
+    }
+    @keyframes spaPulse {
+      0%, 100% { transform: scale(0.6); opacity: 0.4; }
+      50% { transform: scale(1.1); opacity: 1; }
+    }
+    .spa-error {
+      min-height: 60vh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: #f1f4f8;
+      padding: 40px 20px;
+    }
+    .spa-error h2 { color: #D4A017; font-family: 'Amiri', serif; }
+  </style>
+</head>
+<body>
+  <div id="spa-root">
+    <div class="spa-loading"><span class="dot"></span> جاري التحميل…</div>
+  </div>
+
+  <script src="/js/app.js" defer></script>
+</body>
+</html>
