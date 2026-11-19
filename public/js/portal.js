@@ -2,6 +2,15 @@
 (function () {
   "use strict";
 
+  // ---------- زر الرجوع ----------
+  const backBtn = document.getElementById("backBtn");
+  if (backBtn) {
+    backBtn.addEventListener("click", () => {
+      if (window.history.length > 1) window.history.back();
+      else window.location.assign(backBtn.dataset.fallback || "/");
+    });
+  }
+
   // ---------- الشريط الجانبي ----------
   const sidebar = document.getElementById("sidebar");
   const menuBtn = document.getElementById("menuBtn");
@@ -10,7 +19,10 @@
   function setSidebar(open) {
     if (!sidebar) return;
     sidebar.classList.toggle("open", open);
-    if (overlay) overlay.hidden = !open;
+    if (overlay) {
+      overlay.classList.toggle("is-open", open);
+      overlay.setAttribute("aria-hidden", String(!open));
+    }
     if (menuBtn) menuBtn.setAttribute("aria-expanded", String(open));
     document.body.classList.toggle("sidebar-open", open);
   }

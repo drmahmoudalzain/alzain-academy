@@ -57,20 +57,60 @@ body.portal {
 
 .inline-form { margin: 0; display: inline-flex; }
 
-/* غطاء الشريط الجانبي على الشاشات الصغيرة */
+/* غطاء الشريط الجانبي على الشاشات الصغيرة — display يعتمد على الصنف فقط، لا على hidden */
 .sidebar-overlay {
   position: fixed;
   inset: 0;
   z-index: 65;
   background: rgba(7, 20, 38, 0.55);
   backdrop-filter: blur(2px);
+  display: none;
 }
 
-@media (min-width: 901px) {
-  .sidebar-overlay { display: none !important; }
+.sidebar-overlay.is-open {
+  display: block;
 }
 
-/* بحث غير فعّال */
+/* زر الرجوع */
+.topbar-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), color 0.2s var(--ease), background 0.2s var(--ease);
+}
+
+.topbar-back:hover {
+  border-color: var(--gold);
+  color: var(--gold-dark);
+  background: rgba(212, 160, 23, 0.08);
+}
+
+.topbar-back svg { width: 18px; height: 18px; }
+.topbar-back .back-label { font-size: 0.82rem; font-weight: 600; }
+
+.menu-btn span {
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-inline-start: 2px;
+}
+
+@media (max-width: 900px) {
+  .menu-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: auto;
+    min-width: 40px;
+    padding: 0 12px;
+  }
+}
 .search-box--static input:disabled {
   cursor: default;
   opacity: 0.75;

@@ -73,15 +73,22 @@
       </div>
     </aside>
 
-    <div class="sidebar-overlay" id="sidebarOverlay" hidden></div>
+    <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
 
     <div class="main">
       <header class="topbar">
         <div class="topbar-left">
+          <button class="topbar-back" id="backBtn" data-fallback="<%= portal.home %>" aria-label="رجوع" title="رجوع">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+            <span class="back-label">رجوع</span>
+          </button>
           <button class="menu-btn" id="menuBtn" aria-label="فتح القائمة" aria-expanded="false">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
               <%- include('../partials/nav-icon', { icon: 'menu' }) %>
             </svg>
+            <span>القائمة</span>
           </button>
 
           <div class="topbar-title">
