@@ -93,6 +93,15 @@
     if (search) search.addEventListener("input", applyFilters);
   }
 
+  // ---------- أزرار الاختيار (بث المحاضرات) ----------
+  document.querySelectorAll(".choice-btn input[type='radio']").forEach((input) => {
+    input.addEventListener("change", () => {
+      const group = input.closest(".choice-buttons");
+      if (!group) return;
+      group.querySelectorAll(".choice-btn").forEach((btn) => btn.classList.toggle("selected", btn.contains(input)));
+    });
+  });
+
   // ---------- تصفية سجل النقاط ----------
   const ledgerBody = document.getElementById("ledgerBody");
   const pills = document.querySelectorAll(".filter-pill[data-filter]");

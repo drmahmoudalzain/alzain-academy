@@ -114,6 +114,50 @@
   }, 1000);
   renderTimer();
 
+  // ---------- حفظ تلقائي أثناء الاختبار ----------
+  const autosaveUrl = window.location.pathname.replace(/\/$/, "") + "/autosave";
+
+  function serializeAnswers() {
+    const params = new URLSearchParams();
+    document.querySelectorAll("#examForm input, #examForm textarea").forEach((el) => {
+      if (!el.name) return;
+      if (el.type === "radio" || el.type === "checkbox") {
+        if (el.checked) params.append(el.name, el.value);
+      } else {
+        params.append(el.name, el.value);
+      }
+    });
+    return params.toString();
+  }
+
+  async function sendAutosave() {
+    try {
+      await fetch(autosaveUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json" },
+        body: serializeAnswers(),
+        keepalive: true,
+      });
+    } catch {
+      // فشل صامت — تُرسل محاولة أخرى لاحقاً (أو عند التسليم)
+    }
+  }
+
+  let autosaveTimer = null;
+  function queueAutosave() {
+    window.clearTimeout(autosaveTimer);
+    autosaveTimer = window.setTimeout(sendAutosave, 2500);
+  }
+
+  document.querySelectorAll("input, textarea").forEach((el) => {
+    el.addEventListener("change", queueAutosave);
+    el.addEventListener("input", queueAutosave);
+  });
+
+  window.setInterval(sendAutosave, 30000);
+  window.addEventListener("pagehide", sendAutosave);
+  window.setTimeout(sendAutosave, 8000);
+
   // ---------- نافذة التأكيد ----------
   const modal = document.getElementById("submitModal");
   document.getElementById("exitBtn")?.addEventListener("click", () => {

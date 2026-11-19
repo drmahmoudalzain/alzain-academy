@@ -50,7 +50,49 @@
 
     <!-- مشغّل المحاضرة -->
     <section class="video-section">
-      <% if (lecture.youtubeEmbed) { %>
+      <% if (lecture.broadcast_mode === 'meet') { %>
+        <div class="video-wrapper">
+          <div class="video-overlay">
+            <div class="video-live-badge" style="background:var(--navy-light);">أونلاين — غوغل ميت</div>
+          </div>
+          <a class="video-play" href="<%= lecture.live_url || '#' %>" target="_blank" rel="noopener noreferrer" aria-label="الانضمام لاجتماع غوغل ميت">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:34px;height:34px;"><path d="M8 5v14l11-7z"/></svg>
+          </a>
+        </div>
+        <div class="video-footer">
+          <div class="video-footer-info">
+            البث يتم عبر غوغل ميت — يمكن الانضمام إلى الاجتماع من الزر.
+          </div>
+          <div class="video-footer-actions">
+            <a class="btn btn-primary btn-sm" href="<%= lecture.live_url || '#' %>" target="_blank" rel="noopener noreferrer">الانضمام إلى ميت</a>
+          </div>
+        </div>
+      <% } else if (lecture.broadcast_mode === 'internal') { %>
+        <div class="internal-stage">
+          <div class="internal-stage-head">
+            <span class="video-live-badge">داخل النظام</span>
+            <span class="internal-media">
+              <% if (lecture.broadcast_media !== 'video') { %><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:15px;height:15px;"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1M12 19v3M8 22h8"/></svg> صوت<% } %>
+              <% if (lecture.broadcast_media === 'both') { %> · <% } %>
+              <% if (lecture.broadcast_media !== 'audio') { %><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:15px;height:15px;"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg> فيديو<% } %>
+            </span>
+          </div>
+          <div class="internal-stage-body">
+            <div class="internal-stage-icon">
+              <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M32 6v46"/><path d="M20 52h24"/><circle cx="32" cy="10" r="3" fill="currentColor" stroke="none"/><path d="M10 18h44"/><path d="M10 18L4 32h12L10 18z"/><path d="M54 18L48 32h12L54 18z"/><path d="M4 32a6 6 0 0 0 12 0"/><path d="M48 32a6 6 0 0 0 12 0"/></svg>
+            </div>
+            <div class="internal-stage-copy">
+              <strong>البث يجري داخل النظام</strong>
+              <p>جلسة تفاعلية مفتوحة داخل المنصة — حضر التسجيل، جرّب الأسئلة التفاعلية والنقاش العام من الأسفل، وحضورك يُتتبّع تلقائياً.</p>
+            </div>
+          </div>
+          <div class="internal-stage-foot">
+            <span class="chip">المنصة العامة — البث الداخلي</span>
+            <span class="chip">عدد الحاضرين الآن: <%= presenceCount %></span>
+            <a class="chip" href="#attendance" data-goto-tab="attendance">تتبّع حضوري ←</a>
+          </div>
+        </div>
+      <% } else if (lecture.youtubeEmbed) { %>
         <div class="video-wrapper" style="background:#000;">
           <iframe src="<%= lecture.youtubeEmbed %>" title="<%= lecture.title %>" width="100%" height="100%" style="min-height:280px;border:0;" allowfullscreen loading="lazy"></iframe>
         </div>
@@ -148,40 +190,94 @@
         </div>
 
         <div class="tab-pane" data-pane="questions">
+          <div class="discussion-launcher">
+            <button type="button" class="btn btn-secondary btn-sm" id="toggleDiscussionForm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:15px;height:15px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              اطرح موضوع نقاش
+            </button>
+            <form method="post" action="/student/lectures/<%= lecture.id %>/questions/discuss" class="discussion-form" id="discussionForm" hidden>
+              <label for="discussionTopic">موضوعك للنقاش العام</label>
+              <textarea id="discussionTopic" name="topic" rows="2" required minlength="5" maxlength="400" placeholder="اكتب الموضوع الذي تود فتحه للنقاش مع زملائك..."></textarea>
+              <div class="discussion-form-actions">
+                <button type="submit" class="btn btn-primary btn-sm">نشر الموضوع</button>
+                <button type="button" class="btn btn-secondary btn-sm" id="cancelDiscussionForm">إلغاء</button>
+              </div>
+            </form>
+          </div>
+
           <% if (questions.length) { %>
             <div class="questions-list">
               <% for (const question of questions) { const answered = Boolean(question.answer); %>
-                <div class="question-card" data-question="<%= question.id %>" data-type="<%= question.type %>">
-                  <div class="question-head">
-                    <span class="question-num"><%= question.id %></span>
-                    <span class="question-type-tag <%= question.type %>"><%= question.type === 'poll' ? 'استطلاع رأي' : (question.type === 'multi' ? 'اختيار متعدد' : 'اختيار واحد') %></span>
-                    <span class="question-status-<%= answered ? 'answered' : 'open' %>"><%= answered ? 'أُجيبت' : 'مفتوح' %></span>
-                  </div>
-                  <div class="question-body">
-                    <div class="question-text"><%= question.text %></div>
-                    <div class="options-list">
-                      <% const opts = question.options || []; opts.forEach((option, i) => { %>
-                        <button class="option-btn <%= answered && (question.answer.choice_index === i || (question.answer.choice_indices || []).includes(i)) ? 'selected' : '' %>" type="button" data-index="<%= i %>" <%= answered ? 'disabled' : '' %>>
-                          <span class="option-marker"><%= ['أ','ب','ج','د','هـ'][i] || i + 1 %></span>
-                          <span><%= option %></span>
-                        </button>
-                      <% }) %>
+                <% if (question.type === 'discussion') { %>
+                  <div class="question-card discussion-card" data-question="<%= question.id %>" data-type="discussion">
+                    <div class="question-head">
+                      <span class="question-num">نقاش</span>
+                      <span class="question-type-tag poll">نقاش عام</span>
+                      <span class="chip" style="margin-inline-start:auto;">بلا نقاط</span>
                     </div>
-                    <% if (!answered) { %>
-                      <div class="question-footer">
-                        <span class="question-points">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                          1 نقطة
-                        </span>
-                        <button class="btn btn-primary btn-sm submit-answer" disabled>تأكيد الإجابة</button>
+                    <div class="question-body">
+                      <div class="question-text"><%= question.text %></div>
+
+                      <div class="discussion-replies">
+                        <% const replies = (question.replies || []) %>
+                        <% if (replies.length) { %>
+                          <% for (const reply of replies) { %>
+                            <div class="discussion-reply <%= reply.isMe ? 'mine' : '' %>">
+                              <div class="reply-avatar"><%= reply.name.trim().charAt(0) %></div>
+                              <div class="reply-body">
+                                <div class="reply-head">
+                                  <strong><%= reply.name %><% if (reply.isMe) { %> <span class="you-chip">(أنت)</span><% } %></strong>
+                                  <time><%= format.relativeTime(reply.created_at) %></time>
+                                </div>
+                                <p><%= reply.text %></p>
+                              </div>
+                            </div>
+                          <% } %>
+                        <% } else { %>
+                          <p class="muted" style="margin:0;">لا توجد ردود بعد — كن أول من يشارك.</p>
+                        <% } %>
                       </div>
-                    <% } else { %>
-                      <div class="question-footer">
-                        <span class="question-points">تم تسجيل إجابتك</span>
-                      </div>
-                    <% } %>
+
+                      <form method="post" action="/student/lectures/<%= lecture.id %>/questions/<%= question.id %>/answer" class="discussion-reply-form">
+                        <input type="hidden" name="answer_text" id="discussion-reply-<%= question.id %>">
+                        <textarea class="discussion-reply-input" data-target="discussion-reply-<%= question.id %>" rows="2" required minlength="2" maxlength="1000" placeholder="اكتب ردك..."></textarea>
+                        <button type="submit" class="btn btn-primary btn-sm">إرسال الرد</button>
+                      </form>
+                    </div>
                   </div>
-                </div>
+                <% } else { %>
+                  <div class="question-card" data-question="<%= question.id %>" data-type="<%= question.type %>">
+                    <div class="question-head">
+                      <span class="question-num"><%= question.id %></span>
+                      <span class="question-type-tag <%= question.type %>"><%= question.type === 'poll' ? 'استطلاع رأي' : (question.type === 'multi' ? 'اختيار متعدد' : 'اختيار واحد') %></span>
+                      <span class="question-status-<%= answered ? 'answered' : 'open' %>"><%= answered ? 'أُجيبت' : 'مفتوح' %></span>
+                    </div>
+                    <div class="question-body">
+                      <div class="question-text"><%= question.text %></div>
+                      <div class="options-list">
+                        <% const opts = question.options || []; opts.forEach((option, i) => { %>
+                          <button class="option-btn <%= answered && (question.answer.choice_index === i || (question.answer.choice_indices || []).includes(i)) ? 'selected' : '' %>" type="button" data-index="<%= i %>" <%= answered ? 'disabled' : '' %>>
+                            <span class="option-marker"><%= ['أ','ب','ج','د','هـ'][i] || i + 1 %></span>
+                            <span><%= option %></span>
+                          </button>
+                        <% }) %>
+                      </div>
+                      <% if (!answered) { %>
+                        <div class="question-footer">
+                          <span class="question-points">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                            1 نقطة
+                          </span>
+                          <button class="btn btn-primary btn-sm submit-answer" disabled>تأكيد الإجابة</button>
+                        </div>
+                      <% } else { %>
+                        <div class="question-footer">
+                          <span class="question-points">تم تسجيل إجابتك</span>
+                        </div>
+                      <% } %>
+                    </div>
+                  </div>
+                <% } %>
               <% } %>
             </div>
           <% } else { %>

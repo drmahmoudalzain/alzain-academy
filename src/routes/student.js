@@ -39,6 +39,9 @@ const FLASH = {
   past_due: { tone: "error", text: "انتهى موعد التسليم، لم يعد بالإمكان إرسال الواجب." },
   exam_submitted: { tone: "success", text: "تم تسليم الاختبار واحتساب درجتك." },
   answer_ok: { tone: "success", text: "تم تسجيل إجابتك." },
+  answer_short: { tone: "warning", text: "الرد قصير جداً — اكتب رأيك بشكل أوضح." },
+  topic_ok: { tone: "success", text: "نُشِر موضوعك للنقاش العام." },
+  topic_short: { tone: "warning", text: "الموضوع قصير جداً — اكتب المزيد." },
 };
 
 function flashFrom(query) {
@@ -222,13 +225,14 @@ router.get("/lectures/:id", requirePortal("student"), async (req, res, next) => 
     }
 
     const course = lecture.courses;
-    const [teacherRes, attendanceRes, presenceRes, filesRes, questionsRes, answersRes, relatedRes] =
+    const [teacherRes, attendanceRes, presenceRes, presenceCountRes, filesRes, questionsRes, answersRes, relatedRes] =
       await Promise.all([
         course?.teacher_id
           ? db.from("users").select("id, name, position, email").eq("id", course.teacher_id).maybeSingle()
           : { data: null, error: null },
         db.from("attendance").select("id, created_at, method, code_used").eq("lecture_id", lecture.id).eq("student_id", studentId).maybeSingle(),
         db.from("lecture_presence").select("total_seconds, last_heartbeat_at").eq("lecture_id", lecture.id).eq("student_id", studentId).maybeSingle(),
+        db.from("lecture_presence").select("student_id", { count: "exact", head: true }).eq("lecture_id", lecture.id),
         db.from("files").select("id, filename, original_name, mime, size, kind, created_at").eq("lecture_id", lecture.id).order("created_at"),
         db.from("questions").select("id, text, type, options, correct_index, correct_indices, is_open, created_at").eq("lecture_id", lecture.id).order("created_at"),
         db.from("question_answers").select("question_id, choice_index, choice_indices, text").eq("student_id", studentId),
@@ -236,7 +240,7 @@ router.get("/lectures/:id", requirePortal("student"), async (req, res, next) => 
         db.from("lectures").select("id").eq("course_id", lecture.course_id),
       ]);
 
-    for (const result of [teacherRes, attendanceRes, presenceRes, filesRes, questionsRes, answersRes, relatedRes]) {
+    for (const result of [teacherRes, attendanceRes, presenceRes, presenceCountRes, filesRes, questionsRes, answersRes, relatedRes]) {
       if (result.error) throw result.error;
     }
 
@@ -248,6 +252,33 @@ router.get("/lectures/:id", requirePortal("student"), async (req, res, next) => 
       options: Array.isArray(question.options) ? question.options : [],
       answer: answerMap.get(question.id) ?? null,
     }));
+
+    // ردود أسئلة النقاش (تُعرض للجميع)
+    const discussionIds = questions.filter((question) => question.type === "discussion").map((question) => question.id);
+    const repliesByQuestion = new Map();
+    if (discussionIds.length) {
+      const repliesRes = await db
+        .from("question_answers")
+        .select("id, question_id, student_id, text, created_at, users!question_answers_student_id_fkey(name, university_id)")
+        .in("question_id", discussionIds)
+        .not("text", "is", null)
+        .order("created_at");
+      if (repliesRes.error) throw repliesRes.error;
+      for (const reply of repliesRes.data ?? []) {
+        const entry = {
+          id: reply.id,
+          name: reply.users?.name ?? "طالب",
+          text: reply.text,
+          created_at: reply.created_at,
+          isMe: reply.student_id === studentId,
+        };
+        if (!repliesByQuestion.has(reply.question_id)) repliesByQuestion.set(reply.question_id, []);
+        repliesByQuestion.get(reply.question_id).push(entry);
+      }
+    }
+    for (const question of questions) {
+      if (question.type === "discussion") question.replies = repliesByQuestion.get(question.id) ?? [];
+    }
 
     // تطبيع رابط يوتيوب إلى رابط تضمين
     const youtubeEmbed = (() => {
@@ -278,6 +309,7 @@ router.get("/lectures/:id", requirePortal("student"), async (req, res, next) => 
       teacher: teacherRes.data ?? null,
       attendance,
       presenceMinutes: Math.floor(presenceSeconds / 60),
+      presenceCount: presenceCountRes.count ?? 0,
       presencePercent: Math.min(100, Math.round((presenceSeconds / 60 / totalMinutes) * 100)),
       files: filesRes.data ?? [],
       questions,
@@ -390,6 +422,19 @@ router.post("/lectures/:id/questions/:questionId/answer", requirePortal("student
     const question = questionRes.data;
     if (!question) return res.redirect(`/student/lectures/${lectureId}`);
 
+    // نقاش عام: نص حر بلا نقاط وبلا تصحيح
+    if (question.type === "discussion") {
+      const text = String(req.body.answer_text ?? "").trim();
+      if (text.length < 2) return res.redirect(`/student/lectures/${lectureId}?flash=answer_short`);
+      const reply = await db.from("question_answers").insert({
+        question_id: questionId,
+        student_id: studentId,
+        text,
+      });
+      if (reply.error) throw reply.error;
+      return res.redirect(`/student/lectures/${lectureId}?flash=answer_ok`);
+    }
+
     const existing = await db
       .from("question_answers")
       .select("id")
@@ -445,6 +490,89 @@ router.post("/lectures/:id/questions/:questionId/answer", requirePortal("student
     next(error);
   }
 });
+
+// ---------- إتاحة موضوع للنقاش العام (بلا نقاط) ----------
+router.post("/lectures/:id/questions/discuss", requirePortal("student"), async (req, res, next) => {
+  try {
+    const studentId = req.user.id;
+    const lectureId = Number(req.params.id);
+    const lecture = await getLectureForStudent(lectureId, studentId);
+    if (!lecture) return res.status(404).render("error", { title: "غير موجود", code: 404, message: "المحاضرة غير موجودة أو لا تملك صلاحية الوصول إليها." });
+
+    const topic = String(req.body.topic ?? "").trim();
+    if (topic.length < 5) {
+      return res.redirect(`/student/lectures/${lectureId}?flash=topic_short`);
+    }
+
+    const created = await db.from("questions").insert({
+      lecture_id: lectureId,
+      text: topic,
+      type: "discussion",
+      is_open: true,
+    }).select("id").maybeSingle();
+    if (created.error) throw created.error;
+
+    return res.redirect(`/student/lectures/${lectureId}?flash=topic_ok`);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// يجمع إجابات الاختبار من الطلب ويحسب النتيجة الموضوعية.
+function collectExamAnswers(questions, body, attemptId, mode) {
+  let score = 0;
+  let hasEssay = false;
+  const rows = [];
+
+  for (const question of questions) {
+    const raw = body[`q_${question.id}`];
+    let choiceIndex = null;
+    let choiceIndices = null;
+    let text = null;
+    let points = null;
+
+    if (question.type === "multi") {
+      const values = Array.isArray(raw) ? raw : raw != null ? [raw] : [];
+      choiceIndices = values.map(Number).filter((value) => Number.isInteger(value));
+      if (mode === "submit") {
+        const expected = Array.isArray(question.correct_indices) ? question.correct_indices.map(Number) : [];
+        const correct =
+          expected.length === choiceIndices.length && expected.every((value) => choiceIndices.includes(value));
+        points = correct ? Number(question.points ?? 0) : 0;
+        score += points;
+      }
+    } else if (question.type === "essay") {
+      text = String(raw ?? "").trim() || null;
+      hasEssay = true;
+    } else if (question.type === "truefalse") {
+      choiceIndex = raw === "true" ? 1 : raw === "false" ? 0 : null;
+      if (mode === "submit") {
+        const expected = Number(question.correct_index ?? (question.correct_index === 0 ? 0 : 1));
+        const correct = choiceIndex != null && choiceIndex === expected;
+        points = correct ? Number(question.points ?? 0) : 0;
+        score += points;
+      }
+    } else {
+      choiceIndex = raw != null && raw !== "" ? Number(raw) : null;
+      if (mode === "submit") {
+        const correct = choiceIndex != null && choiceIndex === Number(question.correct_index);
+        points = correct ? Number(question.points ?? 0) : 0;
+        score += points;
+      }
+    }
+
+    rows.push({
+      attempt_id: attemptId,
+      question_id: question.id,
+      choice_index: choiceIndex,
+      choice_indices: choiceIndices,
+      text,
+      points,
+    });
+  }
+
+  return { rows, score, hasEssay };
+}
 
 // ---------- الاختبارات ----------
 router.get("/exams", requirePortal("student"), requireAssessment("exam"), async (req, res, next) => {
@@ -585,6 +713,44 @@ router.get("/exams/:id", requirePortal("student"), requireAssessment("exam"), as
   }
 });
 
+// ---------- حفظ تلقائي للإجابات أثناء الاختبار ----------
+router.post("/exams/:id/autosave", requirePortal("student"), requireAssessment("exam"), async (req, res, next) => {
+  try {
+    const studentId = req.user.id;
+    const examId = Number(req.params.id);
+    const exam = await getExamForStudent(examId, studentId);
+    if (!exam) return res.status(404).json({ ok: false });
+
+    const attemptRes = await db
+      .from("exam_attempts")
+      .select("id, status")
+      .eq("exam_id", examId)
+      .eq("student_id", studentId)
+      .maybeSingle();
+    if (attemptRes.error) throw attemptRes.error;
+    if (!attemptRes.data || attemptRes.data.status !== "in_progress") {
+      return res.json({ ok: false, reason: "not_in_progress" });
+    }
+
+    const questionsRes = await db
+      .from("exam_questions")
+      .select("id, type, points")
+      .eq("exam_id", examId);
+    if (questionsRes.error) throw questionsRes.error;
+
+    const { rows } = collectExamAnswers(questionsRes.data ?? [], req.body, attemptRes.data.id, "autosave");
+    // لا نكتب نقاطاً في الحفظ التلقائي — تُحتسب عند التسليم
+    const cleanRows = rows.map((row) => ({ ...row, points: null }));
+    if (cleanRows.length) {
+      const saved = await db.from("exam_answers").upsert(cleanRows, { onConflict: "attempt_id,question_id" });
+      if (saved.error) throw saved.error;
+    }
+    return res.json({ ok: true, at: new Date().toISOString() });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.post("/exams/:id/start", requirePortal("student"), requireAssessment("exam"), async (req, res, next) => {
   try {
     const studentId = req.user.id;
@@ -649,50 +815,7 @@ router.post("/exams/:id/submit", requirePortal("student"), requireAssessment("ex
 
     const questions = questionsRes.data ?? [];
     const attemptId = attemptRes.data.id;
-    let score = 0;
-    let hasEssay = false;
-    const rows = [];
-
-    for (const question of questions) {
-      const raw = req.body[`q_${question.id}`];
-      let choiceIndex = null;
-      let choiceIndices = null;
-      let text = null;
-      let points = null;
-
-      if (question.type === "multi") {
-        const values = Array.isArray(raw) ? raw : raw != null ? [raw] : [];
-        choiceIndices = values.map(Number).filter((value) => Number.isInteger(value));
-        const expected = Array.isArray(question.correct_indices) ? question.correct_indices.map(Number) : [];
-        const correct =
-          expected.length === choiceIndices.length && expected.every((value) => choiceIndices.includes(value));
-        points = correct ? Number(question.points ?? 0) : 0;
-        score += points;
-      } else if (question.type === "essay") {
-        text = String(raw ?? "").trim() || null;
-        hasEssay = true;
-      } else if (question.type === "truefalse") {
-        choiceIndex = raw === "true" ? 1 : raw === "false" ? 0 : null;
-        const expected = Number(question.correct_index ?? (question.correct_index === 0 ? 0 : 1));
-        const correct = choiceIndex != null && choiceIndex === expected;
-        points = correct ? Number(question.points ?? 0) : 0;
-        score += points;
-      } else {
-        choiceIndex = raw != null && raw !== "" ? Number(raw) : null;
-        const correct = choiceIndex != null && choiceIndex === Number(question.correct_index);
-        points = correct ? Number(question.points ?? 0) : 0;
-        score += points;
-      }
-
-      rows.push({
-        attempt_id: attemptId,
-        question_id: question.id,
-        choice_index: choiceIndex,
-        choice_indices: choiceIndices,
-        text,
-        points,
-      });
-    }
+    const { rows, score, hasEssay } = collectExamAnswers(questions, req.body, attemptId, "submit");
 
     if (rows.length) {
       const saved = await db.from("exam_answers").upsert(rows, { onConflict: "attempt_id,question_id" });

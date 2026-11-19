@@ -48,12 +48,48 @@
           </label>
         </div>
 
+        <div class="fieldset-block">
+          <div class="fieldset-title">نوع وسائط البث</div>
+          <div class="choice-buttons" role="radiogroup" aria-label="نوع وسائط البث">
+            <label class="choice-btn<%= (typeof broadcastMode === 'undefined' || !broadcastMode || broadcastMode === 'internal') ? ' selected' : '' %>">
+              <input type="radio" name="broadcast_mode" value="internal" <%= (typeof broadcastMode === 'undefined' || !broadcastMode || broadcastMode === 'internal') ? 'checked' : '' %> hidden>
+              <strong>داخل النظام</strong>
+              <span>المنصة العامة</span>
+            </label>
+            <label class="choice-btn<%= typeof broadcastMode !== 'undefined' && broadcastMode === 'youtube' ? ' selected' : '' %>">
+              <input type="radio" name="broadcast_mode" value="youtube" <%= typeof broadcastMode !== 'undefined' && broadcastMode === 'youtube' ? 'checked' : '' %> hidden>
+              <strong>يوتيوب</strong>
+              <span>تضمين رابط البث</span>
+            </label>
+            <label class="choice-btn<%= typeof broadcastMode !== 'undefined' && broadcastMode === 'meet' ? ' selected' : '' %>">
+              <input type="radio" name="broadcast_mode" value="meet" <%= typeof broadcastMode !== 'undefined' && broadcastMode === 'meet' ? 'checked' : '' %> hidden>
+              <strong>غوغل ميت</strong>
+              <span>رابط اجتماع خارجي</span>
+            </label>
+          </div>
+
+          <div class="choice-buttons" role="radiogroup" aria-label="وسائط المحاضرة" style="margin-top:12px;">
+            <label class="choice-btn<%= (typeof broadcastMedia === 'undefined' || !broadcastMedia || broadcastMedia === 'both') ? ' selected' : '' %>">
+              <input type="radio" name="broadcast_media" value="both" <%= (typeof broadcastMedia === 'undefined' || !broadcastMedia || broadcastMedia === 'both') ? 'checked' : '' %> hidden>
+              <strong>صوت وفيديو</strong>
+            </label>
+            <label class="choice-btn<%= typeof broadcastMedia !== 'undefined' && broadcastMedia === 'audio' ? ' selected' : '' %>">
+              <input type="radio" name="broadcast_media" value="audio" <%= typeof broadcastMedia !== 'undefined' && broadcastMedia === 'audio' ? 'checked' : '' %> hidden>
+              <strong>صوت فقط</strong>
+            </label>
+            <label class="choice-btn<%= typeof broadcastMedia !== 'undefined' && broadcastMedia === 'video' ? ' selected' : '' %>">
+              <input type="radio" name="broadcast_media" value="video" <%= typeof broadcastMedia !== 'undefined' && broadcastMedia === 'video' ? 'checked' : '' %> hidden>
+              <strong>فيديو فقط</strong>
+            </label>
+          </div>
+        </div>
+
         <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
-          <label>رابط يوتيوب (للمسجلة)
+          <label>رابط يوتيوب (للمسجلة / لتضمين البث المباشر)
             <input type="url" name="youtube_url" dir="ltr" style="text-align:left;" placeholder="https://www.youtube.com/watch?v=...">
           </label>
-          <label>رابط البث (للأونلاين)
-            <input type="url" name="live_url" dir="ltr" style="text-align:left;" placeholder="https://meet.example.com/...">
+          <label>رابط Google Meet (للأونلاين)
+            <input type="url" name="live_url" dir="ltr" style="text-align:left;" placeholder="https://meet.google.com/...">
           </label>
         </div>
 

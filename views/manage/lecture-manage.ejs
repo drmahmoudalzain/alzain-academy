@@ -32,6 +32,26 @@
   </div>
 </div>
 
+<!-- بث المحاضرة -->
+<div class="table-card" style="margin-bottom:20px;">
+  <div class="table-card-head"><h3>البث — والتبديل أثناء المحاضرة</h3></div>
+  <div class="side-card-body" style="padding:16px 18px;display:flex;gap:18px;flex-wrap:wrap;align-items:center;">
+    <form method="post" action="<%= basePath %>/lectures/<%= lecture.id %>/broadcast" style="display:flex;gap:8px;flex-wrap:wrap;">
+      <input type="hidden" name="media" value="<%= lecture.broadcast_media || 'both' %>">
+      <button type="submit" name="mode" value="internal" class="chip <%= (lecture.broadcast_mode || 'internal') === 'internal' ? 'chip-active' : '' %>" style="cursor:pointer;">داخل النظام</button>
+      <button type="submit" name="mode" value="youtube" class="chip <%= lecture.broadcast_mode === 'youtube' ? 'chip-active' : '' %>" style="cursor:pointer;">يوتيوب</button>
+      <button type="submit" name="mode" value="meet" class="chip <%= lecture.broadcast_mode === 'meet' ? 'chip-active' : '' %>" style="cursor:pointer;">غوغل ميت</button>
+    </form>
+    <form method="post" action="<%= basePath %>/lectures/<%= lecture.id %>/broadcast" style="display:flex;gap:8px;flex-wrap:wrap;">
+      <input type="hidden" name="mode" value="<%= lecture.broadcast_mode || 'internal' %>">
+      <button type="submit" name="media" value="both" class="chip <%= (lecture.broadcast_media || 'both') === 'both' ? 'chip-active' : '' %>" style="cursor:pointer;">صوت وفيديو</button>
+      <button type="submit" name="media" value="audio" class="chip <%= lecture.broadcast_media === 'audio' ? 'chip-active' : '' %>" style="cursor:pointer;">صوت فقط</button>
+      <button type="submit" name="media" value="video" class="chip <%= lecture.broadcast_media === 'video' ? 'chip-active' : '' %>" style="cursor:pointer;">فيديو فقط</button>
+    </form>
+    <span class="muted" style="font-size:0.78rem;">يُطبق التبديل فوراً على صفحة الطلاب.</span>
+  </div>
+</div>
+
 <div class="grid-2" style="margin-bottom:20px;">
   <!-- الحضور -->
   <div class="table-card">
@@ -66,7 +86,7 @@
         <ul style="list-style:none;padding:0;margin:0 0 14px;display:grid;gap:8px;">
           <% for (const q of questions) { %>
             <li style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg-subtle);">
-              <span class="chip" style="flex:none;"><%= q.type === 'poll' ? 'استطلاع' : (q.type === 'multi' ? 'متعدد' : 'واحد') %></span>
+              <span class="chip" style="flex:none;"><%= q.type === 'poll' ? 'استطلاع' : (q.type === 'multi' ? 'متعدد' : (q.type === 'discussion' ? 'نقاش' : 'واحد')) %></span>
               <span style="font-size:0.9rem;line-height:1.7;"><%= q.text %></span>
             </li>
           <% } %>
@@ -84,10 +104,11 @@
               <option value="multi">اختيار متعدد</option>
               <option value="poll">استطلاع رأي</option>
               <option value="truefalse">صح أو خطأ</option>
+              <option value="discussion">نقاش عام (بلا نقاط)</option>
             </select>
           </label>
           <label>الدرجة الصحيحة *<br>
-            <span class="form-hint">رقم الخيار الصحيح (أو قائمة مفصولة بفواصل للمتعدد)</span>
+            <span class="form-hint">رقم الخيار الصحيح (أو قائمة مفصولة بفواصل للمتعدد) — تُترك فارغة لأسئلة النقاش</span>
             <input type="text" name="correct_indices" dir="ltr" style="text-align:left;" placeholder="0 أو 0,2">
           </label>
         </div>

@@ -9,6 +9,7 @@ import {
   getCourseStudents,
 } from "./manage-data.js";
 import { getCourseGrade } from "./student-data.js";
+import { aiStatus } from "./ai.js";
 
 /**
  * مولّد مسارات الإدارة المشترك — يعمل في بوابة الأستاذ (مقرراته فقط)
@@ -310,6 +311,8 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       const title = String(req.body.title ?? "").trim();
       const courseId = toInt(req.body.course_id);
       const newCourse = courseId ? await courseOr403(req, res, courseId) : null;
+      const broadcastMode = ["internal", "youtube", "meet"].includes(req.body.broadcast_mode) ? req.body.broadcast_mode : "internal";
+      const broadcastMedia = ["audio", "video", "both"].includes(req.body.broadcast_media) ? req.body.broadcast_media : "both";
 
       if (title.length < 3) {
         const courses = await ownCourses(req.user);
@@ -334,6 +337,8 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
           lecture_type: ["direct", "online", "recorded"].includes(req.body.lecture_type) ? req.body.lecture_type : "direct",
           youtube_url: String(req.body.youtube_url ?? "").trim() || null,
           live_url: String(req.body.live_url ?? "").trim() || null,
+          broadcast_mode: broadcastMode,
+          broadcast_media: broadcastMedia,
         })
         .eq("id", lecture.id);
       if (updated.error) throw updated.error;
@@ -696,6 +701,8 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       const youtube = String(req.body.youtube_url ?? "").trim() || null;
       const live = String(req.body.live_url ?? "").trim() || null;
       const attendanceOpen = req.body.attendance_open === "on";
+      const broadcastMode = ["internal", "youtube", "meet"].includes(req.body.broadcast_mode) ? req.body.broadcast_mode : "internal";
+      const broadcastMedia = ["audio", "video", "both"].includes(req.body.broadcast_media) ? req.body.broadcast_media : "both";
       const code = attendanceOpen ? String(Math.floor(100000 + Math.random() * 900000)) : null;
 
       if (title.length < 3) {
@@ -720,6 +727,8 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
         attendance_code: code,
         attendance_open: attendanceOpen,
         lecture_type: lectureType,
+        broadcast_mode: broadcastMode,
+        broadcast_media: broadcastMedia,
       }).select("id").maybeSingle();
       if (created.error) throw created.error;
 
@@ -759,6 +768,29 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
     } catch (error) { next(error); }
   });
 
+  // ---------- تبديل البث أثناء المحاضرة ----------
+  router.post("/lectures/:id/broadcast", guard, async (req, res, next) => {
+    try {
+      const { data: lecture, error } = await db
+        .from("lectures")
+        .select("id, broadcast_mode, broadcast_media, courses(teacher_id)")
+        .eq("id", Number(req.params.id))
+        .maybeSingle();
+      if (error) throw error;
+      if (!lecture) return res.status(404).render("error", { title: "غير موجود", code: 404, message: "المحاضرة غير موجودة." });
+      if (!canManageFlag(req.user) && lecture.courses?.teacher_id !== req.user.id) {
+        return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا صلاحية." });
+      }
+
+      const mode = ["internal", "youtube", "meet"].includes(req.body.mode) ? req.body.mode : lecture.broadcast_mode ?? "internal";
+      const media = ["audio", "video", "both"].includes(req.body.media) ? req.body.media : lecture.broadcast_media ?? "both";
+
+      const updated = await db.from("lectures").update({ broadcast_mode: mode, broadcast_media: media }).eq("id", lecture.id);
+      if (updated.error) throw updated.error;
+      return res.redirect(`${basePath}/lectures/${lecture.id}`);
+    } catch (error) { next(error); }
+  });
+
   router.post("/lectures/:id/toggle-attendance", guard, async (req, res, next) => {
     try {
       const { data: lecture, error } = await db.from("lectures").select("id, course_id, attendance_open, attendance_code, courses(teacher_id)").eq("id", Number(req.params.id)).maybeSingle();
@@ -782,7 +814,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       if (!canManageFlag(req.user) && lecture.courses?.teacher_id !== req.user.id) return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا صلاحية." });
 
       const text = String(req.body.text ?? "").trim();
-      const type = ["mcq", "multi", "poll", "truefalse"].includes(req.body.type) ? req.body.type : "mcq";
+      const type = ["mcq", "multi", "poll", "truefalse", "discussion"].includes(req.body.type) ? req.body.type : "mcq";
       const optionsRaw = String(req.body.options ?? "").trim();
       const options = optionsRaw ? optionsRaw.split("\n").map((line) => line.trim()).filter(Boolean) : null;
       const correctRaw = String(req.body.correct_indices ?? "").trim();
@@ -860,15 +892,53 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
     } catch (error) { next(error); }
   });
 
+  // ---------- توليد الأسئلة/الواجب بالمساعد الذكي ----------
+  router.post("/ai/generate-exam-questions", guard, async (req, res, next) => {
+    try {
+      const courseId = toInt(req.body.course_id);
+      if (!courseId) return res.status(400).json({ ok: false, error: "معرّف المقرر غير صحيح." });
+      const course = await courseOr403(req, res, courseId);
+      if (!course) return res.status(403).json({ ok: false, error: "لا تملك صلاحية هذا المقرر." });
+
+      const topic = String(req.body.topic ?? "").trim() || course.title;
+      const count = Math.max(1, Math.min(12, Number(req.body.count) || 5));
+
+      const { generateExamQuestions } = await import("./ai.js");
+      const result = await generateExamQuestions(topic, count);
+      return res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.post("/ai/generate-assignment", guard, async (req, res, next) => {
+    try {
+      const courseId = toInt(req.body.course_id);
+      if (!courseId) return res.status(400).json({ ok: false, error: "معرّف المقرر غير صحيح." });
+      const course = await courseOr403(req, res, courseId);
+      if (!course) return res.status(403).json({ ok: false, error: "لا تملك صلاحية هذا المقرر." });
+
+      const topic = String(req.body.topic ?? "").trim() || course.title;
+
+      const { generateAssignment } = await import("./ai.js");
+      const result = await generateAssignment(topic);
+      return res.json(result);
+    } catch (error) {
+      next(error);
+    }
+  });
+
   router.get("/exams/new", guard, async (req, res, next) => {
     try {
       const courses = await ownCourses(req.user);
       const selected = Number(req.query.course ?? courses[0]?.id ?? 0);
+      const ai = await aiStatus();
       return managePage(res, "manage/exam-new", {
         title: "إضافة اختبار",
         pageTitle: "إضافة اختبار",
         courses,
         selectedCourse: selected,
+        ai,
       });
     } catch (error) { next(error); }
   });
@@ -1090,11 +1160,13 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
     try {
       const courses = await ownCourses(req.user);
       const selected = Number(req.query.course ?? courses[0]?.id ?? 0);
+      const ai = await aiStatus();
       return managePage(res, "manage/assignment-new", {
         title: "إضافة واجب",
         pageTitle: "إضافة واجب",
         courses,
         selectedCourse: selected,
+        ai,
       });
     } catch (error) { next(error); }
   });

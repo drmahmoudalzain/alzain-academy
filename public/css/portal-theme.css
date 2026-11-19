@@ -103,6 +103,12 @@ body.portal {
 
 .empty-state p { margin: 0; font-size: 0.9rem; }
 
+.chip-active {
+  background: var(--navy-dark) !important;
+  color: var(--text-inverse) !important;
+  border-color: var(--navy-dark) !important;
+}
+
 .chip {
   display: inline-flex;
   align-items: center;
@@ -133,7 +139,55 @@ body.portal {
 .alert-inline.info { background: var(--info-bg); border-color: var(--info-border); color: #1E3A5F; }
 .alert-inline.warning { background: var(--warning-bg); border-color: var(--warning-border); color: #78350F; }
 
-/* جداول عامة */
+/* ---------- مجموعة اختيارات (بث المحاضرات) ---------- */
+.fieldset-block {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: var(--bg-subtle);
+  margin-bottom: 4px;
+}
+
+.fieldset-block .fieldset-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.choice-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.choice-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border-strong);
+  background: var(--bg-surface);
+  cursor: pointer;
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  transition: border-color 0.2s var(--ease), background 0.2s var(--ease), color 0.2s var(--ease);
+  user-select: none;
+}
+
+.choice-btn strong { color: inherit; font-weight: 700; }
+.choice-btn span { color: var(--text-muted); font-size: 0.72rem; }
+
+.choice-btn:hover { border-color: var(--navy-light); }
+
+.choice-btn.selected {
+  border-color: var(--gold);
+  background: rgba(212, 160, 23, 0.1);
+  color: var(--navy-dark);
+  box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.15);
+}
 .data-table {
   width: 100%;
   border-collapse: collapse;
@@ -188,7 +242,76 @@ body.portal {
 
 .table-scroll { overflow-x: auto; }
 
-/* نماذج داخل صفحات البوابة */
+/* البث الداخلي للمحاضرة */
+.internal-stage {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg, 16px);
+  background: linear-gradient(160deg, #0B2545, #123A63);
+  color: var(--text-inverse);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.internal-stage-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(241, 244, 248, 0.12);
+}
+
+.internal-media {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: rgba(241, 244, 248, 0.85);
+}
+
+.internal-stage-body {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 26px 24px;
+}
+
+.internal-stage-icon svg {
+  width: 74px;
+  height: 74px;
+  color: var(--gold-light, #E8BC3A);
+  opacity: 0.95;
+}
+
+.internal-stage-copy strong {
+  font-family: var(--font-head);
+  font-size: 1.35rem;
+  color: #fff;
+}
+
+.internal-stage-copy p {
+  margin: 6px 0 0;
+  font-size: 0.86rem;
+  line-height: 1.8;
+  color: rgba(241, 244, 248, 0.72);
+}
+
+.internal-stage-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid rgba(241, 244, 248, 0.12);
+  background: rgba(7, 20, 38, 0.35);
+}
+
+.internal-stage-foot .chip {
+  background: rgba(241, 244, 248, 0.08);
+  border-color: rgba(241, 244, 248, 0.18);
+  color: rgba(241, 244, 248, 0.85);
+}
+
+/* أزرار التبديل للتبويبات من خارجها */
+[data-goto-tab] { cursor: pointer; text-decoration: none; }
 .form-grid { display: grid; gap: 16px; }
 
 .form-grid label {

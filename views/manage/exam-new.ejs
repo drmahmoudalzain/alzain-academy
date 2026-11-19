@@ -12,6 +12,31 @@
   </div>
 <% } %>
 
+<% if (typeof ai !== 'undefined' && ai) { %>
+  <div class="table-card" style="margin-bottom:20px;">
+    <div class="table-card-head"><h3>المساعد الذكي — توليد الأسئلة</h3></div>
+    <div class="side-card-body" style="padding:16px 18px;">
+      <div class="form-grid" style="grid-template-columns: 1.6fr 1fr auto; align-items:end;">
+        <label>موضوع الأسئلة
+          <input id="aiTopic" type="text" maxlength="200" placeholder="مثال: مصادر القانون في التشريع والعرف والإجتهاد">
+        </label>
+        <label>عدد الأسئلة
+          <select id="aiCount">
+            <option value="3">3 أسئلة</option>
+            <option value="5" selected>5 أسئلة</option>
+            <option value="8">8 أسئلة</option>
+            <option value="10">10 أسئلة</option>
+          </select>
+        </label>
+        <button type="button" class="btn btn-secondary" id="aiGenerateBtn" <%= ai.ready ? '' : 'disabled' %>>ولّد بالذكاء الاصطناعي</button>
+      </div>
+      <p id="aiNote" class="form-hint" style="margin-top:10px;">
+        <% if (ai.ready) { %>بعد التوليد يمكنك مراجعة كل سؤال وتعديله قبل حفظ الاختبار — النقاط تُحتسب تلقائياً من الأسئلة.<% } else { %>المساعد الذكي غير مُفعّل — يمكن للمالك تفعيله من الإعدادات بإدخال مفتاح Gemini.<% } %>
+      </p>
+    </div>
+  </div>
+<% } %>
+
 <form method="post" action="<%= basePath %>/exams" id="examForm" class="table-card">
   <div class="table-card-head"><h3>بيانات الاختبار</h3></div>
   <div class="side-card-body" style="padding:24px;">
@@ -152,10 +177,67 @@
     });
     container.appendChild(div);
     syncJson();
+    return div;
+  }
+
+  function aiFill(question) {
+    const div = addQuestion();
+    div.querySelector(".qb-type").value = question.type || "mcq";
+    div.querySelector(".qb-points").value = question.points || 2;
+    div.querySelector(".qb-text").value = question.text || "";
+    div.querySelector(".qb-options").value = Array.isArray(question.options) ? question.options.join("\n") : "";
+    if (question.type === "multi") {
+      div.querySelector(".qb-correct-indices").value = Array.isArray(question.correct_indices) ? question.correct_indices.join(",") : "";
+      div.querySelector(".qb-correct").value = "";
+    } else {
+      div.querySelector(".qb-correct").value = question.correct_index != null ? String(question.correct_index) : "";
+      div.querySelector(".qb-correct-indices").value = "";
+    }
+    syncJson();
   }
 
   addBtn?.addEventListener("click", addQuestion);
   addQuestion();
+
+  // ---------- المساعد الذكي: توليد الأسئلة ----------
+  const aiBtn = document.getElementById("aiGenerateBtn");
+  const aiTopic = document.getElementById("aiTopic");
+  const aiCount = document.getElementById("aiCount");
+  const aiNote = document.getElementById("aiNote");
+  const courseSelect = document.querySelector("select[name='course_id']");
+
+  if (aiBtn && !aiBtn.disabled) {
+    aiBtn.addEventListener("click", async () => {
+      const topic = (aiTopic && aiTopic.value.trim()) || (courseSelect ? courseSelect.selectedOptions[0]?.textContent?.split("—")[0].trim() : "") || "القانون الدستوري";
+      aiBtn.disabled = true;
+      if (aiNote) aiNote.textContent = "جارٍ توليد الأسئلة...";
+      try {
+        const body = new URLSearchParams({
+          course_id: courseSelect ? courseSelect.value : "",
+          topic,
+          count: aiCount ? aiCount.value : "5",
+        }).toString();
+        const res = await fetch("<%= basePath %>/ai/generate-exam-questions", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded", "Accept": "application/json" },
+          body,
+        });
+        const data = await res.json();
+        if (!data.ok) {
+          if (aiNote) aiNote.textContent = data.error || "تعذر التوليد. حاول لاحقاً.";
+          return;
+        }
+        container.innerHTML = "";
+        counter = 0;
+        (data.questions || []).forEach((question) => aiFill(question));
+        if (aiNote) aiNote.textContent = `تم توليد ${data.questions.length} سؤال — راجعها واحفظ الاختبار.`;
+      } catch {
+        if (aiNote) aiNote.textContent = "تعذر الاتصال بالمساعد الذكي — تحقق من الشبكة.";
+      } finally {
+        aiBtn.disabled = false;
+      }
+    });
+  }
 
   const form = document.getElementById("examForm");
   form?.addEventListener("submit", () => { syncJson(); });

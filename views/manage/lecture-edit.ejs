@@ -48,11 +48,47 @@
           </label>
         </div>
 
+        <div class="fieldset-block">
+          <div class="fieldset-title">نوع وسائط البث</div>
+          <div class="choice-buttons" role="radiogroup" aria-label="نوع وسائط البث">
+            <label class="choice-btn<%= !lecture.broadcast_mode || lecture.broadcast_mode === 'internal' ? ' selected' : '' %>">
+              <input type="radio" name="broadcast_mode" value="internal" <%= !lecture.broadcast_mode || lecture.broadcast_mode === 'internal' ? 'checked' : '' %> hidden>
+              <strong>داخل النظام</strong>
+              <span>المنصة العامة</span>
+            </label>
+            <label class="choice-btn<%= lecture.broadcast_mode === 'youtube' ? ' selected' : '' %>">
+              <input type="radio" name="broadcast_mode" value="youtube" <%= lecture.broadcast_mode === 'youtube' ? 'checked' : '' %> hidden>
+              <strong>يوتيوب</strong>
+              <span>تضمين رابط البث</span>
+            </label>
+            <label class="choice-btn<%= lecture.broadcast_mode === 'meet' ? ' selected' : '' %>">
+              <input type="radio" name="broadcast_mode" value="meet" <%= lecture.broadcast_mode === 'meet' ? 'checked' : '' %> hidden>
+              <strong>غوغل ميت</strong>
+              <span>رابط اجتماع خارجي</span>
+            </label>
+          </div>
+
+          <div class="choice-buttons" role="radiogroup" aria-label="وسائط المحاضرة" style="margin-top:12px;">
+            <label class="choice-btn<%= !lecture.broadcast_media || lecture.broadcast_media === 'both' ? ' selected' : '' %>">
+              <input type="radio" name="broadcast_media" value="both" <%= !lecture.broadcast_media || lecture.broadcast_media === 'both' ? 'checked' : '' %> hidden>
+              <strong>صوت وفيديو</strong>
+            </label>
+            <label class="choice-btn<%= lecture.broadcast_media === 'audio' ? ' selected' : '' %>">
+              <input type="radio" name="broadcast_media" value="audio" <%= lecture.broadcast_media === 'audio' ? 'checked' : '' %> hidden>
+              <strong>صوت فقط</strong>
+            </label>
+            <label class="choice-btn<%= lecture.broadcast_media === 'video' ? ' selected' : '' %>">
+              <input type="radio" name="broadcast_media" value="video" <%= lecture.broadcast_media === 'video' ? 'checked' : '' %> hidden>
+              <strong>فيديو فقط</strong>
+            </label>
+          </div>
+        </div>
+
         <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
           <label>رابط يوتيوب
             <input type="url" name="youtube_url" value="<%= lecture.youtube_url || '' %>" dir="ltr" style="text-align:left;">
           </label>
-          <label>رابط البث
+          <label>رابط Google Meet
             <input type="url" name="live_url" value="<%= lecture.live_url || '' %>" dir="ltr" style="text-align:left;">
           </label>
         </div>

@@ -64,6 +64,47 @@
     }, 5000);
   }
 
+  // ---------- تبديل نموذج موضوع النقاش ----------
+  const discussionToggle = document.getElementById("toggleDiscussionForm");
+  const discussionForm = document.getElementById("discussionForm");
+  const discussionCancel = document.getElementById("cancelDiscussionForm");
+
+  if (discussionToggle && discussionForm) {
+    discussionToggle.addEventListener("click", () => {
+      discussionForm.hidden = !discussionForm.hidden;
+      if (!discussionForm.hidden) {
+        discussionForm.querySelector("textarea")?.focus();
+      }
+    });
+    discussionCancel?.addEventListener("click", () => {
+      discussionForm.hidden = true;
+    });
+  }
+
+  // نسخ نص الرد إلى الحقل المخصص لإرساله
+  document.querySelectorAll(".discussion-reply-input").forEach((textarea) => {
+    textarea.addEventListener("input", () => {
+      const target = document.getElementById(textarea.dataset.target);
+      if (target) target.value = textarea.value;
+    });
+  });
+  document.querySelectorAll(".discussion-reply-form").forEach((form) => {
+    form.addEventListener("submit", () => {
+      const target = form.querySelector("textarea");
+      const hidden = form.querySelector("input[type='hidden']");
+      if (target && hidden) hidden.value = target.value.trim();
+    });
+  });
+
+  // ---------- روابط التنقل إلى تبويب الحضور ----------
+  document.querySelectorAll("[data-goto-tab]").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      const tab = document.querySelector(`.tab-btn[data-tab="${link.dataset.gotoTab}"]`);
+      if (tab) tab.click();
+    });
+  });
+
   // الأسئلة التفاعلية: تحديد خيار ثم تأكيد
   document.querySelectorAll(".question-card").forEach((card) => {
     const submitBtn = card.querySelector(".submit-answer");
