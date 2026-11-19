@@ -19,6 +19,22 @@ import {
 
 const router = express.Router();
 
+// ============ دليل النشر (عام — بلا تسجيل دخول) ============
+// يجب أن يبقى قبل router.use(requireAuth, ...) ليراه الزائر دون حساب.
+router.get("/guide", async (req, res, next) => {
+  try {
+    return renderPage(res, "publication/guide", {
+      title: "شروط النشر — دليل النشر",
+      layout: "base",
+      bodyClass: "site-page",
+      styles: ["/css/views/home.css?v=20261119", "/css/views/publication-guide.css?v=20261119"],
+      scripts: ["/js/home.js?v=20261119"],
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // ---------- إعداد الرفع ----------
 const storage = multer.diskStorage({
   destination: async (_req, file, cb) => {

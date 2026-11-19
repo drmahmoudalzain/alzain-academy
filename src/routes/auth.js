@@ -102,8 +102,8 @@ router.get("/", async (req, res, next) => {
       title: "الرئيسية",
       layout: "base",
       bodyClass: "site-page",
-      styles: ["/css/views/home.css"],
-      scripts: ["/js/home.js"],
+      styles: ["/css/views/home.css?v=20261119"],
+      scripts: ["/js/home.js?v=20261119"],
       stats: { students, courses, lectures, libraryItems },
     });
   } catch (error) {
@@ -126,8 +126,8 @@ router.get("/demo", async (req, res, next) => {
       title: "العرض التجريبي",
       layout: "base",
       bodyClass: "site-page",
-      styles: ["/css/views/home.css"],
-      scripts: ["/js/home.js"],
+      styles: ["/css/views/home.css?v=20261119"],
+      scripts: ["/js/home.js?v=20261119"],
     });
   } catch (error) {
     next(error);

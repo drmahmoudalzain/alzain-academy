@@ -1216,3 +1216,166 @@
       .orb { animation: none; }
     }
   
+    /* =========================================================
+       قسم النشر العلمي — دعوة دليل النشر
+       ========================================================= */
+    .publication-spotlight { padding-bottom: clamp(40px, 6vw, 80px); }
+
+    .publication-cta-box {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: clamp(28px, 4vw, 56px);
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: clamp(30px, 4.5vw, 54px);
+      background:
+        radial-gradient(ellipse 75% 85% at 85% -10%, rgba(212, 160, 23, 0.16), transparent 55%),
+        linear-gradient(160deg, var(--navy-mid), var(--navy-dark));
+      overflow: hidden;
+      position: relative;
+    }
+
+    .publication-cta-info .section-eyebrow { margin-bottom: 12px; }
+    .publication-cta-info .section-title { text-align: start; margin-bottom: 18px; }
+
+    .publication-cta-lead {
+      color: var(--text-muted);
+      line-height: 2;
+      font-size: 1rem;
+      margin-bottom: 18px;
+    }
+
+    .publication-points {
+      list-style: none;
+      display: grid;
+      gap: 10px;
+      margin-bottom: 26px;
+    }
+    .publication-points li {
+      position: relative;
+      padding-inline-start: 28px;
+      color: var(--text-muted);
+      font-size: 0.93rem;
+      line-height: 1.8;
+    }
+    .publication-points li::before {
+      content: '';
+      position: absolute;
+      inset-inline-start: 0;
+      top: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: rgba(22, 110, 63, 0.4);
+      border: 1px solid rgba(127, 224, 176, 0.5);
+    }
+    .publication-points li::after {
+      content: '';
+      position: absolute;
+      inset-inline-start: 5px;
+      top: 8px;
+      width: 6px;
+      height: 4px;
+      border-left: 2px solid #7FE0B0;
+      border-bottom: 2px solid #7FE0B0;
+      transform: rotate(-45deg);
+    }
+
+    .publication-cta-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* بطاقة المجلة */
+    .publication-cta-visual {
+      display: flex;
+      justify-content: center;
+      perspective: 1200px;
+    }
+
+    .journal-card {
+      width: min(280px, 100%);
+      aspect-ratio: 3 / 4.4;
+      border-radius: var(--radius-md);
+      background:
+        radial-gradient(ellipse 80% 60% at 50% -15%, rgba(212, 160, 23, 0.28), transparent 55%),
+        linear-gradient(165deg, var(--navy-light), var(--navy-dark) 70%);
+      border: 1px solid var(--border);
+      box-shadow:
+        0 30px 60px rgba(0, 0, 0, 0.45),
+        inset 0 0 0 6px var(--navy-dark),
+        inset 0 0 0 7px var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 18px 16px;
+      text-align: center;
+      transform: rotateY(-8deg) rotateX(2deg);
+      transition: transform 0.4s var(--ease-out);
+    }
+    .journal-card:hover { transform: rotateY(0) rotateX(0); }
+
+    .journal-card-badge {
+      align-self: center;
+      font-size: 0.62rem;
+      letter-spacing: 2px;
+      color: var(--navy-dark);
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      font-weight: 800;
+      padding: 5px 14px;
+      border-radius: 999px;
+      margin-bottom: 18px;
+    }
+
+    .journal-card-inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .journal-card-inner svg {
+      width: 74px;
+      height: 74px;
+      color: var(--gold);
+      filter: drop-shadow(0 0 16px rgba(212, 160, 23, 0.55));
+    }
+    .journal-card-name {
+      font-family: var(--font-head);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--cream-warm);
+    }
+    .journal-card-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.7;
+      max-width: 180px;
+    }
+    .journal-card-meta {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.66rem;
+      color: var(--gold-light);
+      margin-top: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .journal-card-foot {
+      border-top: 1px solid var(--border-soft);
+      padding-top: 12px;
+      font-size: 0.64rem;
+      color: var(--text-soft);
+      letter-spacing: 0.4px;
+    }
+
+    @media (max-width: 900px) {
+      .publication-cta-box { grid-template-columns: 1fr; }
+      .publication-cta-visual { order: -1; }
+      .journal-card { transform: none; max-width: 230px; }
+    }
+
