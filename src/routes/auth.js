@@ -188,6 +188,11 @@ router.post("/login", async (req, res, next) => {
       return fail(422, "يرجى إدخال الرمز وكلمة المرور.");
     }
 
+    // توضيح صريح بدل رسالة "بيانات غير صحيحة" عند استخدام البريد القديم
+    if (String(identifier).includes("@")) {
+      return fail(422, "البريد الإلكتروني ليس وسيلة دخول في المنصة. أدخل الرمز الموحد: AD0001 للمالك، TE0001 للأستاذ، أو BM0001/BF0001/EQ0001/EX0001/PG0001 للطالب. الرمز موجود في بطاقة الدخول التي سلّمتها الإدارة.");
+    }
+
     const platformId = normalizePlatformCode(identifier);
 
     if (isThrottled(req, platformId)) {
