@@ -1,0 +1,69 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>تحكيم البحث</h2>
+    <p>محرّر مجهول — لا ترى هوية الباحث. أعطِ درجتك لكل معيار من 10 ثم اختر التوصية.</p>
+  </div>
+</section>
+
+<div class="table-card" style="margin-bottom:20px;">
+  <div class="table-card-head"><h3>البحث المعروض</h3></div>
+  <div class="side-card-body" style="padding:18px 22px;">
+    <h3 style="font-family:var(--font-head);font-size:1.2rem;margin:0 0 12px;"><%= paper.title %></h3>
+    <div class="form-hint" style="margin-bottom:8px;"><strong>الكلمات المفتاحية:</strong> <%= paper.keywords || '—' %></div>
+    <div class="form-hint" style="margin-bottom:8px;"><strong>الملخص:</strong> <%= paper.abstract_ar || '—' %></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <span class="chip">الحالة: <%= statusLabel %></span>
+      <a class="chip" href="/publication/file/<%= paper.id %>" style="text-decoration:none;">تحميل ملف البحث</a>
+    </div>
+  </div>
+</div>
+
+<form method="post" action="/publication/review/<%= paper.id %>" class="table-card">
+  <div class="table-card-head"><h3>جدول التقييم (50 درجة)</h3></div>
+  <div class="side-card-body" style="padding:18px 22px;">
+    <% const criteria = [
+      ['score_authenticity', 'الأصالة والإضافة'],
+      ['score_methodology', 'الإشكالية والمنهجية'],
+      ['score_citation', 'التوثيق والدقة'],
+      ['score_analysis', 'التحليل والتطبيق'],
+      ['score_clarity', 'الصياغة والتنظيم'],
+    ]; %>
+
+    <% for (const [field, label] of criteria) { %>
+      <label style="display:grid;gap:6px;margin-bottom:14px;">
+        <span style="font-weight:600;"><%= label %> <small class="muted">/ 10</small></span>
+        <input type="number" name="<%= field %>" min="0" max="10" step="0.5"
+               value="<%= myReview ? (myReview[field] ?? 5) : 5 %>"
+               required
+               oninput="this.nextElementSibling.textContent = this.value || '0'">
+        <output style="font-variant-numeric:tabular-nums;font-weight:700;"><%= myReview ? (myReview[field] ?? 5) : 5 %></output>
+      </label>
+    <% } %>
+
+    <fieldset style="border:0;padding:0;margin:0 0 14px;">
+      <legend style="font-weight:600;margin-bottom:8px;">التوصية</legend>
+      <% const currentVerdict = myReview?.verdict ?? 'accept'; %>
+      <% for (const [value, label] of [['accept','قبول دون تعديل'],['minor','قبول مشروط بتعديلات طفيفة'],['major','قبول مشروط بتعديلات جوهرية'],['reject','عدم القبول']]) { %>
+        <label style="display:flex;align-items:center;gap:10px;padding:6px 0;cursor:pointer;">
+          <input type="radio" name="verdict" value="<%= value %>" <%= currentVerdict === value ? 'checked' : '' %>>
+          <span><%= label %></span>
+        </label>
+      <% } %>
+    </fieldset>
+
+    <label style="display:grid;gap:6px;">
+      <span style="font-weight:600;">تعليقات المحكّم</span>
+      <textarea name="comments" rows="5" placeholder="ما الذي أعجبك؟ وما التحسينات المطلوبة؟"><%= myReview?.comments || '' %></textarea>
+    </label>
+
+    <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+      <button type="submit" class="btn btn-primary">حفظ التقييم</button>
+      <a class="btn btn-secondary" href="/publication">إلغاء</a>
+    </div>
+  </div>
+</form>
+
+<div class="alert-inline info" role="note" style="margin-bottom:20px;">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+  <div>على المحكّم أن يكون محايداً ومهنياً. التقييم سرّي ولا يظهر للباحث إلا قرار التحكيم النهائي بعد اعتماد المحرر.</div>
+</div>

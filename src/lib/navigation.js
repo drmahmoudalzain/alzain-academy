@@ -53,6 +53,12 @@ export const NAVIGATION = {
       ],
     },
     {
+      section: "النشر العلمي",
+      items: [
+        { label: "النشر العلمي", href: "/publication", icon: "exams" },
+      ],
+    },
+    {
       section: "الحساب",
       items: [
         { label: "حسابي", href: "/account", icon: "user" },
@@ -76,6 +82,12 @@ export const NAVIGATION = {
       section: "التواصل",
       items: [
         { label: "المنتدى", href: "/forum", icon: "forum" },
+      ],
+    },
+    {
+      section: "النشر العلمي",
+      items: [
+        { label: "النشر العلمي", href: "/publication", icon: "exams" },
       ],
     },
     {
@@ -104,6 +116,7 @@ export const NAVIGATION = {
         { label: "المقررات", href: "/owner/courses", icon: "courses" },
         { label: "الطلاب", href: "/owner/students", icon: "users" },
         { label: "المنتدى", href: "/forum", icon: "forum" },
+        { label: "النشر العلمي", href: "/publication", icon: "exams" },
         { label: "الإشعارات", href: "/notifications", icon: "bell" },
         { label: "التقارير", href: "/owner/report/html", icon: "grades" },
         { label: "الأرشيف", href: "/owner/archive", icon: "archive" },

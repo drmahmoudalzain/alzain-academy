@@ -1,0 +1,114 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>إدارة البحث</h2>
+    <p><code><%= paper.authorName %></code> · <%= format.formatDateTime(paper.created_at) %> · الحالة: <span class="chip"><%= statusLabel %></span></p>
+  </div>
+  <div class="page-header-actions">
+    <a class="btn btn-secondary" href="/publication/file/<%= paper.id %>">تحميل ملف البحث</a>
+    <a class="btn btn-secondary" href="/publication/manage">عودة</a>
+  </div>
+</section>
+
+<div class="grid-2" style="margin-bottom:20px;">
+  <div class="table-card">
+    <div class="table-card-head"><h3>بيانات البحث</h3></div>
+    <div class="table-scroll">
+      <table class="data-table">
+        <tbody>
+          <tr><th scope="row">العنوان</th><td><%= paper.title %></td></tr>
+          <tr><th scope="row">الكلمات المفتاحية</th><td><%= paper.keywords || '—' %></td></tr>
+          <tr><th scope="row">تاريخ التقديم</th><td><%= format.formatDateTime(paper.created_at) %></td></tr>
+          <% if (paper.published_at) { %><tr><th scope="row">تاريخ النشر</th><td><%= format.formatDateTime(paper.published_at) %></td></tr><% } %>
+          <tr><th scope="row">الملف</th><td><a href="/publication/file/<%= paper.id %>">تحميل</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="table-card-head"><h3>الملخص بالعربية</h3></div>
+    <div class="side-card-body" style="padding:14px 16px;line-height:1.9;color:var(--text-secondary);max-height:300px;overflow:auto;"><%= paper.abstract_ar || '—' %></div>
+  </div>
+</div>
+
+<div class="table-card" style="margin-bottom:20px;">
+  <div class="table-card-head"><h3>إجراءات التحرير</h3></div>
+  <form method="post" action="/publication/manage/<%= paper.id %>/action" class="side-card-body" style="padding:18px 22px;display:grid;gap:14px;">
+    <div class="form-grid" style="grid-template-columns:1fr 1fr;">
+      <% if (paper.status === 'submitted') { %>
+        <button class="btn btn-primary" type="submit" name="action" value="screen_accept">قبول للتحكيم</button>
+        <button class="btn btn-secondary" type="submit" name="action" value="screen_reject">رفض</button>
+      <% } else if (paper.status === 'under_review' || paper.status === 'screening' || paper.status === 'revisions') { %>
+        <div style="grid-column:1/-1;">
+          <label style="display:grid;gap:8px;font-size:0.84rem;">محرّر التعليق
+            <textarea name="editor_note" rows="2" placeholder="ملاحظة للباحث أو المحكّمين..."></textarea>
+          </label>
+        </div>
+        <button class="btn btn-primary" type="submit" name="action" value="revisions">طلب تعديلات</button>
+        <button class="btn btn-primary" type="submit" name="action" value="accept">اعتماد القبول</button>
+        <button class="btn btn-secondary" type="submit" name="action" value="reject">رفض نهائي</button>
+      <% } else if (paper.status === 'accepted') { %>
+        <div style="grid-column:1/-1;">
+          <label style="display:grid;gap:8px;font-size:0.84rem;">ملاحظة محرر
+            <textarea name="editor_note" rows="2" placeholder="ملاحظة..."></textarea>
+          </label>
+        </div>
+        <button class="btn btn-gold" type="submit" name="action" value="publish">نشر البحث</button>
+        <button class="btn btn-secondary" type="submit" name="action" value="reject">إلغاء القبول</button>
+      <% } else if (paper.status === 'published') { %>
+        <button class="btn btn-secondary" type="submit" name="action" value="unpublish">إرجاع لـ «مقبول»</button>
+      <% } else if (paper.status === 'rejected') { %>
+        <button class="btn btn-primary" type="submit" name="action" value="accept">إعادة النظر (اقبل)</button>
+      <% } %>
+    </div>
+  </form>
+</div>
+
+<!-- إسناد المحكّمين -->
+<div class="table-card" style="margin-bottom:20px;">
+  <div class="table-card-head"><h3>إسناد المحكّمين</h3></div>
+  <form method="post" action="/publication/manage/<%= paper.id %>/action" class="side-card-body" style="padding:14px 16px;">
+    <input type="hidden" name="action" value="assign">
+    <div class="form-grid" style="grid-template-columns:1fr auto;gap:10px;align-items:end;">
+      <label style="display:grid;gap:6px;font-size:0.84rem;">معرّفات المحكّمين (أرقام مفصولة بفواصل)
+        <input type="text" name="reviewers" value="<%= (paper.assigned_reviewers || []).join(',') %>" placeholder="2,10" dir="ltr" style="text-align:left;" required>
+      </label>
+      <button type="submit" class="btn btn-primary">حفظ المحكّمين</button>
+    </div>
+    <details style="margin-top:10px;font-size:0.82rem;">
+      <summary class="muted">قائمة الأساتذة (<%= teachers.length %>)</summary>
+      <ul style="margin-top:8px;padding-inline-start:18px;">
+        <% for (const teacher of teachers) { %><li>#<%= teacher.id %> — <%= teacher.name %></li><% } %>
+      </ul>
+    </details>
+  </form>
+</div>
+
+<!-- التقارير والتحليلات -->
+<% if (reviews.length) { %>
+  <div class="table-card" style="margin-bottom:20px;">
+    <div class="table-card-head"><h3>تحكيمات المحكّمين</h3></div>
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead><tr><th>المحكّم</th><th>الدرجة</th><th>التوصية</th><th>التعليق</th></tr></thead>
+        <tbody>
+          <% for (const review of reviews) { %>
+            <tr>
+              <td><strong><%= review.reviewerName %></strong></td>
+              <td><strong><%= review.total_score || '—' %></strong> / 50</td>
+              <td><%= verdictLabel[review.verdict] || review.verdict %></td>
+              <td class="muted" style="max-width:280px;"><%= review.comments || '—' %></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+    <div class="side-card-body" style="padding:14px 18px;border-top:1px solid var(--border);">
+      <strong>التوصية المجمّعة من المحكّمين:</strong>
+      <% const aggLabel = { accept: 'قبول', minor: 'تعديلات طفيفة', major: 'تعديلات جوهرية', reject: 'رفض' }; %>
+      <span class="chip" style="margin-inline-start:8px;"><%= aggLabel[aggregate.recommendation] || 'لم تكتمل بعد' %> (<%= aggregate.average || '—' %> / 50)</span>
+    </div>
+  </div>
+<% } %>
+
+<div style="margin-top:18px;"><a class="btn btn-secondary" href="/publication/manage">العودة إلى لوحة الإدارة</a></div>

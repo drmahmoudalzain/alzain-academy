@@ -1,0 +1,56 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>قسم النشر العلمي</h2>
+    <p>بحوث محكّمة من أكاديميين السودان والعالم في العلوم القانونية والعدلية — بتحكيم سري مزدوج.</p>
+  </div>
+  <div class="page-header-actions">
+    <% if (canSubmit) { %>
+      <a class="btn btn-primary" href="/publication/submit">تقديم بحث للنشر</a>
+      <a class="btn btn-secondary" href="/publication/mine">بحوثي</a>
+    <% } %>
+  </div>
+</section>
+
+<div class="alert-inline info" role="note" style="margin-bottom:16px;">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+  <div>تنظر الأكاديمية طلبات النشر بالتحكيم السري المزدوج بواقع محكّمَين مستقلين — مدة النظر تصل إلى ستة أشهر، وتُقبل البحوث في القانون بفروعه بما في ذلك الشريعة الإسلامية.</div>
+</div>
+
+<% if (papers.length) { %>
+  <div class="publication-grid">
+    <% for (const paper of papers) { %>
+      <article class="pub-card">
+        <div class="pub-card-head">
+          <span class="chip" style="background:var(--gold-soft);color:var(--gold-dark);border:0;">ورقة محكّمة</span>
+          <span class="pub-date"><%= paper.published_at ? format.formatShortDate(paper.published_at) : '—' %></span>
+        </div>
+        <h3 class="pub-title"><a href="/publication/item/<%= paper.id %>"><%= paper.title %></a></h3>
+        <p class="pub-author"><%= paper.authorName %></p>
+        <p class="pub-abstract"><%= (paper.abstract_ar || '').length > 220 ? (paper.abstract_ar || '').slice(0, 220) + '…' : (paper.abstract_ar || '—') %></p>
+        <% if (paper.keywords) { %>
+          <div class="pub-keywords"><%= paper.keywords %></div>
+        <% } %>
+        <div class="pub-card-foot">
+          <a class="btn btn-secondary btn-sm" href="/publication/item/<%= paper.id %>">اقرأ المزيد ←</a>
+        </div>
+      </article>
+    <% } %>
+  </div>
+<% } else { %>
+  <div class="empty-state"><h3>لا توجد أوراق منشورة بعد</h3><p>سيُنشر أول إصدار قريباً — تابعنا.</p></div>
+<% } %>
+
+<style>
+.publication-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 18px; }
+.pub-card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg, 16px); padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; transition: transform 0.18s var(--ease), box-shadow 0.18s var(--ease); }
+.pub-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.pub-card-head { display: flex; justify-content: space-between; align-items: center; }
+.pub-date { font-size: 0.75rem; color: var(--text-muted); }
+.pub-title { font-family: var(--font-head); font-size: 1.08rem; line-height: 1.5; margin: 0; }
+.pub-title a { color: var(--text-primary); text-decoration: none; }
+.pub-title a:hover { color: var(--gold-dark); }
+.pub-author { font-size: 0.8rem; color: var(--text-muted); margin: 0; }
+.pub-abstract { font-size: 0.85rem; line-height: 1.85; color: var(--text-secondary); margin: 0; min-height: 4.5em; }
+.pub-keywords { font-size: 0.75rem; color: var(--gold-dark); font-weight: 600; }
+.pub-card-foot { margin-top: auto; display: flex; justify-content: flex-end; }
+</style>

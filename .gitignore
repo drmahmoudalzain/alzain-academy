@@ -9,6 +9,9 @@
 secrets/
 *.pem
 
+# مجلات مرفوعة (ملفات المستخدمين)
+uploads/
+
 # Node
 node_modules/
 npm-debug.log*

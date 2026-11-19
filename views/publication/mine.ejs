@@ -1,0 +1,35 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>بحوثي</h2>
+    <p>جميع البحوث التي قدمتها للتحكيم — بحالاتها وملاحظات المحكّمين والمحرر.</p>
+  </div>
+  <div class="page-header-actions">
+    <a class="btn btn-primary" href="/publication/submit">تقديم بحث جديد</a>
+  </div>
+</section>
+
+<% if (papers.length) { %>
+  <div class="table-card">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr><th>#</th><th>عنوان البحث</th><th>الحالة</th><th>قُدّم</th><th>ملاحظة المحرر</th><th></th></tr>
+        </thead>
+        <tbody>
+          <% for (const paper of papers) { %>
+            <tr>
+              <td><%= paper.id %></td>
+              <td><strong><%= paper.title %></strong></td>
+              <td><span class="chip chip-<%= paper.statusTone %>"><%= paper.statusLabel %></span></td>
+              <td class="muted"><%= format.formatDate(paper.created_at) %></td>
+              <td class="muted" style="max-width:280px;"><%= paper.decision_note || '—' %></td>
+              <td><a class="chip" href="/publication/item/<%= paper.id %>">فتح</a></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } else { %>
+  <div class="empty-state"><h3>ليس لديك بحوث مقدمّة بعد</h3><p>ابدأ بتقديم أول بحث لك — يُعرض على محكّمَين من ذوي الاختصاص.</p></div>
+<% } %>

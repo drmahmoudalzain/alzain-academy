@@ -1,0 +1,41 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>إدارة قسم النشر</h2>
+    <p>مسار البحث من التقديم إلى النشر: فحص أوّلي → تحكيم سري → قرار ← نشر.</p>
+  </div>
+</section>
+
+<div class="mini-stats" style="margin-bottom:20px;">
+  <div class="mini-stat all"><div class="mini-stat-body"><div class="mini-stat-label">الجديد</div><div class="mini-stat-value"><%= counts.submitted %></div></div></div>
+  <div class="mini-stat"><div class="mini-stat-body"><div class="mini-stat-label">قيد الفحص</div><div class="mini-stat-value"><%= counts.screening %></div></div></div>
+  <div class="mini-stat"><div class="mini-stat-body"><div class="mini-stat-label">قيد التحكيم</div><div class="mini-stat-value"><%= counts.under_review %></div></div></div>
+  <div class="mini-stat"><div class="mini-stat-body"><div class="mini-stat-label">تعديلات</div><div class="mini-stat-value"><%= counts.revisions %></div></div></div>
+  <div class="mini-stat"><div class="mini-stat-body"><div class="mini-stat-label">مقبول</div><div class="mini-stat-value"><%= counts.accepted %></div></div></div>
+  <div class="mini-stat graded"><div class="mini-stat-body"><div class="mini-stat-label">منشور</div><div class="mini-stat-value"><%= counts.published %></div></div></div>
+</div>
+
+<% if (papers.length) { %>
+  <div class="table-card">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr><th>#</th><th>عنوان البحث</th><th>الباحث</th><th>الحالة</th><th>مقدّم</th><th></th></tr>
+        </thead>
+        <tbody>
+          <% for (const paper of papers) { %>
+            <tr>
+              <td><%= paper.id %></td>
+              <td><strong><%= paper.title %></strong></td>
+              <td><%= paper.authorName %></td>
+              <td><span class="chip chip-<%= paper.statusTone %>"><%= paper.statusLabel %></span></td>
+              <td class="muted"><%= format.formatDate(paper.created_at) %></td>
+              <td><a class="chip" href="/publication/manage/<%= paper.id %>">إدارة ←</a></td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% } else { %>
+  <div class="empty-state"><h3>لا توجد طلبات بعد</h3><p>الطلبات ستظهر هنا عند وصولها.</p></div>
+<% } %>
