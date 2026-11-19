@@ -1,0 +1,16 @@
+# نشر على Render (مجاني) — https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: alzain-academy
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: SESSION_DAYS
+        value: "7"
+      # Render يحدد المنفذ تلقائياً عبر PORT
