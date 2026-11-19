@@ -101,6 +101,39 @@
       }, { threshold: 0.5 });
       statValues.forEach((el) => statObserver.observe(el));
 
+      // ============ تحديث دوري للإحصاءات من قاعدة البيانات ============
+      (function setupStatsPolling() {
+        const bar = document.querySelector('[data-stats-bar]');
+        if (!bar) return;
+        const fmt = new Intl.NumberFormat('ar', { numberingSystem: 'latn' });
+        async function refresh() {
+          try {
+            const res = await fetch('/api/public-stats', { cache: 'no-store' });
+            if (!res.ok) return;
+            const data = await res.json();
+            const map = {
+              students: data.students,
+              courses: data.courses,
+              lectures: data.lectures,
+              libraryItems: data.libraryItems,
+            };
+            bar.querySelectorAll('[data-stat]').forEach((el) => {
+              const key = el.getAttribute('data-stat');
+              if (!(key in map)) return;
+              const v = el.querySelector('.stat-value');
+              if (v) v.textContent = fmt.format(map[key] ?? 0);
+            });
+          } catch (e) { /* تجاهل أخطاء الشبكة */ }
+        }
+        // تحديث أولي بعد 5 ثوانٍ، ثم كل 30 ثانية
+        setTimeout(refresh, 5000);
+        setInterval(refresh, 30000);
+        // تحديث عند عودة التبويب للتركيز
+        document.addEventListener('visibilitychange', () => {
+          if (document.visibilityState === 'visible') refresh();
+        });
+      })();
+
       // ============ Parallax خفيف للشعار ============
       const emblemLarge = document.querySelector('.emblem-large');
       if (emblemLarge && window.matchMedia('(pointer: fine)').matches && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {

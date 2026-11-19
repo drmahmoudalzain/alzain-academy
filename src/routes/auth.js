@@ -110,6 +110,22 @@ router.get("/", async (req, res, next) => {
   }
 });
 
+// ---------- إحصاءات عامة (JSON) للتحديث الدوري في الواجهة ----------
+router.get("/api/public-stats", async (req, res) => {
+  try {
+    const [students, courses, lectures, libraryItems] = await Promise.all([
+      countActive("users", (q) => q.eq("role", "student")),
+      countActive("courses", (q) => q.eq("archived", false)),
+      countActive("lectures"),
+      countActive("library_items"),
+    ]);
+    res.set("Cache-Control", "no-store");
+    return res.json({ students, courses, lectures, libraryItems, at: new Date().toISOString() });
+  } catch (error) {
+    return res.status(500).json({ error: "stats_unavailable" });
+  }
+});
+
 async function countActive(table, apply = (q) => q) {
   const { count, error } = await apply(
     db.from(table).select("*", { count: "exact", head: true })

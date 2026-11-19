@@ -139,20 +139,20 @@
       </div>
 
       <!-- شريط الإحصاءات — بيانات حقيقية من قاعدة البيانات -->
-      <div class="stats-bar reveal" role="list" aria-label="إحصاءات الأكاديمية">
-        <div class="stat" role="listitem">
+      <div class="stats-bar reveal" role="list" aria-label="إحصاءات الأكاديمية" data-stats-bar>
+        <div class="stat" role="listitem" data-stat="students">
           <div class="stat-value"><%= format.formatNumber(stats.students) %></div>
           <div class="stat-label">طالب مسجّل</div>
         </div>
-        <div class="stat" role="listitem">
+        <div class="stat" role="listitem" data-stat="courses">
           <div class="stat-value"><%= format.formatNumber(stats.courses) %></div>
           <div class="stat-label">مقرر دراسي</div>
         </div>
-        <div class="stat" role="listitem">
+        <div class="stat" role="listitem" data-stat="lectures">
           <div class="stat-value"><%= format.formatNumber(stats.lectures) %></div>
           <div class="stat-label">محاضرة</div>
         </div>
-        <div class="stat" role="listitem">
+        <div class="stat" role="listitem" data-stat="libraryItems">
           <div class="stat-value"><%= format.formatNumber(stats.libraryItems) %></div>
           <div class="stat-label">عنصر في المكتبة</div>
         </div>
