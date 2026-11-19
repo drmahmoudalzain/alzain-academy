@@ -21,7 +21,7 @@ export async function listRoomsFor(user) {
   });
 
   if (user.role === "student") {
-    const enrollRes = await db.from("enrollments").select("course_id").eq("student_id", user.id);
+    const enrollRes = await db.from("enrollments").select("course_id").eq("student_id", user.id).eq("status", "active");
     if (enrollRes.error) throw enrollRes.error;
     const courseIds = new Set((enrollRes.data ?? []).map((row) => row.course_id));
     filtered = filtered.filter((room) => room.kind === "general" || courseIds.has(room.course_id));
@@ -53,6 +53,7 @@ export async function canAccessRoom(user, room) {
     .select("course_id")
     .eq("student_id", user.id)
     .eq("course_id", room.course_id)
+    .eq("status", "active")
     .maybeSingle();
   if (enrollRes.error) throw enrollRes.error;
   return Boolean(enrollRes.data);

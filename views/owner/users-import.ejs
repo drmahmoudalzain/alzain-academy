@@ -1,7 +1,7 @@
 <section class="page-header">
   <div class="page-header-info">
-    <h2>استيراد دفعات</h2>
-    <p>ألصق أسماء الطلاب سطراً سطراً — يُولّد النظام الرمز وكلمة المرور لكل طالب ويظهرها هنا للنسخ والطباعة.</p>
+    <h2>تسجيل الدفعات</h2>
+    <p>ارفع ملف إكسل بأسماء الطلاب، أو الصقهم يدوياً — يُولّد النظام الرمز وكلمة المرور لكل طالب ويظهرها هنا للنسخ والطباعة. الحسابات تُنشأ نشطة وجاهزة للدخول فوراً.</p>
   </div>
   <div class="page-header-actions">
     <a class="btn btn-secondary" href="/owner/users">العودة إلى المستخدمين</a>
@@ -15,8 +15,44 @@
   </div>
 <% } %>
 
+<div class="table-card" id="excel" style="margin-bottom:18px;">
+  <div class="table-card-head"><h3>رفع ملف إكسل — أسماء فقط</h3></div>
+  <form method="post" action="/owner/users/import-excel" enctype="multipart/form-data" class="side-card-body" style="padding:20px 22px;">
+    <div class="form-grid">
+      <label>المسار
+        <select name="track" required>
+          <% TRACK_KEYS.forEach(function (key) { %>
+            <option value="<%= key %>"><%= getProfile(key).label %> — <%= key %></option>
+          <% }); %>
+        </select>
+      </label>
+      <label>المستوى
+        <select name="level" required>
+          <% for (var i = 1; i <= 4; i += 1) { %>
+            <option value="<%= i %>">المستوى <%= i %></option>
+          <% } %>
+        </select>
+      </label>
+      <label>ملف الدفعة
+        <input type="file" name="roster" accept=".xlsx,.xlsm,.csv" required>
+      </label>
+    </div>
+    <div class="alert-inline info" role="note" style="margin-top:12px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+      <div>
+        الملف يحتوي على <strong>عمود واحد بالأسماء فقط</strong> (يُتجاهل صف العنوان إن وُجد). لتسجيل الطلاب والطالبات معاً، ارفع ملفاً لكل مسار على حدة:
+        <span dir="ltr">BM</span> للطلاب، <span dir="ltr">BF</span> للطالبات، ثم كرّر العملية لأي مستوى آخر. المدعوم: <span dir="ltr">xlsx / xlsm / csv</span> حتى 2 ميجابايت و300 اسم.
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:14px;">
+      <button type="submit" class="btn btn-primary">تسجيل الدفعة</button>
+      <a class="btn btn-secondary" href="/owner/users">إلغاء</a>
+    </div>
+  </form>
+</div>
+
 <div class="table-card" style="margin-bottom:18px;">
-  <div class="table-card-head"><h3>الدفعة</h3></div>
+  <div class="table-card-head"><h3>أو: لصق الأسماء يدوياً</h3></div>
   <form method="post" action="/owner/users/import" class="side-card-body" style="padding:20px 22px;">
     <label style="font-weight:700;margin-bottom:8px;display:block;">سطر لكل طالب: <span style="direction:ltr;unicode-bidi:embed;">الاسم الرباعي , المسار , الرقم الجامعي (اختياري)</span></label>
     <textarea name="batch" rows="10" required maxlength="40000" dir="auto" style="width:100%;font-family:inherit;font-size:0.95rem;line-height:2;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg-subtle);color:var(--text-primary);resize:vertical;" placeholder="أحمد سالم باوزير , bachelor_m , 2024009

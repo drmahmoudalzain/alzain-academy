@@ -4,6 +4,7 @@
     <p><code><%= course.code %></code> · <%= getProfile(course.track).label %> · <%= course.level ? 'المستوى ' + course.level : '' %></p>
   </div>
   <div class="page-header-actions">
+    <a class="btn btn-primary" href="<%= basePath %>/courses/<%= course.id %>/enroll">إضافة طلاب</a>
     <a class="btn btn-secondary" href="<%= basePath %>/courses/<%= course.id %>/gradebook">سجل الدرجات</a>
     <a class="btn btn-secondary" href="<%= basePath %>/courses/<%= course.id %>/edit">تعديل</a>
     <form method="post" action="<%= basePath %>/courses/<%= course.id %>/archive" style="display:inline;">
@@ -11,6 +12,13 @@
     </form>
   </div>
 </section>
+
+<% if (typeof notice !== 'undefined' && notice) { %>
+  <div class="alert-inline success" role="status" style="margin-bottom:16px;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+    <div><%= notice %></div>
+  </div>
+<% } %>
 
 <% if (course.description) { %>
   <div class="table-card" style="margin-bottom:20px;">
@@ -97,23 +105,36 @@
 </div>
 
 <div class="table-card">
-  <div class="table-card-head"><h3>طلاب المقرر (<%= students.length %>)</h3></div>
+  <div class="table-card-head">
+    <h3>طلاب المقرر (<%= students.length %>)</h3>
+    <a class="card-link" href="<%= basePath %>/courses/<%= course.id %>/enroll">إضافة طلاب</a>
+  </div>
   <div class="table-scroll">
     <table class="data-table">
-      <thead><tr><th>#</th><th>الاسم</th><th>الرقم الجامعي</th><th>الحضور</th><th>الحالة</th></tr></thead>
+      <thead><tr><th>#</th><th>الاسم</th><th>الرمز</th><th>الحضور</th><th>حالة الحساب</th><th>التسجيل في المقرر</th><th>إجراء</th></tr></thead>
       <tbody>
         <% if (students.length) { %>
           <% for (const student of students) { %>
+            <% var suspended = student.enrollmentStatus === 'suspended'; %>
             <tr>
               <td><%= student.id %></td>
               <td><strong><%= student.name %></strong></td>
               <td dir="ltr" style="text-align:left;"><code><%= student.platform_id ?? student.university_id ?? '—' %></code></td>
               <td><%= student.attendanceCount %> محاضرة</td>
               <td><span class="chip" style="<%= student.is_active ? 'color:var(--success);border-color:var(--success-border);' : 'color:var(--danger);border-color:var(--danger-border);' %>"><%= student.is_active ? 'نشط' : 'موقوف' %></span></td>
+              <td>
+                <span class="chip" style="<%= suspended ? 'color:var(--danger);border-color:var(--danger-border);' : 'color:var(--success);border-color:var(--success-border);' %>"><%= suspended ? 'موقوف في هذا المقرر' : 'نشط في هذا المقرر' %></span>
+              </td>
+              <td>
+                <form method="post" action="<%= basePath %>/courses/<%= course.id %>/enroll/<%= student.id %>/status" style="display:inline;">
+                  <input type="hidden" name="status" value="<%= suspended ? 'active' : 'suspended' %>">
+                  <button type="submit" class="btn btn-secondary btn-sm"><%= suspended ? 'إعادة تنشيط' : 'توقيف في المقرر' %></button>
+                </form>
+              </td>
             </tr>
           <% } %>
         <% } else { %>
-          <tr><td colspan="5" class="muted text-center">لا يوجد طلاب مسجلون في هذا المقرر بعد.</td></tr>
+          <tr><td colspan="7" class="muted text-center">لا يوجد طلاب مسجلون في هذا المقرر بعد.</td></tr>
         <% } %>
       </tbody>
     </table>

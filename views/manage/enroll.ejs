@@ -1,0 +1,127 @@
+<section class="page-header">
+  <div class="page-header-info">
+    <h2>تسجيل الطلاب في المقرر</h2>
+    <p><code><%= course.code %></code> · <%= course.title %> — الاختيار حر، ويمكن تسجيل الطالب في أكثر من مقرر دفعة واحدة.</p>
+  </div>
+  <div class="page-header-actions">
+    <a class="btn btn-secondary" href="<%= basePath %>/courses/<%= course.id %>">العودة إلى المقرر</a>
+  </div>
+</section>
+
+<% if (typeof error !== 'undefined' && error) { %>
+  <div class="alert-inline error" role="alert" style="margin-bottom:16px;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <div><%= error %></div>
+  </div>
+<% } %>
+
+<div class="table-card" style="margin-bottom:18px;">
+  <div class="table-card-head" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+    <h3>الطلاب (<%= students.length %>)</h3>
+    <a class="card-link" href="?track=all&amp;level=all&amp;q=">عرض كل المسارات والمستويات</a>
+  </div>
+  <div class="side-card-body" style="padding:14px 20px;">
+    <form method="get" action="<%= basePath %>/courses/<%= course.id %>/enroll" class="filter-form" style="display:flex;gap:10px;flex-wrap:wrap;align-items:end;">
+      <label style="flex:2;min-width:180px;">بحث بالاسم أو الرمز
+        <input type="text" name="q" value="<%= q %>" placeholder="اسم أو BM0001..." dir="auto">
+      </label>
+      <label style="flex:1;min-width:140px;">المسار
+        <select name="track">
+          <option value="all" <%= trackFilter === 'all' ? 'selected' : '' %>>كل المسارات</option>
+          <% TRACK_KEYS.forEach(function (key) { %>
+            <option value="<%= key %>" <%= trackFilter === key ? 'selected' : '' %>><%= getProfile(key).label %></option>
+          <% }); %>
+        </select>
+      </label>
+      <label style="flex:1;min-width:110px;">المستوى
+        <select name="level">
+          <option value="all" <%= levelFilter === 'all' ? 'selected' : '' %>>كل المستويات</option>
+          <% for (var i = 1; i <= 4; i += 1) { %>
+            <option value="<%= i %>" <%= levelFilter === String(i) ? 'selected' : '' %>>المستوى <%= i %></option>
+          <% } %>
+        </select>
+      </label>
+      <button class="btn btn-secondary" type="submit">تصفية</button>
+    </form>
+  </div>
+</div>
+
+<form method="post" action="<%= basePath %>/courses/<%= course.id %>/enroll" id="enrollForm">
+  <div class="table-card" style="margin-bottom:18px;">
+    <div class="table-card-head"><h3>المقررات المحددة للتسجيل</h3></div>
+    <div class="side-card-body" style="padding:16px 20px;">
+      <p class="form-hint" style="margin-top:0;">اختر مقرراً واحداً أو أكثر. الأستاذ يرى مقرراته فقط، والمالك يرى كل المقررات.</p>
+      <div class="course-pick-grid">
+        <% courses.forEach(function (item) { %>
+          <label class="course-pick">
+            <input type="checkbox" name="course_ids" value="<%= item.id %>" <%= Number(item.id) === Number(course.id) ? 'checked' : '' %>>
+            <span><strong><%= item.title %></strong><small dir="ltr"><%= item.code %> · <%= getProfile(item.track).label %><%= item.level ? ' · م' + item.level : '' %></small></span>
+          </label>
+        <% }); %>
+      </div>
+    </div>
+  </div>
+
+  <div class="table-card" style="margin-bottom:18px;">
+    <div class="table-card-head"><h3>اختيار الطلاب</h3></div>
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th style="width:36px;"><input type="checkbox" id="checkAll" aria-label="تحديد الكل"></th>
+            <th>الاسم</th>
+            <th>الرمز</th>
+            <th>المسار / المستوى</th>
+            <th>الحالة في هذا المقرر</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (students.length) { %>
+            <% students.forEach(function (student) { %>
+              <% var already = enrolledIds.has(student.id); %>
+              <tr>
+                <td>
+                  <input type="checkbox" name="student_ids" value="<%= student.id %>" class="student-check" <%= already ? 'disabled title="مسجل بالفعل"' : '' %>>
+                </td>
+                <td><strong><%= student.name %></strong></td>
+                <td dir="ltr" style="text-align:left;"><code><%= student.platform_id || student.university_id || '—' %></code></td>
+                <td><%= getProfile(student.track).label %><%= student.level ? ' · م' + student.level : '' %></td>
+                <td>
+                  <% if (already) { %>
+                    <span class="chip" style="color:var(--success);border-color:var(--success-border);">مسجل بالفعل</span>
+                  <% } else { %>
+                    <span class="muted">غير مسجل</span>
+                  <% } %>
+                </td>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr><td colspan="5" class="muted text-center">لا يوجد طلاب مطابقون للفلاتر الحالية.</td></tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+    <button class="btn btn-primary" type="submit">تسجيل المحدد في المقررات المختارة</button>
+    <span class="form-hint mb-0">المكرر يُتخطى تلقائياً، ويصل الطالب إشعاراً داخلياً فور التسجيل.</span>
+  </div>
+</form>
+
+<style>
+.course-pick-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:10px; max-height:220px; overflow:auto; }
+.course-pick { display:flex; gap:10px; align-items:flex-start; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:var(--bg-subtle); cursor:pointer; }
+.course-pick span { display:flex; flex-direction:column; gap:2px; }
+.course-pick small { color:var(--text-muted); font-size:0.72rem; }
+</style>
+
+<script>
+  (function () {
+    var all = document.getElementById("checkAll");
+    if (!all) return;
+    all.addEventListener("change", function () {
+      document.querySelectorAll(".student-check:not(:disabled)").forEach(function (box) { box.checked = all.checked; });
+    });
+  })();
+</script>

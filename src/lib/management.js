@@ -46,6 +46,16 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
 
   const canManageFlag = () => isOwnerMode;
 
+  const notify = (createdBy, userId, title, body, link) =>
+    db.from("notifications").insert({
+      audience: "user",
+      user_id: userId,
+      title,
+      body,
+      link: link ?? null,
+      created_by: createdBy ?? null,
+    });
+
   const ownCourses = async (user) => {
     const courses = await getManagedCourses(
       isOwnerMode ? { allTeachers: true } : { teacherId: user.id }
@@ -180,7 +190,181 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
         lectures: lecturesRes.data ?? [],
         exams: examsRes.data ?? [],
         assignments: assignmentsRes.data ?? [],
+        notice: req.query.enrolled !== undefined
+          ? `تم تسجيل ${Number(req.query.enrolled) || 0} طالباً وتخطي ${Number(req.query.skipped) || 0} تسجيل مكرر.`
+          : req.query.statusSaved ? "تم تحديث حالة التسجيل في هذا المقرر." : null,
       });
+    } catch (error) { next(error); }
+  });
+
+  // ---------- تسجيل الطلاب في المقرر (اختيار حر، بدون إلزام مسار/مستوى) ----------
+  router.get("/courses/:id/enroll", guard, async (req, res, next) => {
+    try {
+      const course = await courseOr403(req, res, req.params.id);
+      if (!course) return res.status(404).render("error", { title: "غير موجود", code: 404, message: "المقرر غير موجود أو لا تملك صلاحية إدارته." });
+
+      const [studentsRes, courses] = await Promise.all([
+        db.from("users").select("id, name, platform_id, university_id, track, level, is_active").eq("role", "student").order("name"),
+        ownCourses(req.user),
+      ]);
+      if (studentsRes.error) throw studentsRes.error;
+
+      const hasFilter = req.query.q !== undefined || req.query.track !== undefined || req.query.level !== undefined;
+      const trackFilter = hasFilter ? String(req.query.track ?? "all") : String(course.track ?? "all");
+      const levelFilter = hasFilter ? String(req.query.level ?? "all") : String(course.level ?? "all");
+      const q = String(req.query.q ?? "").trim().toLowerCase();
+
+      let students = (studentsRes.data ?? []).filter((student) => student.is_active);
+      if (trackFilter !== "all") students = students.filter((student) => student.track === trackFilter);
+      if (levelFilter !== "all") students = students.filter((student) => String(student.level) === levelFilter);
+      if (q) {
+        students = students.filter((student) =>
+          [student.name, student.platform_id, student.university_id].some((value) =>
+            String(value ?? "").toLowerCase().includes(q)
+          )
+        );
+      }
+
+      const enrolled = await getCourseStudents(course.id);
+      const enrolledIds = new Set(enrolled.map((student) => student.id));
+
+      return managePage(res, "manage/enroll", {
+        title: `تسجيل الطلاب — ${course.title}`,
+        pageTitle: "تسجيل الطلاب في المقرر",
+        course,
+        courses,
+        students,
+        enrolledIds,
+        trackFilter,
+        levelFilter,
+        q,
+      });
+    } catch (error) { next(error); }
+  });
+
+  router.post("/courses/:id/enroll", guard, async (req, res, next) => {
+    try {
+      const course = await courseOr403(req, res, req.params.id);
+      if (!course) return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا تملك صلاحية إدارة هذا المقرر." });
+
+      const list = (value) => (Array.isArray(value) ? value : value ? [value] : []);
+      const studentIds = [...new Set(list(req.body.student_ids).map(toInt).filter(Boolean))];
+      const courseIds = [...new Set(list(req.body.course_ids).map(toInt).filter(Boolean))];
+      const allCourses = await ownCourses(req.user);
+
+      const fail = (message) => managePage(res.status(422), "manage/enroll", {
+        title: "تسجيل الطلاب", pageTitle: "تسجيل الطلاب في المقرر", course,
+        courses: allCourses, students: [], enrolledIds: new Set(),
+        trackFilter: "all", levelFilter: "all", q: "", error: message,
+      });
+
+      if (!studentIds.length) return fail("اختر طالباً واحداً على الأقل.");
+      if (!courseIds.length) return fail("اختر مقرراً واحداً على الأقل.");
+
+      const manageable = new Set(allCourses.map((item) => item.id));
+      if (courseIds.some((id) => !manageable.has(id))) {
+        return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "أحد المقررات المحددة ليس من مقرراتك." });
+      }
+
+      const studentsRes = await db
+        .from("users")
+        .select("id, name, platform_id")
+        .in("id", studentIds)
+        .eq("role", "student")
+        .eq("is_active", true);
+      if (studentsRes.error) throw studentsRes.error;
+      const validStudents = studentsRes.data ?? [];
+      if (!validStudents.length) return fail("لم يتم العثور على طلاب نشطين بالمعرفات المحددة.");
+
+      const courseRows = allCourses.filter((item) => courseIds.includes(item.id));
+      const key = (courseId, studentId) => `${courseId}:${studentId}`;
+
+      const existingRes = await db.from("enrollments").select("course_id, student_id").in("course_id", courseIds);
+      if (existingRes.error) throw existingRes.error;
+      const existing = new Set((existingRes.data ?? []).map((row) => key(row.course_id, row.student_id)));
+
+      const pairs = [];
+      for (const courseId of courseIds) {
+        for (const student of validStudents) {
+          if (!existing.has(key(courseId, student.id))) {
+            pairs.push({ course_id: courseId, student_id: student.id, status: "active" });
+          }
+        }
+      }
+
+      if (pairs.length) {
+        const inserted = await db.from("enrollments").upsert(pairs, {
+          onConflict: "course_id,student_id",
+          ignoreDuplicates: true,
+        });
+        if (inserted.error) throw inserted.error;
+
+        const courseNames = courseRows.map((item) => `${item.title} (${item.code})`).join("، ");
+        const link = courseIds.length === 1 ? `/student/courses/${courseIds[0]}` : "/student/courses";
+        const notifications = validStudents.map((student) => ({
+          audience: "user",
+          user_id: student.id,
+          title: "تم تسجيلك في مقرر جديد",
+          body: `تم تسجيلك في: ${courseNames}. يمكنك الوصول إليه من بوابة الطلاب.`,
+          link,
+          created_by: req.user?.id ?? null,
+        }));
+        const notice = await db.from("notifications").insert(notifications);
+        if (notice.error) console.error("تعذر إرسال إشعار التسجيل:", notice.error.message);
+
+        await db.from("archived_records").insert({
+          table_name: "enrollment",
+          record_id: null,
+          label: `تسجيل ${pairs.length} طالباً في ${courseIds.length} مقرراً`,
+          data: { by: req.user?.id ?? null, by_name: req.user?.name ?? null, course_ids: courseIds, student_ids: validStudents.map((s) => s.id), at: new Date().toISOString() },
+          archived_by: req.user?.id ?? null,
+        });
+      }
+
+      return res.redirect(`${basePath}/courses/${course.id}?enrolled=${pairs.length}&skipped=${validStudents.length * courseIds.length - pairs.length}`);
+    } catch (error) { next(error); }
+  });
+
+  router.post("/courses/:id/enroll/:studentId/status", guard, async (req, res, next) => {
+    try {
+      const course = await courseOr403(req, res, req.params.id);
+      if (!course) return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا تملك صلاحية إدارة هذا المقرر." });
+
+      const studentId = Number(req.params.studentId);
+      const status = req.body.status === "suspended" ? "suspended" : "active";
+      const current = await db
+        .from("enrollments")
+        .select("course_id, student_id, status, users!enrollments_student_id_fkey(id, name)")
+        .eq("course_id", course.id)
+        .eq("student_id", studentId)
+        .maybeSingle();
+      if (current.error) throw current.error;
+      if (!current.data) return res.status(404).render("error", { title: "غير موجود", code: 404, message: "الطالب غير مسجل في هذا المقرر." });
+
+      const updated = await db.from("enrollments").update({ status }).eq("course_id", course.id).eq("student_id", studentId);
+      if (updated.error) throw updated.error;
+
+      const studentName = current.data.users?.name ?? "الطالب";
+      const notice = await notify(
+        req.user?.id,
+        studentId,
+        status === "suspended" ? "توقيف تسجيلك في مقرر" : "إعادة تفعيل تسجيلك في مقرر",
+        status === "suspended"
+          ? `تم توقيف تسجيلك في مقرر ${course.title} (${course.code}) بناءً على تعليمات الأستاذ المسؤول. باقي مقرراتك تعمل بشكل طبيعي.`
+          : `تمت إعادة تفعيل تسجيلك في مقرر ${course.title} (${course.code}). يمكنك متابعة العمل فيه.`,
+        `/student/courses/${course.id}`
+      );
+      if (notice.error) console.error("تعذر إرسال إشعار تغيير الحالة:", notice.error.message);
+
+      await db.from("archived_records").insert({
+        table_name: "enrollment_status",
+        record_id: studentId,
+        label: `${status === "suspended" ? "توقيف" : "إعادة تنشيط"} — ${studentName} في ${course.title}`,
+        data: { course_id: course.id, student_id: studentId, status, by: req.user?.id ?? null, by_name: req.user?.name ?? null, at: new Date().toISOString() },
+        archived_by: req.user?.id ?? null,
+      });
+
+      return res.redirect(`${basePath}/courses/${course.id}?statusSaved=1`);
     } catch (error) { next(error); }
   });
 

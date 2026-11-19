@@ -12,7 +12,8 @@ export async function getEnrolledCourses(studentId) {
   const { data, error } = await db
     .from("enrollments")
     .select("course_id, courses(id, title, code, color, level, track, teacher_id, description, archived, attendance_weight, exams_weight, assignments_weight)")
-    .eq("student_id", studentId);
+    .eq("student_id", studentId)
+    .eq("status", "active");
 
   if (error) throw error;
 
@@ -338,6 +339,7 @@ export async function isEnrolled(studentId, courseId) {
     .select("course_id")
     .eq("student_id", studentId)
     .eq("course_id", courseId)
+    .eq("status", "active")
     .maybeSingle();
   if (error) throw error;
   return Boolean(data);

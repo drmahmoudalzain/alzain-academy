@@ -20,7 +20,7 @@ export function createNotificationsRouter() {
       if (error) throw error;
       return (data ?? []).map((course) => course.id);
     }
-    const { data, error } = await db.from("enrollments").select("course_id").eq("student_id", user.id);
+    const { data, error } = await db.from("enrollments").select("course_id").eq("student_id", user.id).eq("status", "active");
     if (error) throw error;
     return (data ?? []).map((row) => row.course_id);
   }

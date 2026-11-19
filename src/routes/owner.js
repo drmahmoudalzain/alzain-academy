@@ -1,4 +1,5 @@
 import express from "express";
+import multer from "multer";
 import { db } from "../lib/supabase.js";
 import { renderPage } from "../lib/render.js";
 import { requirePortal } from "../middleware/auth.js";
@@ -10,6 +11,7 @@ import { parseTrackKey, TRACK_PROFILES, TRACK_KEYS } from "../lib/tracks.js";
 import { createStudentsRouter } from "../lib/students.js";
 import { isFounder } from "../lib/portals.js";
 import { provisionUser, generateTempPassword } from "../lib/platformCode.js";
+import { extractNamesFromFile } from "../lib/excelNames.js";
 
 const router = express.Router();
 
@@ -310,6 +312,101 @@ router.post("/users/import", requirePortal("owner"), async (req, res, next) => {
       failures,
       input: raw,
     });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ================= تسجيل دفعة من ملف إكسل (أسماء فقط) =================
+const rosterUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 2 * 1024 * 1024, files: 1 },
+  fileFilter: (_req, file, cb) => {
+    if (/\.(xlsx|xlsm|csv)$/i.test(file.originalname ?? "")) return cb(null, true);
+    cb(new Error("صيغة الملف غير مدعومة — استخدم xlsx أو xlsm أو csv."));
+  },
+});
+
+function renderImportPage(res, { status = 200, error = null, results = null, failures = [], input = "" } = {}) {
+  return ownerPage(res.status(status), "owner/users-import", {
+    title: results ? "نتيجة الاستيراد" : "استيراد دفعات",
+    pageTitle: "استيراد دفعات",
+    error,
+    results,
+    failures,
+    input,
+  });
+}
+
+const uploadRoster = (req, res, next) =>
+  rosterUpload.single("roster")(req, res, (error) => {
+    if (error) return renderImportPage(res, { status: 422, error: error.message });
+    next();
+  });
+
+router.post("/users/import-excel", requirePortal("owner"), uploadRoster, async (req, res, next) => {
+  const trackRaw = String(req.body.track ?? "").toLowerCase();
+  const level = Math.min(4, Math.max(1, Number(req.body.level ?? 1)));
+  const fail = (message) => renderImportPage(res, { status: 422, error: message });
+
+  try {
+    if (!TRACK_KEYS.includes(trackRaw)) return fail("اختر مساراً صحيحاً للدفعة.");
+
+    const names = await extractNamesFromFile(req.file);
+    if (!names.length) return fail("لم يتم العثور على أسماء في العمود الأول من الملف.");
+    if (names.length > 300) return fail("الحد الأقصى 300 اسم في الدفعة الواحدة.");
+
+    const results = [];
+    const failures = [];
+
+    for (const [index, name] of names.entries()) {
+      if (name.length < 3) {
+        failures.push({ line: index + 1, text: name, reason: "الاسم قصير جداً" });
+        continue;
+      }
+      try {
+        const { user, password, platformId } = await provisionUser({
+          role: "student",
+          name,
+          track: trackRaw,
+          level,
+          universityId: null,
+          email: null,
+          position: null,
+        });
+        results.push({
+          name: user.name,
+          platformId,
+          password,
+          track: TRACK_PROFILES[trackRaw].label,
+          trackKey: trackRaw,
+        });
+      } catch (error) {
+        failures.push({ line: index + 1, text: name, reason: String(error?.message ?? error).slice(0, 120) });
+      }
+    }
+
+    if (results.length) {
+      await db.from("archived_records").insert({
+        table_name: "bulk_import",
+        record_id: null,
+        label: `تسجيل دفعة إكسل — ${results.length} حساباً (${TRACK_PROFILES[trackRaw].label} · م${level})`,
+        data: {
+          source: "excel",
+          track: trackRaw,
+          level,
+          created: results.length,
+          failed: failures.length,
+          file_name: req.file?.originalname ?? null,
+          by: req.user?.id ?? null,
+          by_name: req.user?.name ?? null,
+          at: new Date().toISOString(),
+        },
+        archived_by: req.user?.id ?? null,
+      });
+    }
+
+    return renderImportPage(res, { results, failures });
   } catch (error) {
     next(error);
   }
