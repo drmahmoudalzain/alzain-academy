@@ -26,6 +26,9 @@ const founder = {
   is_staff: true, must_change_password: false, password: "HLDCCYJJDZT3",
 };
 
+// توزيع الأقسام المطابق للواقع: طلاب لوحدهم، طالبات لوحدهن، و(2024003) في المعادلة
+const trackOf = (uid, gender) => (gender === "F" ? "bachelor_f" : uid === "2024003" ? "equiv" : "bachelor_m");
+
 const students = [
   ["2024001", "أحمد سالم باوزير",     "M", "Student1234"],
   ["2024002", "فاطمة علي الحسني",     "F", "MGKGQ3QGUW"],
@@ -66,7 +69,7 @@ const usersPayload = [
     position: null, is_staff: false,
     password_hash: hashPassword(pwd),
     must_change_password: uid === "2024002",
-    is_active: true, track: "bachelor_m", level: 1,
+    is_active: true, track: trackOf(uid, gender), level: 1,
   })),
 ];
 
