@@ -62,6 +62,30 @@ export const TRACK_PROFILES = {
 export const TRACK_KEYS = Object.keys(TRACK_PROFILES);
 export const DEFAULT_TRACK = "bachelor_m";
 
+/**
+ * حلّ ما يكتبه المستخدم في عمود «المسار/النوع» إلى مفتاح مسار معروف.
+ * يقبل المفاتيح والرموز والأسماء العربية والإنجليزية (طلاب/طالبات، ذكر/أنثى...).
+ * يُرجع null عند عدم التعرف، ليُبلَّغ عن السطر بدل إسناد رمز خاطئ.
+ */
+const TRACK_ALIASES = new Map();
+function addAliases(track, aliases) {
+  for (const value of aliases) {
+    const key = String(value).normalize("NFKC").toLowerCase().replace(/[\s_\-ـ]+/g, "");
+    if (key) TRACK_ALIASES.set(key, track);
+  }
+}
+addAliases("bachelor_m", ["bachelor_m", "bachelorm", "bm", "BM", "مسار الطلاب", "بكالوريوس طلاب", "بكالوريوس — طلاب", "الطلاب", "طالب", "طلاب", "ذكر", "male", "m"]);
+addAliases("bachelor_f", ["bachelor_f", "bachelorf", "bf", "BF", "مسار الطالبات", "بكالوريوس طالبات", "بكالوريوس — طالبات", "الطالبات", "طالبة", "طالبات", "أنثى", "female", "f"]);
+addAliases("equiv", ["equiv", "eq", "EQ", "قسم المعادلة", "المعادلة", "معادلة"]);
+addAliases("external", ["external", "ex", "EX", "قسم طلاب من الخارج", "طلاب من الخارج", "من الخارج", "الخارج"]);
+addAliases("grad", ["grad", "pg", "PG", "قسم الدراسات العليا", "الدراسات العليا", "دراسات عليا", "ماجستير", "دكتوراه"]);
+
+export function resolveTrackAlias(value) {
+  if (value == null) return null;
+  const key = String(value).normalize("NFKC").toLowerCase().replace(/[\s_\-ـ]+/g, "");
+  return TRACK_ALIASES.get(key) ?? null;
+}
+
 export function getProfile(track) {
   return TRACK_PROFILES[track] ?? TRACK_PROFILES[DEFAULT_TRACK];
 }

@@ -7,11 +7,11 @@ import { createManagementRouter } from "../lib/management.js";
 import { setSetting } from "../lib/settings.js";
 import { hashPassword } from "../lib/password.js";
 import { getCourseGrade } from "../lib/student-data.js";
-import { parseTrackKey, TRACK_PROFILES, TRACK_KEYS } from "../lib/tracks.js";
+import { parseTrackKey, TRACK_PROFILES, TRACK_KEYS, resolveTrackAlias } from "../lib/tracks.js";
 import { createStudentsRouter } from "../lib/students.js";
 import { isFounder } from "../lib/portals.js";
 import { provisionUser, generateTempPassword } from "../lib/platformCode.js";
-import { extractNamesFromFile } from "../lib/excelNames.js";
+import { extractRosterFromFile } from "../lib/excelNames.js";
 
 const router = express.Router();
 
@@ -286,7 +286,7 @@ router.post("/users/import", requirePortal("owner"), async (req, res, next) => {
           email: null,
           position: null,
         });
-        results.push({ name, platformId, password, track: TRACK_PROFILES[trackRaw].label, trackKey: trackRaw });
+        results.push({ name, platformId, password, track: TRACK_PROFILES[trackRaw].label, trackKey: trackRaw, level: 1 });
       } catch (error) {
         const message = String(error?.message ?? error);
         failures.push({ line: index + 1, text: line, reason: message.includes("university_id") ? "الرقم الجامعي مكرر" : "تعذر الإنشاء" });
@@ -352,24 +352,48 @@ router.post("/users/import-excel", requirePortal("owner"), uploadRoster, async (
   try {
     if (!TRACK_KEYS.includes(trackRaw)) return fail("اختر مساراً صحيحاً للدفعة.");
 
-    const names = await extractNamesFromFile(req.file);
-    if (!names.length) return fail("لم يتم العثور على أسماء في العمود الأول من الملف.");
-    if (names.length > 300) return fail("الحد الأقصى 300 اسم في الدفعة الواحدة.");
+    const rows = await extractRosterFromFile(req.file);
+    if (!rows.length) return fail("لم يتم العثور على أسماء في العمود الأول من الملف.");
+    if (rows.length > 300) return fail("الحد الأقصى 300 اسم في الدفعة الواحدة.");
 
     const results = [];
     const failures = [];
+    const tracksUsed = {};
 
-    for (const [index, name] of names.entries()) {
+    for (const [index, row] of rows.entries()) {
+      const line = index + 1;
+      const { name, trackRaw: cellTrack, levelRaw } = row;
       if (name.length < 3) {
-        failures.push({ line: index + 1, text: name, reason: "الاسم قصير جداً" });
+        failures.push({ line, text: name, reason: "الاسم قصير جداً" });
         continue;
       }
+
+      // عمود المسار اختياري: إن وُجد حُلّ إلى مفتاح مسار، وإلا استُخدم مسار الدفعة الافتراضي.
+      let track = trackRaw;
+      if (cellTrack) {
+        track = resolveTrackAlias(cellTrack);
+        if (!track) {
+          failures.push({ line, text: name, reason: `مسار غير معروف «${cellTrack}»` });
+          continue;
+        }
+      }
+
+      let studentLevel = level;
+      if (levelRaw) {
+        const parsed = Number(levelRaw);
+        if (!Number.isInteger(parsed) || parsed < 1 || parsed > 4) {
+          failures.push({ line, text: name, reason: `مستوى غير صالح «${levelRaw}» (1–4)` });
+          continue;
+        }
+        studentLevel = parsed;
+      }
+
       try {
         const { user, password, platformId } = await provisionUser({
           role: "student",
           name,
-          track: trackRaw,
-          level,
+          track,
+          level: studentLevel,
           universityId: null,
           email: null,
           position: null,
@@ -378,23 +402,30 @@ router.post("/users/import-excel", requirePortal("owner"), uploadRoster, async (
           name: user.name,
           platformId,
           password,
-          track: TRACK_PROFILES[trackRaw].label,
-          trackKey: trackRaw,
+          track: TRACK_PROFILES[track].label,
+          trackKey: track,
+          level: studentLevel,
         });
+        tracksUsed[track] = (tracksUsed[track] ?? 0) + 1;
       } catch (error) {
-        failures.push({ line: index + 1, text: name, reason: String(error?.message ?? error).slice(0, 120) });
+        failures.push({ line, text: name, reason: String(error?.message ?? error).slice(0, 120) });
       }
     }
 
     if (results.length) {
+      const summary = Object.entries(tracksUsed)
+        .map(([key, count]) => `${TRACK_PROFILES[key].label} (${key}): ${count}`)
+        .join("، ");
       await db.from("archived_records").insert({
         table_name: "bulk_import",
         record_id: null,
-        label: `تسجيل دفعة إكسل — ${results.length} حساباً (${TRACK_PROFILES[trackRaw].label} · م${level})`,
+        label: `تسجيل دفعة إكسل — ${results.length} حساباً (${summary})`,
         data: {
           source: "excel",
-          track: trackRaw,
-          level,
+          default_track: trackRaw,
+          default_level: level,
+          tracks: tracksUsed,
+          mixed_tracks: Object.keys(tracksUsed).length > 1,
           created: results.length,
           failed: failures.length,
           file_name: req.file?.originalname ?? null,
