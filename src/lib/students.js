@@ -18,9 +18,9 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
   const page = (res, view, locals) =>
     renderPage(res, view, { layout: "portal", portal: res.locals.portal, basePath, ...locals });
 
-  // الطلاب المسموح أن يراهم المستخدم الحالي
+  // الطلاب المسموح أن يراهم المستخدم الحالي (المالك يرى الجميع، الأستاذ يرى طلاب مقرراته)
   async function visibleStudentIds(user) {
-    if (isOwnerMode || user.is_staff) {
+    if (isOwnerMode) {
       const { data, error } = await db.from("users").select("id").eq("role", "student");
       if (error) throw error;
       return (data ?? []).map((row) => row.id);
@@ -123,7 +123,7 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
         student,
         courses: grades,
         points,
-        isStaffOwner: isOwnerMode || Boolean(req.user.is_staff),
+        isStaffOwner: isOwnerMode,
         canResetPassword: isOwnerMode,
       });
     } catch (error) {

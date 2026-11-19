@@ -23,6 +23,39 @@ import { requireAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
+// حد معدل المحاولات: 10 محاولات خاطئة لكل 10 دقائق لكل (IP + معرّف) — حماية من التخمين.
+const LOGIN_WINDOW_MS = 10 * 60 * 1000;
+const LOGIN_MAX_FAILS = 10;
+const loginFails = new Map();
+
+function throttleKey(req, identifier) {
+  return `${req.ip ?? "unknown"}|${String(identifier ?? "").trim().toLowerCase()}`;
+}
+
+function isThrottled(req, identifier) {
+  const key = throttleKey(req, identifier);
+  const now = Date.now();
+  const fails = (loginFails.get(key) ?? []).filter((t) => now - t < LOGIN_WINDOW_MS);
+  loginFails.set(key, fails);
+  if (loginFails.size > 5000) {
+    for (const [k, list] of loginFails) {
+      if (!list.some((t) => now - t < LOGIN_WINDOW_MS)) loginFails.delete(k);
+    }
+  }
+  return fails.length >= LOGIN_MAX_FAILS;
+}
+
+function recordLoginFail(req, identifier) {
+  const key = throttleKey(req, identifier);
+  const fails = (loginFails.get(key) ?? []).filter((t) => Date.now() - t < LOGIN_WINDOW_MS);
+  fails.push(Date.now());
+  loginFails.set(key, fails);
+}
+
+function clearLoginFails(req, identifier) {
+  loginFails.delete(throttleKey(req, identifier));
+}
+
 function safeNext(value) {
   const next = String(value ?? "");
   return next.startsWith("/") && !next.startsWith("//") ? next : null;
@@ -140,8 +173,13 @@ router.post("/login", async (req, res, next) => {
       return fail(422, "يرجى إدخال البريد الجامعي/الرقم الجامعي وكلمة المرور.");
     }
 
+    if (isThrottled(req, identifier)) {
+      return fail(429, "محاولات كثيرة خاطئة. يرجى المحاولة مرة أخرى بعد بضع دقائق.");
+    }
+
     const user = await findUserByIdentifier(identifier);
     if (!user || !verifyPassword(password, user.password_hash)) {
+      recordLoginFail(req, identifier);
       return fail(401, "بيانات الدخول غير صحيحة. تحقق من المعرّف وكلمة المرور.");
     }
 
@@ -167,6 +205,7 @@ router.post("/login", async (req, res, next) => {
     }
 
     // إنشاء الجلسة
+    clearLoginFails(req, identifier);
     const token = newSessionToken();
     const tokenHash = hashToken(token);
     const expiresAt = new Date(Date.now() + env.SESSION_DAYS * 24 * 60 * 60 * 1000);

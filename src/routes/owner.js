@@ -8,6 +8,7 @@ import { setSetting } from "../lib/settings.js";
 import { hashPassword } from "../lib/password.js";
 import { getCourseGrade } from "../lib/student-data.js";
 import { createStudentsRouter } from "../lib/students.js";
+import { isFounder } from "../lib/portals.js";
 
 const router = express.Router();
 
@@ -181,7 +182,7 @@ router.post("/users/:id/toggle", requirePortal("owner"), async (req, res, next) 
     const { data, error } = await db.from("users").select("id, is_active").eq("id", id).maybeSingle();
     if (error) throw error;
     if (!data) return res.status(404).render("error", { title: "غير موجود", code: 404, message: "المستخدم غير موجود." });
-    if (id === 1) return res.redirect("/owner/users");
+    if (await isFounder({ id })) return res.redirect("/owner/users");
 
     const updated = await db.from("users").update({ is_active: !data.is_active }).eq("id", id);
     if (updated.error) throw updated.error;
@@ -375,6 +376,12 @@ router.get("/archive", requirePortal("owner"), async (req, res, next) => {
 });
 
 // ---------- التقرير الشامل ----------
+const csvCell = (value) => {
+  let text = String(value ?? "");
+  if (/^[=+\-@]/.test(text.trimStart())) text = `'${text}`;
+  return `"${text.replace(/"/g, '""')}"`;
+};
+
 async function buildStudentReport() {
   const { data, error } = await db
     .from("users")
@@ -429,7 +436,9 @@ router.get("/report/csv", requirePortal("owner"), async (req, res, next) => {
     const students = await buildStudentReport();
     const header = "الاسم,الرقم الجامعي,المقررات,متوسط الدرجات,نسبة الحضور,النقاط\n";
     const rows = students.map((student) =>
-      [student.name, student.code, student.courses, student.average, student.attendanceRate, student.points].join(",")
+      [student.name, student.code, student.courses, student.average, student.attendanceRate, student.points]
+        .map(csvCell)
+        .join(",")
     );
     res.setHeader("Content-Type", "text/csv; charset=utf-8");
     res.setHeader("Content-Disposition", `attachment; filename="alzain-report.csv"`);

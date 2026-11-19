@@ -42,11 +42,12 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       ...locals,
     });
 
-  const canManageFlag = (user) => isOwnerMode || Boolean(user?.is_staff);
+  const canManageFlag = () => isOwnerMode;
 
   const ownCourses = async (user) => {
-    const scopedAll = isOwnerMode || Boolean(user?.is_staff);
-    const courses = await getManagedCourses(scopedAll ? { allTeachers: true } : { teacherId: user.id });
+    const courses = await getManagedCourses(
+      isOwnerMode ? { allTeachers: true } : { teacherId: user.id }
+    );
     return courses;
   };
 

@@ -49,7 +49,7 @@ export async function getManagedCourses({ teacherId = null, allTeachers = false 
   }));
 }
 
-/** التحقق من صلاحية إدارة المقرر: للأستاذ مقرراته، وللمالك كل المقررات. */
+/** التحقق من صلاحية إدارة المقرر: للأستاذ مقرراته فقط، وللمالك كل المقررات. */
 export async function canManageCourse(user, isOwner, courseId) {
   const { data, error } = await db
     .from("courses")
@@ -58,7 +58,7 @@ export async function canManageCourse(user, isOwner, courseId) {
     .maybeSingle();
   if (error) throw error;
   if (!data) return null;
-  if (!isOwner && !user?.is_staff && data.teacher_id !== user.id) return null;
+  if (!isOwner && data.teacher_id !== user?.id) return null;
   return data;
 }
 
