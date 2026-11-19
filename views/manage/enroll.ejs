@@ -46,6 +46,46 @@
   </div>
 </div>
 
+<% if (isOwner) { %>
+  <details class="table-card" style="margin-bottom:18px;">
+    <summary class="table-card-head" style="cursor:pointer;list-style:none;">
+      <h3>طالب فاته الكشف؟ أنشئ حسابه وسجّله هنا مباشرة</h3>
+      <span class="card-link" style="border:none;background:none;">فتح النموذج</span>
+    </summary>
+    <form method="post" action="<%= basePath %>/courses/<%= course.id %>/enroll/quick-create" class="side-card-body" style="padding:16px 20px;border-top:1px solid var(--border);">
+      <p class="form-hint" style="margin-top:0;">يُنشأ الحساب برمز تالٍ حسب المسار وكلمة مرور مؤقتة تظهر مرة واحدة، ويُسجَّل فوراً في <strong><%= course.title %></strong> ويصله إشعار داخلي.</p>
+      <div class="form-grid">
+        <label>الاسم الرباعي *
+          <input type="text" name="name" required maxlength="120" placeholder="مثال: أحمد سالم باوزير">
+        </label>
+        <label>المسار *
+          <select name="track" required>
+            <% TRACK_KEYS.forEach(function (key) { %>
+              <option value="<%= key %>" <%= key === course.track ? 'selected' : '' %>><%= getProfile(key).label %> — <%= key %></option>
+            <% }); %>
+          </select>
+        </label>
+        <label>المستوى
+          <select name="level">
+            <% for (var j = 1; j <= 4; j += 1) { %>
+              <option value="<%= j %>" <%= Number(course.level) === j ? 'selected' : '' %>>المستوى <%= j %></option>
+            <% } %>
+          </select>
+        </label>
+        <label>الرقم الجامعي <span class="muted">(اختياري)</span>
+          <input type="text" name="university_id" maxlength="20" dir="ltr" style="text-align:left;" placeholder="2024009">
+        </label>
+        <label>البريد الإلكتروني <span class="muted">(اختياري)</span>
+          <input type="email" name="email" maxlength="160" dir="ltr" style="text-align:left;" placeholder="student@example.com">
+        </label>
+      </div>
+      <div style="margin-top:14px;">
+        <button type="submit" class="btn btn-primary">إنشاء الطالب وتسجيله في المقرر</button>
+      </div>
+    </form>
+  </details>
+<% } %>
+
 <form method="post" action="<%= basePath %>/courses/<%= course.id %>/enroll" id="enrollForm">
   <div class="table-card" style="margin-bottom:18px;">
     <div class="table-card-head"><h3>المقررات المحددة للتسجيل</h3></div>

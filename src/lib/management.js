@@ -10,7 +10,8 @@ import {
 } from "./manage-data.js";
 import { getCourseGrade } from "./student-data.js";
 import { aiStatus } from "./ai.js";
-import { parseTrackKey } from "./tracks.js";
+import { parseTrackKey, TRACK_KEYS } from "./tracks.js";
+import { provisionUser } from "./platformCode.js";
 
 /**
  * مولّد مسارات الإدارة المشترك — يعمل في بوابة الأستاذ (مقرراته فقط)
@@ -322,6 +323,101 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       }
 
       return res.redirect(`${basePath}/courses/${course.id}?enrolled=${pairs.length}&skipped=${validStudents.length * courseIds.length - pairs.length}`);
+    } catch (error) { next(error); }
+  });
+
+  /**
+   * إنشاء حساب طالب فاته الكشف وتسجيله في المقرر من نفس الشاشة.
+   * مقصور على المالك: الأستاذ يزيد تسجيل طلاب موجودين فقط، ولا ينشئ حسابات.
+   */
+  router.post("/courses/:id/enroll/quick-create", guard, async (req, res, next) => {
+    try {
+      if (!isOwnerMode) {
+        return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "إنشاء الحسابات من صلاحية المالك وحده." });
+      }
+      const course = await courseOr403(req, res, req.params.id);
+      if (!course) return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا تملك صلاحية إدارة هذا المقرر." });
+
+      const name = String(req.body.name ?? "").trim();
+      const track = String(req.body.track ?? "").trim();
+      const level = Math.min(4, Math.max(1, Number(req.body.level ?? 1)));
+      const universityId = String(req.body.university_id ?? "").trim() || null;
+      const email = String(req.body.email ?? "").trim().toLowerCase() || null;
+      const allCourses = await ownCourses(req.user);
+
+      const fail = (message) => managePage(res.status(422), "manage/enroll", {
+        title: `تسجيل الطلاب — ${course.title}`,
+        pageTitle: "تسجيل الطلاب في المقرر",
+        course,
+        courses: allCourses,
+        students: [],
+        enrolledIds: new Set(),
+        trackFilter: "all", levelFilter: "all", q: "",
+        error: message,
+      });
+
+      if (name.length < 3) return fail("الاسم قصير جداً.");
+      if (!TRACK_KEYS.includes(track)) return fail("اختر مساراً صحيحاً.");
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return fail("صيغة البريد الإلكتروني غير صحيحة.");
+
+      for (const [field, value, message] of [
+        ["university_id", universityId, "الرقم الجامعي مستخدم في حساب آخر."],
+        ["email", email, "البريد الإلكتروني مستخدم في حساب آخر."],
+      ]) {
+        if (!value) continue;
+        const clash = await db.from("users").select("id").eq(field, value).maybeSingle();
+        if (clash.error) throw clash.error;
+        if (clash.data) return fail(message);
+      }
+
+      let provisioned;
+      try {
+        provisioned = await provisionUser({ role: "student", name, track, level, universityId, email, position: null });
+      } catch (error) {
+        const message = String(error?.message ?? error);
+        if (message.includes("university_id")) return fail("الرقم الجامعي مستخدم في حساب آخر.");
+        if (message.includes("email")) return fail("البريد الإلكتروني مستخدم في حساب آخر.");
+        throw error;
+      }
+
+      const { user, password, platformId } = provisioned;
+
+      const enrollment = await db.from("enrollments").upsert(
+        { course_id: course.id, student_id: user.id, status: "active" },
+        { onConflict: "course_id,student_id", ignoreDuplicates: true }
+      );
+      if (enrollment.error) throw enrollment.error;
+
+      const notice = await notify(
+        req.user?.id,
+        user.id,
+        "تم تسجيلك في مقرر جديد",
+        `تم تسجيلك في: ${course.title} (${course.code}). يمكنك الوصول إليه من بوابة الطلاب.`,
+        `/student/courses/${course.id}`
+      );
+      if (notice.error) console.error("تعذر إرسال إشعار التسجيل:", notice.error.message);
+
+      await db.from("archived_records").insert({
+        table_name: "quick_enroll",
+        record_id: user.id,
+        label: `إنشاء طالب وتسجيله — ${name} في ${course.title}`,
+        data: {
+          platform_id: platformId, course_id: course.id, course_code: course.code,
+          student_id: user.id, by: req.user?.id ?? null, by_name: req.user?.name ?? null,
+          at: new Date().toISOString(),
+        },
+        archived_by: req.user?.id ?? null,
+      });
+
+      return managePage(res, "owner/users-created", {
+        title: "تم إنشاء الطالب وتسجيله",
+        pageTitle: "تم إنشاء الطالب وتسجيله",
+        newUser: user,
+        tempPassword: password,
+        backUrl: `${basePath}/courses/${course.id}`,
+        backLabel: "العودة إلى المقرر",
+        enrolledNow: course.title,
+      });
     } catch (error) { next(error); }
   });
 

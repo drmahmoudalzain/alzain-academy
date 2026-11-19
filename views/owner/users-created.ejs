@@ -35,6 +35,13 @@
       <div class="credential-foot">الدخول عبر: <%= (typeof baseUrl !== 'undefined' && baseUrl) ? baseUrl : 'http://localhost:3001' %> — البوابة الخاصة بدورك.</div>
     </div>
 
+    <% if (typeof enrolledNow !== 'undefined' && enrolledNow) { %>
+      <div class="alert-inline success" role="status" style="margin-top:16px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+        <div>تم تسجيل الطالب فوراً في مقرر <strong><%= enrolledNow %></strong>، ويصله إشعار داخلي بذلك.</div>
+      </div>
+    <% } %>
+
     <div class="alert-inline warning" role="note" style="margin-top:16px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
       <div>عند أول دخول يُطلب من المستخدم <strong>تغيير كلمة المرور</strong> و<strong>إدخال بريده الإلكتروني</strong> قبل استخدام المنصة.</div>
@@ -43,7 +50,7 @@
     <div class="credential-actions" style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
       <button type="button" class="btn btn-primary" id="copyCardBtn">نسخ بطاقة الدخول</button>
       <button type="button" class="btn btn-secondary" onclick="window.print()">طباعة</button>
-      <a class="btn btn-secondary" href="/owner/users">العودة إلى المستخدمين</a>
+      <a class="btn btn-secondary" href="<%= (typeof backUrl !== 'undefined' && backUrl) ? backUrl : '/owner/users' %>"><%= (typeof backLabel !== 'undefined' && backLabel) ? backLabel : 'العودة إلى المستخدمين' %></a>
     </div>
   </div>
 </div>
