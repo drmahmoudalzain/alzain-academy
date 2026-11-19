@@ -1,36 +1,97 @@
 <section class="page-header">
   <div class="page-header-info">
-    <h2><%= resetExisting ? 'إعادة تعيين كلمة المرور' : 'تم إنشاء الحساب' %></h2>
-    <p>كلمة المرور المؤقتة معروضة مرة واحدة فقط في هذه الصفحة — احتفظ بها أو سلّمها للمستخدم بأمان.</p>
+    <h2><%= (typeof resetExisting !== 'undefined' && resetExisting) ? 'تم توليد كلمة مرور جديدة' : 'تم إنشاء الحساب' %></h2>
+    <p>بطاقة الدخول — الصقها في رسالة (واتساب/تليغرام) أو اطبعها وسلّمها للمستخدم. كلمة المرور لن تظهر مرة أخرى.</p>
   </div>
 </section>
 
-<div class="table-card" style="max-width:620px;">
-  <div class="table-card-head"><h3>بيانات الدخول</h3></div>
+<div class="table-card" style="max-width:640px;">
+  <div class="table-card-head"><h3>بطاقة الدخول</h3></div>
   <div class="side-card-body" style="padding:24px;">
-    <div class="table-scroll">
-      <table class="data-table">
-        <tbody>
-          <% if (newUser.university_id) { %><tr><th scope="row">الرقم الجامعي</th><td dir="ltr" style="text-align:left;"><code><%= newUser.university_id %></code></td></tr><% } %>
-          <% if (newUser.email) { %><tr><th scope="row">البريد</th><td dir="ltr" style="text-align:left;"><code><%= newUser.email %></code></td></tr><% } %>
-          <tr><th scope="row">الاسم</th><td><strong><%= newUser.name %></strong></td></tr>
-        </tbody>
-      </table>
+
+    <div class="credential-card" id="credentialCard">
+      <div class="credential-brand">أكاديمية آل الزين للعلوم القانونية والعدلية</div>
+
+      <div class="credential-row">
+        <span class="credential-label">الاسم</span>
+        <span class="credential-value"><%= newUser.name %></span>
+      </div>
+      <div class="credential-row">
+        <span class="credential-label">الرمز (للدخول)</span>
+        <code class="credential-value code" dir="ltr"><%= newUser.platform_id ?? '—' %></code>
+      </div>
+      <% if (newUser.university_id) { %>
+      <div class="credential-row">
+        <span class="credential-label">الرقم الجامعي</span>
+        <code class="credential-value code" dir="ltr"><%= newUser.university_id %></code>
+      </div>
+      <% } %>
+
+      <div class="credential-password">
+        <div class="credential-label">كلمة المرور المؤقتة</div>
+        <code dir="ltr" style="display:block;font-size:1.35rem;letter-spacing:0.1em;user-select:all;text-align:left;background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:10px;padding:12px 16px;"><%= tempPassword %></code>
+      </div>
+
+      <div class="credential-foot">الدخول عبر: <%= (typeof baseUrl !== 'undefined' && baseUrl) ? baseUrl : 'http://localhost:3001' %> — البوابة الخاصة بدورك.</div>
     </div>
 
-    <div style="margin:18px 0;">
-      <div class="form-hint mb-0" style="margin-bottom:6px;">كلمة المرور المؤقتة</div>
-      <code dir="ltr" style="display:block;font-size:1.3rem;letter-spacing:0.08em;background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:10px;padding:12px 16px;user-select:all;text-align:left;"><%= tempPassword %></code>
-    </div>
-
-    <div class="alert-inline warning" role="note">
+    <div class="alert-inline warning" role="note" style="margin-top:16px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-      <div>سيُطلب من المستخدم تغيير كلمة المرور فوراً عند أول دخول. تُحفظ النسخة الأصلية في <a href="/owner/vault">خزنة كلمات المرور</a>.</div>
+      <div>عند أول دخول يُطلب من المستخدم <strong>تغيير كلمة المرور</strong> و<strong>إدخال بريده الإلكتروني</strong> قبل استخدام المنصة.</div>
     </div>
 
-    <div style="display:flex;gap:10px;margin-top:16px;">
-      <a class="btn btn-primary" href="/owner/users">العودة إلى المستخدمين</a>
-      <a class="btn btn-secondary" href="/owner/vault">خزنة كلمات المرور</a>
+    <div class="credential-actions" style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;">
+      <button type="button" class="btn btn-primary" id="copyCardBtn">نسخ بطاقة الدخول</button>
+      <button type="button" class="btn btn-secondary" onclick="window.print()">طباعة</button>
+      <a class="btn btn-secondary" href="/owner/users">العودة إلى المستخدمين</a>
     </div>
   </div>
 </div>
+
+<style>
+.credential-card { border:1px solid var(--border-strong); border-radius: var(--radius-md, 16px); padding: 18px 20px; background: linear-gradient(165deg, var(--bg-subtle), transparent); }
+.credential-brand { font-size:0.72rem; letter-spacing:1px; color: var(--gold-dark); font-weight:800; border-bottom:1px solid var(--border); padding-bottom:10px; margin-bottom:12px; }
+.credential-row { display:flex; justify-content: space-between; gap:14px; align-items: baseline; padding:6px 0; }
+.credential-label { font-size:0.78rem; color: var(--text-muted); }
+.credential-value { font-weight:700; }
+.credential-value.code { font-size:1.05rem; letter-spacing:0.08em; }
+.credential-password { margin-top:12px; }
+.credential-foot { font-size:0.7rem; color: var(--text-muted); margin-top:12px; border-top:1px solid var(--border); padding-top:10px; }
+@media print {
+  body * { visibility: hidden; }
+  .credential-card, .credential-card * { visibility: visible; }
+  .credential-card { position: fixed; inset: 8%; border:2px solid #000; padding: 24px; background:#fff; }
+  .credential-actions, .alert-inline, .page-header { display: none !important; }
+}
+</style>
+
+<script>
+  (function () {
+    var btn = document.getElementById("copyCardBtn");
+    if (!btn) return;
+    var text = [
+      "أكاديمية آل الزين للعلوم القانونية والعدلية — بطاقة الدخول",
+      "الاسم: <%= newUser.name %>",
+      "الرمز: <%= newUser.platform_id ?? '—' %>",
+      "<% if (newUser.university_id) { %>الرقم الجامعي: <%= newUser.university_id %>\n<% } %>كلمة المرور المؤقتة: <%= tempPassword %>",
+      "ملاحظة: عند أول دخول غيّر كلمة المرور وأدخل بريدك الإلكتروني.",
+    ].join("\n");
+    btn.addEventListener("click", function () {
+      var done = function () {
+        btn.textContent = "نُسخت البطاقة";
+        window.setTimeout(function () { btn.textContent = "نسخ بطاقة الدخول"; }, 1800);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(done);
+      } else {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); } catch (err) { /* تجاهل */ }
+        document.body.removeChild(ta);
+        done();
+      }
+    });
+  })();
+</script>

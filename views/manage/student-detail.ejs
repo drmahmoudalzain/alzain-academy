@@ -1,7 +1,7 @@
 <section class="page-header">
   <div class="page-header-info">
     <h2><%= student.name %></h2>
-    <p><code><%= student.university_id ?? '—' %></code> · <%= getProfile(student.track).label %><%= student.level ? ' · المستوى ' + student.level : '' %></p>
+    <p><code><%= student.platform_id ?? student.university_id ?? '—' %></code> · <%= getProfile(student.track).label %><%= student.level ? ' · المستوى ' + student.level : '' %></p>
   </div>
   <div class="page-header-actions">
     <a class="btn btn-secondary" href="<%= basePath %>/<%= student.id %>/edit">تعديل البيانات</a>
@@ -19,6 +19,7 @@
     <div class="table-scroll">
       <table class="data-table">
         <tbody>
+          <tr><th scope="row">الرمز</th><td dir="ltr" style="text-align:left;"><code><%= student.platform_id ?? '—' %></code></td></tr>
           <tr><th scope="row">الرقم الجامعي</th><td dir="ltr" style="text-align:left;"><code><%= student.university_id ?? '—' %></code></td></tr>
           <tr><th scope="row">البريد</th><td dir="ltr" style="text-align:left;"><code><%= student.email ?? '—' %></code></td></tr>
           <tr><th scope="row">رقم الجوال</th><td dir="ltr" style="text-align:left;"><code><%= student.phone ?? '—' %></code></td></tr>

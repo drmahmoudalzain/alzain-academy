@@ -259,7 +259,7 @@ router.get("/lectures/:id", requirePortal("student"), async (req, res, next) => 
     if (discussionIds.length) {
       const repliesRes = await db
         .from("question_answers")
-        .select("id, question_id, student_id, text, created_at, users!question_answers_student_id_fkey(name, university_id)")
+        .select("id, question_id, student_id, text, created_at, users!question_answers_student_id_fkey(name, university_id, platform_id)")
         .in("question_id", discussionIds)
         .not("text", "is", null)
         .order("created_at");

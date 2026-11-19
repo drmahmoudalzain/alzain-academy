@@ -22,7 +22,7 @@
           <tr>
             <td><%= index + 1 %></td>
             <td><strong><%= row.student.name %></strong></td>
-            <td dir="ltr" style="text-align:left;"><code><%= row.student.university_id ?? '—' %></code></td>
+            <td dir="ltr" style="text-align:left;"><code><%= row.student.platform_id ?? student.university_id ?? '—' %></code></td>
             <td><%= g.attendance.earned %> / <%= weights.attendance %></td>
             <td><%= g.exams.earned %> / <%= weights.exams %></td>
             <td><%= g.assignments.earned %> / <%= weights.assignments %></td>

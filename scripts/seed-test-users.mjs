@@ -1,8 +1,9 @@
 import { db } from "../src/lib/supabase.js";
 import { hashPassword } from "../src/lib/password.js";
 import { founderId } from "../src/lib/portals.js";
+import { nextPlatformId, prefixFor } from "../src/lib/platformCode.js";
 
-// بيانات اختبار مؤقتة للتحقق من البوابات — تُحذف قبل الإطلاق الفعلي.
+// إعداد الحسابات التجريبية من الصفر — يولّد الرمز الموحد تلقائياً.
 const TEST_USERS = [
   {
     role: "teacher",
@@ -17,7 +18,7 @@ const TEST_USERS = [
     name: "أ. سامي الحربي",
     email: "teacher@test.local",
     password: "Teacher1234",
-    position: "أستاذ مقررات",
+    position: "أستاذ القانون",
     is_staff: true,
   },
   {
@@ -38,7 +39,7 @@ async function upsertUser(spec) {
 
   const existing = await db
     .from("users")
-    .select("id, email, university_id")
+    .select("id, email, university_id, platform_id")
     .or(
       [
         spec.email ? `email.eq.${spec.email}` : null,
@@ -59,15 +60,22 @@ async function upsertUser(spec) {
   };
 
   if (existing.data) {
-    const updated = await db.from("users").update(payload).eq("id", existing.data.id).select("id").single();
+    const updated = await db.from("users").update(payload).eq("id", existing.data.id).select("id, platform_id").single();
     if (updated.error) throw updated.error;
-    console.log(`↻ محدَّث: ${fields.name} (id=${existing.data.id})`);
+    console.log(`↻ محدث: ${fields.name} (id=${existing.data.id}, ${updated.data.platform_id ?? "—"})`);
     return updated.data.id;
   }
 
-  const inserted = await db.from("users").insert(payload).select("id").single();
+  // حساب جديد: تعيين الرمز الموحد حسب الدور/المسار
+  const anyTeacher = fields.role === "teacher"
+    ? (await db.from("users").select("*", { count: "exact", head: true }).eq("role", "teacher")).count ?? 0
+    : 0;
+  const prefix = prefixFor({ role: fields.role, track: fields.track, founder: fields.role === "teacher" && anyTeacher === 0 });
+  payload.platform_id = await nextPlatformId(prefix);
+
+  const inserted = await db.from("users").insert(payload).select("id, platform_id").single();
   if (inserted.error) throw inserted.error;
-  console.log(`＋ أُنشئ: ${fields.name} (id=${inserted.data.id})`);
+  console.log(`+ أُنشئ: ${fields.name} (id=${inserted.data.id}, ${inserted.data.platform_id})`);
   return inserted.data.id;
 }
 
@@ -76,8 +84,8 @@ for (const spec of TEST_USERS) {
 }
 
 const founder = await founderId({ force: true });
-console.log(`\n👑 المالك (founder) هو المستخدم id=${founder}`);
-console.log("بيانات الدخول للاختبار:");
-console.log("  المالك:  admin@lectures.local / HLDCCYJJDZT3");
-console.log("  أستاذ:   teacher@test.local / Teacher1234");
-console.log("  طالب:    2024001 أو student@test.local / Student1234");
+console.log(`\nالمالك (founder) في القاعدة id=${founder}`);
+console.log("حسابات الدخول:");
+console.log("  المالك:  AD0001 / HLDCCYJJDZT3");
+console.log("  الأستاذ: TE0001 / Teacher1234");
+console.log("  الطالب:  BM0001 / Student1234");

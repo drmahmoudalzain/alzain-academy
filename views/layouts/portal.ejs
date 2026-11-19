@@ -60,7 +60,7 @@
           <div class="user-avatar"><%= (user.name || '؟').trim().charAt(0) %></div>
           <div class="user-info">
             <strong><%= user.name %></strong>
-            <span><%= user.university_id || user.position || portal.short %></span>
+            <span><%= user.platform_id || user.position || portal.short %></span>
           </div>
           <form method="post" action="/logout" class="sidebar-logout-form">
             <button type="submit" class="sidebar-logout" aria-label="تسجيل الخروج" title="تسجيل الخروج">

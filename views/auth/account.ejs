@@ -2,7 +2,7 @@
 <% if (mustChange) { %>
   <div class="alert-inline warning" role="status">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
-    <div>يُنصح بتغيير كلمة المرور المؤقتة الآن ثم متابعة العمل.</div>
+    <div>هذه أول جلسة لك — <strong>التغيير إلزامي</strong>: غيّر كلمة المرور المؤقتة وأدخل بريدك الإلكتروني قبل استخدام أي صفحة أخرى في المنصة.</div>
   </div>
 <% } %>
 <% if (notice) { %>
@@ -25,6 +25,17 @@
   </div>
 </section>
 
+<!-- الرمز الموحد للمنصة -->
+<div class="table-card" style="max-width:560px;margin-bottom:16px;">
+  <div class="side-card-body" style="padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;">
+    <div>
+      <div class="form-hint" style="margin-bottom:2px;">الرمز الموحد للدخول (يبقى دائماً)</div>
+      <code id="platformCode" dir="ltr" style="font-size:1.35rem;letter-spacing:0.1em;user-select:all;"><%= platformId %></code>
+    </div>
+    <button type="button" class="btn btn-secondary btn-sm" id="copyCodeBtn">نسخ الرمز</button>
+  </div>
+</div>
+
 <div class="grid-2">
 
   <!-- الملف الشخصي -->
@@ -32,11 +43,12 @@
     <div class="table-card-head"><h3>الملف الشخصي</h3></div>
     <div class="side-card-body" style="padding:20px 22px;">
       <form method="post" action="/account/profile" class="form-grid">
-        <label>الاسم الكامل
+        <label>الاسم الكامل (رباعي)
           <input type="text" name="name" value="<%= profile.name %>" required maxlength="120">
         </label>
-        <label>البريد الإلكتروني
-          <input type="email" name="email" value="<%= profile.email %>" maxlength="160" dir="ltr" style="text-align:left;">
+        <label>البريد الإلكتروني <span style="color:var(--gold-dark);">*</span>
+          <input type="email" name="email" value="<%= profile.email %>" maxlength="160" dir="ltr" style="text-align:left;" <%= emailRequired ? 'required' : '' %> placeholder="name@example.com">
+          <span class="form-hint" style="margin-top:4px;">يُستخدم لإرسال إعلانات الأكاديمية وإعادة ضبط الدخول لاحقاً — لن يظهر لأحد غيرك.</span>
         </label>
         <label>رقم الجوال
           <input type="text" name="phone" value="<%= profile.phone %>" maxlength="30" dir="ltr" style="text-align:left;">
@@ -67,3 +79,29 @@
   </div>
 
 </div>
+
+<script>
+  (function () {
+    var btn = document.getElementById("copyCodeBtn");
+    var code = document.getElementById("platformCode");
+    if (!btn || !code) return;
+    btn.addEventListener("click", function () {
+      var text = code.textContent.trim();
+      var done = function () {
+        btn.textContent = "تم النسخ";
+        window.setTimeout(function () { btn.textContent = "نسخ الرمز"; }, 1800);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(done);
+      } else {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); } catch (err) { /* ignore */ }
+        document.body.removeChild(ta);
+        done();
+      }
+    });
+  })();
+</script>

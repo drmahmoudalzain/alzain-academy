@@ -61,26 +61,25 @@ function safeNext(value) {
   return next.startsWith("/") && !next.startsWith("//") ? next : null;
 }
 
+// البحث عن حساب بالرمز الموحد للمنصة فقط (لا بريد، لا رقم جامعي).
 async function findUserByIdentifier(identifier) {
   const value = String(identifier ?? "").trim();
   if (!value) return null;
 
-  const byEmail = await db.from("users").select("*").eq("email", value).maybeSingle();
-  if (byEmail.error) throw byEmail.error;
-  if (byEmail.data) return byEmail.data;
-
-  const byEmailLower = await db.from("users").select("*").eq("email", value.toLowerCase()).maybeSingle();
-  if (byEmailLower.error) throw byEmailLower.error;
-  if (byEmailLower.data) return byEmailLower.data;
-
-  const byUniversityId = await db
+  // تجاهل أحرف النمط في ilike للأمان (الرموز أبجدية-رقمية فقط)
+  const safe = value.replace(/[%_\\]/g, (c) => `\\${c}`);
+  const byCode = await db
     .from("users")
     .select("*")
-    .eq("university_id", value)
+    .ilike("platform_id", safe)
     .maybeSingle();
-  if (byUniversityId.error) throw byUniversityId.error;
+  if (byCode.error) throw byCode.error;
 
-  return byUniversityId.data ?? null;
+  return byCode.data ?? null;
+}
+
+function normalizePlatformCode(identifier) {
+  return String(identifier ?? "").trim().toUpperCase();
 }
 
 async function roleLabel(user) {
@@ -178,7 +177,7 @@ router.post("/login", async (req, res, next) => {
       styles: [`/css/views/${portalKey}.css`, "/css/login-extra.css"],
       portal,
       copy: LOGIN_COPY[portalKey],
-      identifier,
+      identifier: identifier,
       error,
       notice: null,
       next: safeNext(req.body.next),
@@ -186,17 +185,32 @@ router.post("/login", async (req, res, next) => {
 
   try {
     if (!identifier || !password) {
-      return fail(422, "يرجى إدخال البريد الجامعي/الرقم الجامعي وكلمة المرور.");
+      return fail(422, "يرجى إدخال الرمز وكلمة المرور.");
     }
 
-    if (isThrottled(req, identifier)) {
+    const platformId = normalizePlatformCode(identifier);
+
+    if (isThrottled(req, platformId)) {
       return fail(429, "محاولات كثيرة خاطئة. يرجى المحاولة مرة أخرى بعد بضع دقائق.");
     }
 
-    const user = await findUserByIdentifier(identifier);
+    const user = await findUserByIdentifier(platformId);
+
+    // قفل تلقائي بعد 5 محاولات فاشلة متتالية (15 دقيقة) — مستقل عن حد IP
+    if (user?.locked_until && new Date(user.locked_until) > new Date()) {
+      const minutes = Math.ceil((new Date(user.locked_until).getTime() - Date.now()) / 60000);
+      return fail(429, `الحساب مقفول مؤقتاً بعد محاولات خاطئة متعددة. حاول بعد ${minutes} دقيقة، أو راجع إدارة الأكاديمية.`);
+    }
+
     if (!user || !verifyPassword(password, user.password_hash)) {
-      recordLoginFail(req, identifier);
-      return fail(401, "بيانات الدخول غير صحيحة. تحقق من المعرّف وكلمة المرور.");
+      recordLoginFail(req, platformId);
+      if (user) {
+        const attempts = (user.failed_attempts ?? 0) + 1;
+        const updates = { failed_attempts: attempts };
+        if (attempts >= 5) updates.locked_until = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+        await db.from("users").update(updates).eq("id", user.id);
+      }
+      return fail(401, "بيانات الدخول غير صحيحة. تحقق من الرمز وكلمة المرور.");
     }
 
     if (!user.is_active) {
@@ -221,7 +235,15 @@ router.post("/login", async (req, res, next) => {
     }
 
     // إنشاء الجلسة
-    clearLoginFails(req, identifier);
+    clearLoginFails(req, platformId);
+    await db
+      .from("users")
+      .update({ failed_attempts: 0, locked_until: null })
+      .eq("id", user.id)
+      .then(({ error }) => {
+        if (error) console.error("تعذر تصفير عدّاد المحاولات:", error.message);
+      });
+
     const token = newSessionToken();
     const tokenHash = hashToken(token);
     const expiresAt = new Date(Date.now() + env.SESSION_DAYS * 24 * 60 * 60 * 1000);
@@ -253,7 +275,7 @@ router.post("/login", async (req, res, next) => {
 
     const destination =
       safeNext(req.body.next) ??
-      (user.must_change_password ? "/account?first=1" : PORTALS[portalKey].home);
+      (user.must_change_password || !user.email ? "/account?first=1" : PORTALS[portalKey].home);
 
     return res.redirect(destination);
   } catch (error) {
@@ -286,6 +308,8 @@ router.get("/account", requireAuth, async (req, res, next) => {
       mustChange: req.user.must_change_password || req.query.first === "1",
       notice: req.query.saved ? "تم حفظ التغييرات." : null,
       error: null,
+      platformId: req.user.platform_id ?? "—",
+      emailRequired: !req.user.email,
       profile: { name: req.user.name, email: req.user.email ?? "", phone: req.user.phone ?? "" },
     });
   } catch (error) {
@@ -303,6 +327,8 @@ router.post("/account/password", requireAuth, async (req, res, next) => {
       mustChange: true,
       notice,
       error,
+      platformId: req.user.platform_id ?? "—",
+      emailRequired: !req.user.email,
       profile: { name: req.user.name, email: req.user.email ?? "", phone: req.user.phone ?? "" },
     });
 
@@ -353,6 +379,8 @@ router.post("/account/profile", requireAuth, async (req, res, next) => {
       mustChange: req.user.must_change_password,
       notice: null,
       error,
+      platformId: req.user.platform_id ?? "—",
+      emailRequired: !req.user.email,
       profile: {
         name: String(req.body.name ?? req.user.name),
         email: String(req.body.email ?? req.user.email ?? ""),
@@ -366,6 +394,13 @@ router.post("/account/profile", requireAuth, async (req, res, next) => {
     const phone = String(req.body.phone ?? "").trim();
 
     if (name.length < 3) return back(422, "الاسم قصير جداً.");
+
+    if (!req.user.email && !email) {
+      return back(422, "البريد الإلكتروني مطلوب للمرة الأولى — يُستخدم لإرسال إعلانات الأكاديمية وإعادة ضبط الدخول لاحقاً.");
+    }
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+      return back(422, "صيغة البريد الإلكتروني غير صحيحة.");
+    }
 
     if (email) {
       const clash = await db

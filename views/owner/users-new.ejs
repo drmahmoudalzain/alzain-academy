@@ -27,10 +27,10 @@
 
       <% if (role === 'student') { %>
         <div class="form-grid" style="grid-template-columns: 1.2fr 1fr;">
-          <label>الرقم الجامعي *
-            <input type="text" name="university_id" required maxlength="20" dir="ltr" style="text-align:left;" placeholder="2024009">
+          <label>الرقم الجامعي <span class="muted">(اختياري)</span>
+            <input type="text" name="university_id" maxlength="20" dir="ltr" style="text-align:left;" placeholder="2024009">
           </label>
-          <label>البريد الإلكتروني
+          <label>البريد الإلكتروني <span class="muted">(اختياري)</span>
             <input type="email" name="email" maxlength="160" dir="ltr" style="text-align:left;" placeholder="student@example.com">
           </label>
         </div>
@@ -63,7 +63,7 @@
 
     <div class="alert-inline info" role="note" style="margin-top:16px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-      <div>ستُنشأ كلمة مرور مؤقتة عشوائياً وتُحفظ في خزنة كلمات المرور (مرئية من صفحة الخزنة في قائمة المالك فقط).</div>
+      <div>الاسم الرباعي والمسار يكفيان — <strong>الرمز يُولّد تلقائياً</strong> حسب المسار (BM/BF/EQ/EX/PG للطلاب، TE للأستاذ) مع كلمة مرور مؤقتة تظهر مرة واحدة فقط في بطاقة الدخول. البريد ليس للدخول — سيُدخله المستخدم بنفسه عند أول جلسة.</div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:16px;">

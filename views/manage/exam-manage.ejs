@@ -35,7 +35,7 @@
             <tr>
               <td><%= attempt.id %></td>
               <td><strong><%= attempt.user ? attempt.user.name : 'مستخدم #' + attempt.student_id %></strong></td>
-              <td dir="ltr" style="text-align:left;"><code><%= attempt.user ? (attempt.user.university_id ?? '—') : '—' %></code></td>
+              <td dir="ltr" style="text-align:left;"><code><%= attempt.user ? (attempt.user.platform_id ?? attempt.user.university_id ?? '—') : '—' %></code></td>
               <td><%= format.formatDateTime(attempt.started_at) %></td>
               <td><%= attempt.submitted_at ? format.formatDateTime(attempt.submitted_at) : 'لم يسلّم' %></td>
               <td><strong><%= attempt.score != null ? attempt.score : '—' %></strong></td>

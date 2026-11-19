@@ -752,7 +752,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       }
 
       const [attendanceRes, questionsRes] = await Promise.all([
-        db.from("attendance").select("student_id, created_at, method, users!attendance_student_id_fkey(id, name, university_id)").eq("lecture_id", lecture.id).order("created_at"),
+        db.from("attendance").select("student_id, created_at, method, users!attendance_student_id_fkey(id, name, university_id, platform_id)").eq("lecture_id", lecture.id).order("created_at"),
         db.from("questions").select("id, text, type, options, correct_index, correct_indices, is_open, created_at").eq("lecture_id", lecture.id).order("created_at"),
       ]);
       if (attendanceRes.error) throw attendanceRes.error;
@@ -1035,7 +1035,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
 
       const [questionsRes, attemptsRes] = await Promise.all([
         db.from("exam_questions").select("id, type, text, options, points, correct_index, correct_indices, position").eq("exam_id", exam.id).order("position"),
-        db.from("exam_attempts").select("id, student_id, started_at, submitted_at, score, status, users!exam_attempts_student_id_fkey(id, name, university_id)").eq("exam_id", exam.id).order("submitted_at", { ascending: false }),
+        db.from("exam_attempts").select("id, student_id, started_at, submitted_at, score, status, users!exam_attempts_student_id_fkey(id, name, university_id, platform_id)").eq("exam_id", exam.id).order("submitted_at", { ascending: false }),
       ]);
       if (questionsRes.error) throw questionsRes.error;
       if (attemptsRes.error) throw attemptsRes.error;
@@ -1223,7 +1223,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
 
       const submissionsRes = await db
         .from("submissions")
-        .select("id, student_id, text, submitted_at, points, feedback, graded_at, users!submissions_student_id_fkey(id, name, university_id)")
+        .select("id, student_id, text, submitted_at, points, feedback, graded_at, users!submissions_student_id_fkey(id, name, university_id, platform_id)")
         .eq("assignment_id", assignment.id)
         .order("submitted_at", { ascending: false });
       if (submissionsRes.error) throw submissionsRes.error;

@@ -1,4 +1,4 @@
-// زرع المستخدمين التجريبيين (المالك + 8 طلاب) — آمن لإعادة التشغيل (يتخطى إن وُجد مستخدمون)
+// بذر المستخدمين التجريبيين (المالك + 8 طلاب) — على قاعدة فارغة فقط.
 import fs from "node:fs";
 import crypto from "node:crypto";
 
@@ -22,22 +22,22 @@ function hashPassword(password) {
 
 const founder = {
   role: "teacher", name: "د. محمود الزين عبدالله",
-  email: "admin@lectures.local", position: "المالك — مدير المنصة",
-  is_staff: true, must_change_password: false, password: "HLDCCYJJDZT3",
+  email: "admin@lectures.local", position: "المالك - مالك الأكاديمية",
+  is_staff: true, must_change_password: false, password: "HLDCCYJJDZT3", platform_id: "AD0001",
 };
 
-// توزيع الأقسام المطابق للواقع: طلاب لوحدهم، طالبات لوحدهن، و(2024003) في المعادلة
 const trackOf = (uid, gender) => (gender === "F" ? "bachelor_f" : uid === "2024003" ? "equiv" : "bachelor_m");
+const prefixOf = (uid, gender) => (gender === "F" ? "BF" : uid === "2024003" ? "EQ" : "BM");
 
 const students = [
   ["2024001", "أحمد سالم باوزير",     "M", "Student1234"],
-  ["2024002", "فاطمة علي الحسني",     "F", "MGKGQ3QGUW"],
-  ["2024003", "محمد عبدالله الشمري",  "M", "5U2DY5C58D"],
-  ["2024004", "نورة سعد القحطاني",    "F", "38CPVR8W8V"],
-  ["2024005", "عمر خالد العمري",      "M", "PNYGYF7TCT"],
-  ["2024006", "سارة يوسف الزهراني",   "F", "KFG27SYV7Y"],
+  ["2024002", "فاطمة علي الحسني",    "F", "MGKGQ3QGUW"],
+  ["2024003", "محمد عبدالعزيز الشمري", "M", "5U2DY5C58D"],
+  ["2024004", "نورة سعد القحطاني",   "F", "38CPVR8W8V"],
+  ["2024005", "عمر خالد العمري",     "M", "PNYGYF7TCT"],
+  ["2024006", "سارة يوسف الزهراني",  "F", "KFG27SYV7Y"],
   ["2024007", "خالد إبراهيم الغامدي", "M", "JGKEPLMUSB"],
-  ["2024008", "ريم محمد الدوسري",     "F", "FQM7MBE4W8"],
+  ["2024008", "ريم محمد الدوسري",    "F", "FQM7MBE4W8"],
 ];
 
 async function rest(path, opts = {}) {
@@ -47,14 +47,15 @@ async function rest(path, opts = {}) {
   return text ? JSON.parse(text) : null;
 }
 
-// تحقق: هل المستخدمون موجودون؟ (groupId صفر = فارغ)
+// عربة: هل يوجد مستخدمون بالفعل؟ (خروج إن وُجد أي مستخدم)
 const existing = await rest("users?select=id,name,role&order=id");
 if (existing.length > 0) {
-  console.log("موجود مسبقاً، لا إعادة زرع:", JSON.stringify(existing, null, 2));
+  console.log("المستخدمون موجودون بالفعل:", JSON.stringify(existing, null, 2));
   process.exit(0);
 }
 
 const founderPassword = founder.password;
+let seq = { BM: 0, BF: 0, EQ: 0 };
 const usersPayload = [
   {
     role: founder.role, name: founder.name, email: founder.email,
@@ -63,14 +64,21 @@ const usersPayload = [
     must_change_password: founder.must_change_password,
     password_hash: hashPassword(founderPassword),
     is_active: true, track: "bachelor_m", level: 1,
+    platform_id: founder.platform_id,
   },
-  ...students.map(([uid, name, gender, pwd]) => ({
-    role: "student", name, email: null, university_id: uid, phone: null, gender,
-    position: null, is_staff: false,
-    password_hash: hashPassword(pwd),
-    must_change_password: uid === "2024002",
-    is_active: true, track: trackOf(uid, gender), level: 1,
-  })),
+  ...students.map(([uid, name, gender, pwd]) => {
+    const prefix = prefixOf(uid, gender);
+    seq[prefix] += 1;
+    const platformId = `${prefix}${String(seq[prefix]).padStart(4, "0")}`;
+    return {
+      role: "student", name, email: null, university_id: uid, phone: null, gender,
+      position: null, is_staff: false,
+      password_hash: hashPassword(pwd),
+      must_change_password: uid === "2024002",
+      is_active: true, track: trackOf(uid, gender), level: 1,
+      platform_id: platformId,
+    };
+  }),
 ];
 
 const inserted = await rest("users", {
@@ -79,18 +87,10 @@ const inserted = await rest("users", {
   body: JSON.stringify(usersPayload),
 });
 
-// خزنة كلمات المرور
-const vaultRows = inserted.map((u, idx) => ({
-  user_id: u.id,
-  password_plain: idx === 0 ? founderPassword : students[idx - 1][3],
-}));
-await rest("credentials_vault", {
-  method: "POST",
-  headers: { Prefer: "return=minimal" },
-  body: JSON.stringify(vaultRows),
-});
-
 console.log(JSON.stringify(
-  inserted.map((u) => ({ id: u.id, role: u.role, name: u.name, university_id: u.university_id, is_staff: u.is_staff })),
+  inserted.map((u) => ({ id: u.id, role: u.role, name: u.name, platform_id: u.platform_id, university_id: u.university_id, is_staff: u.is_staff })),
   null, 2
 ));
+console.log("\nالدخول بالرموز الموحدة فقط (لا بريد):");
+console.log("  المالك: AD0001 / HLDCCYJJDZT3");
+console.log("  الطالبات/الطلاب: BM0001..BM0003 · BF0001..BF0002 · EQ0001");

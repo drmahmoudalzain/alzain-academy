@@ -107,7 +107,7 @@
             <tr>
               <td><%= student.id %></td>
               <td><strong><%= student.name %></strong></td>
-              <td dir="ltr" style="text-align:left;"><code><%= student.university_id ?? '—' %></code></td>
+              <td dir="ltr" style="text-align:left;"><code><%= student.platform_id ?? student.university_id ?? '—' %></code></td>
               <td><%= student.attendanceCount %> محاضرة</td>
               <td><span class="chip" style="<%= student.is_active ? 'color:var(--success);border-color:var(--success-border);' : 'color:var(--danger);border-color:var(--danger-border);' %>"><%= student.is_active ? 'نشط' : 'موقوف' %></span></td>
             </tr>

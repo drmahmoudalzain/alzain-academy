@@ -65,7 +65,7 @@
               <tr>
                 <td><%= row.user ? row.user.id : row.student_id %></td>
                 <td><strong><%= row.user ? row.user.name : '—' %></strong></td>
-                <td dir="ltr" style="text-align:left;"><code><%= row.user ? (row.user.university_id ?? '—') : '—' %></code></td>
+                <td dir="ltr" style="text-align:left;"><code><%= row.user ? (row.user.platform_id ?? row.user.university_id ?? '—') : '—' %></code></td>
                 <td><%= row.method === 'code' ? 'رمز' : 'تلقائي' %></td>
                 <td><%= format.formatDateTime(row.created_at) %></td>
               </tr>

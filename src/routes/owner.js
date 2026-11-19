@@ -1,5 +1,4 @@
 import express from "express";
-import crypto from "node:crypto";
 import { db } from "../lib/supabase.js";
 import { renderPage } from "../lib/render.js";
 import { requirePortal } from "../middleware/auth.js";
@@ -7,9 +6,10 @@ import { createManagementRouter } from "../lib/management.js";
 import { setSetting } from "../lib/settings.js";
 import { hashPassword } from "../lib/password.js";
 import { getCourseGrade } from "../lib/student-data.js";
-import { parseTrackKey } from "../lib/tracks.js";
+import { parseTrackKey, TRACK_PROFILES, TRACK_KEYS } from "../lib/tracks.js";
 import { createStudentsRouter } from "../lib/students.js";
 import { isFounder } from "../lib/portals.js";
+import { provisionUser, generateTempPassword } from "../lib/platformCode.js";
 
 const router = express.Router();
 
@@ -63,7 +63,7 @@ router.get("/users", requirePortal("owner"), async (req, res, next) => {
 
     let builder = db
       .from("users")
-      .select("id, role, name, email, university_id, position, track, level, is_active, last_login, created_at, is_staff")
+      .select("id, role, name, email, university_id, platform_id, position, track, level, is_active, last_login, created_at, is_staff")
       .order("created_at", { ascending: false })
       .limit(300);
 
@@ -73,7 +73,7 @@ router.get("/users", requirePortal("owner"), async (req, res, next) => {
 
     const users = (data ?? []).filter((user) => {
       if (!query) return true;
-      return [user.name, user.email, user.university_id, user.position].some((value) =>
+      return [user.name, user.email, user.university_id, user.platform_id, user.position].some((value) =>
         String(value ?? "").toLowerCase().includes(query)
       );
     });
@@ -84,7 +84,7 @@ router.get("/users", requirePortal("owner"), async (req, res, next) => {
       users,
       role,
       searchAction: "/owner/users",
-      searchPlaceholder: "ابحث باسم أو بريد أو رقم...",
+      searchPlaceholder: "ابحث باسم أو رمز أو رقم جامعي...",
       searchValue: req.query.q ?? "",
     });
   } catch (error) {
@@ -92,11 +92,7 @@ router.get("/users", requirePortal("owner"), async (req, res, next) => {
   }
 });
 
-// ---------- إنشاء مستخدم ---------- 
-function generateTempPassword() {
-  return crypto.randomBytes(9).toString("base64url");
-}
-
+// ---------- إنشاء مستخدم ----------
 router.get("/users/new", requirePortal("owner"), async (req, res, next) => {
   try {
     return ownerPage(res, "owner/users-new", {
@@ -129,8 +125,7 @@ router.post("/users", requirePortal("owner"), async (req, res, next) => {
     const level = Math.min(4, Math.max(1, Number(req.body.level ?? 1)));
 
     if (name.length < 3) return fail("الاسم قصير جداً.");
-    if (role === "student" && !universityId) return fail("الرقم الجامعي مطلوب لطالب جديد.");
-    if (!universityId && !email) return fail("أدخل الرقم الجامعي أو البريد الإلكتروني.");
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return fail("صيغة البريد الإلكتروني غير صحيحة.");
 
     if (universityId) {
       const clash = await db.from("users").select("id").eq("university_id", universityId).maybeSingle();
@@ -143,34 +138,29 @@ router.post("/users", requirePortal("owner"), async (req, res, next) => {
       if (clash.data) return fail("البريد الإلكتروني مستخدم في حساب آخر.");
     }
 
-    const tempPassword = generateTempPassword();
-    const created = await db.from("users").insert({
-      role,
-      name,
-      email,
-      university_id: universityId,
-      position,
-      track,
-      level: role === "student" ? level : null,
-      password_hash: hashPassword(tempPassword),
-      must_change_password: true,
-      is_active: true,
-      is_staff: role === "teacher",
-    }).select("id, name, role, email, university_id").maybeSingle();
-    if (created.error) throw created.error;
-
-    const vault = await db.from("credentials_vault").upsert({
-      user_id: created.data.id,
-      password_plain: tempPassword,
-      updated_at: new Date().toISOString(),
-    });
-    if (vault.error) console.error("تعذر حفظ كلمة المرور المؤقتة في الخزنة:", vault.error.message);
+    let provisioned;
+    try {
+      provisioned = await provisionUser({
+        role,
+        name,
+        track: role === "student" ? track : null,
+        level: role === "student" ? level : null,
+        universityId,
+        email,
+        position,
+      });
+    } catch (error) {
+      const message = String(error?.message ?? error);
+      if (message.includes("university_id")) return fail("الرقم الجامعي مستخدم في حساب آخر.");
+      if (message.includes("email")) return fail("البريد الإلكتروني مستخدم في حساب آخر.");
+      throw error;
+    }
 
     return ownerPage(res, "owner/users-created", {
       title: "تم إنشاء الحساب",
       pageTitle: "تم إنشاء الحساب",
-      newUser: created.data,
-      tempPassword,
+      newUser: provisioned.user,
+      tempPassword: provisioned.password,
     });
   } catch (error) {
     next(error);
@@ -196,27 +186,30 @@ router.post("/users/:id/toggle", requirePortal("owner"), async (req, res, next) 
 router.post("/users/:id/reset-password", requirePortal("owner"), async (req, res, next) => {
   try {
     const id = Number(req.params.id);
-    const { data, error } = await db.from("users").select("id, name").eq("id", id).maybeSingle();
+    const { data, error } = await db.from("users").select("id, name, role, platform_id, email, university_id").eq("id", id).maybeSingle();
     if (error) throw error;
     if (!data) return res.status(404).render("error", { title: "غير موجود", code: 404, message: "المستخدم غير موجود." });
 
     const tempPassword = generateTempPassword();
-    const updated = await db.from("users").update({ password_hash: hashPassword(tempPassword), must_change_password: true }).eq("id", id);
+    const updated = await db.from("users").update({ password_hash: hashPassword(tempPassword), must_change_password: true, failed_attempts: 0, locked_until: null }).eq("id", id);
     if (updated.error) throw updated.error;
 
     // إبطال الجلسات الحالية للمستخدم
     await db.from("sessions").delete().eq("user_id", id);
 
-    await db.from("credentials_vault").upsert({
-      user_id: id,
-      password_plain: tempPassword,
-      updated_at: new Date().toISOString(),
+    // سجل تدقيق: من أعاد التوليد ولمن ومتى
+    await db.from("archived_records").insert({
+      table_name: "password_reset",
+      record_id: id,
+      label: `إعادة توليد كلمة المرور — ${data.name}`,
+      data: { target_user_id: id, target_name: data.name, platform_id: data.platform_id ?? null, reset_by: req.user?.id ?? null, reset_by_name: req.user?.name ?? null, at: new Date().toISOString() },
+      archived_by: req.user?.id ?? null,
     });
 
     return ownerPage(res, "owner/users-created", {
       title: "إعادة تعيين كلمة المرور",
       pageTitle: "إعادة تعيين كلمة المرور",
-      newUser: { name: data.name, role: "student", email: null, university_id: null },
+      newUser: data,
       tempPassword,
       resetExisting: true,
     });
@@ -225,19 +218,97 @@ router.post("/users/:id/reset-password", requirePortal("owner"), async (req, res
   }
 });
 
-// ---------- خزنة كلمات المرور المؤقتة ----------
-router.get("/vault", requirePortal("owner"), async (req, res, next) => {
+// ================= استيراد دفعات (CSV) =================
+// كل سطر: الاسم الرباعي، المسار، الرقم الجامعي (اختياري) — الفواصل أو الجدولة أو الفاصلة المنقوطة
+router.get("/users/import", requirePortal("owner"), async (req, res, next) => {
   try {
-    const { data, error } = await db
-      .from("credentials_vault")
-      .select("user_id, password_plain, updated_at, users!credentials_vault_user_id_fkey(id, name, role, university_id, email)")
-      .order("updated_at", { ascending: false });
-    if (error) throw error;
+    return ownerPage(res, "owner/users-import", {
+      title: "استيراد دفعات",
+      pageTitle: "استيراد دفعات",
+      error: null,
+      results: null,
+      failures: [],
+      input: "",
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
-    return ownerPage(res, "owner/vault", {
-      title: "خزنة كلمات المرور",
-      pageTitle: "خزنة كلمات المرور",
-      entries: (data ?? []).map((row) => ({ ...row, user: row.users })),
+router.post("/users/import", requirePortal("owner"), async (req, res, next) => {
+  const raw = String(req.body.batch ?? "");
+  const fail = (message) =>
+    ownerPage(res.status(422), "owner/users-import", {
+      title: "استيراد دفعات",
+      pageTitle: "استيراد دفعات",
+      error: message,
+      results: null,
+      failures: [],
+      input: raw,
+    });
+
+  try {
+    const lines = raw
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter((line) => line && !line.startsWith("#"));
+
+    if (lines.length === 0) return fail("الصق سطوراً تحتوي بيانات الطلاب (الاسم، المسار، [رقم جامعي]).");
+    if (lines.length > 300) return fail("الحد الأقصى 300 سطر في الدفعة الواحدة.");
+
+    const results = [];
+    const failures = [];
+
+    for (const [index, line] of lines.entries()) {
+      const parts = line.split(/[,;\t|]/).map((part) => part.trim()).filter(Boolean);
+      const name = parts[0] ?? "";
+      const trackRaw = (parts[1] ?? "bachelor_m").toLowerCase();
+      const universityId = parts[2] || null;
+
+      if (name.length < 3) {
+        failures.push({ line: index + 1, text: line, reason: "الاسم قصير جداً" });
+        continue;
+      }
+      if (!TRACK_KEYS.includes(trackRaw)) {
+        failures.push({ line: index + 1, text: line, reason: `مسار غير معروف «${trackRaw}» — المتاح: ${TRACK_KEYS.join(", ")}` });
+        continue;
+      }
+
+      try {
+        const { user, password, platformId } = await provisionUser({
+          role: "student",
+          name,
+          track: trackRaw,
+          level: 1,
+          universityId,
+          email: null,
+          position: null,
+        });
+        results.push({ name, platformId, password, track: TRACK_PROFILES[trackRaw].label, trackKey: trackRaw });
+      } catch (error) {
+        const message = String(error?.message ?? error);
+        failures.push({ line: index + 1, text: line, reason: message.includes("university_id") ? "الرقم الجامعي مكرر" : "تعذر الإنشاء" });
+      }
+    }
+
+    // سجل تدقيق للاستيراد
+    if (results.length) {
+      await db.from("archived_records").insert({
+        table_name: "bulk_import",
+        record_id: null,
+        label: `استيراد دفعة — ${results.length} حساباً`,
+        data: { created: results.length, failed: failures.length, by: req.user?.id ?? null, by_name: req.user?.name ?? null, at: new Date().toISOString() },
+        archived_by: req.user?.id ?? null,
+      });
+    }
+
+    return ownerPage(res, "owner/users-import", {
+      title: "نتيجة الاستيراد",
+      pageTitle: "استيراد دفعات",
+      error: null,
+      results,
+      failures,
+      input: raw,
     });
   } catch (error) {
     next(error);
@@ -396,7 +467,7 @@ const TRACK_META = {
 async function buildStudentReport() {
   const { data, error } = await db
     .from("users")
-    .select("id, name, university_id, track, level")
+    .select("id, name, university_id, platform_id, track, level")
     .eq("role", "student")
     .eq("is_active", true)
     .order("track")
@@ -418,7 +489,7 @@ async function buildStudentReport() {
     report.push({
       id: student.id,
       name: student.name,
-      code: student.university_id ?? "—",
+      code: student.platform_id ?? student.university_id ?? "—",
       track: student.track ?? "bachelor_m",
       level: student.level ?? "—",
       trackLabel: TRACK_META[student.track]?.label ?? "—",

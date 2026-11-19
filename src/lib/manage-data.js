@@ -65,7 +65,7 @@ export async function canManageCourse(user, isOwner, courseId) {
 export async function getCourseStudents(courseId) {
   const { data, error } = await db
     .from("enrollments")
-    .select("student_id, users!enrollments_student_id_fkey(id, name, university_id, track, level, is_active, last_login)")
+    .select("student_id, users!enrollments_student_id_fkey(id, name, university_id, platform_id, track, level, is_active, last_login)")
     .eq("course_id", courseId)
     .order("student_id");
   if (error) throw error;

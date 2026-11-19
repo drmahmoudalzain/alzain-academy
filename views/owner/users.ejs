@@ -4,6 +4,7 @@
     <p>جميع حسابات المنصة — الأساتذة والطلاب.</p>
   </div>
   <div class="page-header-actions">
+    <a class="btn btn-secondary" href="/owner/users/import">استيراد دفعات</a>
     <a class="btn btn-primary" href="/owner/users/new">إضافة مستخدم</a>
   </div>
 </section>
@@ -19,7 +20,7 @@
     <div class="table-scroll">
       <table class="data-table">
         <thead>
-          <tr><th>#</th><th>الاسم</th><th>الدور</th><th>المعرّف</th><th>المسار/المستوى</th><th>الحالة</th><th>آخر دخول</th><th>إجراءات</th></tr>
+          <tr><th>#</th><th>الاسم</th><th>الدور</th><th>الرمز</th><th>المسار/المستوى</th><th>الحالة</th><th>آخر دخول</th><th>إجراءات</th></tr>
         </thead>
         <tbody>
           <% for (const user of users) { %>
@@ -27,7 +28,7 @@
               <td><%= user.id %></td>
               <td><strong><%= user.name %></strong></td>
               <td><%= user.role === 'teacher' ? 'أستاذ' : 'طالب' %></td>
-              <td dir="ltr" style="text-align:left;"><code><%= user.university_id || user.email || '—' %></code></td>
+              <td dir="ltr" style="text-align:left;"><code><%= user.platform_id || '—' %></code></td>
               <td><%= user.role === 'student' ? getProfile(user.track).label + (user.level ? ' — م' + user.level : '') : (user.position || 'عضو هيئة التدريس') %></td>
               <td><span class="chip" style="<%= user.is_active ? 'border-color:var(--success-border);color:var(--success);' : 'border-color:var(--danger-border);color:var(--danger);' %>"><%= user.is_active ? 'نشط' : 'موقوف' %></span></td>
               <td class="muted"><%= user.last_login ? format.formatDateTime(user.last_login) : '—' %></td>

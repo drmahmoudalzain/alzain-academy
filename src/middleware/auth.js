@@ -61,10 +61,41 @@ export async function loadSettings(req, res, next) {
   next();
 }
 
+// مسارات يسمح بها للحسابات التي لم تكمل ملفاتها بعد (كلمة مرور + بريد)
+const COMPLETION_PATHS = new Set([
+  "/account",
+  "/account/password",
+  "/account/profile",
+  "/logout",
+]);
+
+function pathOf(req) {
+  return String(req.originalUrl ?? req.url ?? "/").split("?")[0];
+}
+
+/** هل ينقص الحساب إكمال ملفه (تغيير الكلمة أو إدخال البريد)؟ */
+export function profileIncomplete(user) {
+  return Boolean(user) && (user.must_change_password || !user.email);
+}
+
+/** يعيد التوجيه إلى /account?first=1 ما لم يكن المسار مسموحًا — يُستخدم من requireAuth و requirePortal. */
+export function redirectIfProfileIncomplete(req, res) {
+  if (profileIncomplete(req.user) && !COMPLETION_PATHS.has(pathOf(req))) {
+    res.redirect("/account?first=1");
+    return true;
+  }
+  return false;
+}
+
 export function requireAuth(req, res, next) {
-  if (req.user) return next();
-  const next_ = encodeURIComponent(req.originalUrl || "/");
-  res.redirect(`/login?next=${next_}`);
+  if (!req.user) {
+    const next_ = encodeURIComponent(req.originalUrl || "/");
+    return res.redirect(`/login?next=${next_}`);
+  }
+
+  if (redirectIfProfileIncomplete(req, res)) return;
+
+  next();
 }
 
 /** حارس البوابة: يرفض غير المسموح لهم بخطأ 403 صريح. */
@@ -72,6 +103,9 @@ export function requirePortal(portalKey) {
   return async (req, res, next) => {
     try {
       if (!req.user) return res.redirect(`/login?role=${portalKey}`);
+
+      // لا يسمح بدخول أي بوابة قبل إكمال الملف الشخصي
+      if (redirectIfProfileIncomplete(req, res)) return;
 
       const settings = res.locals.settings ?? (await getSettings());
       const allowed = await canEnterPortal(req.user, portalKey, {

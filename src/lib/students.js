@@ -5,7 +5,7 @@ import { requirePortal } from "../middleware/auth.js";
 import { getCourseGrade } from "./student-data.js";
 import { parseTrackKey } from "./tracks.js";
 import { hashPassword } from "./password.js";
-import crypto from "node:crypto";
+import { generateTempPassword } from "./platformCode.js";
 
 /**
  * إدارة الطلاب — مشتركة بين بوابتي المالك والأستاذ.
@@ -46,7 +46,7 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
 
       const { data, error } = await db
         .from("users")
-        .select("id, name, university_id, email, track, level, is_active, gender, last_login")
+        .select("id, name, university_id, platform_id, email, track, level, is_active, gender, last_login")
         .in("id", ids)
         .order("id");
       if (error) throw error;
@@ -62,7 +62,7 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
       const students = (data ?? [])
         .filter((student) => {
           if (!query) return true;
-          return [student.name, student.university_id, student.email].some((value) =>
+          return [student.name, student.university_id, student.platform_id, student.email].some((value) =>
             String(value ?? "").toLowerCase().includes(query)
           );
         })
@@ -98,7 +98,7 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
 
       const { data: student, error } = await db
         .from("users")
-        .select("id, name, email, phone, university_id, track, level, gender, is_active, must_change_password, created_at, last_login")
+        .select("id, name, email, phone, university_id, platform_id, track, level, gender, is_active, must_change_password, created_at, last_login")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
@@ -143,7 +143,7 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
 
       const { data: student, error } = await db
         .from("users")
-        .select("id, name, email, phone, university_id, track, level, gender, is_active")
+        .select("id, name, email, phone, university_id, platform_id, track, level, gender, is_active")
         .eq("id", id)
         .maybeSingle();
       if (error) throw error;
@@ -182,7 +182,7 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
 
       if (name.length < 3) {
         const student = (
-          await db.from("users").select("id, name, email, phone, university_id, track, level, gender, is_active").eq("id", id).maybeSingle()
+          await db.from("users").select("id, name, email, phone, university_id, platform_id, track, level, gender, is_active").eq("id", id).maybeSingle()
         ).data;
         return page(res.status(422), "manage/student-edit", {
           title: "تعديل بيانات الطالب",
@@ -241,30 +241,32 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
       }
 
       const id = Number(req.params.id);
-      const { data: student, error } = await db.from("users").select("id, name").eq("id", id).eq("role", "student").maybeSingle();
+      const { data: student, error } = await db.from("users").select("id, name, platform_id, university_id, email").eq("id", id).eq("role", "student").maybeSingle();
       if (error) throw error;
       if (!student) {
         return res.status(404).render("error", { title: "غير موجود", code: 404, message: "الطالب غير موجود." });
       }
 
-      const tempPassword = crypto.randomBytes(9).toString("base64url");
+      const tempPassword = generateTempPassword();
       const updated = await db
         .from("users")
-        .update({ password_hash: hashPassword(tempPassword), must_change_password: true })
+        .update({ password_hash: hashPassword(tempPassword), must_change_password: true, failed_attempts: 0, locked_until: null })
         .eq("id", id);
       if (updated.error) throw updated.error;
 
       await db.from("sessions").delete().eq("user_id", id);
-      await db.from("credentials_vault").upsert({
-        user_id: id,
-        password_plain: tempPassword,
-        updated_at: new Date().toISOString(),
+      await db.from("archived_records").insert({
+        table_name: "password_reset",
+        record_id: id,
+        label: `إعادة توليد كلمة المرور — ${student.name}`,
+        data: { target_user_id: id, target_name: student.name, platform_id: student.platform_id ?? null, reset_by: req.user?.id ?? null, reset_by_name: req.user?.name ?? null, at: new Date().toISOString() },
+        archived_by: req.user?.id ?? null,
       });
 
       return page(res, "owner/users-created", {
         title: "إعادة تعيين كلمة المرور",
         pageTitle: "إعادة تعيين كلمة المرور",
-        newUser: { name: student.name, role: "student", email: null, university_id: null },
+        newUser: student,
         tempPassword,
         resetExisting: true,
       });
