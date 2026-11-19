@@ -1,13 +1,16 @@
+import http from "node:http";
 import express from "express";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { env } from "./src/lib/env.js";
 import { attachUser, loadSettings } from "./src/middleware/auth.js";
 import { renderPage } from "./src/lib/render.js";
+import { attachChatServer } from "./src/lib/chat-ws.js";
 import authRouter from "./src/routes/auth.js";
 import ownerRouter from "./src/routes/owner.js";
 import teacherRouter from "./src/routes/teacher.js";
 import studentRouter from "./src/routes/student.js";
+import forumRouter from "./src/routes/forum.js";
 import { createNotificationsRouter } from "./src/lib/notifications.js";
 import { createAssistantRouter } from "./src/lib/assistant.js";
 import { createLibraryRouter } from "./src/lib/library.js";
@@ -60,6 +63,7 @@ app.use("/", authRouter);
 app.use("/owner", ownerRouter);
 app.use("/teacher", teacherRouter);
 app.use("/student", studentRouter);
+app.use("/forum", forumRouter);
 app.use("/notifications", createNotificationsRouter());
 app.use("/assistant", createAssistantRouter());
 app.use("/library", createLibraryRouter());
@@ -99,6 +103,9 @@ app.use((error, req, res, _next) => {
   });
 });
 
-app.listen(env.PORT, () => {
+const httpServer = http.createServer(app);
+attachChatServer(httpServer);
+
+httpServer.listen(env.PORT, () => {
   console.log(`✅ منصة آل الزين تعمل على http://localhost:${env.PORT}`);
 });

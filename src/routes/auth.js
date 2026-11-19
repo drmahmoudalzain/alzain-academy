@@ -91,17 +91,33 @@ async function roleLabel(user) {
 // ---------- الصفحة الرئيسية ----------
 router.get("/", async (req, res, next) => {
   try {
+    const [students, courses, lectures, libraryItems] = await Promise.all([
+      countActive("users", (q) => q.eq("role", "student")),
+      countActive("courses", (q) => q.eq("archived", false)),
+      countActive("lectures"),
+      countActive("library_items"),
+    ]);
+
     return renderPage(res, "landing", {
       title: "الرئيسية",
       layout: "base",
       bodyClass: "site-page",
       styles: ["/css/views/home.css"],
       scripts: ["/js/home.js"],
+      stats: { students, courses, lectures, libraryItems },
     });
   } catch (error) {
     next(error);
   }
 });
+
+async function countActive(table, apply = (q) => q) {
+  const { count, error } = await apply(
+    db.from(table).select("*", { count: "exact", head: true })
+  );
+  if (error) return 0;
+  return count ?? 0;
+}
 
 // ---------- العرض التجريبي ----------
 router.get("/demo", async (req, res, next) => {

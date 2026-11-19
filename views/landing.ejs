@@ -137,23 +137,23 @@
         </div>
       </div>
 
-      <!-- شريط الإحصاءات -->
+      <!-- شريط الإحصاءات — بيانات حقيقية من قاعدة البيانات -->
       <div class="stats-bar reveal" role="list" aria-label="إحصاءات الأكاديمية">
         <div class="stat" role="listitem">
-          <div class="stat-value">+1200</div>
+          <div class="stat-value"><%= format.formatNumber(stats.students) %></div>
           <div class="stat-label">طالب مسجّل</div>
         </div>
         <div class="stat" role="listitem">
-          <div class="stat-value">+45</div>
+          <div class="stat-value"><%= format.formatNumber(stats.courses) %></div>
           <div class="stat-label">مقرر دراسي</div>
         </div>
         <div class="stat" role="listitem">
-          <div class="stat-value">+300</div>
-          <div class="stat-label">محاضرة تفاعلية</div>
+          <div class="stat-value"><%= format.formatNumber(stats.lectures) %></div>
+          <div class="stat-label">محاضرة</div>
         </div>
         <div class="stat" role="listitem">
-          <div class="stat-value">+5</div>
-          <div class="stat-label">سنوات من التميز</div>
+          <div class="stat-value"><%= format.formatNumber(stats.libraryItems) %></div>
+          <div class="stat-label">عنصر في المكتبة</div>
         </div>
       </div>
     </div>
@@ -340,12 +340,12 @@
   <section class="section" id="tracks">
     <div class="container">
       <div class="section-head reveal">
-        <div class="section-eyebrow">المسارات الأكاديمية</div>
+        <div class="section-eyebrow">الأقسام الأكاديمية</div>
         <h2 class="section-title">
-          مساران <span class="accent">متكاملان</span> لبناء مستقبلك القانوني
+          أربعة أقسام <span class="accent">منفصلة ومختلطة</span> لبناء مستقبلك القانوني
         </h2>
         <p class="section-sub">
-          نقدّم مسارين دراسيين معتمدين يلبيان احتياجات الطلاب بمختلف خلفياتهم الأكاديمية
+          مسارا البكالوريوس منفصلان (طلاب لوحدهم وطالبات لوحدهنّ)، وثلاثة أقسام مختلطة تعد الطلاب والطالبات معاً
         </p>
       </div>
 
@@ -360,14 +360,39 @@
               </svg>
             </div>
             <div>
-              <h3>مسار البكالوريوس</h3>
-              <span>أربعة مستويات دراسية متكاملة</span>
+              <h3>مسار الطلاب</h3>
+              <span>بكالوريوس — نظام الدراسة المنفصلة</span>
             </div>
           </div>
           <p>
-            مسار أكاديمي متكامل مُصمّم للطلاب من السنة الأولى وحتى السنة الرابعة،
-            يشمل منهجاً شاملاً في العلوم القانونية والعدلية، مع تدرّجٍ منطقي
-            في المفاهيم والمهارات حتى التخرج.
+            قسم مخصص للطلاب الذكور فقط (نظام الدراسة المنفصلة)، بمنهج أكاديمي متكامل في
+            العلوم القانونية والعدلية حتى التخرج.
+          </p>
+          <div class="track-levels">
+            <span class="level-badge">المستوى الأول</span>
+            <span class="level-badge">المستوى الثاني</span>
+            <span class="level-badge">المستوى الثالث</span>
+            <span class="level-badge">المستوى الرابع</span>
+          </div>
+        </div>
+
+        <div class="track-card bachelor reveal">
+          <div class="track-head">
+            <div class="track-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 3L2 9l10 6 10-6-10-6z" />
+                <path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5" />
+                <path d="M22 9v6" />
+              </svg>
+            </div>
+            <div>
+              <h3>مسار الطالبات</h3>
+              <span>بكالوريوس — نظام الدراسة المنفصلة</span>
+            </div>
+          </div>
+          <p>
+            قسم مخصص للطالبات فقط (نظام الدراسة المنفصلة)، بنفس المنهج الرصين في
+            العلوم القانونية والعدلية مع خصوصية البيئة التعليمية المناسبة.
           </p>
           <div class="track-levels">
             <span class="level-badge">المستوى الأول</span>
@@ -387,18 +412,65 @@
             </div>
             <div>
               <h3>قسم المعادلة</h3>
-              <span>مسار مخصص لحملة الشهادات</span>
+              <span>نظام الدراسة المختلطة — لحملة الشهادات</span>
             </div>
           </div>
           <p>
-            مسار خاص بالطلاب الحاصلين على شهادات جامعية في تخصصات أخرى
-            ويرغبون في الحصول على معادلة في العلوم القانونية، مع منهج مكثّف
-            وخطة دراسية مرنة تناسب ظروفهم.
+            مسار مختلط (طلاب وطالبات معاً) مخصص لحملة الشهادات الجامعية في تخصصات أخرى
+            الراغبين بمعادلة في العلوم القانونية، بخطة دراسية مكثفة ومرنة.
           </p>
           <div class="track-levels">
             <span class="level-badge">مسار مكثّف</span>
             <span class="level-badge">خطة مرنة</span>
             <span class="level-badge">شهادة معتمدة</span>
+          </div>
+        </div>
+
+        <div class="track-card equiv reveal">
+          <div class="track-head">
+            <div class="track-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v4" />
+              </svg>
+            </div>
+            <div>
+              <h3>قسم طلاب من الخارج</h3>
+              <span>نظام الدراسة المختلطة — للطلاب الدوليين</span>
+            </div>
+          </div>
+          <p>
+            قسم مختلط (طلاب وطالبات معاً) للطلاب من خارج العراق الراغبين بدراسة
+            العلوم القانونية والعدلية في بيئتنا العربية والأكاديمية، بنفس نظام المعادلة.
+          </p>
+          <div class="track-levels">
+            <span class="level-badge">طلاب وطالبات</span>
+            <span class="level-badge">برنامج مكثّف</span>
+            <span class="level-badge">شهادة معتمدة</span>
+          </div>
+        </div>
+
+        <div class="track-card equiv reveal">
+          <div class="track-head">
+            <div class="track-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 14l9-5-9-5-9 5 9 5z" />
+                <path d="M12 14l6.16-3.422a12.083 12.083 0 0 1 .665 6.479A11.952 11.952 0 0 0 12 20.055a11.952 11.952 0 0 0-6.824-2.998 12.078 12.078 0 0 1 .665-6.479L12 14z" />
+                <path d="M12 14l9-5-9-5-9 5 9 5zm0 0v6" />
+              </svg>
+            </div>
+            <div>
+              <h3>قسم الدراسات العليا</h3>
+              <span>نظام الدراسة المختلطة — الماجستير والدكتوراه</span>
+            </div>
+          </div>
+          <p>
+            قسم مختلط (طلاب وطالبات معاً) لبرامج الماجستير والدكتوراه في القانون،
+            بإشراف نخبة من المتخصصين ومناهج بحثية متقدمة، وبنفس نظام المعادلة وطلاب من الخارج.
+          </p>
+          <div class="track-levels">
+            <span class="level-badge">ماجستير</span>
+            <span class="level-badge">دكتوراه</span>
+            <span class="level-badge">بحث أكاديمي</span>
           </div>
         </div>
       </div>

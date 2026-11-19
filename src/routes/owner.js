@@ -7,6 +7,7 @@ import { createManagementRouter } from "../lib/management.js";
 import { setSetting } from "../lib/settings.js";
 import { hashPassword } from "../lib/password.js";
 import { getCourseGrade } from "../lib/student-data.js";
+import { parseTrackKey } from "../lib/tracks.js";
 import { createStudentsRouter } from "../lib/students.js";
 import { isFounder } from "../lib/portals.js";
 
@@ -124,7 +125,7 @@ router.post("/users", requirePortal("owner"), async (req, res, next) => {
     const universityId = String(req.body.university_id ?? "").trim() || null;
     const email = String(req.body.email ?? "").trim().toLowerCase() || null;
     const position = String(req.body.position ?? "").trim() || null;
-    const track = req.body.track === "equiv" ? "equiv" : "bachelor";
+    const track = parseTrackKey(req.body.track);
     const level = Math.min(4, Math.max(1, Number(req.body.level ?? 1)));
 
     if (name.length < 3) return fail("الاسم قصير جداً.");
@@ -382,12 +383,23 @@ const csvCell = (value) => {
   return `"${text.replace(/"/g, '""')}"`;
 };
 
+const SECTION_ORDER = ["bachelor_m", "bachelor_f", "equiv", "external", "grad"];
+
+const TRACK_META = {
+  bachelor_m: { label: "مسار الطلاب", title: "قسم مسار الطلاب — نظام الدراسة المنفصلة" },
+  bachelor_f: { label: "مسار الطالبات", title: "قسم مسار الطالبات — نظام الدراسة المنفصلة" },
+  equiv: { label: "قسم المعادلة", title: "قسم المعادلة — نظام الدراسة المختلطة" },
+  external: { label: "طلاب من الخارج", title: "قسم طلاب من الخارج — نظام الدراسة المختلطة" },
+  grad: { label: "الدراسات العليا", title: "قسم الدراسات العليا — نظام الدراسة المختلطة" },
+};
+
 async function buildStudentReport() {
   const { data, error } = await db
     .from("users")
     .select("id, name, university_id, track, level")
     .eq("role", "student")
     .eq("is_active", true)
+    .order("track")
     .order("id");
   if (error) throw error;
   const students = data ?? [];
@@ -407,22 +419,40 @@ async function buildStudentReport() {
       id: student.id,
       name: student.name,
       code: student.university_id ?? "—",
+      track: student.track ?? "bachelor_m",
+      level: student.level ?? "—",
+      trackLabel: TRACK_META[student.track]?.label ?? "—",
       courses: courses.length,
       average: Math.round(average * 10) / 10,
       attendanceRate: totalLectures ? Math.round((attendanceCount / totalLectures) * 100) : 0,
       points,
     });
   }
+
   return report;
+}
+
+function reportSections(students) {
+  const byTrack = new Map();
+  for (const student of students) {
+    const key = student.track;
+    if (!byTrack.has(key)) byTrack.set(key, []);
+    byTrack.get(key).push(student);
+  }
+  return SECTION_ORDER
+    .filter((key) => (byTrack.get(key) ?? []).length)
+    .map((key) => ({ track: key, title: TRACK_META[key].title, short: TRACK_META[key].label, rows: byTrack.get(key) }));
 }
 
 router.get("/report/html", requirePortal("owner"), async (req, res, next) => {
   try {
     const students = await buildStudentReport();
+    const sections = reportSections(students);
     return ownerPage(res, "owner/report", {
       title: "التقرير الشامل",
       pageTitle: "التقرير الشامل",
       students,
+      sections,
       generatedAt: new Date(),
       printable: true,
     });
@@ -434,15 +464,29 @@ router.get("/report/html", requirePortal("owner"), async (req, res, next) => {
 router.get("/report/csv", requirePortal("owner"), async (req, res, next) => {
   try {
     const students = await buildStudentReport();
-    const header = "الاسم,الرقم الجامعي,المقررات,متوسط الدرجات,نسبة الحضور,النقاط\n";
-    const rows = students.map((student) =>
-      [student.name, student.code, student.courses, student.average, student.attendanceRate, student.points]
-        .map(csvCell)
-        .join(",")
-    );
+    const sections = reportSections(students);
+    const lines = [
+      '\uFEFF"التقرير الشامل — أكاديمية آل الزين"',
+      `"تاريخ الإصدار","${new Date().toLocaleString("ar", { numberingSystem: "latn" })}"`,
+      "",
+    ];
+
+    for (const section of sections) {
+      lines.push(`"${section.title}"`);
+      lines.push("الاسم,الرقم الجامعي,القسم,المستوى,المقررات,متوسط الدرجات,نسبة الحضور,النقاط");
+      for (const student of section.rows) {
+        lines.push(
+          [student.name, student.code, student.trackLabel, student.level, student.courses, student.average, student.attendanceRate, student.points]
+            .map(csvCell)
+            .join(",")
+        );
+      }
+      lines.push("");
+    }
+
     res.setHeader("Content-Type", "text/csv; charset=utf-8");
     res.setHeader("Content-Disposition", `attachment; filename="alzain-report.csv"`);
-    res.send("\uFEFF" + header + rows.join("\n"));
+    res.send(lines.join("\n"));
   } catch (error) {
     next(error);
   }

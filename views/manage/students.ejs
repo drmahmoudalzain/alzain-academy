@@ -16,7 +16,7 @@
               <td><%= student.id %></td>
               <td><strong><a href="<%= basePath %>/<%= student.id %>" style="color:inherit;text-decoration:none;"><%= student.name %></a></strong></td>
               <td dir="ltr" style="text-align:left;"><code><%= student.university_id ?? '—' %></code></td>
-              <td><%= student.track === 'equiv' ? 'معادلة' : 'بكالوريوس' %><%= student.level ? ' · م' + student.level : '' %></td>
+              <td><%= getProfile(student.track).label %><%= student.level ? ' · م' + student.level : '' %></td>
               <td><%= student.courseCount %></td>
               <td><span class="chip" style="<%= student.is_active ? 'color:var(--success);border-color:var(--success-border);' : 'color:var(--danger);border-color:var(--danger-border);' %>"><%= student.is_active ? 'نشط' : 'موقوف' %></span></td>
               <td><a class="chip" href="<%= basePath %>/<%= student.id %>">عرض</a></td>

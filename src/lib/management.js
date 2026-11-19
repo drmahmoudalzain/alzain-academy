@@ -10,6 +10,7 @@ import {
 } from "./manage-data.js";
 import { getCourseGrade } from "./student-data.js";
 import { aiStatus } from "./ai.js";
+import { parseTrackKey } from "./tracks.js";
 
 /**
  * مولّد مسارات الإدارة المشترك — يعمل في بوابة الأستاذ (مقرراته فقط)
@@ -95,7 +96,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       const title = String(req.body.title ?? "").trim();
       const code = String(req.body.code ?? "").trim().toUpperCase();
       const description = String(req.body.description ?? "").trim() || null;
-      const track = req.body.track === "equiv" ? "equiv" : "bachelor";
+      const track = parseTrackKey(req.body.track);
       const level = Math.min(4, Math.max(1, Number(req.body.level ?? 1)));
       const color = String(req.body.color ?? "#123A63");
       const attendanceWeight = Number(req.body.attendance_weight ?? 10);
@@ -216,7 +217,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       const title = String(req.body.title ?? "").trim();
       const code = String(req.body.code ?? "").trim().toUpperCase();
       const description = String(req.body.description ?? "").trim() || null;
-      const track = req.body.track === "equiv" ? "equiv" : "bachelor";
+      const track = parseTrackKey(req.body.track);
       const level = Math.min(4, Math.max(1, Number(req.body.level ?? 1)));
       const color = String(req.body.color ?? "#123A63");
       const attendanceWeight = Number(req.body.attendance_weight ?? 10);

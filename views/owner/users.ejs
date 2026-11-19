@@ -28,7 +28,7 @@
               <td><strong><%= user.name %></strong></td>
               <td><%= user.role === 'teacher' ? 'أستاذ' : 'طالب' %></td>
               <td dir="ltr" style="text-align:left;"><code><%= user.university_id || user.email || '—' %></code></td>
-              <td><%= user.role === 'student' ? (user.track === 'equiv' ? 'قسم المعادلة' : 'البكالوريوس') + (user.level ? ' — م' + user.level : '') : (user.position || 'عضو هيئة التدريس') %></td>
+              <td><%= user.role === 'student' ? getProfile(user.track).label + (user.level ? ' — م' + user.level : '') : (user.position || 'عضو هيئة التدريس') %></td>
               <td><span class="chip" style="<%= user.is_active ? 'border-color:var(--success-border);color:var(--success);' : 'border-color:var(--danger-border);color:var(--danger);' %>"><%= user.is_active ? 'نشط' : 'موقوف' %></span></td>
               <td class="muted"><%= user.last_login ? format.formatDateTime(user.last_login) : '—' %></td>
               <td style="white-space:nowrap;">

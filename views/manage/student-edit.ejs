@@ -36,10 +36,9 @@
         <input type="email" name="email" value="<%= student.email ?? '' %>" maxlength="160" dir="ltr" style="text-align:left;">
       </label>
       <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr;">
-        <label>المسار
+        <label>القسم الأكاديمي
           <select name="track">
-            <option value="bachelor" <%= student.track === 'bachelor' ? 'selected' : '' %>>مسار البكالوريوس</option>
-            <option value="equiv" <%= student.track === 'equiv' ? 'selected' : '' %>>قسم المعادلة</option>
+            <%- include('../partials/track-options', { currentTrack: student.track }) %>
           </select>
         </label>
         <label>المستوى

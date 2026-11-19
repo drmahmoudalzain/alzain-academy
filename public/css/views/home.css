@@ -713,8 +713,8 @@
        ========================================================= */
     .tracks-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 26px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 22px;
     }
     .track-card {
       position: relative;

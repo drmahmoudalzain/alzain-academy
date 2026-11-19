@@ -3,6 +3,7 @@ import { db } from "./supabase.js";
 import { renderPage } from "./render.js";
 import { requirePortal } from "../middleware/auth.js";
 import { getCourseGrade } from "./student-data.js";
+import { parseTrackKey } from "./tracks.js";
 import { hashPassword } from "./password.js";
 import crypto from "node:crypto";
 
@@ -174,7 +175,7 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
       const email = String(req.body.email ?? "").trim().toLowerCase() || null;
       const phone = String(req.body.phone ?? "").trim() || null;
       const universityId = String(req.body.university_id ?? "").trim() || null;
-      const track = req.body.track === "equiv" ? "equiv" : "bachelor";
+      const track = parseTrackKey(req.body.track);
       const level = Math.min(4, Math.max(1, Number(req.body.level ?? 1)));
       const gender = ["M", "F"].includes(req.body.gender) ? req.body.gender : null;
       const isActive = req.body.is_active === "on";

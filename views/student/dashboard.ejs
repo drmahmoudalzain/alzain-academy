@@ -150,7 +150,7 @@
                 <div class="course-info">
                   <h4><%= course.title %></h4>
                   <div class="course-meta">
-                    <span><%= course.code %> · <%= course.track === 'equiv' ? 'قسم المعادلة' : 'مسار البكالوريوس' %></span>
+                    <span><%= course.code %> · <%= getProfile(course.track).label %></span>
                     <span><%= course.teacherName %></span>
                   </div>
                 </div>

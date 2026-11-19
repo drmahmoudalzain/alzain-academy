@@ -40,8 +40,7 @@
         <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
           <label>المسار
             <select name="track">
-              <option value="bachelor" <%= course.track === 'bachelor' ? 'selected' : '' %>>مسار البكالوريوس</option>
-              <option value="equiv" <%= course.track === 'equiv' ? 'selected' : '' %>>قسم المعادلة</option>
+              <%- include('../partials/track-options', { currentTrack: course.track }) %>
             </select>
           </label>
           <label>المستوى

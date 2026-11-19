@@ -1,7 +1,7 @@
 <section class="page-header">
   <div class="page-header-info">
     <h2><%= student.name %></h2>
-    <p><code><%= student.university_id ?? '—' %></code> · <%= student.track === 'equiv' ? 'قسم المعادلة' : 'مسار البكالوريوس' %><%= student.level ? ' · المستوى ' + student.level : '' %></p>
+    <p><code><%= student.university_id ?? '—' %></code> · <%= getProfile(student.track).label %><%= student.level ? ' · المستوى ' + student.level : '' %></p>
   </div>
   <div class="page-header-actions">
     <a class="btn btn-secondary" href="<%= basePath %>/<%= student.id %>/edit">تعديل البيانات</a>

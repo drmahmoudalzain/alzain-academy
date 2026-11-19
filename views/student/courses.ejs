@@ -16,7 +16,7 @@
             <div class="meta">
               <span><%= course.code %></span>
               <span class="dot"></span>
-              <span><%= course.track === 'equiv' ? 'قسم المعادلة' : 'البكالوريوس' %> · <%= course.level ? 'المستوى ' + course.level : '' %></span>
+              <span><%= getProfile(course.track).label %> · <%= course.level ? 'المستوى ' + course.level : '' %></span>
             </div>
           </div>
         </div>

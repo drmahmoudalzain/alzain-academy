@@ -26,7 +26,7 @@ const TEST_USERS = [
     email: "student@test.local",
     university_id: "2024001",
     password: "Student1234",
-    track: "bachelor",
+    track: "bachelor_m",
     level: 1,
     gender: "M",
     is_staff: false,

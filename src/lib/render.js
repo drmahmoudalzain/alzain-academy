@@ -1,4 +1,5 @@
 import * as format from "./format.js";
+import { getProfile, parseTrackKey, isSeparateTrack, isMixedTrack, TRACK_KEYS, DEFAULT_TRACK } from "./tracks.js";
 
 // عرض صفحة داخل تخطيط (layout) دون حزمة خارجية.
 export function renderView(res, view, locals) {
@@ -9,7 +10,16 @@ export function renderView(res, view, locals) {
 
 export async function renderPage(res, view, locals = {}) {
   const layout = locals.layout ?? "portal";
-  const data = { ...locals, format };
+  const data = {
+    ...locals,
+    format,
+    getProfile,
+    parseTrackKey,
+    isSeparateTrack,
+    isMixedTrack,
+    TRACK_KEYS,
+    DEFAULT_TRACK,
+  };
   const body = await renderView(res, view, data);
   if (layout === false) {
     res.type("html").send(body);

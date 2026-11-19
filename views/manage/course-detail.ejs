@@ -1,7 +1,7 @@
 <section class="page-header">
   <div class="page-header-info">
     <h2><%= course.title %></h2>
-    <p><code><%= course.code %></code> · <%= course.track === 'equiv' ? 'قسم المعادلة' : 'مسار البكالوريوس' %> · <%= course.level ? 'المستوى ' + course.level : '' %></p>
+    <p><code><%= course.code %></code> · <%= getProfile(course.track).label %> · <%= course.level ? 'المستوى ' + course.level : '' %></p>
   </div>
   <div class="page-header-actions">
     <a class="btn btn-secondary" href="<%= basePath %>/courses/<%= course.id %>/gradebook">سجل الدرجات</a>

@@ -39,6 +39,12 @@ export const NAVIGATION = {
       ],
     },
     {
+      section: "التواصل",
+      items: [
+        { label: "المنتدى", href: "/forum", icon: "forum" },
+      ],
+    },
+    {
       section: "المكتبة والدعم",
       items: [
         { label: "المكتبة", href: "/library", icon: "library" },
@@ -67,6 +73,12 @@ export const NAVIGATION = {
       ],
     },
     {
+      section: "التواصل",
+      items: [
+        { label: "المنتدى", href: "/forum", icon: "forum" },
+      ],
+    },
+    {
       section: "المكتبة والدعم",
       items: [
         { label: "المكتبة", href: "/library", icon: "library" },
@@ -91,6 +103,7 @@ export const NAVIGATION = {
         { label: "الموظفون", href: "/owner/staff", icon: "user" },
         { label: "المقررات", href: "/owner/courses", icon: "courses" },
         { label: "الطلاب", href: "/owner/students", icon: "users" },
+        { label: "المنتدى", href: "/forum", icon: "forum" },
         { label: "الإشعارات", href: "/notifications", icon: "bell" },
         { label: "التقارير", href: "/owner/report/html", icon: "grades" },
         { label: "الأرشيف", href: "/owner/archive", icon: "archive" },

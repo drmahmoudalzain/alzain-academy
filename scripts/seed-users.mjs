@@ -59,14 +59,14 @@ const usersPayload = [
     position: founder.position, is_staff: founder.is_staff,
     must_change_password: founder.must_change_password,
     password_hash: hashPassword(founderPassword),
-    is_active: true, track: "bachelor", level: 1,
+    is_active: true, track: "bachelor_m", level: 1,
   },
   ...students.map(([uid, name, gender, pwd]) => ({
     role: "student", name, email: null, university_id: uid, phone: null, gender,
     position: null, is_staff: false,
     password_hash: hashPassword(pwd),
     must_change_password: uid === "2024002",
-    is_active: true, track: "bachelor", level: 1,
+    is_active: true, track: "bachelor_m", level: 1,
   })),
 ];
 
