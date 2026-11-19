@@ -1,4 +1,24 @@
 // تعريف قوائم التنقل لكل بوابة. تُستخدم في تخطيط البوابة الموحّد.
+import { assessmentOf } from "./tracks.js";
+
+/** قائمة التنقل لطالب مع إخفاء أداة التقييم غير المناسبة لمساره. */
+export function studentNavigationFor(user) {
+  const tool = assessmentOf(user?.track);
+  return NAVIGATION.student.map((section) => ({
+    ...section,
+    items: section.items.filter((item) => {
+      if (item.href === "/student/exams") return tool === "exam";
+      if (item.href === "/student/assignments") return tool === "assignment";
+      return true;
+    }),
+  }));
+}
+
+export function navigationFor(portalKey, user) {
+  if (portalKey === "student") return studentNavigationFor(user);
+  return NAVIGATION[portalKey] ?? [];
+}
+
 export const NAVIGATION = {
   student: [
     {

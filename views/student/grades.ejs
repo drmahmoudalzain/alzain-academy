@@ -73,6 +73,7 @@
                 </div>
                 <div class="breakdown-bar attendance"><span style="width:<%= grade.attendance.ratio %>%"></span></div>
               </div>
+              <% if (grade.exams.weight > 0) { %>
               <div class="breakdown-row">
                 <div class="breakdown-head">
                   <span>الاختبارات <span class="badge-weight"><%= grade.exams.weight %>%</span></span>
@@ -80,6 +81,8 @@
                 </div>
                 <div class="breakdown-bar exams"><span style="width:<%= grade.exams.ratio %>%"></span></div>
               </div>
+              <% } %>
+              <% if (grade.assignments.weight > 0) { %>
               <div class="breakdown-row">
                 <div class="breakdown-head">
                   <span>الواجبات <span class="badge-weight"><%= grade.assignments.weight %>%</span></span>
@@ -87,6 +90,7 @@
                 </div>
                 <div class="breakdown-bar assignments"><span style="width:<%= grade.assignments.ratio %>%"></span></div>
               </div>
+              <% } %>
             </div>
             <div class="course-grade-total">
               <span class="total-label">الدرجة النهائية</span>
@@ -105,15 +109,16 @@
 </div>
 
 <div class="tab-pane" data-pane="gradebook">
+  <% const hasExams = grades.some(g => g.exams.weight > 0); const hasAssign = grades.some(g => g.assignments.weight > 0); %>
   <div class="gradebook-wrapper">
     <div style="overflow-x:auto;">
       <table class="gradebook-table">
         <thead>
           <tr>
             <th>المقرر</th>
-            <th>الحضور (<%= '10' %>%)</th>
-            <th>الاختبارات (60%)</th>
-            <th>الواجبات (30%)</th>
+            <th>الحضور (<%= grades.length ? grades[0].attendance.weight : 30 %>%)</th>
+            <% if (hasExams) { %><th>الاختبارات (<%= grades[0].exams.weight %>%)</th><% } %>
+            <% if (hasAssign) { %><th>الواجبات (<%= grades[0].assignments.weight %>%)</th><% } %>
             <th>المجموع</th>
             <th>التقدير</th>
           </tr>
@@ -131,8 +136,8 @@
                 </div>
               </td>
               <td><%= grade.attendance.earned %> / <%= grade.attendance.weight %></td>
-              <td><%= grade.exams.earned %> / <%= grade.exams.weight %></td>
-              <td><%= grade.assignments.earned %> / <%= grade.assignments.weight %></td>
+              <% if (hasExams) { %><td><%= grade.exams.earned %> / <%= grade.exams.weight %></td><% } %>
+              <% if (hasAssign) { %><td><%= grade.assignments.earned %> / <%= grade.assignments.weight %></td><% } %>
               <td class="grade-cell"><%= grade.total %></td>
               <td class="gpa-cell"><%= grade.letter %></td>
             </tr>

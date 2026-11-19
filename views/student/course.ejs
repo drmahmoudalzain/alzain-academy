@@ -21,14 +21,18 @@
         <div class="breakdown-head"><span>الحضور <span class="badge-weight"><%= grade.attendance.weight %>%</span></span><strong><%= grade.attendance.earned %> / <%= grade.attendance.weight %></strong></div>
         <div class="breakdown-bar attendance"><span style="width:<%= grade.attendance.ratio %>%"></span></div>
       </div>
+      <% if (grade.exams.weight > 0) { %>
       <div class="breakdown-row">
         <div class="breakdown-head"><span>الاختبارات <span class="badge-weight"><%= grade.exams.weight %>%</span></span><strong><%= grade.exams.earned %> / <%= grade.exams.weight %></strong></div>
         <div class="breakdown-bar exams"><span style="width:<%= grade.exams.ratio %>%"></span></div>
       </div>
+      <% } %>
+      <% if (grade.assignments.weight > 0) { %>
       <div class="breakdown-row">
         <div class="breakdown-head"><span>الواجبات <span class="badge-weight"><%= grade.assignments.weight %>%</span></span><strong><%= grade.assignments.earned %> / <%= grade.assignments.weight %></strong></div>
         <div class="breakdown-bar assignments"><span style="width:<%= grade.assignments.ratio %>%"></span></div>
       </div>
+      <% } %>
     </div>
     <div class="course-grade-total">
       <span class="total-label">الدرجة النهائية</span>

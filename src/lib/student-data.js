@@ -1,4 +1,5 @@
 import { db } from "./supabase.js";
+import { getProfile } from "./tracks.js";
 
 const EMPTY = { data: [], error: null, count: 0 };
 
@@ -210,12 +211,14 @@ export async function getNotifications(studentId, courseIds) {
     .slice(0, 5);
 }
 
-/** حساب مكوّنات الدرجة لمقرر واحد. */
+/** حساب مكوّنات الدرجة لمقرر واحد (الأوزان حسب مسار الطالب: بكالوريوس 30/70 حضور/اختبارات، معادلة 30/70 حضور/واجبات). */
 export async function getCourseGrade(course, studentId) {
   const courseId = course.id;
-  const attendanceWeight = Number(course.attendance_weight ?? 10);
-  const examsWeight = Number(course.exams_weight ?? 60);
-  const assignmentsWeight = Number(course.assignments_weight ?? 30);
+  const trackRes = await db.from("users").select("track").eq("id", studentId).maybeSingle();
+  const profile = getProfile(trackRes.data?.track);
+  const attendanceWeight = profile.attendance;
+  const examsWeight = profile.exams;
+  const assignmentsWeight = profile.assignments;
 
   const [lecturesRes, attendanceRes, examsRes, assignmentsRes] = await Promise.all([
     db.from("lectures").select("id").eq("course_id", courseId),

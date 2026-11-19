@@ -7,7 +7,7 @@ import {
 } from "../lib/session.js";
 import { getSettings, isFlagOn } from "../lib/settings.js";
 import { PORTALS, canEnterPortal, primaryPortal } from "../lib/portals.js";
-import { NAVIGATION } from "../lib/navigation.js";
+import { navigationFor } from "../lib/navigation.js";
 import { renderPage } from "../lib/render.js";
 
 /** يقرأ الكوكي ويجلب المستخدم من جدول sessions (تجزئة الرمز فقط). */
@@ -41,7 +41,7 @@ export async function attachUser(req, res, next) {
     res.locals.user = data.users;
     const portalKey = await primaryPortal(data.users);
     res.locals.homePath = PORTALS[portalKey]?.home ?? "/";
-    res.locals.nav = NAVIGATION[portalKey] ?? [];
+    res.locals.nav = navigationFor(portalKey, data.users);
     res.locals.navBadges = {};
   } catch (error) {
     console.error("تعذر التحقق من الجلسة:", error.message ?? error);
@@ -81,7 +81,7 @@ export function requirePortal(portalKey) {
       if (!allowed) return forbidden(req, res, portalKey);
 
       res.locals.portal = PORTALS[portalKey];
-      res.locals.nav = NAVIGATION[portalKey] ?? [];
+      res.locals.nav = navigationFor(portalKey, req.user);
       res.locals.navBadges = res.locals.navBadges ?? {};
       next();
     } catch (error) {

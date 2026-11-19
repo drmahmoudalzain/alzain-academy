@@ -19,8 +19,15 @@ import {
   isEnrolled,
 } from "../lib/student-data.js";
 import { formatDate, formatPercent, isPast, sameDay } from "../lib/format.js";
+import { assessmentOf } from "../lib/tracks.js";
 
 const router = express.Router();
+
+// يمنع الوصول لصفحة أداة تقييم غير مناسبة لمسار الطالب (الاختبارات للبكالوريوس، الواجبات للمعادلة).
+const requireAssessment = (kind) => (req, res, next) => {
+  if (assessmentOf(req.user?.track) === kind) return next();
+  return res.redirect("/student");
+};
 
 const FLASH = {
   attendance_ok: { tone: "success", text: "تم تسجيل حضورك بنجاح واحتساب نقاط المحاضرة." },
@@ -51,10 +58,10 @@ function portalPage(res, view, locals) {
   });
 }
 
-async function loadBadges(studentId, courseIds) {
+async function loadBadges(studentId, courseIds, tool = "exam") {
   const [exams, assignments] = await Promise.all([
-    getExamsWithAttempts(studentId, courseIds),
-    getAssignmentsWithSubmissions(studentId, courseIds),
+    tool === "exam" ? getExamsWithAttempts(studentId, courseIds) : Promise.resolve([]),
+    tool === "assignment" ? getAssignmentsWithSubmissions(studentId, courseIds) : Promise.resolve([]),
   ]);
   return {
     exams: exams.filter((exam) => !exam.attempt || exam.attempt.status === "in_progress").length,
@@ -76,15 +83,16 @@ function courseMap(courses) {
 router.get("/", requirePortal("student"), async (req, res, next) => {
   try {
     const studentId = req.user.id;
+    const tool = assessmentOf(req.user?.track);
     const { courses, courseIds } = await courseContext(studentId);
 
     const [attendance, points, exams, assignments, notifications, badges] = await Promise.all([
       getAttendanceSummary(studentId, courseIds),
       getPoints(studentId),
-      getExamsWithAttempts(studentId, courseIds),
-      getAssignmentsWithSubmissions(studentId, courseIds),
+      tool === "exam" ? getExamsWithAttempts(studentId, courseIds) : Promise.resolve([]),
+      tool === "assignment" ? getAssignmentsWithSubmissions(studentId, courseIds) : Promise.resolve([]),
       getNotifications(studentId, courseIds),
-      loadBadges(studentId, courseIds),
+      loadBadges(studentId, courseIds, tool),
     ]);
 
     const now = Date.now();
@@ -120,7 +128,9 @@ router.get("/", requirePortal("student"), async (req, res, next) => {
         attendanceRate: attendance.attendanceRate,
         points: points.total,
         upcomingExams: upcomingExams.length,
+        pendingAssignments: pendingAssignments.length,
       },
+      assessment: tool,
       courses: courses.slice(0, 4),
       upcomingLectures: upcomingLectures.map((lecture) => ({ ...lecture, course: teachers.get(lecture.course_id) })),
       todayCount: todayLectures.length,
@@ -437,7 +447,7 @@ router.post("/lectures/:id/questions/:questionId/answer", requirePortal("student
 });
 
 // ---------- الاختبارات ----------
-router.get("/exams", requirePortal("student"), async (req, res, next) => {
+router.get("/exams", requirePortal("student"), requireAssessment("exam"), async (req, res, next) => {
   try {
     const studentId = req.user.id;
     const { courses, courseIds } = await courseContext(studentId);
@@ -471,7 +481,7 @@ router.get("/exams", requirePortal("student"), async (req, res, next) => {
   }
 });
 
-router.get("/exams/:id", requirePortal("student"), async (req, res, next) => {
+router.get("/exams/:id", requirePortal("student"), requireAssessment("exam"), async (req, res, next) => {
   try {
     const studentId = req.user.id;
     const exam = await getExamForStudent(Number(req.params.id), studentId);
@@ -575,7 +585,7 @@ router.get("/exams/:id", requirePortal("student"), async (req, res, next) => {
   }
 });
 
-router.post("/exams/:id/start", requirePortal("student"), async (req, res, next) => {
+router.post("/exams/:id/start", requirePortal("student"), requireAssessment("exam"), async (req, res, next) => {
   try {
     const studentId = req.user.id;
     const exam = await getExamForStudent(Number(req.params.id), studentId);
@@ -612,7 +622,7 @@ router.post("/exams/:id/start", requirePortal("student"), async (req, res, next)
   }
 });
 
-router.post("/exams/:id/submit", requirePortal("student"), async (req, res, next) => {
+router.post("/exams/:id/submit", requirePortal("student"), requireAssessment("exam"), async (req, res, next) => {
   try {
     const studentId = req.user.id;
     const examId = Number(req.params.id);
@@ -722,7 +732,7 @@ router.post("/exams/:id/submit", requirePortal("student"), async (req, res, next
 });
 
 // ---------- الواجبات ----------
-router.get("/assignments", requirePortal("student"), async (req, res, next) => {
+router.get("/assignments", requirePortal("student"), requireAssessment("assignment"), async (req, res, next) => {
   try {
     const studentId = req.user.id;
     const { courses, courseIds } = await courseContext(studentId);
@@ -758,7 +768,7 @@ router.get("/assignments", requirePortal("student"), async (req, res, next) => {
   }
 });
 
-router.get("/assignments/:id", requirePortal("student"), async (req, res, next) => {
+router.get("/assignments/:id", requirePortal("student"), requireAssessment("assignment"), async (req, res, next) => {
   try {
     const studentId = req.user.id;
     const assignment = await getAssignmentForStudent(Number(req.params.id), studentId);
@@ -800,7 +810,7 @@ router.get("/assignments/:id", requirePortal("student"), async (req, res, next) 
   }
 });
 
-router.post("/assignments/:id/submit", requirePortal("student"), async (req, res, next) => {
+router.post("/assignments/:id/submit", requirePortal("student"), requireAssessment("assignment"), async (req, res, next) => {
   try {
     const studentId = req.user.id;
     const assignment = await getAssignmentForStudent(Number(req.params.id), studentId);
