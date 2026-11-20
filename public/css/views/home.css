@@ -897,16 +897,16 @@
     .lib-card span { font-size: 0.76rem; color: var(--text-soft); }
 
     /* =========================================================
-       بوابة الدخول (البطاقات الثلاث)
+       بوابة الدخول (البطاقات الأربع)
        ========================================================= */
     .portals-section {
       position: relative;
     }
     .portals {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 24px;
-      max-width: 1080px;
+      max-width: 900px;
       margin: 0 auto;
     }
     .portal {
@@ -957,6 +957,7 @@
     .portal-owner   { --portal-accent: var(--gold); }
     .portal-teacher { --portal-accent: var(--navy-glow); }
     .portal-student { --portal-accent: var(--green-light); }
+    .portal-assistant { --portal-accent: #6B9B8E; }
 
     .portal-icon {
       width: 76px; height: 76px;

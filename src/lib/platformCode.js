@@ -1,5 +1,5 @@
 // الرمز الموحد للمنصة (Platform Code) + توليد كلمات المرور المؤقتة.
-// البوادئ: BM/BF/EQ/EX/PG للطلاب حسب مسارهم، TE للأستاذ، AD للمالك.
+// البوادئ: BM/BF/EQ/EX/PG للطلاب حسب مسارهم، TE للأستاذ، AS للمساعد الإداري، AD للمالك.
 import crypto from "node:crypto";
 import { db } from "./supabase.js";
 import { hashPassword } from "./password.js";
@@ -13,13 +13,14 @@ export const PREFIX_BY_TRACK = {
   grad: "PG",
 };
 
-export const PREFIX_BY_ROLE = { teacher: "TE" };
+export const PREFIX_BY_ROLE = { teacher: "TE", assistant: "AS" };
 
 export const PREFIX_OWNER = "AD";
 
 /** بادئة الرمز المناسبة لسياق إنشاء الحساب. */
 export function prefixFor({ role, track, founder = false }) {
   if (role === "teacher") return founder ? PREFIX_OWNER : PREFIX_BY_ROLE.teacher;
+  if (role === "assistant") return PREFIX_BY_ROLE.assistant;
   return PREFIX_BY_TRACK[track] ?? "BM";
 }
 
@@ -85,7 +86,7 @@ export async function provisionUser({ role, name, track = null, level = null, un
         platform_id: platformId,
         must_change_password: true,
         is_active: true,
-        is_staff: role === "teacher",
+        is_staff: role === "teacher" || role === "assistant",
       })
       .select("id, name, role, email, university_id, platform_id")
       .maybeSingle();

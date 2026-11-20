@@ -13,6 +13,11 @@ body.portal-teacher {
   --green-light: #2A5F94;
 }
 
+body.portal-assistant {
+  --green: #3E6D63;
+  --green-light: #568A7E;
+}
+
 body.portal {
   background: var(--bg-page);
 }

@@ -69,7 +69,7 @@
           <span class="ug-kicker">مرجع سريع ومحدَّث</span>
           <h1>دليل <span class="accent">استخدام المنصة</span></h1>
           <p class="ug-lead">
-            يشرح هذا الدليل البوابات الثلاث، وخطوات الدخول والإعداد الأولي، وصلاحيات كل دور،
+            يشرح هذا الدليل البوابات الأربع، وخطوات الدخول والإعداد الأولي، وصلاحيات كل دور،
             ونظام الدرجات المعتمد، وطريقة متابعة الحضور والتفاعل والاختبارات والواجبات.
           </p>
           <div class="ug-hero-actions">
@@ -100,10 +100,11 @@
         <a href="#start">١ · البداية والدخول</a>
         <a href="#owner">٢ · بوابة المالك</a>
         <a href="#teacher">٣ · بوابة الأستاذ</a>
-        <a href="#student">٤ · بوابة الطالب</a>
-        <a href="#grading">٥ · نظام الدرجات</a>
-        <a href="#tools">٦ · الحضور والتقييم</a>
-        <a href="#faq">٧ · الأسئلة الشائعة</a>
+        <a href="#assistant">٤ · بوابة المساعد الإداري</a>
+        <a href="#student">٥ · بوابة الطالب</a>
+        <a href="#grading">٦ · نظام الدرجات</a>
+        <a href="#tools">٧ · الحضور والتقييم</a>
+        <a href="#faq">٨ · الأسئلة الشائعة</a>
       </nav>
     </div>
   </section>
@@ -118,8 +119,9 @@
       </div>
 
       <p class="ug-lead-small">
-        المنصة مقسّمة إلى ثلاث بوابات منفصلة. تظهر الروابط على الصفحة الرئيسية، ويمكن الدخول إلى البوابة
-        المخصصة لدورك فقط؛ فلا يمكن لحساب طالب أن يدخل بوابة الأستاذ، ولا لحساب أستاذ أن يدخل بوابة المالك.
+        المنصة مقسّمة إلى أربع بوابات منفصلة. تظهر الروابط على الصفحة الرئيسية، ويمكن الدخول إلى البوابة
+        المخصصة لدورك فقط؛ فلا يمكن لحساب طالب أن يدخل بوابة الأستاذ، ولا لحساب أستاذ أن يدخل بوابة المالك،
+        ولا لحساب مساعد إداري أن يتجاوز صلاحية العرض والتصدير.
       </p>
 
       <div class="ug-portal-grid">
@@ -130,6 +132,10 @@
         <article class="ug-card">
           <h3>بوابة الأستاذ</h3>
           <p>إدارة المقررات المسندة إليه، والمحتوى والاختبارات، ومتابعة طلاب تلك المقررات.</p>
+        </article>
+        <article class="ug-card">
+          <h3>بوابة المساعد الإداري</h3>
+          <p>عرض بيانات الطلاب وتصديرها فقط، بصيغ Excel وWord وPDF وCSV، دون تعديل أو إنشاء حسابات.</p>
         </article>
         <article class="ug-card">
           <h3>بوابة الطالب</h3>
@@ -226,10 +232,38 @@
       </div>
     </section>
 
+    <!-- ============ المساعد الإداري ============ -->
+    <section class="ug-section" id="assistant" aria-labelledby="ug-h-assistant">
+      <div class="ug-section-head">
+        <span class="ug-num" aria-hidden="true">٤</span>
+        <h2 id="ug-h-assistant">بوابة المساعد الإداري</h2>
+      </div>
+
+      <div class="ug-two-col">
+        <div class="ug-card">
+          <h3>دور مستقل للعرض والتصدير</h3>
+          <ul class="ug-list">
+            <li>عرض قائمة الطلاب في كل المسارات، مع البحث والتبويبات وأعداد المستويات.</li>
+            <li>فتح صفحة الطالب للاطلاع على بياناته ومقرراته ودرجاته ونقاطه.</li>
+            <li>تصدير طالب واحد أو عدة طلاب محددين إلى Excel أو Word أو PDF أو CSV.</li>
+          </ul>
+        </div>
+        <div class="ug-card">
+          <h3>خارج نطاق الصلاحية</h3>
+          <ul class="ug-list">
+            <li>إنشاء المستخدمين أو تعديل بياناتهم أو إيقاف الحسابات عاماً.</li>
+            <li>إعادة تعيين كلمات المرور أو نسخها.</li>
+            <li>إنشاء المقررات أو المحاضرات أو الاختبارات أو تعديلها.</li>
+          </ul>
+          <p class="ug-muted">المساعد الإداري لا يظهر ضمن قوائم الطلاب أو الأساتذة، وصلاحياته تُوسَّع من المالك فقط عند الحاجة.</p>
+        </div>
+      </div>
+    </section>
+
     <!-- ============ الطالب ============ -->
     <section class="ug-section" id="student" aria-labelledby="ug-h-student">
       <div class="ug-section-head">
-        <span class="ug-num" aria-hidden="true">٤</span>
+        <span class="ug-num" aria-hidden="true">٥</span>
         <h2 id="ug-h-student">بوابة الطالب</h2>
       </div>
 
@@ -250,7 +284,7 @@
     <!-- ============ الدرجات ============ -->
     <section class="ug-section" id="grading" aria-labelledby="ug-h-grading">
       <div class="ug-section-head">
-        <span class="ug-num" aria-hidden="true">٥</span>
+        <span class="ug-num" aria-hidden="true">٦</span>
         <h2 id="ug-h-grading">نظام الدرجات — 300 نقطة</h2>
       </div>
 
@@ -301,7 +335,7 @@
     <!-- ============ الأدوات ============ -->
     <section class="ug-section" id="tools" aria-labelledby="ug-h-tools">
       <div class="ug-section-head">
-        <span class="ug-num" aria-hidden="true">٦</span>
+        <span class="ug-num" aria-hidden="true">٧</span>
         <h2 id="ug-h-tools">الحضور والتفاعل والاختبارات والواجبات</h2>
       </div>
 
@@ -346,7 +380,7 @@
     <!-- ============ الأسئلة الشائعة ============ -->
     <section class="ug-section" id="faq" aria-labelledby="ug-h-faq">
       <div class="ug-section-head">
-        <span class="ug-num" aria-hidden="true">٧</span>
+        <span class="ug-num" aria-hidden="true">٨</span>
         <h2 id="ug-h-faq">الأسئلة الشائعة</h2>
       </div>
 
@@ -374,6 +408,10 @@
         <div class="ug-faq-item">
           <h3>هل يستطيع الأستاذ إيقاف طالب عاماً؟</h3>
           <p>لا. يمكنه إيقاف الطالب داخل مقرره فقط. التفعيل والإيقاف العام للحساب من صلاحية المالك.</p>
+        </div>
+        <div class="ug-faq-item">
+          <h3>كيف أصدّر بيانات طالب أو قائمة طلاب؟</h3>
+          <p>من قائمة الطلاب حدّد المطلوبين ثم اختر الصيغة: Excel أو Word أو PDF أو CSV. ويمكن تصدير طالب واحد من صفحته مباشرة. المساعد الإداري يملك هذه الصلاحية دون صلاحية التعديل.</p>
         </div>
       </div>
     </section>

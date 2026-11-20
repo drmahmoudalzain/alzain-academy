@@ -48,7 +48,7 @@ export const NAVIGATION = {
       section: "المكتبة والدعم",
       items: [
         { label: "المكتبة", href: "/library", icon: "library" },
-        { label: "المساعد الذكي", href: "/assistant", icon: "assistant" },
+        { label: "المساعد الذكي", href: "/ai-assistant", icon: "assistant" },
         { label: "الإشعارات", href: "/notifications", icon: "bell" },
         { label: "دليل المستخدم", href: "/guide", icon: "file" },
       ],
@@ -94,8 +94,25 @@ export const NAVIGATION = {
       section: "المكتبة والدعم",
       items: [
         { label: "المكتبة", href: "/library", icon: "library" },
-        { label: "المساعد الذكي", href: "/assistant", icon: "assistant" },
+        { label: "المساعد الذكي", href: "/ai-assistant", icon: "assistant" },
         { label: "الإشعارات", href: "/notifications", icon: "bell" },
+        { label: "دليل المستخدم", href: "/guide", icon: "file" },
+      ],
+    },
+    {
+      section: "الحساب",
+      items: [
+        { label: "حسابي", href: "/account", icon: "user" },
+        { label: "تسجيل الخروج", href: "/logout", icon: "logout", method: "post" },
+      ],
+    },
+  ],
+  assistant: [
+    {
+      section: "المتابعة",
+      items: [
+        { label: "لوحة التحكم", href: "/assistant", icon: "home" },
+        { label: "الطلاب", href: "/assistant/students", icon: "users" },
         { label: "دليل المستخدم", href: "/guide", icon: "file" },
       ],
     },

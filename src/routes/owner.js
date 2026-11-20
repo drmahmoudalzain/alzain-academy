@@ -75,7 +75,7 @@ router.get("/users", requirePortal("owner"), async (req, res, next) => {
       .order("created_at", { ascending: false })
       .limit(1000);
 
-    if (role === "teacher" || role === "student") builder = builder.eq("role", role);
+    if (role === "teacher" || role === "student" || role === "assistant") builder = builder.eq("role", role);
     const { data, error } = await builder;
     if (error) throw error;
 
@@ -107,7 +107,7 @@ router.get("/users/new", requirePortal("owner"), async (req, res, next) => {
       title: "إضافة مستخدم",
       pageTitle: "إضافة مستخدم",
       error: null,
-      role: req.query.role === "teacher" ? "teacher" : "student",
+      role: ["teacher", "assistant"].includes(req.query.role) ? req.query.role : "student",
     });
   } catch (error) {
     next(error);
@@ -115,7 +115,7 @@ router.get("/users/new", requirePortal("owner"), async (req, res, next) => {
 });
 
 router.post("/users", requirePortal("owner"), async (req, res, next) => {
-  const role = req.body.role === "teacher" ? "teacher" : "student";
+  const role = ["teacher", "assistant"].includes(req.body.role) ? req.body.role : "student";
   const fail = (message) =>
     ownerPage(res.status(422), "owner/users-new", {
       title: "إضافة مستخدم",
@@ -449,7 +449,7 @@ router.post("/users/import-excel", requirePortal("owner"), uploadRoster, async (
           default_track: trackRaw,
           default_level: level,
           tracks: tracksUsed,
-          mixed_tracks: Object.keys(tracksUsed).length > 1,
+          shared_tracks: Object.keys(tracksUsed).length > 1,
           created: results.length,
           failed: failures.length,
           file_name: req.file?.originalname ?? null,
@@ -612,9 +612,9 @@ const TRACK_META = {
   bachelor: { label: "بكالوريوس — مشترك", title: "قسم البكالوريوس — المقرر الأصلي (مشترك)" },
   bachelor_m: { label: "مسار الطلاب", title: "قسم مسار الطلاب — نظام الدراسة المنفصلة" },
   bachelor_f: { label: "مسار الطالبات", title: "قسم مسار الطالبات — نظام الدراسة المنفصلة" },
-  equiv: { label: "قسم المعادلة", title: "قسم المعادلة — نظام الدراسة المختلطة" },
-  external: { label: "طلاب من الخارج", title: "قسم طلاب من الخارج — نظام الدراسة المختلطة" },
-  grad: { label: "الدراسات العليا", title: "قسم الدراسات العليا — نظام الدراسة المختلطة" },
+  equiv: { label: "قسم المعادلة", title: "قسم المعادلة — نظام الدراسة المشتركة" },
+  external: { label: "طلاب من الخارج", title: "قسم طلاب من الخارج — نظام الدراسة المشتركة" },
+  grad: { label: "الدراسات العليا", title: "قسم الدراسات العليا — نظام الدراسة المشتركة" },
 };
 
 async function buildStudentReport() {

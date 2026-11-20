@@ -3,13 +3,20 @@
     <h2><%= student.name %></h2>
     <p><code><%= student.platform_id ?? student.university_id ?? '—' %></code> · <%= getProfile(student.track).label %><%= student.level ? ' · المستوى ' + student.level : '' %></p>
   </div>
-  <div class="page-header-actions">
-    <a class="btn btn-secondary" href="<%= basePath %>/<%= student.id %>/edit">تعديل البيانات</a>
+  <div class="page-header-actions export-actions">
+    <% if (typeof canEdit === 'undefined' || canEdit) { %>
+      <a class="btn btn-secondary" href="<%= basePath %>/<%= student.id %>/edit">تعديل البيانات</a>
+    <% } %>
     <% if (canResetPassword) { %>
       <form method="post" action="<%= basePath %>/<%= student.id %>/reset-password" style="display:inline;">
         <button class="btn btn-secondary" type="submit" title="توليد كلمة مرور مؤقتة جديدة">إعادة تعيين كلمة المرور</button>
       </form>
     <% } %>
+    <span class="muted">تصدير</span>
+    <a class="btn btn-primary" href="<%= basePath %>/<%= student.id %>/export?format=xlsx">Excel</a>
+    <a class="btn btn-secondary" href="<%= basePath %>/<%= student.id %>/export?format=word">Word</a>
+    <a class="btn btn-secondary" href="<%= basePath %>/<%= student.id %>/export?format=pdf">PDF</a>
+    <a class="btn btn-secondary" href="<%= basePath %>/<%= student.id %>/export?format=csv">CSV</a>
   </div>
 </section>
 

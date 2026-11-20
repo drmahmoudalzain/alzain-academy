@@ -6,6 +6,8 @@ import { getSubjectGrades } from "./student-data.js";
 import { parseStudentTrack } from "./tracks.js";
 import { hashPassword } from "./password.js";
 import { generateTempPassword } from "./platformCode.js";
+import { roleCan } from "./permissions.js";
+import { sendStudentExport } from "./student-export.js";
 
 // تبويبات فلترة الطلاب. «bachelor» يضم الأصل والطلاب والطالبات؛ والباقي مسارات منفصلة.
 const TRACK_FILTER_KEYS = ["all", "bachelor", "bachelor_m", "bachelor_f", "equiv", "external", "grad"];
@@ -61,13 +63,14 @@ function countLevelFilters(students) {
 }
 
 /**
- * إدارة الطلاب — مشتركة بين بوابتي المالك والأستاذ.
- * الأستاذ يرى فقط الطلاب المسجّلين في مقرراته، والمالك يرى الجميع.
+ * إدارة الطلاب — مشتركة بين بوابات المالك والأستاذ والمساعد الإداري.
+ * الأستاذ يرى فقط الطلاب المسجّلين في مقرراته، والمالك والمساعد يريان الجميع.
  */
-export function createStudentsRouter({ portalKey, basePath, isOwner }) {
+export function createStudentsRouter({ portalKey, basePath, isOwner, readOnly = false }) {
   const router = express.Router();
   const guard = requirePortal(portalKey);
   const isOwnerMode = Boolean(isOwner);
+  const readOnlyMode = Boolean(readOnly);
 
   const page = (res, view, locals) =>
     renderPage(res, view, { layout: "portal", portal: res.locals.portal, basePath, ...locals });
@@ -177,6 +180,66 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
     }
   });
 
+  // ---------- التصدير (طالب واحد أو عدة طلاب، عبر كل المسارات) ----------
+  router.post("/export", guard, async (req, res, next) => {
+    try {
+      if (!isOwnerMode && req.user.role !== "teacher" && !roleCan(req.user.role, "students.export")) {
+        return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا تملك صلاحية تصدير بيانات الطلاب." });
+      }
+
+      const rawIds = Array.isArray(req.body.ids) ? req.body.ids : [req.body.ids].filter(Boolean);
+      const ids = [...new Set(rawIds.map(Number).filter(Number.isInteger))];
+      if (!ids.length) {
+        return res.status(422).type("text/plain").send("يرجى اختيار طالب واحد أو أكثر قبل التصدير.");
+      }
+
+      const allowed = await visibleStudentIds(req.user);
+      const selected = ids.filter((id) => allowed.includes(id));
+      if (!selected.length) {
+        return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "الطلاب المختارون خارج نطاق صلاحيتك." });
+      }
+
+      const { data, error } = await db
+        .from("users")
+        .select("id, name, email, phone, university_id, platform_id, track, level, gender, is_active")
+        .in("id", selected)
+        .order("id");
+      if (error) throw error;
+
+      return await sendStudentExport(res, data ?? [], String(req.body.format ?? "xlsx"));
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  router.get("/:id/export", guard, async (req, res, next) => {
+    try {
+      if (!isOwnerMode && req.user.role !== "teacher" && !roleCan(req.user.role, "students.export")) {
+        return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا تملك صلاحية تصدير بيانات الطلاب." });
+      }
+
+      const id = Number(req.params.id);
+      const allowed = await visibleStudentIds(req.user);
+      if (!Number.isInteger(id) || !allowed.includes(id)) {
+        return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا تملك صلاحية عرض هذا الطالب." });
+      }
+
+      const { data: student, error } = await db
+        .from("users")
+        .select("id, name, email, phone, university_id, platform_id, track, level, gender, is_active")
+        .eq("id", id)
+        .maybeSingle();
+      if (error) throw error;
+      if (!student) {
+        return res.status(404).render("error", { title: "غير موجود", code: 404, message: "الطالب غير موجود." });
+      }
+
+      return await sendStudentExport(res, [student], String(req.query.format ?? "xlsx"));
+    } catch (error) {
+      next(error);
+    }
+  });
+
   // ---------- التفاصيل ----------
   router.get("/:id", guard, async (req, res, next) => {
     try {
@@ -220,7 +283,9 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
         courses: grades,
         points,
         isStaffOwner: isOwnerMode,
-        canResetPassword: isOwnerMode,
+        canResetPassword: isOwnerMode && !readOnlyMode,
+        canEdit: !readOnlyMode,
+        pageCss: "/css/views/students.css",
       });
     } catch (error) {
       next(error);
@@ -230,6 +295,9 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
   // ---------- التعديل ----------
   router.get("/:id/edit", guard, async (req, res, next) => {
     try {
+      if (readOnlyMode) {
+        return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "صلاحية المساعد الإداري للعرض والتصدير فقط." });
+      }
       const id = Number(req.params.id);
       const allowed = await visibleStudentIds(req.user);
       if (!allowed.includes(id)) {
@@ -261,6 +329,9 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
 
   router.post("/:id", guard, async (req, res, next) => {
     try {
+      if (readOnlyMode) {
+        return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "صلاحية المساعد الإداري للعرض والتصدير فقط." });
+      }
       const id = Number(req.params.id);
       const allowed = await visibleStudentIds(req.user);
       if (!allowed.includes(id)) {
@@ -355,6 +426,9 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
   // ---------- إعادة تعيين كلمة المرور (المالك فقط) ----------
   router.post("/:id/reset-password", guard, async (req, res, next) => {
     try {
+      if (readOnlyMode) {
+        return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "صلاحية المساعد الإداري للعرض والتصدير فقط." });
+      }
       if (!isOwnerMode) {
         return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "إعادة تعيين كلمة المرور للمالك فقط." });
       }

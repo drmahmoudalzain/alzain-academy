@@ -123,3 +123,12 @@
   .student-filters .filter-tab { font-size: 0.78rem; padding: 7px 10px; }
   .student-filter-label { flex: 0 0 auto; }
 }
+
+.export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.export-actions .btn { padding: 8px 14px; }
+.data-table input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--green, #1B4A7A); cursor: pointer; }

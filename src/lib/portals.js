@@ -1,5 +1,6 @@
-// بوابات الدخول الثلاث والفصل الصارم بينها (منطق الخادم، وليس الواجهة فقط).
+// بوابات الدخول الأربع والفصل الصارم بينها (منطق الخادم، وليس الواجهة فقط).
 import { db } from "./supabase.js";
+import { roleCan } from "./permissions.js";
 
 export const PORTALS = {
   owner: {
@@ -31,6 +32,16 @@ export const PORTALS = {
     theme: "student",
     home: "/student",
     audience: "الطلاب",
+  },
+  assistant: {
+    key: "assistant",
+    label: "بوابة المساعد الإداري",
+    short: "المساعد الإداري",
+    latin: "Assistant Access",
+    icon: "",
+    theme: "assistant",
+    home: "/assistant",
+    audience: "المساعدين الإداريين",
   },
 };
 
@@ -77,6 +88,7 @@ export async function isFounder(user, options = {}) {
  * owner: المالك فقط.
  * teacher: الأساتذة فقط، ويُستثنى المالك إلا عند تفعيل owner_all_gates.
  * student: الطلاب فقط، ويُستثنى المالك إلا عند تفعيل owner_all_gates.
+ * assistant: المساعد الإداري فقط، بصلاحياته المحدودة في permissions.js.
  */
 export async function canEnterPortal(user, portal, { ownerAllGates = false } = {}) {
   if (!user || !isPortalKey(portal)) return false;
@@ -88,6 +100,10 @@ export async function canEnterPortal(user, portal, { ownerAllGates = false } = {
     return user.role === "teacher" && (!founder || ownerAllGates);
   }
 
+  if (portal === "assistant") {
+    return roleCan("assistant", "students.view") && user.role === "assistant" && (!founder || ownerAllGates);
+  }
+
   return user.role === "student" || (founder && ownerAllGates);
 }
 
@@ -95,5 +111,7 @@ export async function canEnterPortal(user, portal, { ownerAllGates = false } = {
 export async function primaryPortal(user) {
   if (!user) return null;
   if (await isFounder(user)) return "owner";
-  return user.role === "teacher" ? "teacher" : "student";
+  if (user.role === "teacher") return "teacher";
+  if (user.role === "assistant") return "assistant";
+  return "student";
 }

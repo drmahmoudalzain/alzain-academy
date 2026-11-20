@@ -917,9 +917,9 @@
     }
     .portals {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 24px;
-      max-width: 1080px;
+      max-width: 900px;
       margin: 0 auto;
     }
     .portal {
@@ -970,6 +970,7 @@
     .portal-owner   { --portal-accent: var(--gold); }
     .portal-teacher { --portal-accent: var(--navy-glow); }
     .portal-student { --portal-accent: var(--green-light); }
+    .portal-assistant { --portal-accent: #6B9B8E; }
 
     .portal-icon {
       width: 76px; height: 76px;
@@ -1753,7 +1754,7 @@
     </div>
   </section>
 
-  <!-- ============ البوابات الثلاث ============ -->
+  <!-- ============ البوابات الأربع ============ -->
   <section class="section portals-section" id="portals">
     <div class="container">
       <div class="section-head reveal">
@@ -1762,7 +1763,7 @@
           اختر <span class="accent">بوابتك</span> المناسبة
         </h2>
         <p class="section-sub">
-          ثلاث بوابات منفصلة ومحمية، كلٌّ منها مصمّمة لتلبية احتياجات دورها على النحو الأمثل
+          أربع بوابات منفصلة ومحمية، كلٌّ منها مصمّمة لتلبية احتياجات دورها على النحو الأمثل
         </p>
       </div>
 
@@ -1800,6 +1801,25 @@
           </div>
           <h3>بوابة الأساتذة</h3>
           <p>إدارة المقررات والمحاضرات والاختبارات والواجبات والدرجات والطلاب.</p>
+          <span class="portal-cta">
+            دخول
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </span>
+        </a>
+
+        <!-- المساعد الإداري -->
+        <a href="/login?role=assistant" class="portal portal-assistant reveal" aria-label="الدخول إلى بوابة المساعد الإداري">
+          <div class="portal-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 5h16v14H4z" />
+              <path d="M8 9h8M8 13h8M8 17h5" />
+              <path d="M16 3v4M8 3v4" />
+            </svg>
+          </div>
+          <h3>بوابة المساعد الإداري</h3>
+          <p>عرض بيانات الطلاب وتصدير القوائم والدرجات بصيغ Excel وWord وPDF وCSV، دون صلاحية تعديل.</p>
           <span class="portal-cta">
             دخول
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">

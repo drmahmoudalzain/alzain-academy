@@ -10,6 +10,7 @@ import authRouter from "./src/routes/auth.js";
 import ownerRouter from "./src/routes/owner.js";
 import teacherRouter from "./src/routes/teacher.js";
 import studentRouter from "./src/routes/student.js";
+import assistantRouter from "./src/routes/assistant.js";
 import forumRouter from "./src/routes/forum.js";
 import publicationRouter from "./src/routes/publication.js";
 import { createNotificationsRouter } from "./src/lib/notifications.js";
@@ -64,10 +65,11 @@ app.use("/", authRouter);
 app.use("/owner", ownerRouter);
 app.use("/teacher", teacherRouter);
 app.use("/student", studentRouter);
+app.use("/assistant", assistantRouter);
 app.use("/forum", forumRouter);
 app.use("/publication", publicationRouter);
 app.use("/notifications", createNotificationsRouter());
-app.use("/assistant", createAssistantRouter());
+app.use("/ai-assistant", createAssistantRouter());
 app.use("/library", createLibraryRouter());
 
 app.use((req, res) => {

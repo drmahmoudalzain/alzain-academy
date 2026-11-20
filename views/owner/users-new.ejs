@@ -12,9 +12,19 @@
   </div>
 <% } %>
 
-<div class="filter-tabs" style="margin-bottom:16px;">
-  <a class="filter-tab <%= role === 'student' ? 'active' : '' %>" href="/owner/users/new?role=student">طالب</a>
-  <a class="filter-tab <%= role === 'teacher' ? 'active' : '' %>" href="/owner/users/new?role=teacher">أستاذ</a>
+<div class="role-choice" role="group" aria-label="نوع الحساب المراد إنشاؤه">
+  <a class="btn role-choice-btn <%= role === 'student' ? 'btn-primary' : 'btn-secondary' %>" href="/owner/users/new?role=student">
+    <strong>طالب</strong>
+    <span>حساب دراسي داخل أحد المسارات الأكاديمية.</span>
+  </a>
+  <a class="btn role-choice-btn <%= role === 'teacher' ? 'btn-primary' : 'btn-secondary' %>" href="/owner/users/new?role=teacher">
+    <strong>أستاذ</strong>
+    <span>حساب هيئة تدريس لإدارة المقررات والدرجات.</span>
+  </a>
+  <a class="btn role-choice-btn <%= role === 'assistant' ? 'btn-primary' : 'btn-secondary' %>" href="/owner/users/new?role=assistant">
+    <strong>تعيين مساعد إداري</strong>
+    <span>دور مستقل للعرض والتصدير فقط، لا يظهر ضمن الطلاب أو الأساتذة.</span>
+  </a>
 </div>
 
 <form method="post" action="/owner/users" class="table-card">
@@ -52,18 +62,25 @@
       <% } else { %>
         <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
           <label>البريد الوظيفي
-            <input type="email" name="email" maxlength="160" dir="ltr" style="text-align:left;" placeholder="teacher@example.com">
+            <input type="email" name="email" maxlength="160" dir="ltr" style="text-align:left;" placeholder="<%= role === 'assistant' ? 'assistant@example.com' : 'teacher@example.com' %>">
           </label>
           <label>الترتيب/اللقب
-            <input type="text" name="position" maxlength="80" placeholder="مثال: أستاذ مساعد">
+            <input type="text" name="position" maxlength="80" placeholder="<%= role === 'assistant' ? 'مثال: مساعد إداري' : 'مثال: أستاذ مساعد' %>">
           </label>
         </div>
       <% } %>
     </div>
 
+    <% if (role === 'assistant') { %>
+      <div class="alert-inline info" role="note" style="margin-top:16px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <div>المساعد الإداري حساب مستقل بصلاحية <strong>عرض بيانات الطلاب وتصديرها فقط</strong>. لا يستطيع إنشاء المستخدمين أو تعديل بياناتهم أو إعادة تعيين كلمات المرور أو إيقاف الحسابات.</div>
+      </div>
+    <% } %>
+
     <div class="alert-inline info" role="note" style="margin-top:16px;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
-      <div>الاسم الرباعي والمسار يكفيان — <strong>الرمز يُولّد تلقائياً</strong> حسب المسار (BM/BF/EQ/EX/PG للطلاب، TE للأستاذ) مع كلمة مرور مؤقتة تظهر مرة واحدة فقط في بطاقة الدخول. البريد ليس للدخول — سيُدخله المستخدم بنفسه عند أول جلسة.</div>
+      <div>الاسم الرباعي والمسار يكفيان — <strong>الرمز يُولّد تلقائياً</strong> حسب المسار (BM/BF/EQ/EX/PG للطلاب، TE للأستاذ، AS للمساعد الإداري) مع كلمة مرور مؤقتة تظهر مرة واحدة فقط في بطاقة الدخول. البريد ليس للدخول — سيُدخله المستخدم بنفسه عند أول جلسة.</div>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:16px;">
@@ -72,3 +89,26 @@
     </div>
   </div>
 </form>
+
+<style>
+  .role-choice {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .role-choice-btn {
+    flex: 1 1 230px;
+    min-height: 92px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 6px;
+    padding: 16px 20px;
+    text-align: right;
+    line-height: 1.5;
+  }
+  .role-choice-btn strong { font-size: 1rem; }
+  .role-choice-btn span { font-size: 0.78rem; opacity: 0.82; font-weight: 400; }
+</style>

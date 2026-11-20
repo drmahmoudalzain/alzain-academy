@@ -29,6 +29,15 @@
       <% if (narrowed) { %>المعروض الآن: <%= students.length %>.<% } %>
     </p>
   </div>
+  <% if (students.length) { %>
+    <div class="page-header-actions export-actions">
+      <span class="muted">تصدير المحدد</span>
+      <button class="btn btn-primary" type="submit" form="studentExportForm" name="format" value="xlsx">Excel</button>
+      <button class="btn btn-secondary" type="submit" form="studentExportForm" name="format" value="word">Word</button>
+      <button class="btn btn-secondary" type="submit" form="studentExportForm" name="format" value="pdf">PDF</button>
+      <button class="btn btn-secondary" type="submit" form="studentExportForm" name="format" value="csv">CSV</button>
+    </div>
+  <% } %>
 </section>
 
 <nav class="student-filters" aria-label="تصفية الطلاب">
@@ -84,26 +93,45 @@
 </nav>
 
 <% if (students.length) { %>
-  <div class="table-card">
-    <div class="table-scroll">
-      <table class="data-table">
-        <thead><tr><th>#</th><th>الاسم</th><th>الرقم الجامعي</th><th>المسار</th><th>المقررات</th><th>الحالة</th><th></th></tr></thead>
-        <tbody>
-          <% for (const student of students) { %>
-            <tr>
-              <td><%= student.id %></td>
-              <td><strong><a href="<%= basePath %>/<%= student.id %>" style="color:inherit;text-decoration:none;"><%= student.name %></a></strong></td>
-              <td dir="ltr" style="text-align:left;"><code><%= student.platform_id ?? student.university_id ?? '—' %></code></td>
-              <td><%= getProfile(student.track).label %><%= student.level ? ' · م' + student.level : '' %></td>
-              <td><%= student.courseCount %></td>
-              <td><span class="chip" style="<%= student.is_active ? 'color:var(--success);border-color:var(--success-border);' : 'color:var(--danger);border-color:var(--danger-border);' %>"><%= student.is_active ? 'نشط' : 'موقوف' %></span></td>
-              <td><a class="chip" href="<%= basePath %>/<%= student.id %>">عرض</a></td>
-            </tr>
-          <% } %>
-        </tbody>
-      </table>
+  <form id="studentExportForm" method="post" action="<%= basePath %>/export">
+    <div class="table-card">
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead><tr><th><input type="checkbox" id="checkAll" aria-label="تحديد كل الطلاب المعروضين"></th><th>#</th><th>الاسم</th><th>الرقم الجامعي</th><th>المسار</th><th>المقررات</th><th>الحالة</th><th></th></tr></thead>
+          <tbody>
+            <% for (const student of students) { %>
+              <tr>
+                <td><input type="checkbox" name="ids" value="<%= student.id %>" class="student-check" aria-label="تحديد <%= student.name %>"></td>
+                <td><%= student.id %></td>
+                <td><strong><a href="<%= basePath %>/<%= student.id %>" style="color:inherit;text-decoration:none;"><%= student.name %></a></strong></td>
+                <td dir="ltr" style="text-align:left;"><code><%= student.platform_id ?? student.university_id ?? '—' %></code></td>
+                <td><%= getProfile(student.track).label %><%= student.level ? ' · م' + student.level : '' %></td>
+                <td><%= student.courseCount %></td>
+                <td><span class="chip" style="<%= student.is_active ? 'color:var(--success);border-color:var(--success-border);' : 'color:var(--danger);border-color:var(--danger-border);' %>"><%= student.is_active ? 'نشط' : 'موقوف' %></span></td>
+                <td><a class="chip" href="<%= basePath %>/<%= student.id %>">عرض</a></td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
+  </form>
+  <p class="muted" style="margin-top:8px;font-size:0.78rem;">حدّد طالباً أو أكثر ثم اختر الصيغة من أعلى الصفحة. التحديد يشمل كل المسارات الظاهرة حالياً.</p>
+  <script>
+    (function () {
+      var all = document.getElementById('checkAll');
+      if (!all) return;
+      var checks = Array.prototype.slice.call(document.querySelectorAll('.student-check'));
+      all.addEventListener('change', function () {
+        checks.forEach(function (box) { box.checked = all.checked; });
+      });
+      checks.forEach(function (box) {
+        box.addEventListener('change', function () {
+          all.checked = checks.length > 0 && checks.every(function (item) { return item.checked; });
+        });
+      });
+    })();
+  </script>
 <% } else { %>
   <div class="empty-state student-empty">
     <h3><%= narrowed ? 'لا توجد نتائج مطابقة' : 'لا يوجد طلاب' %></h3>

@@ -57,6 +57,10 @@ function clearLoginFails(req, identifier) {
   loginFails.delete(throttleKey(req, identifier));
 }
 
+function loginCssKey(role) {
+  return role === "assistant" ? "teacher" : role;
+}
+
 function safeNext(value) {
   const next = String(value ?? "");
   return next.startsWith("/") && !next.startsWith("//") ? next : null;
@@ -122,7 +126,9 @@ function normalizePlatformCode(identifier) {
 
 async function roleLabel(user) {
   if (await isFounder(user)) return "المالك";
-  return user.role === "teacher" ? "أستاذ" : "طالب";
+  if (user.role === "teacher") return "أستاذ";
+  if (user.role === "assistant") return "مساعد إداري";
+  return "طالب";
 }
 
 // ---------- الصفحة الرئيسية ----------
@@ -139,8 +145,8 @@ router.get("/", async (req, res, next) => {
       title: "الرئيسية",
       layout: "base",
       bodyClass: "site-page",
-      styles: ["/css/views/home.css?v=20261119"],
-      scripts: ["/js/home.js?v=20261119"],
+      styles: ["/css/views/home.css?v=20261120c"],
+      scripts: ["/js/home.js?v=20261120c"],
       stats: { students, courses, lectures, libraryItems },
     });
   } catch (error) {
@@ -179,8 +185,8 @@ router.get("/demo", async (req, res, next) => {
       title: "العرض التجريبي",
       layout: "base",
       bodyClass: "site-page",
-      styles: ["/css/views/home.css?v=20261119"],
-      scripts: ["/js/home.js?v=20261119"],
+      styles: ["/css/views/home.css?v=20261120c"],
+      scripts: ["/js/home.js?v=20261120c"],
     });
   } catch (error) {
     next(error);
@@ -220,8 +226,8 @@ router.get("/login", async (req, res, next) => {
     return renderPage(res, "auth/login", {
       title: `الدخول — ${portal.label}`,
       layout: "base",
-      bodyClass: `login-page login-${role}`,
-      styles: [`/css/views/${role}.css`, "/css/login-extra.css"],
+      bodyClass: `login-page login-${loginCssKey(role)} login-${role}`,
+      styles: [`/css/views/${loginCssKey(role)}.css`, "/css/login-extra.css"],
       portal,
       copy: LOGIN_COPY[role],
       identifier: "",
@@ -250,8 +256,8 @@ router.post("/login", async (req, res, next) => {
     renderPage(res.status(status), "auth/login", {
       title: `الدخول — ${portal.label}`,
       layout: "base",
-      bodyClass: `login-page login-${portalKey}`,
-      styles: [`/css/views/${portalKey}.css`, "/css/login-extra.css"],
+      bodyClass: `login-page login-${loginCssKey(portalKey)} login-${portalKey}`,
+      styles: [`/css/views/${loginCssKey(portalKey)}.css`, "/css/login-extra.css"],
       portal,
       copy: LOGIN_COPY[portalKey],
       identifier: identifier,
@@ -267,7 +273,7 @@ router.post("/login", async (req, res, next) => {
 
     // توضيح صريح بدل رسالة "بيانات غير صحيحة" عند استخدام البريد القديم
     if (String(identifier).includes("@")) {
-      return fail(422, "البريد الإلكتروني ليس وسيلة دخول في المنصة. أدخل الرمز الموحد: AD0001 للمالك، TE0001 للأستاذ، أو BM0001/BF0001/EQ0001/EX0001/PG0001 للطالب. الرمز موجود في بطاقة الدخول التي سلّمتها الإدارة.");
+      return fail(422, "البريد الإلكتروني ليس وسيلة دخول في المنصة. أدخل الرمز الموحد: AD0001 للمالك، TE0001 للأستاذ، AS0001 للمساعد الإداري، أو BM0001/BF0001/EQ0001/EX0001/PG0001 للطالب. الرمز موجود في بطاقة الدخول التي سلّمتها الإدارة.");
     }
 
     const platformId = normalizePlatformCode(identifier);

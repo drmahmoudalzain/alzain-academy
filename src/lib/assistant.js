@@ -48,7 +48,7 @@ export function createAssistantRouter() {
       const portalKey = await primaryPortal(req.user);
       const prompt = String(req.body.message ?? "").trim();
 
-      if (!prompt) return res.redirect("/assistant");
+      if (!prompt) return res.redirect("/ai-assistant");
 
       // خزّن رسالة المستخدم
       const inserted = await db.from("ai_messages").insert({
@@ -103,7 +103,7 @@ export function createAssistantRouter() {
       });
       if (saved.error) throw saved.error;
 
-      return res.redirect("/assistant");
+      return res.redirect("/ai-assistant");
     } catch (error) {
       next(error);
     }

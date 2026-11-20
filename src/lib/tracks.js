@@ -1,5 +1,5 @@
 // تعريف مسارات الطلاب ونظام التقييم المعتمد لكل مسار.
-// نظامان: المنفصلة (بكالوريوس — طلاب لوحدهم وطالبات لوحدهن) والمختلطة (المعادلة ومن الخارج والدراسات العليا).
+// نظامان: المنفصلة (بكالوريوس — طلاب لوحدهم وطالبات لوحدهن) والمشتركة (المعادلة ومن الخارج والدراسات العليا).
 
 export const TRACK_PROFILES = {
   // المقرر الأصلي المشترك: يُسجَّل فيه الطلاب والطالبات معاً (محاضرة إلكترونية جامعة).
@@ -7,8 +7,8 @@ export const TRACK_PROFILES = {
     key: "bachelor",
     label: "بكالوريوس — مشترك",
     short: "بكالوريوس (الأصل)",
-    system: "mixed",
-    systemLabel: "المختلطة",
+    system: "shared",
+    systemLabel: "المشتركة",
     attendance: 100,
     interaction: 100,
     exams: 100,
@@ -43,8 +43,8 @@ export const TRACK_PROFILES = {
     key: "equiv",
     label: "قسم المعادلة",
     short: "المعادلة",
-    system: "mixed",
-    systemLabel: "المختلطة",
+    system: "shared",
+    systemLabel: "المشتركة",
     attendance: 0,
     interaction: 0,
     exams: 0,
@@ -55,8 +55,8 @@ export const TRACK_PROFILES = {
     key: "external",
     label: "قسم طلاب من الخارج",
     short: "طلاب من الخارج",
-    system: "mixed",
-    systemLabel: "المختلطة",
+    system: "shared",
+    systemLabel: "المشتركة",
     attendance: 0,
     interaction: 0,
     exams: 0,
@@ -67,8 +67,8 @@ export const TRACK_PROFILES = {
     key: "grad",
     label: "قسم الدراسات العليا",
     short: "الدراسات العليا",
-    system: "mixed",
-    systemLabel: "المختلطة",
+    system: "shared",
+    systemLabel: "المشتركة",
     attendance: 0,
     interaction: 0,
     exams: 0,
@@ -125,14 +125,14 @@ export function assessmentOf(track) {
   return getProfile(track).tool;
 }
 
-/** نظام الدراسة: 'separate' (منفصلة/مختلطة). */
+/** نظام الدراسة: 'separate' (منفصلة/مشتركة). */
 export function isSeparateTrack(track) {
   return getProfile(track).system === "separate";
 }
 
-/** هل المسار مختلط (طلاب وطالبات معاً)؟ */
-export function isMixedTrack(track) {
-  return getProfile(track).system === "mixed";
+/** هل المسار مشترك (طلاب وطالبات معاً)؟ */
+export function isSharedTrack(track) {
+  return getProfile(track).system === "shared";
 }
 
 /** ترتيب ثابت للأقسام للتقارير. */
