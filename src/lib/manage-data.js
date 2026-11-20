@@ -4,7 +4,7 @@ import { db } from "./supabase.js";
 export async function getManagedCourses({ teacherId = null, allTeachers = false } = {}) {
   let builder = db
     .from("courses")
-    .select("id, title, code, description, color, level, track, archived, attendance_weight, exams_weight, assignments_weight, created_at, teacher_id, users!courses_teacher_id_fkey(id, name)")
+    .select("id, title, code, description, color, level, track, archived, parent_course_id, attendance_weight, exams_weight, assignments_weight, created_at, teacher_id, users!courses_teacher_id_fkey(id, name)")
     .order("created_at", { ascending: false });
 
   if (!allTeachers) builder = builder.eq("teacher_id", teacherId);
@@ -53,7 +53,7 @@ export async function getManagedCourses({ teacherId = null, allTeachers = false 
 export async function canManageCourse(user, isOwner, courseId) {
   const { data, error } = await db
     .from("courses")
-    .select("id, teacher_id, title, code, color, level, track, archived, attendance_weight, exams_weight, assignments_weight, description")
+    .select("id, teacher_id, title, code, color, level, track, archived, parent_course_id, attendance_weight, exams_weight, assignments_weight, description")
     .eq("id", courseId)
     .maybeSingle();
   if (error) throw error;

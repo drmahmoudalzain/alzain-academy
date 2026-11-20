@@ -8,10 +8,37 @@ import {
   getManagedCourses,
   getCourseStudents,
 } from "./manage-data.js";
-import { getCourseGrade } from "./student-data.js";
+import { getSubjectGradesBulk } from "./student-data.js";
 import { aiStatus } from "./ai.js";
-import { parseTrackKey, TRACK_KEYS } from "./tracks.js";
+import { getProfile, parseTrackKey } from "./tracks.js";
 import { provisionUser } from "./platformCode.js";
+
+/**
+ * نطاق الطلاب المسموح تسجيلهم في مقرر: مستوى المقرر + مسار الطالب.
+ * المقرر الأصل (bachelor) يقبل الفرعين معاً، والفرع يقبل جنسه فقط.
+ * هذا القيد يمنع تسجيل طلاب مستوى آخر في مقرر ليس لمستواهم.
+ */
+export function getEnrollmentScope(course) {
+  const level = course?.level ? String(course.level) : null;
+  const track = String(course?.track ?? "");
+  const tracks =
+    track === "bachelor_m" ? ["bachelor_m"]
+      : track === "bachelor_f" ? ["bachelor_f"]
+        : track === "bachelor" ? ["bachelor_m", "bachelor_f"]
+          : track ? [track] : [];
+  return {
+    level,
+    tracks,
+    isBachelor: ["bachelor", "bachelor_m", "bachelor_f"].includes(track),
+  };
+}
+
+export function studentMatchesScope(student, scope) {
+  if (!scope) return true;
+  if (scope.level && String(student?.level ?? "") !== scope.level) return false;
+  if (scope.tracks.length && !scope.tracks.includes(String(student?.track ?? ""))) return false;
+  return true;
+}
 
 /**
  * مولّد مسارات الإدارة المشترك — يعمل في بوابة الأستاذ (مقرراته فقط)
@@ -47,6 +74,17 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
 
   const canManageFlag = () => isOwnerMode;
 
+  const ownerOnly = (res) =>
+    res.status(403).render("error", {
+      title: "غير مسموح",
+      code: 403,
+      message: "هذه العملية من صلاحية المالك وحده.",
+    });
+
+  // الواجبات وتوليدها من صلاحية المالك وحده؛ الأستاذ يبقى له المحاضرات والاختبارات والأسئلة فقط.
+  router.use("/assignments", (req, res, next) => (isOwnerMode ? next() : ownerOnly(res)));
+  router.use("/ai/generate-assignment", (req, res, next) => (isOwnerMode ? next() : ownerOnly(res)));
+
   const notify = (createdBy, userId, title, body, link) =>
     db.from("notifications").insert({
       audience: "user",
@@ -62,6 +100,30 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       isOwnerMode ? { allTeachers: true } : { teacherId: user.id }
     );
     return courses;
+  };
+
+  /** المقررات الأصلية الصالحة لأن تكون أماً لفروع (ليست فرعاً هي نفسها). */
+  const parentCourses = async () => {
+    const { data, error } = await db
+      .from("courses")
+      .select("id, title, code")
+      .is("parent_course_id", null)
+      .order("title");
+    if (error) throw error;
+    return data ?? [];
+  };
+
+  /** محاضرات المقررات المتاحة، لربط الاختبار بالمحاضرة التي تلتها. */
+  const lecturesOf = async (courses) => {
+    const ids = courses.map((course) => course.id);
+    if (!ids.length) return [];
+    const { data, error } = await db
+      .from("lectures")
+      .select("id, title, course_id, lecture_type, scheduled_at")
+      .in("course_id", ids)
+      .order("scheduled_at", { ascending: false });
+    if (error) throw error;
+    return data ?? [];
   };
 
   const courseOr403 = async (req, res, courseId) => {
@@ -81,12 +143,14 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
         searchAction: `${basePath}/courses`,
         searchPlaceholder: "ابحث عن مقرر...",
         searchValue: req.query.q ?? "",
+        query: req.query,
       });
     } catch (error) { next(error); }
   });
 
   router.get("/courses/new", guard, async (req, res, next) => {
     try {
+      if (!isOwnerMode) return ownerOnly(res);
       let teachers = [];
       if (isOwnerMode) {
         const { data, error } = await db.from("users").select("id, name").eq("role", "teacher").order("name");
@@ -97,6 +161,8 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
         title: "إضافة مقرر",
         pageTitle: "إضافة مقرر",
         teachers,
+        parents: await parentCourses(),
+        parentId: null,
         error: null,
       });
     } catch (error) { next(error); }
@@ -104,16 +170,15 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
 
   router.post("/courses", guard, async (req, res, next) => {
     try {
+      if (!isOwnerMode) return ownerOnly(res);
       const title = String(req.body.title ?? "").trim();
       const code = String(req.body.code ?? "").trim().toUpperCase();
       const description = String(req.body.description ?? "").trim() || null;
       const track = parseTrackKey(req.body.track);
       const level = Math.min(4, Math.max(1, Number(req.body.level ?? 1)));
       const color = String(req.body.color ?? "#123A63");
-      const attendanceWeight = Number(req.body.attendance_weight ?? 10);
-      const examsWeight = Number(req.body.exams_weight ?? 60);
-      const assignmentsWeight = Number(req.body.assignments_weight ?? 30);
       const teacherId = isOwnerMode ? Number(req.body.teacher_id) : req.user.id;
+      const parentId = toInt(req.body.parent_course_id);
 
       const fail = async (message) => {
         const teachers = isOwnerMode
@@ -123,6 +188,8 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
           title: "إضافة مقرر",
           pageTitle: "إضافة مقرر",
           teachers,
+          parents: await parentCourses(),
+          parentId,
           error: message,
         });
       };
@@ -135,6 +202,12 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       if (clash.error) throw clash.error;
       if (clash.data) return await fail("رمز المقرر مستخدم مسبقاً.");
 
+      if (parentId) {
+        const parent = await db.from("courses").select("id").eq("id", parentId).is("parent_course_id", null).maybeSingle();
+        if (parent.error) throw parent.error;
+        if (!parent.data) return await fail("المقرر الأصل المحدد غير صالح.");
+      }
+
       const created = await db.from("courses").insert({
         teacher_id: teacherId,
         title,
@@ -143,9 +216,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
         color,
         level,
         track,
-        attendance_weight: attendanceWeight,
-        exams_weight: examsWeight,
-        assignments_weight: assignmentsWeight,
+        parent_course_id: parentId,
       }).select("id").maybeSingle();
       if (created.error) throw created.error;
 
@@ -193,14 +264,93 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
         assignments: assignmentsRes.data ?? [],
         notice: req.query.enrolled !== undefined
           ? `تم تسجيل ${Number(req.query.enrolled) || 0} طالباً وتخطي ${Number(req.query.skipped) || 0} تسجيل مكرر.`
-          : req.query.statusSaved ? "تم تحديث حالة التسجيل في هذا المقرر." : null,
+          : req.query.statusSaved ? "تم تحديث حالة التسجيل في هذا المقرر."
+          : req.query.branches === 'created' ? "تم إنشاء فرعي الطلاب والطالبات."
+          : req.query.branches === 'exists' ? "فرعا المقرر موجودان مسبقاً."
+          : null,
       });
     } catch (error) { next(error); }
   });
 
-  // ---------- تسجيل الطلاب في المقرر (اختيار حر، بدون إلزام مسار/مستوى) ----------
+  /** المقررات التي يصح تسجيل طلاب هذا المقرر فيها: نفس المستوى ومسار متوافق. */
+  const compatibleCourses = (course, allCourses) => {
+    const scope = getEnrollmentScope(course);
+    return allCourses.filter((item) => {
+      const itemScope = getEnrollmentScope(item);
+      if (scope.level && itemScope.level && itemScope.level !== scope.level) return false;
+      return itemScope.tracks.some((track) => scope.tracks.includes(track));
+    });
+  };
+
+  /**
+   * توسيع التسجيل إلى «عائلة المقرر»: المقرر المختار + الأصل + فرع الطالب فقط،
+   * مع قيد المستوى والمسار في الوضع الاعتيادي. زر الطوارئ (enforceScope:false)
+   * يتخطى قيد المستوى/المسار، لكنه لا يضيف فرع الجنس الآخر حين يُختار فرع بعينه.
+   */
+  const enrollmentTargets = (selectedIds, students, allCourses, options = {}) => {
+    const enforceScope = options.enforceScope !== false;
+    const byId = new Map(allCourses.map((course) => [Number(course.id), course]));
+    const targets = new Set();
+    for (const rawId of selectedIds) {
+      const selected = byId.get(Number(rawId));
+      if (!selected) continue;
+      const selectedScope = getEnrollmentScope(selected);
+      const parent = selected.parent_course_id ? byId.get(Number(selected.parent_course_id)) : selected;
+      const parentScope = parent ? getEnrollmentScope(parent) : null;
+      const isBachelor = Boolean(parentScope?.isBachelor);
+      for (const student of students) {
+        if (enforceScope && !studentMatchesScope(student, selectedScope)) continue;
+        targets.add(`${selected.id}:${student.id}`);
+        if (parent && parent.id !== selected.id && (!enforceScope || studentMatchesScope(student, parentScope))) {
+          targets.add(`${parent.id}:${student.id}`);
+        }
+        if (!isBachelor || !parent) continue;
+        // الطوارئ مع فرع محدد: يُضاف الفرع المختار وأصله فقط.
+        if (!enforceScope && selected.parent_course_id) continue;
+        const branchTrack = student.track === "bachelor_m" ? "bachelor_m" : student.track === "bachelor_f" ? "bachelor_f" : null;
+        if (!branchTrack) continue;
+        const branch = allCourses.find(
+          (course) => Number(course.parent_course_id) === Number(parent.id) && course.track === branchTrack
+        );
+        if (branch && (!enforceScope || studentMatchesScope(student, getEnrollmentScope(branch)))) {
+          targets.add(`${branch.id}:${student.id}`);
+        }
+      }
+    }
+    return [...targets].map((entry) => {
+      const [course_id, student_id] = entry.split(":").map(Number);
+      return { course_id, student_id };
+    });
+  };
+
+  /** حلّ نطاق العرض والتسجيل لمقرر مع احترام القيود حتى لو غيّر المستخدم الروابط. */
+  const resolveFilters = (course, query = {}) => {
+    const scope = getEnrollmentScope(course);
+    const requestedTrack = String(query.track ?? "");
+    const trackFilter =
+      scope.tracks.includes(requestedTrack) || (requestedTrack === "all" && scope.tracks.length > 1)
+        ? requestedTrack
+        : (scope.tracks.length === 1 ? scope.tracks[0] : "all");
+    const levelFilter = scope.level ?? (String(query.level ?? "") || "all");
+    const q = String(query.q ?? "").trim().toLowerCase();
+    return { scope, trackFilter, levelFilter, q };
+  };
+
+  const enrollLocals = (course, allCourses, filters, extra = {}) => ({
+    course,
+    courses: compatibleCourses(course, allCourses),
+    studentTracks: filters.scope.tracks,
+    fixedLevel: filters.scope.level,
+    trackFilter: filters.trackFilter,
+    levelFilter: filters.levelFilter,
+    q: filters.q,
+    ...extra,
+  });
+
+  // ---------- تسجيل الطلاب في المقرر (مستوى المقرر ومساره قيدان ملزمان) ----------
   router.get("/courses/:id/enroll", guard, async (req, res, next) => {
     try {
+      if (!isOwnerMode) return ownerOnly(res);
       const course = await courseOr403(req, res, req.params.id);
       if (!course) return res.status(404).render("error", { title: "غير موجود", code: 404, message: "المقرر غير موجود أو لا تملك صلاحية إدارته." });
 
@@ -210,18 +360,16 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       ]);
       if (studentsRes.error) throw studentsRes.error;
 
-      const hasFilter = req.query.q !== undefined || req.query.track !== undefined || req.query.level !== undefined;
-      const trackFilter = hasFilter ? String(req.query.track ?? "all") : String(course.track ?? "all");
-      const levelFilter = hasFilter ? String(req.query.level ?? "all") : String(course.level ?? "all");
-      const q = String(req.query.q ?? "").trim().toLowerCase();
-
-      let students = (studentsRes.data ?? []).filter((student) => student.is_active);
-      if (trackFilter !== "all") students = students.filter((student) => student.track === trackFilter);
-      if (levelFilter !== "all") students = students.filter((student) => String(student.level) === levelFilter);
-      if (q) {
+      const filters = resolveFilters(course, req.query);
+      let students = (studentsRes.data ?? []).filter(
+        (student) => student.is_active && studentMatchesScope(student, filters.scope)
+      );
+      if (filters.trackFilter !== "all") students = students.filter((student) => student.track === filters.trackFilter);
+      if (filters.levelFilter !== "all") students = students.filter((student) => String(student.level) === filters.levelFilter);
+      if (filters.q) {
         students = students.filter((student) =>
           [student.name, student.platform_id, student.university_id].some((value) =>
-            String(value ?? "").toLowerCase().includes(q)
+            String(value ?? "").toLowerCase().includes(filters.q)
           )
         );
       }
@@ -229,76 +377,97 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       const enrolled = await getCourseStudents(course.id);
       const enrolledIds = new Set(enrolled.map((student) => student.id));
 
-      return managePage(res, "manage/enroll", {
+      return managePage(res, "manage/enroll", enrollLocals(course, courses, filters, {
         title: `تسجيل الطلاب — ${course.title}`,
         pageTitle: "تسجيل الطلاب في المقرر",
-        course,
-        courses,
         students,
         enrolledIds,
-        trackFilter,
-        levelFilter,
-        q,
-      });
+        error: req.query.error === "notfound" ? "لم يتم العثور على طالب بهذا الرمز."
+          : req.query.error === "code" ? "صيغة الرمز غير صحيحة." : null,
+      }));
     } catch (error) { next(error); }
   });
 
   router.post("/courses/:id/enroll", guard, async (req, res, next) => {
     try {
+      if (!isOwnerMode) return ownerOnly(res);
       const course = await courseOr403(req, res, req.params.id);
       if (!course) return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا تملك صلاحية إدارة هذا المقرر." });
 
       const list = (value) => (Array.isArray(value) ? value : value ? [value] : []);
-      const studentIds = [...new Set(list(req.body.student_ids).map(toInt).filter(Boolean))];
+      let studentIds = [...new Set(list(req.body.student_ids).map(toInt).filter(Boolean))];
       const courseIds = [...new Set(list(req.body.course_ids).map(toInt).filter(Boolean))];
       const allCourses = await ownCourses(req.user);
-
-      const fail = (message) => managePage(res.status(422), "manage/enroll", {
-        title: "تسجيل الطلاب", pageTitle: "تسجيل الطلاب في المقرر", course,
-        courses: allCourses, students: [], enrolledIds: new Set(),
-        trackFilter: "all", levelFilter: "all", q: "", error: message,
+      const filters = resolveFilters(course, {
+        track: req.body.track_filter,
+        level: req.body.level_filter,
+        q: req.body.q_filter,
       });
 
-      if (!studentIds.length) return fail("اختر طالباً واحداً على الأقل.");
+      // تسجيل دفعة واحدة: مستوى المقرر ومساره قيدان إلزاميان قبل أي تصفية أخرى.
+      if (req.body.bulk_all === "1") {
+        const allRes = await db
+          .from("users")
+          .select("id, name, platform_id, university_id, track, level")
+          .eq("role", "student")
+          .eq("is_active", true);
+        if (allRes.error) throw allRes.error;
+        let rows = (allRes.data ?? []).filter((row) => studentMatchesScope(row, filters.scope));
+        if (filters.trackFilter !== "all") rows = rows.filter((row) => row.track === filters.trackFilter);
+        if (filters.levelFilter !== "all") rows = rows.filter((row) => String(row.level) === filters.levelFilter);
+        if (filters.q) rows = rows.filter((row) => [row.name, row.platform_id, row.university_id].some((value) => String(value ?? "").toLowerCase().includes(filters.q)));
+        studentIds = rows.map((row) => row.id);
+      }
+
+      const fail = (message) => managePage(res.status(422), "manage/enroll", enrollLocals(course, allCourses, filters, {
+        title: "تسجيل الطلاب", pageTitle: "تسجيل الطلاب في المقرر",
+        students: [], enrolledIds: new Set(), error: message,
+      }));
+
+      if (!studentIds.length) return fail("لا يوجد طلاب مطابقون لمستوى هذا المقرر ومساره.");
       if (!courseIds.length) return fail("اختر مقرراً واحداً على الأقل.");
 
-      const manageable = new Set(allCourses.map((item) => item.id));
-      if (courseIds.some((id) => !manageable.has(id))) {
-        return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "أحد المقررات المحددة ليس من مقرراتك." });
+      const allowedIds = new Set(compatibleCourses(course, allCourses).map((item) => item.id));
+      if (courseIds.some((id) => !allowedIds.has(id))) {
+        return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "أحد المقررات المحددة ليس لمستوى هذا المقرر أو ليس من مقرراتك." });
       }
 
       const studentsRes = await db
         .from("users")
-        .select("id, name, platform_id")
+        .select("id, name, platform_id, track, level")
         .in("id", studentIds)
         .eq("role", "student")
         .eq("is_active", true);
       if (studentsRes.error) throw studentsRes.error;
-      const validStudents = studentsRes.data ?? [];
-      if (!validStudents.length) return fail("لم يتم العثور على طلاب نشطين بالمعرفات المحددة.");
+      const validStudents = (studentsRes.data ?? []).filter((student) => studentMatchesScope(student, filters.scope));
+      if (!validStudents.length) return fail("لم يتم العثور على طلاب نشطين في مستوى هذا المقرر ومساره.");
 
       const courseRows = allCourses.filter((item) => courseIds.includes(item.id));
+      const targets = enrollmentTargets(courseIds, validStudents, allCourses);
+      const targetCourseIds = [...new Set(targets.map((pair) => pair.course_id))];
       const key = (courseId, studentId) => `${courseId}:${studentId}`;
 
-      const existingRes = await db.from("enrollments").select("course_id, student_id").in("course_id", courseIds);
+      const existingRes = await db.from("enrollments").select("course_id, student_id, status").in("course_id", targetCourseIds);
       if (existingRes.error) throw existingRes.error;
       const existing = new Set((existingRes.data ?? []).map((row) => key(row.course_id, row.student_id)));
 
-      const pairs = [];
-      for (const courseId of courseIds) {
-        for (const student of validStudents) {
-          if (!existing.has(key(courseId, student.id))) {
-            pairs.push({ course_id: courseId, student_id: student.id, status: "active" });
-          }
-        }
-      }
+      const pairs = targets.filter((pair) => !existing.has(key(pair.course_id, pair.student_id)))
+        .map((pair) => ({ ...pair, status: "active" }));
 
-      if (pairs.length) {
-        const inserted = await db.from("enrollments").upsert(pairs, {
-          onConflict: "course_id,student_id",
-          ignoreDuplicates: true,
-        });
-        if (inserted.error) throw inserted.error;
+      if (targets.length) {
+        if (pairs.length) {
+          const inserted = await db.from("enrollments").upsert(pairs, {
+            onConflict: "course_id,student_id",
+            ignoreDuplicates: true,
+          });
+          if (inserted.error) throw inserted.error;
+        }
+        // إعادة تنشيط أي تسجيل موقوف سابقاً في العائلة نفسها.
+        const reactivated = await db.from("enrollments")
+          .update({ status: "active" })
+          .in("course_id", targetCourseIds)
+          .in("student_id", validStudents.map((student) => student.id));
+        if (reactivated.error) throw reactivated.error;
 
         const courseNames = courseRows.map((item) => `${item.title} (${item.code})`).join("، ");
         const link = courseIds.length === 1 ? `/student/courses/${courseIds[0]}` : "/student/courses";
@@ -322,7 +491,51 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
         });
       }
 
-      return res.redirect(`${basePath}/courses/${course.id}?enrolled=${pairs.length}&skipped=${validStudents.length * courseIds.length - pairs.length}`);
+      return res.redirect(`${basePath}/courses/${course.id}?enrolled=${pairs.length}&skipped=${targets.length - pairs.length}`);
+    } catch (error) { next(error); }
+  });
+
+  /** زر الطوارئ: إضافة طالب بعينه إلى أي مقرر أصلي أو فرعي برمزه المنصّي أو الجامعي. */
+  router.post("/courses/:id/enroll/by-code", guard, async (req, res, next) => {
+    try {
+      if (!isOwnerMode) return ownerOnly(res);
+      const course = await courseOr403(req, res, req.params.id);
+      if (!course) return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا تملك صلاحية هذا المقرر." });
+
+      const code = String(req.body.student_code ?? "").trim();
+      if (!/^[A-Za-z0-9-]{3,24}$/.test(code)) {
+        return res.redirect(`${basePath}/courses/${course.id}/enroll?error=code`);
+      }
+      const found = await db
+        .from("users")
+        .select("id, name, platform_id, university_id, track")
+        .eq("role", "student")
+        .or(`platform_id.eq.${code},university_id.eq.${code}`)
+        .maybeSingle();
+      if (found.error) throw found.error;
+      if (!found.data) return res.redirect(`${basePath}/courses/${course.id}/enroll?error=notfound`);
+
+      // زر الطوارئ يظل استثناءً مقصوداً: يضيف أي طالب بأي مستوى إلى المقرر المحدد.
+      const targets = enrollmentTargets([course.id], [found.data], await ownCourses(req.user), { enforceScope: false });
+      const added = await db.from("enrollments").upsert(
+        targets.map((target) => ({ ...target, status: "active" })),
+        { onConflict: "course_id,student_id", ignoreDuplicates: true }
+      );
+      if (added.error) throw added.error;
+      const reactivated = await db.from("enrollments")
+        .update({ status: "active" })
+        .in("course_id", targets.map((target) => target.course_id))
+        .eq("student_id", found.data.id);
+      if (reactivated.error) throw reactivated.error;
+      const notice = await notify(
+        req.user?.id,
+        found.data.id,
+        "تم تسجيلك في مقرر جديد",
+        `تمت إضافتك إلى ${course.title} (${course.code}) بطلب من المالك.`,
+        `/student/courses/${course.id}`
+      );
+      if (notice.error) console.error("تعذر إرسال إشعار التسجيل:", notice.error.message);
+      return res.redirect(`${basePath}/courses/${course.id}?enrolled=${targets.length}&skipped=0`);
     } catch (error) { next(error); }
   });
 
@@ -339,25 +552,25 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       if (!course) return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا تملك صلاحية إدارة هذا المقرر." });
 
       const name = String(req.body.name ?? "").trim();
+      const filters = resolveFilters(course, req.body);
       const track = String(req.body.track ?? "").trim();
-      const level = Math.min(4, Math.max(1, Number(req.body.level ?? 1)));
+      const level = filters.scope.level
+        ? Number(filters.scope.level)
+        : Math.min(4, Math.max(1, Number(req.body.level ?? 1)));
       const universityId = String(req.body.university_id ?? "").trim() || null;
       const email = String(req.body.email ?? "").trim().toLowerCase() || null;
       const allCourses = await ownCourses(req.user);
 
-      const fail = (message) => managePage(res.status(422), "manage/enroll", {
+      const fail = (message) => managePage(res.status(422), "manage/enroll", enrollLocals(course, allCourses, filters, {
         title: `تسجيل الطلاب — ${course.title}`,
         pageTitle: "تسجيل الطلاب في المقرر",
-        course,
-        courses: allCourses,
         students: [],
         enrolledIds: new Set(),
-        trackFilter: "all", levelFilter: "all", q: "",
         error: message,
-      });
+      }));
 
       if (name.length < 3) return fail("الاسم قصير جداً.");
-      if (!TRACK_KEYS.includes(track)) return fail("اختر مساراً صحيحاً.");
+      if (!filters.scope.tracks.includes(track)) return fail("اختر مسار الطالب أو الطالبة بما يوافق هذا المقرر.");
       if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return fail("صيغة البريد الإلكتروني غير صحيحة.");
 
       for (const [field, value, message] of [
@@ -467,6 +680,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
   // ---------- تعديل المقرر ----------
   router.get("/courses/:id/edit", guard, async (req, res, next) => {
     try {
+      if (!isOwnerMode) return ownerOnly(res);
       const course = await courseOr403(req, res, req.params.id);
       if (!course) {
         return res.status(404).render("error", { title: "غير موجود", code: 404, message: "المقرر غير موجود أو لا تملك صلاحية إدارته." });
@@ -482,6 +696,8 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
         pageTitle: "تعديل المقرر",
         course,
         teachers,
+        parents: (await parentCourses()).filter((item) => item.id !== course.id),
+        parentId: course.parent_course_id ?? null,
         error: null,
       });
     } catch (error) { next(error); }
@@ -489,6 +705,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
 
   router.post("/courses/:id/edit", guard, async (req, res, next) => {
     try {
+      if (!isOwnerMode) return ownerOnly(res);
       const course = await courseOr403(req, res, req.params.id);
       if (!course) {
         return res.status(404).render("error", { title: "غير موجود", code: 404, message: "لا صلاحية." });
@@ -500,10 +717,8 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       const track = parseTrackKey(req.body.track);
       const level = Math.min(4, Math.max(1, Number(req.body.level ?? 1)));
       const color = String(req.body.color ?? "#123A63");
-      const attendanceWeight = Number(req.body.attendance_weight ?? 10);
-      const examsWeight = Number(req.body.exams_weight ?? 60);
-      const assignmentsWeight = Number(req.body.assignments_weight ?? 30);
       const teacherId = isOwnerMode ? Number(req.body.teacher_id) : course.teacher_id;
+      const parentId = toInt(req.body.parent_course_id);
 
       const fail = async (message) => {
         const teachers = isOwnerMode
@@ -514,6 +729,8 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
           pageTitle: "تعديل المقرر",
           course,
           teachers,
+          parents: (await parentCourses()).filter((item) => item.id !== course.id && item.id !== parentId),
+          parentId,
           error: message,
         });
       };
@@ -526,6 +743,13 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       if (clash.error) throw clash.error;
       if (clash.data) return fail("رمز المقرر مستخدم في مقرر آخر.");
 
+      if (parentId && parentId !== course.id) {
+        const parent = await db.from("courses").select("id").eq("id", parentId).is("parent_course_id", null).maybeSingle();
+        if (parent.error) throw parent.error;
+        if (!parent.data) return fail("المقرر الأصل المحدد غير صالح.");
+      }
+      const finalParentId = parentId === course.id ? course.parent_course_id : parentId;
+
       const updated = await db
         .from("courses")
         .update({
@@ -535,9 +759,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
           track,
           level,
           color,
-          attendance_weight: attendanceWeight,
-          exams_weight: examsWeight,
-          assignments_weight: assignmentsWeight,
+          parent_course_id: finalParentId,
           teacher_id: teacherId,
         })
         .eq("id", course.id);
@@ -659,6 +881,8 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
         course: exam.courses,
         courses,
         selectedCourse: exam.course_id,
+        lectures: await lecturesOf(courses),
+        selectedLecture: exam.lecture_id ?? null,
         questions: questionsRes.data ?? [],
         error: null,
       });
@@ -669,7 +893,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
     try {
       const { data: exam, error } = await db
         .from("exams")
-        .select("id, course_id, courses(teacher_id)")
+        .select("*, courses(teacher_id)")
         .eq("id", Number(req.params.id))
         .maybeSingle();
       if (error) throw error;
@@ -683,25 +907,40 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       const title = String(req.body.title ?? "").trim();
       const courseId = toInt(req.body.course_id);
       const newCourse = courseId ? await courseOr403(req, res, courseId) : null;
+      const lectureId = toInt(req.body.lecture_id);
       const startsAt = String(req.body.starts_at ?? "").trim();
       const endsAt = String(req.body.ends_at ?? "").trim();
       const duration = Math.max(5, Number(req.body.duration_min ?? 60));
       const published = req.body.is_published === "on";
 
-      if (title.length < 3) {
+      const renderError = async (message) => {
         const courses = await ownCourses(req.user);
         const questionsRes = await db.from("exam_questions").select("id, type, text, options, points, position, correct_index, correct_indices").eq("exam_id", exam.id).order("position");
+        if (questionsRes.error) throw questionsRes.error;
         return managePage(res.status(422), "manage/exam-edit", {
           title: "تعديل الاختبار",
           pageTitle: "تعديل الاختبار",
           exam,
           course: exam.courses ?? null,
           courses,
-          selectedCourse: exam.course_id,
+          selectedCourse: courseId || exam.course_id,
+          lectures: await lecturesOf(courses),
+          selectedLecture: lectureId || exam.lecture_id || null,
           questions: questionsRes.data ?? [],
-          error: "عنوان الاختبار قصير جداً.",
+          error: message,
         });
+      };
+
+      if (title.length < 3) return renderError("عنوان الاختبار قصير جداً.");
+      if (!lectureId) return renderError("اختر المحاضرة المرتبطة بالاختبار.");
+
+      const lectureRes = await db.from("lectures").select("id, course_id").eq("id", lectureId).maybeSingle();
+      if (lectureRes.error) throw lectureRes.error;
+      const targetCourseId = newCourse ? newCourse.id : exam.course_id;
+      if (!lectureRes.data || lectureRes.data.course_id !== targetCourseId) {
+        return renderError("المحاضرة المختارة غير صالحة لهذا المقرر.");
       }
+      const validLectureId = lectureId;
 
       const updated = await db
         .from("exams")
@@ -709,6 +948,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
           title,
           description: String(req.body.description ?? "").trim() || null,
           course_id: newCourse ? newCourse.id : exam.course_id,
+          lecture_id: validLectureId,
           starts_at: startsAt ? new Date(startsAt).toISOString() : null,
           ends_at: endsAt ? new Date(endsAt).toISOString() : null,
           duration_min: duration,
@@ -870,14 +1110,30 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       }
 
       const students = await getCourseStudents(course.id);
-      const grades = await Promise.all(students.map((student) => getCourseGrade(course, student.id)));
+      const gradesByStudent = await getSubjectGradesBulk(
+        students.map((student) => ({ studentId: student.id, courses: [course] }))
+      );
 
-      const rows = students.map((student, index) => ({
+      const rows = students.map((student) => ({
         student,
-        grade: grades[index],
-      })).sort((a, b) => b.grade.total - a.grade.total);
+        grade: (gradesByStudent.get(student.id) ?? [])[0],
+      })).filter((row) => row.grade).sort((a, b) => b.grade.total - a.grade.total);
 
-      const average = rows.length ? rows.reduce((sum, row) => sum + row.grade.total, 0) / rows.length : 0;
+      const average = rows.length ? rows.reduce((sum, row) => sum + row.grade.percent, 0) / rows.length : 0;
+      const isBachelor = getProfile(course.track).tool === "exam";
+      const weights = rows.length
+        ? {
+            attendance: rows[0].grade.attendance.weight,
+            interaction: rows[0].grade.interaction.weight,
+            exams: rows[0].grade.exams.weight,
+            assignments: rows[0].grade.assignments.weight,
+          }
+        : {
+            attendance: isBachelor ? 100 : 0,
+            interaction: isBachelor ? 100 : 0,
+            exams: isBachelor ? 100 : 0,
+            assignments: isBachelor ? 0 : 300,
+          };
 
       return managePage(res, "manage/gradebook", {
         title: `سجل الدرجات — ${course.title}`,
@@ -885,22 +1141,74 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
         course,
         rows,
         average: Math.round(average * 10) / 10,
-        weights: {
-          attendance: course.attendance_weight ?? 10,
-          exams: course.exams_weight ?? 60,
-          assignments: course.assignments_weight ?? 30,
-        },
+        isBachelor,
+        weights,
       });
     } catch (error) { next(error); }
   });
 
   router.post("/courses/:id/archive", guard, async (req, res, next) => {
     try {
+      if (!isOwnerMode) return ownerOnly(res);
       const course = await courseOr403(req, res, req.params.id);
       if (!course) return res.status(404).render("error", { title: "غير موجود", code: 404, message: "لا صلاحية." });
       const updated = await db.from("courses").update({ archived: !course.archived }).eq("id", course.id);
       if (updated.error) throw updated.error;
       return res.redirect(`${basePath}/courses/${course.id}`);
+    } catch (error) { next(error); }
+  });
+
+  /** حذف المقرر نهائياً مع فروعه وكل ما يتفرّع عنه (حذف متسلسل في قاعدة البيانات). */
+  router.post("/courses/:id/delete", guard, async (req, res, next) => {
+    try {
+      if (!isOwnerMode) return ownerOnly(res);
+      const course = await courseOr403(req, res, req.params.id);
+      if (!course) return res.status(404).render("error", { title: "غير موجود", code: 404, message: "لا صلاحية." });
+      const removed = await db.from("courses").delete().eq("id", course.id);
+      if (removed.error) throw removed.error;
+      await db.from("archived_records").insert({
+        table_name: "course",
+        record_id: course.id,
+        label: `حذف المقرر: ${course.title} (${course.code})`,
+        data: { by: req.user?.id ?? null, by_name: req.user?.name ?? null, at: new Date().toISOString() },
+        archived_by: req.user?.id ?? null,
+      });
+      return res.redirect(`${basePath}/courses?deleted=1`);
+    } catch (error) { next(error); }
+  });
+
+  /** إنشاء فرعي الطلاب والطالبات لمقرر أصلي بضغطة زر. */
+  router.post("/courses/:id/branches", guard, async (req, res, next) => {
+    try {
+      if (!isOwnerMode) return ownerOnly(res);
+      const course = await courseOr403(req, res, req.params.id);
+      if (!course) return res.status(404).render("error", { title: "غير موجود", code: 404, message: "لا صلاحية." });
+      if (course.parent_course_id) {
+        return res.status(422).render("error", { title: "غير صالح", code: 422, message: "الفروع تُنشأ من المقرر الأصل فقط." });
+      }
+      const existing = await db.from("courses").select("id").eq("parent_course_id", course.id);
+      if (existing.error) throw existing.error;
+      if (existing.data?.length) return res.redirect(`${basePath}/courses/${course.id}?branches=exists`);
+
+      const branches = [
+        { title: `${course.title} — طلاب`, code: `${course.code}-M`, track: "bachelor_m" },
+        { title: `${course.title} — طالبات`, code: `${course.code}-F`, track: "bachelor_f" },
+      ];
+      const inserted = await db.from("courses").insert(branches.map((branch) => ({
+        teacher_id: course.teacher_id,
+        title: branch.title,
+        code: branch.code,
+        description: course.description,
+        color: course.color,
+        level: course.level,
+        track: branch.track,
+        parent_course_id: course.id,
+        attendance_weight: course.attendance_weight,
+        exams_weight: course.exams_weight,
+        assignments_weight: course.assignments_weight,
+      })));
+      if (inserted.error) throw inserted.error;
+      return res.redirect(`${basePath}/courses/${course.id}?branches=created`);
     } catch (error) { next(error); }
   });
 
@@ -1219,6 +1527,8 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
         pageTitle: "إضافة اختبار",
         courses,
         selectedCourse: selected,
+        lectures: await lecturesOf(courses),
+        selectedLecture: Number(req.query.lecture ?? 0) || null,
         ai,
       });
     } catch (error) { next(error); }
@@ -1233,24 +1543,39 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
 
       const title = String(req.body.title ?? "").trim();
       const description = String(req.body.description ?? "").trim() || null;
+      const lectureId = toInt(req.body.lecture_id);
       const startsAt = String(req.body.starts_at ?? "").trim();
       const endsAt = String(req.body.ends_at ?? "").trim();
       const duration = Math.max(5, Number(req.body.duration_min ?? 60));
       const published = req.body.is_published === "on";
 
-      if (title.length < 3) {
+      const renderError = async (message) => {
         const courses = await ownCourses(req.user);
         return managePage(res.status(422), "manage/exam-new", {
           title: "إضافة اختبار",
           pageTitle: "إضافة اختبار",
           courses,
           selectedCourse: courseId,
-          error: "عنوان الاختبار قصير جداً.",
+          lectures: await lecturesOf(courses),
+          selectedLecture: lectureId,
+          error: message,
+          ai: await aiStatus(),
         });
+      };
+
+      if (title.length < 3) return renderError("عنوان الاختبار قصير جداً.");
+      if (!lectureId) return renderError("اختر المحاضرة المرتبطة بالاختبار.");
+
+      const lectureRes = await db.from("lectures").select("id, course_id").eq("id", lectureId).maybeSingle();
+      if (lectureRes.error) throw lectureRes.error;
+      if (!lectureRes.data || lectureRes.data.course_id !== course.id) {
+        return renderError("المحاضرة المختارة غير صالحة لهذا المقرر.");
       }
+      const validLectureId = lectureId;
 
       const created = await db.from("exams").insert({
         course_id: course.id,
+        lecture_id: validLectureId,
         title,
         description,
         starts_at: startsAt ? new Date(startsAt).toISOString() : null,

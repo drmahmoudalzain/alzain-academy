@@ -2,14 +2,28 @@
 // نظامان: المنفصلة (بكالوريوس — طلاب لوحدهم وطالبات لوحدهن) والمختلطة (المعادلة ومن الخارج والدراسات العليا).
 
 export const TRACK_PROFILES = {
+  // المقرر الأصلي المشترك: يُسجَّل فيه الطلاب والطالبات معاً (محاضرة إلكترونية جامعة).
+  bachelor: {
+    key: "bachelor",
+    label: "بكالوريوس — مشترك",
+    short: "بكالوريوس (الأصل)",
+    system: "mixed",
+    systemLabel: "المختلطة",
+    attendance: 100,
+    interaction: 100,
+    exams: 100,
+    assignments: 0,
+    tool: "exam",
+  },
   bachelor_m: {
     key: "bachelor_m",
     label: "مسار الطلاب",
     short: "بكالوريوس — طلاب",
     system: "separate",
     systemLabel: "المنفصلة",
-    attendance: 30,
-    exams: 70,
+    attendance: 100,
+    interaction: 100,
+    exams: 100,
     assignments: 0,
     tool: "exam",
   },
@@ -19,8 +33,9 @@ export const TRACK_PROFILES = {
     short: "بكالوريوس — طالبات",
     system: "separate",
     systemLabel: "المنفصلة",
-    attendance: 30,
-    exams: 70,
+    attendance: 100,
+    interaction: 100,
+    exams: 100,
     assignments: 0,
     tool: "exam",
   },
@@ -30,9 +45,10 @@ export const TRACK_PROFILES = {
     short: "المعادلة",
     system: "mixed",
     systemLabel: "المختلطة",
-    attendance: 30,
+    attendance: 0,
+    interaction: 0,
     exams: 0,
-    assignments: 70,
+    assignments: 300,
     tool: "assignment",
   },
   external: {
@@ -41,9 +57,10 @@ export const TRACK_PROFILES = {
     short: "طلاب من الخارج",
     system: "mixed",
     systemLabel: "المختلطة",
-    attendance: 30,
+    attendance: 0,
+    interaction: 0,
     exams: 0,
-    assignments: 70,
+    assignments: 300,
     tool: "assignment",
   },
   grad: {
@@ -52,9 +69,10 @@ export const TRACK_PROFILES = {
     short: "الدراسات العليا",
     system: "mixed",
     systemLabel: "المختلطة",
-    attendance: 30,
+    attendance: 0,
+    interaction: 0,
     exams: 0,
-    assignments: 70,
+    assignments: 300,
     tool: "assignment",
   },
 };
@@ -74,6 +92,7 @@ function addAliases(track, aliases) {
     if (key) TRACK_ALIASES.set(key, track);
   }
 }
+addAliases("bachelor", ["bachelor", "bkb", "بكالوريوس", "بكالوريوس مشترك", "المقرر الأصلي", "الأصل"]);
 addAliases("bachelor_m", ["bachelor_m", "bachelorm", "bm", "BM", "مسار الطلاب", "بكالوريوس طلاب", "بكالوريوس — طلاب", "الطلاب", "طالب", "طلاب", "ذكر", "male", "m"]);
 addAliases("bachelor_f", ["bachelor_f", "bachelorf", "bf", "BF", "مسار الطالبات", "بكالوريوس طالبات", "بكالوريوس — طالبات", "الطالبات", "طالبة", "طالبات", "أنثى", "female", "f"]);
 addAliases("equiv", ["equiv", "eq", "EQ", "قسم المعادلة", "المعادلة", "معادلة"]);

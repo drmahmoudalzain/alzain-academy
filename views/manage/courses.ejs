@@ -3,15 +3,25 @@
     <h2><%= isOwner ? 'كل المقررات' : 'مقرراتي' %></h2>
     <p><%= isOwner ? 'جميع المقررات في المنصة — الإدارة الكاملة.' : 'المقررات المسندة إليك مع إحصاءات الطلاب والمحتوى.' %></p>
   </div>
+  <% if (isOwner) { %>
   <div class="page-header-actions">
     <a class="btn btn-primary" href="<%= basePath %>/courses/new">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="width:15px;height:15px;"><path d="M12 5v14M5 12h14"/></svg>
       مقرر جديد
     </a>
   </div>
+  <% } %>
 </section>
 
-<% let shown = courses; if (searchValue) { const q = String(searchValue).toLowerCase(); shown = courses.filter(c => `${c.title} ${c.code} ${c.teacherName ?? ''}`.toLowerCase().includes(q)); } %>
+<% if (typeof query !== 'undefined' && query.deleted !== undefined) { %><div class="alert-inline success" role="status">تم حذف المقرر وفروعه وما يتصل به.</div><% } %>
+<% if (typeof query !== 'undefined' && query.branches === 'created') { %><div class="alert-inline success" role="status">تم إنشاء فرعي الطلاب والطالبات.</div><% } %>
+<% if (typeof query !== 'undefined' && query.branches === 'exists') { %><div class="alert-inline info" role="status">فرعا المقرر موجودان مسبقاً.</div><% } %>
+
+<% let shown = courses; if (searchValue) { const q = String(searchValue).toLowerCase(); shown = courses.filter(c => `${c.title} ${c.code} ${c.teacherName ?? ''}`.toLowerCase().includes(q)); }
+   const shownIds = new Set(shown.map(c => c.id));
+   const ordered = [];
+   for (const root of shown.filter(c => !c.parent_course_id)) { ordered.push(root); for (const child of shown.filter(c => c.parent_course_id === root.id)) ordered.push(child); }
+   for (const orphan of shown.filter(c => c.parent_course_id && !shownIds.has(c.parent_course_id))) ordered.push(orphan); %>
 
 <% if (shown.length) { %>
   <div class="table-card">
@@ -21,17 +31,27 @@
           <tr><th>الرمز</th><th>المقرر</th><% if (isOwner) { %><th>الأستاذ</th><% } %><th>المستوى</th><th>الطلاب</th><th>المحاضرات</th><th>الاختبارات</th><th>الواجبات</th><th></th></tr>
         </thead>
         <tbody>
-          <% for (const course of shown) { %>
+          <% for (const course of ordered) { %>
             <tr>
               <td><code><%= course.code %></code></td>
-              <td><strong><a href="<%= basePath %>/courses/<%= course.id %>" style="color:inherit;text-decoration:none;"><%= course.title %></a></strong></td>
+              <td><strong><a href="<%= basePath %>/courses/<%= course.id %>" style="color:inherit;text-decoration:none;"><%= course.parent_course_id ? '↳ ' : '' %><%= course.title %></a></strong></td>
               <% if (isOwner) { %><td><%= course.teacherName %></td><% } %>
               <td><%= getProfile(course.track).label %> · <%= course.level || '—' %></td>
               <td><%= course.studentCount %></td>
               <td><%= course.lectureCount %></td>
               <td><%= course.examCount %></td>
               <td><%= course.assignmentCount %></td>
-              <td><a class="chip" href="<%= basePath %>/courses/<%= course.id %>">تفاصيل</a></td>
+              <td style="white-space:nowrap;">
+                <a class="chip" href="<%= basePath %>/courses/<%= course.id %>">تفاصيل</a>
+                <% if (isOwner && !course.parent_course_id) { %>
+                  <form method="post" action="<%= basePath %>/courses/<%= course.id %>/branches" style="display:inline;" onsubmit="return confirm('إنشاء فرعي الطلاب والطالبات لهذا المقرر؟');">
+                    <button type="submit" class="btn btn-secondary btn-sm" style="margin-inline-start:4px;">الفروع</button>
+                  </form>
+                  <form method="post" action="<%= basePath %>/courses/<%= course.id %>/delete" style="display:inline;" onsubmit="return confirm('حذف المقرر نهائياً مع فروعه وكل محاضراته واختباراته؟');">
+                    <button type="submit" class="btn btn-ghost btn-sm" style="margin-inline-start:4px;color:#a33;">حذف</button>
+                  </form>
+                <% } %>
+              </td>
             </tr>
           <% } %>
         </tbody>

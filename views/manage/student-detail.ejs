@@ -7,11 +7,15 @@
     <a class="btn btn-secondary" href="<%= basePath %>/<%= student.id %>/edit">تعديل البيانات</a>
     <% if (canResetPassword) { %>
       <form method="post" action="<%= basePath %>/<%= student.id %>/reset-password" style="display:inline;">
-        <button class="btn btn-secondary" type="submit">إعادة تعيين كلمة المرور</button>
+        <button class="btn btn-secondary" type="submit" title="توليد كلمة مرور مؤقتة جديدة">إعادة تعيين كلمة المرور</button>
       </form>
     <% } %>
   </div>
 </section>
+
+<p class="muted" style="margin:0 0 16px;font-size:0.78rem;">عند إعادة التعيين تظهر كلمة المرور الجديدة في صفحة مستقلة فيها زر <strong>«نسخ كلمة المرور»</strong> منفصلاً، لأن كلمة المرور القديمة غير محفوظة ولا يمكن نسخها لاحقاً.</p>
+
+<% const isBachelor = getProfile(student.track).tool === 'exam'; %>
 
 <div class="grid-2" style="margin-bottom:20px;">
   <div class="table-card">
@@ -36,7 +40,7 @@
     <div class="table-card-head"><h3>نقاطه (<%= format.formatNumber(points) %>)</h3></div>
     <div class="side-card-body" style="padding:20px 22px;">
       <div style="font-family:var(--font-head);font-size:3rem;color:var(--navy-dark);line-height:1;"><%= format.formatNumber(points) %></div>
-      <p class="muted" style="margin:6px 0 0;">نقطة مكتسبة عبر الحضور والتفاعل وتسليم الواجبات.</p>
+      <p class="muted" style="margin:6px 0 0;"><%= isBachelor ? 'نقطة مكتسبة عبر الحضور والتفاعل والاختبارات ضمن نظام الـ300 نقطة.' : 'نقطة مكتسبة عبر الواجبات ضمن نظام الـ300 نقطة.' %></p>
     </div>
   </div>
 </div>
@@ -45,19 +49,29 @@
   <div class="table-card-head"><h3>المقررات المسجل فيها (<%= courses.length %>)</h3></div>
   <div class="table-scroll">
     <table class="data-table">
-      <thead><tr><th>المقرر</th><th>الحضور</th><th>الاختبارات</th><th>الواجبات</th><th>المجموع</th><th>التقدير</th></tr></thead>
+      <thead>
+        <% if (isBachelor) { %>
+          <tr><th>المقرر</th><th>الحضور</th><th>التفاعل</th><th>الاختبارات</th><th>المجموع</th><th>التقدير</th></tr>
+        <% } else { %>
+          <tr><th>المقرر</th><th>الواجبات</th><th>المجموع</th><th>التقدير</th></tr>
+        <% } %>
+      </thead>
       <tbody>
         <% for (const grade of courses) { %>
           <tr>
             <td><strong><%= grade.course.title %></strong><br><code><%= grade.course.code %></code></td>
-            <td><%= grade.attendance.earned %> / <%= grade.attendance.weight %></td>
-            <td><%= grade.exams.earned %> / <%= grade.exams.weight %></td>
-            <td><%= grade.assignments.earned %> / <%= grade.assignments.weight %></td>
-            <td><strong><%= grade.total %></strong></td>
+            <% if (isBachelor) { %>
+              <td><%= grade.attendance.earned %> / <%= grade.attendance.weight %></td>
+              <td><%= grade.interaction.earned %> / <%= grade.interaction.weight %></td>
+              <td><%= grade.exams.earned %> / <%= grade.exams.weight %></td>
+            <% } else { %>
+              <td><%= grade.assignments.earned %> / <%= grade.assignments.weight %></td>
+            <% } %>
+            <td><strong><%= grade.total %> / 300</strong></td>
             <td><span class="chip"><%= grade.letter %></span></td>
           </tr>
         <% } %>
-        <% if (!courses.length) { %><tr><td colspan="6" class="muted text-center">لا يوجد تسجيل في مقررات.</td></tr><% } %>
+        <% if (!courses.length) { %><tr><td colspan="<%= isBachelor ? 6 : 4 %>" class="muted text-center">لا يوجد تسجيل في مقررات.</td></tr><% } %>
       </tbody>
     </table>
   </div>

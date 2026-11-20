@@ -66,6 +66,8 @@ const COMPLETION_PATHS = new Set([
   "/account",
   "/account/password",
   "/account/profile",
+  "/notifications",
+  "/notifications/read-all",
   "/logout",
 ]);
 

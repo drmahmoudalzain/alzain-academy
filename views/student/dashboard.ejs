@@ -26,6 +26,7 @@
         </a>
       <% } %>
       <a class="btn btn-outline" href="/student/lectures">الجدول الأسبوعي</a>
+      <a class="btn btn-outline" href="/notifications">الإشعارات<% if (notifications.length) { %> (<%= notifications.length %>)<% } %></a>
     </div>
   </div>
 
@@ -245,6 +246,7 @@
           </svg>
           الإشعارات
         </div>
+        <a href="/notifications" style="font-size:0.78rem;font-weight:600;color:var(--green);">عرض الكل ←</a>
       </div>
       <div class="card-body no-pad">
         <% if (notifications.length) { %>

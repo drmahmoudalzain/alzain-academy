@@ -4,64 +4,81 @@
 
   const lectureId = document.body.dataset.lectureId;
   const durationMinutes = Number(document.body.dataset.durationMinutes || 120);
+  const maxSeconds = durationMinutes * 60;
+  const minutesForFullPoints = 100; // 10 نقاط × 10 دقائق
   let presenceSeconds = Number(document.body.dataset.presenceSeconds || 0);
+  let codeEntered = document.body.dataset.codeEntered === "1";
 
   const timeEl = document.getElementById("attendanceTimer");
   const barEl = document.getElementById("attendanceProgress");
   const pointsEl = document.getElementById("pointsEarned");
   const presenceMetaEl = document.getElementById("presenceMinutes");
+  const statusEl = document.getElementById("attendanceStatus");
+
+  function updateStatus() {
+    if (!statusEl) return;
+    statusEl.textContent = !codeEntered
+      ? "أدخل رمز الحضور لتفعيل العداد"
+      : document.hidden
+        ? "العداد متوقف — الصفحة غير نشطة"
+        : "نبضة نشطة — يتم تتبّع حضورك الآن";
+  }
 
   function renderPresence() {
     const minutes = Math.floor(presenceSeconds / 60);
-    const pct = Math.min(100, (minutes / durationMinutes) * 100);
-    const points = Math.min(10, Math.floor(minutes / 12)); // نقطة لكل 12 دقيقة تقريباً
+    const pct = Math.min(100, (minutes / minutesForFullPoints) * 100);
+    const points = Math.min(10, Math.floor(minutes / 10));
 
     if (timeEl) {
       const h = String(Math.floor(minutes / 60)).padStart(2, "0");
       const m = String(minutes % 60).padStart(2, "0");
-      const s = String(presenceSeconds % 60).padStart(2, "0");
+      const s = String(Math.floor(presenceSeconds % 60)).padStart(2, "0");
       timeEl.textContent = `${h}:${m}:${s}`;
     }
     if (barEl) barEl.style.width = pct + "%";
-    if (pointsEl) pointsEl.textContent = `${points} / 10 نقاط`;
+    if (pointsEl) pointsEl.textContent = codeEntered ? `${points} / 10 نقاط` : "أدخل رمز الحضور أولاً";
     if (presenceMetaEl) presenceMetaEl.textContent = `${minutes} دقيقة`;
+    updateStatus();
   }
 
   renderPresence();
 
   if (lectureId) {
-    // عدّاد محلي يتناسب مع أرقام الخادم
+    // العدّاد المحلي يسير فقط حين يكون الرمز مُدخلاً والصفحة ظاهرة.
     window.setInterval(() => {
+      if (!codeEntered || document.hidden) return;
+      if (presenceSeconds >= maxSeconds) return;
       presenceSeconds += 1;
       renderPresence();
     }, 1000);
 
-    // نبضة كل 30 ثانية أثناء وجود الطالب في الصفحة
-    window.setInterval(async () => {
-      if (document.hidden) return;
+    document.addEventListener("visibilitychange", renderPresence);
+
+    const sendHeartbeat = async () => {
+      if (!codeEntered || document.hidden) return;
       try {
         const res = await fetch(`/student/lectures/${lectureId}/heartbeat`, {
           method: "POST",
           headers: { "Content-Type": "application/json", "Accept": "application/json" },
         });
-        if (res.ok) {
-          const data = await res.json();
-          if (data && data.minutes != null) presenceSeconds = Math.max(presenceSeconds, data.minutes * 60);
+        const data = await res.json().catch(() => null);
+        if (!res.ok || !data) return;
+        if (data.needCode) {
+          codeEntered = false;
+          presenceSeconds = 0;
+        } else if (data.ok) {
+          codeEntered = true;
+          if (data.seconds != null) presenceSeconds = Math.max(presenceSeconds, Number(data.seconds));
+          else if (data.minutes != null) presenceSeconds = Math.max(presenceSeconds, Number(data.minutes) * 60);
         }
+        renderPresence();
       } catch {
         // فشل صامت — سيُعاد المحاولة مع النبضة التالية
       }
-    }, 30000);
+    };
 
-    // أول نبضة بعد 5 ثوانٍ من فتح الصفحة
-    window.setTimeout(async () => {
-      try {
-        await fetch(`/student/lectures/${lectureId}/heartbeat`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Accept": "application/json" },
-        });
-      } catch { /* ignore */ }
-    }, 5000);
+    window.setInterval(sendHeartbeat, 30000);
+    window.setTimeout(sendHeartbeat, 5000);
   }
 
   // ---------- تبديل نموذج موضوع النقاش ----------

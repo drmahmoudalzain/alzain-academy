@@ -100,7 +100,7 @@
     <div class="table-scroll" style="padding:0 4px 12px;">
       <table class="data-table">
         <thead>
-          <tr><th>#</th><th>الاسم</th><th>المسار</th><th>المستوى</th><th>الرمز</th><th>كلمة المرور المؤقتة</th></tr>
+          <tr><th>#</th><th>الاسم</th><th>المسار</th><th>المستوى</th><th>الرمز</th><th>كلمة المرور المؤقتة</th><th>نسخ</th></tr>
         </thead>
         <tbody>
           <% results.forEach(function (row, i) { %>
@@ -111,6 +111,7 @@
               <td><%= typeof row.level !== 'undefined' ? 'م' + row.level : '—' %></td>
               <td dir="ltr" style="text-align:left;"><code><%= row.platformId %></code></td>
               <td dir="ltr" style="text-align:left;"><code><%= row.password %></code></td>
+              <td><button type="button" class="btn btn-secondary btn-sm copyRowBtn" data-password="<%= row.password %>" title="نسخ كلمة المرور لهذا الطالب">نسخ كلمة المرور</button></td>
             </tr>
           <% }); %>
         </tbody>
@@ -146,6 +147,27 @@
         }
       });
     })();
+
+    document.addEventListener("click", function (event) {
+      var btn = event.target.closest(".copyRowBtn");
+      if (!btn) return;
+      var value = btn.getAttribute("data-password") || "";
+      var done = function () {
+        btn.textContent = "نُسخت";
+        window.setTimeout(function () { btn.textContent = "نسخ كلمة المرور"; }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(value).then(done).catch(done);
+      } else {
+        var ta = document.createElement("textarea");
+        ta.value = value;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); } catch (err) { /* تجاهل */ }
+        document.body.removeChild(ta);
+        done();
+      }
+    });
   </script>
 <% } %>
 

@@ -37,6 +37,17 @@
           </label>
         <% } %>
 
+        <% if (isOwner) { %>
+          <label>المقرر الأصل
+            <select name="parent_course_id">
+              <option value="">مقرر أصلي</option>
+              <% for (const parent of parents ?? []) { %>
+                <option value="<%= parent.id %>" <%= Number(parentId) === parent.id ? 'selected' : '' %>><%= parent.code %> — <%= parent.title %></option>
+              <% } %>
+            </select>
+          </label>
+        <% } %>
+
         <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
           <label>المسار
             <select name="track">
@@ -53,20 +64,11 @@
           </label>
         </div>
 
-        <div class="form-grid" style="grid-template-columns: repeat(3, 1fr);">
-          <label>وزن الحضور %
-            <input type="number" name="attendance_weight" value="<%= course.attendance_weight ?? 10 %>" min="0" max="100">
-          </label>
-          <label>وزن الاختبارات %
-            <input type="number" name="exams_weight" value="<%= course.exams_weight ?? 60 %>" min="0" max="100">
-          </label>
-          <label>وزن الواجبات %
-            <input type="number" name="assignments_weight" value="<%= course.assignments_weight ?? 30 %>" min="0" max="100">
-          </label>
-        </div>
       </div>
 
-      <div class="form-hint muted" style="margin-top:14px;">مجموع الأوزان يجب أن يكون 100.</div>
+      <div class="form-hint muted" style="margin-top:14px;line-height:1.9;">
+        نظام التقييم مثبت ولا يحتاج أوزاناً: مقررات البكالوريوس 300 نقطة (أول 10 محاضرات: 10 حضور + 10 تفاعل + 10 اختبار لكل محاضرة مباشرة/إلكترونية، و30 نقطة اختبار للمسجلة)، وبقية المسارات 300 نقطة للواجبات فقط.
+      </div>
 
       <div style="display:flex;gap:10px;margin-top:18px;">
         <button type="submit" class="btn btn-primary">حفظ التعديلات</button>

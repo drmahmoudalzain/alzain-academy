@@ -29,7 +29,8 @@
 
       <div class="credential-password">
         <div class="credential-label">كلمة المرور المؤقتة</div>
-        <code dir="ltr" style="display:block;font-size:1.35rem;letter-spacing:0.1em;user-select:all;text-align:left;background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:10px;padding:12px 16px;"><%= tempPassword %></code>
+        <code id="tempPassword" dir="ltr" style="display:block;font-size:1.35rem;letter-spacing:0.1em;user-select:all;text-align:left;background:var(--bg-subtle);border:1px dashed var(--border-strong);border-radius:10px;padding:12px 16px;"><%= tempPassword %></code>
+        <button type="button" class="btn btn-secondary btn-sm" id="copyPasswordBtn" style="margin-top:10px;">نسخ كلمة المرور</button>
       </div>
 
       <div class="credential-foot">الدخول عبر: <%= (typeof baseUrl !== 'undefined' && baseUrl) ? baseUrl : 'http://localhost:3001' %> — البوابة الخاصة بدورك.</div>
@@ -93,6 +94,30 @@
       } else {
         var ta = document.createElement("textarea");
         ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); } catch (err) { /* تجاهل */ }
+        document.body.removeChild(ta);
+        done();
+      }
+    });
+  })();
+
+  (function () {
+    var btn = document.getElementById("copyPasswordBtn");
+    var field = document.getElementById("tempPassword");
+    if (!btn || !field) return;
+    btn.addEventListener("click", function () {
+      var value = field.textContent.trim();
+      var done = function () {
+        btn.textContent = "نُسخت كلمة المرور";
+        window.setTimeout(function () { btn.textContent = "نسخ كلمة المرور"; }, 1800);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(value).then(done).catch(done);
+      } else {
+        var ta = document.createElement("textarea");
+        ta.value = value;
         document.body.appendChild(ta);
         ta.select();
         try { document.execCommand("copy"); } catch (err) { /* تجاهل */ }

@@ -14,6 +14,7 @@ import {
   getLectureForStudent,
   getLectures,
   getNotifications,
+  getSubjectGrades,
   getPoints,
   gradeLabel,
   isEnrolled,
@@ -304,7 +305,7 @@ router.get("/lectures/:id", requirePortal("student"), async (req, res, next) => 
       pageTitle: "تفاصيل المحاضرة",
       pageCss: "/css/views/student-lecture.css",
       pageScripts: ["/js/lecture.js"],
-      bodyAttrs: `data-lecture-id="${lecture.id}" data-duration-minutes="${lecture.duration_min ?? 120}" data-presence-seconds="${presenceSeconds}"`,
+      bodyAttrs: `data-lecture-id="${lecture.id}" data-duration-minutes="${lecture.duration_min ?? 120}" data-presence-seconds="${presenceSeconds}" data-code-entered="${attendance ? '1' : '0'}"`,
       lecture: { ...lecture, course, youtubeEmbed },
       teacher: teacherRes.data ?? null,
       attendance,
@@ -346,6 +347,7 @@ router.post("/lectures/:id/attendance", requirePortal("student"), async (req, re
       return res.redirect(`/student/lectures/${lecture.id}?flash=attendance_wrong`);
     }
 
+    // إدخال الرمز يفعّل احتساب الحضور فقط؛ النقاط تُضاف مع نبضات التواجد الفعلي.
     const inserted = await db.from("attendance").insert({
       lecture_id: lecture.id,
       student_id: studentId,
@@ -353,16 +355,6 @@ router.post("/lectures/:id/attendance", requirePortal("student"), async (req, re
       code_used: code,
     });
     if (inserted.error) throw inserted.error;
-
-    const points = await db.from("points_ledger").insert({
-      user_id: studentId,
-      course_id: lecture.course_id,
-      source_type: "attendance",
-      source_id: lecture.id,
-      source_detail: "تسجيل الحضور برمز المحاضرة",
-      points: 10,
-    });
-    if (points.error && points.error.code !== "23505") throw points.error;
 
     return res.redirect(`/student/lectures/${lecture.id}?flash=attendance_ok`);
   } catch (error) {
@@ -376,6 +368,18 @@ router.post("/lectures/:id/heartbeat", requirePortal("student"), async (req, res
     const studentId = req.user.id;
     const lecture = await getLectureForStudent(Number(req.params.id), studentId);
     if (!lecture) return res.status(404).json({ ok: false });
+
+    // بدون رمز المحاضرة لا يُحتسب أي تواجد، حتى لو كان الطالب داخل المنصة.
+    const attendance = await db
+      .from("attendance")
+      .select("id")
+      .eq("lecture_id", lecture.id)
+      .eq("student_id", studentId)
+      .maybeSingle();
+    if (attendance.error) throw attendance.error;
+    if (!attendance.data) {
+      return res.json({ ok: false, needCode: true, minutes: 0, points: 0 });
+    }
 
     const current = await db
       .from("lecture_presence")
@@ -397,7 +401,22 @@ router.post("/lectures/:id/heartbeat", requirePortal("student"), async (req, res
     );
     if (saved.error) throw saved.error;
 
-    return res.json({ ok: true, minutes: Math.floor(total / 60) });
+    const minutes = Math.floor(total / 60);
+    const points = Math.min(10, Math.floor(minutes / 10));
+    const ledger = await db.from("points_ledger").upsert(
+      {
+        user_id: studentId,
+        course_id: lecture.course_id,
+        source_type: "attendance",
+        source_id: lecture.id,
+        source_detail: "حضور محاضرة برمز النظام",
+        points,
+      },
+      { onConflict: "user_id,course_id,source_type,source_id" }
+    );
+    if (ledger.error) throw ledger.error;
+
+    return res.json({ ok: true, needCode: false, minutes, points, seconds: total });
   } catch (error) {
     next(error);
   }
@@ -977,14 +996,14 @@ router.get("/grades", requirePortal("student"), async (req, res, next) => {
     const studentId = req.user.id;
     const { courses, courseIds } = await courseContext(studentId);
     const [grades, points, attendance, badges] = await Promise.all([
-      Promise.all(courses.map((course) => getCourseGrade(course, studentId))),
+      getSubjectGrades(courses, studentId),
       getPoints(studentId),
       getAttendanceSummary(studentId, courseIds),
       loadBadges(studentId, courseIds),
     ]);
 
     const average = grades.length
-      ? grades.reduce((sum, grade) => sum + grade.total, 0) / grades.length
+      ? grades.reduce((sum, grade) => sum + grade.percent, 0) / grades.length
       : 0;
     const gpa = Math.max(0, Math.min(4, (average / 100) * 4));
 
@@ -999,7 +1018,7 @@ router.get("/grades", requirePortal("student"), async (req, res, next) => {
       gpa: gpa.toFixed(2),
       attendanceRate: attendance.attendanceRate,
       points: points.total,
-      coursesCount: courses.length,
+      coursesCount: grades.length,
       flash: flashFrom(req.query),
     });
   } catch (error) {

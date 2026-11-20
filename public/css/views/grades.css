@@ -861,6 +861,7 @@
       transition: width 1.2s var(--ease-out);
     }
     .breakdown-bar.attendance > span { background: linear-gradient(90deg, var(--info), #5B9BD5); }
+    .breakdown-bar.interaction > span{ background: linear-gradient(90deg, #7E6BC7, #A99BE0); }
     .breakdown-bar.exams > span      { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
     .breakdown-bar.assignments > span{ background: linear-gradient(90deg, var(--green), var(--green-light)); }
 

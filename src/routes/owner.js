@@ -6,7 +6,7 @@ import { requirePortal } from "../middleware/auth.js";
 import { createManagementRouter } from "../lib/management.js";
 import { setSetting } from "../lib/settings.js";
 import { hashPassword } from "../lib/password.js";
-import { getCourseGrade } from "../lib/student-data.js";
+import { getSubjectGradesBulk } from "../lib/student-data.js";
 import { parseTrackKey, TRACK_PROFILES, TRACK_KEYS, resolveTrackAlias } from "../lib/tracks.js";
 import { createStudentsRouter } from "../lib/students.js";
 import { isFounder } from "../lib/portals.js";
@@ -67,7 +67,7 @@ router.get("/users", requirePortal("owner"), async (req, res, next) => {
       .from("users")
       .select("id, role, name, email, university_id, platform_id, position, track, level, is_active, last_login, created_at, is_staff")
       .order("created_at", { ascending: false })
-      .limit(300);
+      .limit(1000);
 
     if (role === "teacher" || role === "student") builder = builder.eq("role", role);
     const { data, error } = await builder;
@@ -603,32 +603,50 @@ async function buildStudentReport() {
   if (error) throw error;
   const students = data ?? [];
 
-  const report = [];
-  for (const student of students) {
-    const enrollRes = await db.from("enrollments").select("course_id, courses(id, title, code, attendance_weight, exams_weight, assignments_weight)").eq("student_id", student.id);
-    const courses = (enrollRes.data ?? []).map((row) => row.courses).filter(Boolean);
-    const grades = await Promise.all(courses.map((course) => getCourseGrade(course, student.id)));
+  const studentIds = students.map((student) => student.id);
+  if (!studentIds.length) return [];
+
+  // كل البيانات تُجلب دفعة واحدة، ثم تُحسب الدرجات محلياً بدل مئات الاستعلامات.
+  const [enrollRes, pointsRes] = await Promise.all([
+    db.from("enrollments")
+      .select("student_id, courses(id, title, code, parent_course_id, attendance_weight, exams_weight, assignments_weight)")
+      .in("student_id", studentIds),
+    db.from("points_ledger").select("user_id, points").in("user_id", studentIds),
+  ]);
+  if (enrollRes.error) throw enrollRes.error;
+  if (pointsRes.error) throw pointsRes.error;
+
+  const coursesByStudent = new Map(studentIds.map((id) => [id, []]));
+  for (const row of enrollRes.data ?? []) {
+    if (row.courses) coursesByStudent.get(row.student_id)?.push(row.courses);
+  }
+  const pointsByStudent = new Map();
+  for (const row of pointsRes.data ?? []) {
+    pointsByStudent.set(row.user_id, (pointsByStudent.get(row.user_id) ?? 0) + Number(row.points ?? 0));
+  }
+
+  const gradesByStudent = await getSubjectGradesBulk(
+    students.map((student) => ({ studentId: student.id, courses: coursesByStudent.get(student.id) ?? [] }))
+  );
+
+  return students.map((student) => {
+    const grades = gradesByStudent.get(student.id) ?? [];
     const attendanceCount = grades.reduce((sum, grade) => sum + grade.attendance.attended, 0);
     const totalLectures = grades.reduce((sum, grade) => sum + grade.attendance.total, 0);
-    const pointsRes = await db.from("points_ledger").select("points").eq("user_id", student.id);
-    const points = (pointsRes.data ?? []).reduce((sum, row) => sum + (row.points ?? 0), 0);
-    const average = grades.length ? grades.reduce((sum, grade) => sum + grade.total, 0) / grades.length : 0;
-
-    report.push({
+    const average = grades.length ? grades.reduce((sum, grade) => sum + grade.percent, 0) / grades.length : 0;
+    return {
       id: student.id,
       name: student.name,
       code: student.platform_id ?? student.university_id ?? "—",
       track: student.track ?? "bachelor_m",
       level: student.level ?? "—",
       trackLabel: TRACK_META[student.track]?.label ?? "—",
-      courses: courses.length,
+      courses: grades.length,
       average: Math.round(average * 10) / 10,
       attendanceRate: totalLectures ? Math.round((attendanceCount / totalLectures) * 100) : 0,
-      points,
-    });
-  }
-
-  return report;
+      points: pointsByStudent.get(student.id) ?? 0,
+    };
+  });
 }
 
 function reportSections(students) {

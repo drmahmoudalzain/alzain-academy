@@ -75,7 +75,6 @@ export const NAVIGATION = {
         { label: "المحاضرات", href: "/teacher/lectures", icon: "lectures" },
         { label: "الطلاب", href: "/teacher/students", icon: "users" },
         { label: "الاختبارات", href: "/teacher/exams", icon: "exams" },
-        { label: "الواجبات", href: "/teacher/assignments", icon: "assignments" },
       ],
     },
     {
@@ -114,6 +113,9 @@ export const NAVIGATION = {
         { label: "المستخدمون", href: "/owner/users", icon: "users" },
         { label: "الموظفون", href: "/owner/staff", icon: "user" },
         { label: "المقررات", href: "/owner/courses", icon: "courses" },
+        { label: "المحاضرات", href: "/owner/lectures", icon: "lectures" },
+        { label: "الاختبارات", href: "/owner/exams", icon: "exams" },
+        { label: "الواجبات", href: "/owner/assignments", icon: "assignments" },
         { label: "الطلاب", href: "/owner/students", icon: "users" },
         { label: "المنتدى", href: "/forum", icon: "forum" },
         { label: "النشر العلمي", href: "/publication", icon: "exams" },

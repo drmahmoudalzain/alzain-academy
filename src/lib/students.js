@@ -2,7 +2,7 @@ import express from "express";
 import { db } from "./supabase.js";
 import { renderPage } from "./render.js";
 import { requirePortal } from "../middleware/auth.js";
-import { getCourseGrade } from "./student-data.js";
+import { getSubjectGrades } from "./student-data.js";
 import { parseTrackKey } from "./tracks.js";
 import { hashPassword } from "./password.js";
 import { generateTempPassword } from "./platformCode.js";
@@ -108,12 +108,12 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
 
       const enrollRes = await db
         .from("enrollments")
-        .select("course_id, courses(id, title, code, color, level, track, teacher_id, attendance_weight, exams_weight, assignments_weight)")
+        .select("course_id, courses(id, title, code, color, level, track, teacher_id, parent_course_id, attendance_weight, exams_weight, assignments_weight)")
         .eq("student_id", id);
       if (enrollRes.error) throw enrollRes.error;
       const courses = (enrollRes.data ?? []).map((row) => row.courses).filter(Boolean);
 
-      const grades = await Promise.all(courses.map((course) => getCourseGrade(course, id)));
+      const grades = await getSubjectGrades(courses, id);
       const pointsRes = await db.from("points_ledger").select("points, source_type").eq("user_id", id);
       if (pointsRes.error) throw pointsRes.error;
       const points = (pointsRes.data ?? []).reduce((sum, row) => sum + (row.points ?? 0), 0);
@@ -157,6 +157,7 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
         student,
         error: null,
         saved: req.query.saved === "1",
+        isStaffOwner: isOwnerMode,
       });
     } catch (error) {
       next(error);
@@ -179,6 +180,9 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
       const level = Math.min(4, Math.max(1, Number(req.body.level ?? 1)));
       const gender = ["M", "F"].includes(req.body.gender) ? req.body.gender : null;
       const isActive = req.body.is_active === "on";
+      const update = { name, email, phone, university_id: universityId, track, level, gender };
+      // الإيقاف العام للحساب من صلاحية المالك؛ الأستاذ يوقف الطالب داخل مقرره فقط.
+      if (isOwnerMode) update.is_active = isActive;
 
       if (name.length < 3) {
         const student = (
@@ -190,6 +194,7 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
           student,
           error: "الاسم قصير جداً.",
           saved: false,
+          isStaffOwner: isOwnerMode,
         });
       }
 
@@ -204,6 +209,7 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
             student: { id, name, email, phone, university_id: universityId, track, level, gender, is_active: isActive },
             error: "الرقم الجامعي مستخدم في حساب آخر.",
             saved: false,
+            isStaffOwner: isOwnerMode,
           });
         }
       }
@@ -217,13 +223,14 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
             student: { id, name, email, phone, university_id: universityId, track, level, gender, is_active: isActive },
             error: "البريد مستخدم في حساب آخر.",
             saved: false,
+            isStaffOwner: isOwnerMode,
           });
         }
       }
 
       const updated = await db
         .from("users")
-        .update({ name, email, phone, university_id: universityId, track, level, gender, is_active: isActive })
+        .update(update)
         .eq("id", id);
       if (updated.error) throw updated.error;
 

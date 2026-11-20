@@ -1,7 +1,7 @@
 <section class="page-header">
   <div class="page-header-info">
     <h2>تسجيل الطلاب في المقرر</h2>
-    <p><code><%= course.code %></code> · <%= course.title %> — الاختيار حر، ويمكن تسجيل الطالب في أكثر من مقرر دفعة واحدة.</p>
+    <p><code><%= course.code %></code> · <%= course.title %> — يُسجَّل في هذا المقرر طلاب مستواه فقط<% if (fixedLevel) { %> (المستوى <%= fixedLevel %>)<% } %>، ومع الأصل يُضاف الفرع الموافق لجنس الطالب لا الفرع الآخر.</p>
   </div>
   <div class="page-header-actions">
     <a class="btn btn-secondary" href="<%= basePath %>/courses/<%= course.id %>">العودة إلى المقرر</a>
@@ -18,7 +18,7 @@
 <div class="table-card" style="margin-bottom:18px;">
   <div class="table-card-head" style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
     <h3>الطلاب (<%= students.length %>)</h3>
-    <a class="card-link" href="?track=all&amp;level=all&amp;q=">عرض كل المسارات والمستويات</a>
+    <a class="card-link" href="?q=">إعادة الضبط إلى مستوى المقرر ومساره</a>
   </div>
   <div class="side-card-body" style="padding:14px 20px;">
     <form method="get" action="<%= basePath %>/courses/<%= course.id %>/enroll" class="filter-form" style="display:flex;gap:10px;flex-wrap:wrap;align-items:end;">
@@ -27,22 +27,40 @@
       </label>
       <label style="flex:1;min-width:140px;">المسار
         <select name="track">
-          <option value="all" <%= trackFilter === 'all' ? 'selected' : '' %>>كل المسارات</option>
-          <% TRACK_KEYS.forEach(function (key) { %>
+          <% if (studentTracks.length > 1) { %>
+            <option value="all" <%= trackFilter === 'all' ? 'selected' : '' %>>الطلاب والطالبات معاً</option>
+          <% } %>
+          <% studentTracks.forEach(function (key) { %>
             <option value="<%= key %>" <%= trackFilter === key ? 'selected' : '' %>><%= getProfile(key).label %></option>
           <% }); %>
         </select>
       </label>
-      <label style="flex:1;min-width:110px;">المستوى
-        <select name="level">
-          <option value="all" <%= levelFilter === 'all' ? 'selected' : '' %>>كل المستويات</option>
-          <% for (var i = 1; i <= 4; i += 1) { %>
-            <option value="<%= i %>" <%= levelFilter === String(i) ? 'selected' : '' %>>المستوى <%= i %></option>
-          <% } %>
-        </select>
+      <label style="flex:1;min-width:110px;">المستوى (من المقرر)
+        <input type="text" value="<%= fixedLevel ? 'المستوى ' + fixedLevel : 'كل المستويات' %>" disabled>
       </label>
       <button class="btn btn-secondary" type="submit">تصفية</button>
     </form>
+  </div>
+</div>
+
+<div class="table-card" style="margin-bottom:18px;">
+  <div class="table-card-head"><h3>تسجيل دفعة واحدة / إضافة طالب عند الضرورة</h3></div>
+  <div class="side-card-body" style="padding:16px 20px;display:flex;gap:14px;flex-wrap:wrap;align-items:end;">
+    <form method="post" action="<%= basePath %>/courses/<%= course.id %>/enroll" onsubmit="return confirm('تسجيل طلاب مستوى هذا المقرر المطابقين للتصفية في المقررات المختارة؟');">
+      <input type="hidden" name="bulk_all" value="1">
+      <input type="hidden" name="course_ids" value="<%= course.id %>">
+      <input type="hidden" name="track_filter" value="<%= trackFilter %>">
+      <input type="hidden" name="level_filter" value="<%= levelFilter %>">
+      <input type="hidden" name="q_filter" value="<%= q %>">
+      <button type="submit" class="btn btn-primary">تسجيل كل طلاب المستوى دفعة واحدة</button>
+    </form>
+    <form method="post" action="<%= basePath %>/courses/<%= course.id %>/enroll/by-code" style="display:flex;gap:8px;align-items:end;">
+      <label>رمز الطالب أو الرقم الجامعي
+        <input type="text" name="student_code" required maxlength="24" dir="ltr" style="text-align:left;" placeholder="BM0001">
+      </label>
+      <button type="submit" class="btn btn-secondary">إضافة طالب بعينه</button>
+    </form>
+    <p class="form-hint mb-0" style="flex:1;min-width:220px;">زر الدفعة يسجّل طلاب مستوى المقرر فقط (ومع الأصل فرع كل طالب بحسب جنسه)، ويتخطّى المسجّلين سابقاً. زر الطالب بعينه هو الاستثناء لإضافة أي طالب إلى أي مقرر عند الضرورة.</p>
   </div>
 </div>
 
@@ -60,17 +78,14 @@
         </label>
         <label>المسار *
           <select name="track" required>
-            <% TRACK_KEYS.forEach(function (key) { %>
+            <% studentTracks.forEach(function (key) { %>
               <option value="<%= key %>" <%= key === course.track ? 'selected' : '' %>><%= getProfile(key).label %> — <%= key %></option>
             <% }); %>
           </select>
         </label>
-        <label>المستوى
-          <select name="level">
-            <% for (var j = 1; j <= 4; j += 1) { %>
-              <option value="<%= j %>" <%= Number(course.level) === j ? 'selected' : '' %>>المستوى <%= j %></option>
-            <% } %>
-          </select>
+        <label>المستوى (من المقرر)
+          <input type="text" value="<%= fixedLevel ? 'المستوى ' + fixedLevel : 'كل المستويات' %>" disabled>
+          <% if (fixedLevel) { %><input type="hidden" name="level" value="<%= fixedLevel %>"><% } %>
         </label>
         <label>الرقم الجامعي <span class="muted">(اختياري)</span>
           <input type="text" name="university_id" maxlength="20" dir="ltr" style="text-align:left;" placeholder="2024009">
@@ -90,7 +105,7 @@
   <div class="table-card" style="margin-bottom:18px;">
     <div class="table-card-head"><h3>المقررات المحددة للتسجيل</h3></div>
     <div class="side-card-body" style="padding:16px 20px;">
-      <p class="form-hint" style="margin-top:0;">اختر مقرراً واحداً أو أكثر. الأستاذ يرى مقرراته فقط، والمالك يرى كل المقررات.</p>
+      <p class="form-hint" style="margin-top:0;">تظهر هنا مقررات المستوى نفسه والمسار المتوافق فقط، حتى لا يُسجَّل طالب من مستوى آخر. اختر مقرراً واحداً أو أكثر.</p>
       <div class="course-pick-grid">
         <% courses.forEach(function (item) { %>
           <label class="course-pick">
@@ -113,6 +128,7 @@
             <th>الرمز</th>
             <th>المسار / المستوى</th>
             <th>الحالة في هذا المقرر</th>
+            <th>إجراء</th>
           </tr>
         </thead>
         <tbody>
@@ -123,7 +139,7 @@
                 <td>
                   <input type="checkbox" name="student_ids" value="<%= student.id %>" class="student-check" <%= already ? 'disabled title="مسجل بالفعل"' : '' %>>
                 </td>
-                <td><strong><%= student.name %></strong></td>
+                <td><strong><a href="<%= basePath %>/students/<%= student.id %>" title="عرض بيانات الطالب"><%= student.name %></a></strong></td>
                 <td dir="ltr" style="text-align:left;"><code><%= student.platform_id || student.university_id || '—' %></code></td>
                 <td><%= getProfile(student.track).label %><%= student.level ? ' · م' + student.level : '' %></td>
                 <td>
@@ -133,10 +149,11 @@
                     <span class="muted">غير مسجل</span>
                   <% } %>
                 </td>
+                <td><a class="btn btn-secondary btn-sm" href="<%= basePath %>/students/<%= student.id %>">بيانات الطالب</a></td>
               </tr>
             <% }); %>
           <% } else { %>
-            <tr><td colspan="5" class="muted text-center">لا يوجد طلاب مطابقون للفلاتر الحالية.</td></tr>
+            <tr><td colspan="6" class="muted text-center">لا يوجد طلاب مطابقون للفلاتر الحالية.</td></tr>
           <% } %>
         </tbody>
       </table>

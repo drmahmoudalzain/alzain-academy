@@ -289,14 +289,14 @@
           <div class="attendance-panel">
             <div class="attendance-hero">
               <h3>تتبّع الحضور الذكي</h3>
-              <p>يُسجَّل حضورك أثناء بقائك في هذه الصفحة. النقاط تُحتسب بناءً على مدة حضورك.</p>
+              <p>يُسجَّل حضورك بعد إدخال رمز المحاضرة. تُحتسب نقطة عن كل 10 دقائق تواجد، بحد أقصى 10 نقاط بعد 100 دقيقة. إذا غادرت الصفحة يتوقف العداد ثم يستأنف عند العودة.</p>
               <div class="attendance-timer">
                 <span id="attendanceTimer">00:00:00</span>
                 <small>مدة الحضور</small>
               </div>
               <div class="attendance-progress">
                 <div class="attendance-progress-label">
-                  <span>التقدم نحو 10 نقاط</span>
+                  <span>التقدم نحو 10 نقاط (100 دقيقة)</span>
                   <span id="pointsEarned">0 / 10 نقاط</span>
                 </div>
                 <div class="attendance-progress-bar"><span id="attendanceProgress" style="width:<%= presencePercent %>%"></span></div>
@@ -305,7 +305,7 @@
 
             <div class="heartbeat-indicator">
               <span class="heartbeat-dot"></span>
-              <span>نبضة نشطة — يتم تتبّع حضورك الآن</span>
+              <span id="attendanceStatus">أدخل رمز الحضور لتفعيل العداد</span>
             </div>
 
             <div class="attendance-code-box">

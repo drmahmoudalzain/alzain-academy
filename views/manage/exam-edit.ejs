@@ -23,6 +23,16 @@
           <% } %>
         </select>
       </label>
+      <label>المحاضرة المرتبطة *
+        <select name="lecture_id" required>
+          <% const courseByLectureId = new Map(courses.map((c) => [c.id, c])); %>
+          <% for (const lecture of lectures ?? []) { %>
+            <% const lectureType = lecture.lecture_type === 'recorded' ? 'مسجلة — 30 نقطة' : (lecture.lecture_type === 'online' ? 'إلكترونية — 10 نقاط' : 'مباشرة — 10 نقاط'); %>
+            <option value="<%= lecture.id %>" <%= Number(selectedLecture) === lecture.id ? 'selected' : '' %>><%= lecture.title %> — <%= courseByLectureId.get(lecture.course_id)?.code ?? '' %> — <%= lectureType %></option>
+          <% } %>
+        </select>
+      </label>
+      <div class="form-hint muted" style="grid-column:1/-1;">سقف الاختبار يُشتق تلقائياً من نوع المحاضرة: 10 نقاط للمباشرة والإلكترونية، و30 نقطة للمسجلة. لا تُحتسب الاختبارات غير المرتبطة بمحاضرة.</div>
       <label>عنوان الاختبار *
         <input type="text" name="title" value="<%= exam.title %>" required maxlength="180">
       </label>
