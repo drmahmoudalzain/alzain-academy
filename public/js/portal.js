@@ -40,7 +40,10 @@
   if (menuBtn) {
     menuBtn.addEventListener("click", () => setSidebar(!sidebar.classList.contains("open")));
   }
-  if (overlay) overlay.addEventListener("click", closeSidebar);
+  if (overlay) {
+    overlay.addEventListener("click", closeSidebar);
+    overlay.addEventListener("touchstart", closeSidebar, { passive: true });
+  }
   // على الهاتف قد لا يصل حدث click إلى العنصر الشفاف؛ نُغلق عند أي لمسة خارج القائمة.
   document.addEventListener(
     "pointerdown",

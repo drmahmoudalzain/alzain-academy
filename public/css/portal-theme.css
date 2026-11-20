@@ -61,8 +61,8 @@ body.portal {
 .sidebar-overlay {
   position: fixed;
   inset: 0;
-  /* أخفض من z-index الخاص بالقائمة (50) حتى يبقى الغشاء خلف القائمة ولا يحجب روابطها */
-  z-index: 45;
+  /* أخفض من الشريط العلوي (40) والقائمة (50) حتى تبقى أدوات الإغلاق قابلة لللمس */
+  z-index: 35;
   background: rgba(7, 20, 38, 0.55);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);

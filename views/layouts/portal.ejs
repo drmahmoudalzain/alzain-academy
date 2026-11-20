@@ -7,9 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/views/student-dashboard.css?v=20261121a">
-  <% if (typeof pageCss !== 'undefined' && pageCss) { %><link rel="stylesheet" href="<%= pageCss %>?v=20261121a"><% } %>
-  <link rel="stylesheet" href="/css/portal-theme.css?v=20261121a">
+  <link rel="stylesheet" href="/css/views/student-dashboard.css?v=20261121b">
+  <% if (typeof pageCss !== 'undefined' && pageCss) { %><link rel="stylesheet" href="<%= pageCss %>?v=20261121b"><% } %>
+  <link rel="stylesheet" href="/css/portal-theme.css?v=20261121b">
 </head>
 <body class="portal portal-<%= portal.key %>"<%- typeof bodyAttrs !== 'undefined' && bodyAttrs ? ' ' + bodyAttrs : '' %>>
 
@@ -152,7 +152,7 @@
     </div>
   </div>
 
-  <script src="/js/portal.js?v=20261121a" defer></script>
+  <script src="/js/portal.js?v=20261121b" defer></script>
   <% if (typeof pageScripts !== 'undefined' && pageScripts) { for (const src of pageScripts) { %>
     <script src="<%= src %>" defer></script>
   <% } } %>
