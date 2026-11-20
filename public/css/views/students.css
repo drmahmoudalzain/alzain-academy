@@ -25,10 +25,23 @@
 }
 
 .student-filter-label {
+  min-width: 72px;
   margin-left: 4px;
   color: var(--text-muted);
   font-size: 0.76rem;
   font-weight: 700;
+}
+
+.student-filter-levels {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+
+.student-filter-genders {
+  margin-top: 8px;
+  padding-top: 4px;
+  border-top: 0;
 }
 
 .student-filters .filter-tab {
@@ -80,6 +93,17 @@
 .student-filters .filter-tab-sub {
   padding: 6px 11px;
   font-size: 0.8rem;
+}
+
+.student-filters .filter-tab-level {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+.student-filters .filter-tab.is-empty {
+  opacity: 0.45;
+  pointer-events: none;
+  cursor: not-allowed;
 }
 
 .student-empty {

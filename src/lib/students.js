@@ -39,6 +39,27 @@ function countTrackFilters(students) {
   return counts;
 }
 
+// المستويات تظهر داخل مسارات البكالوريوس فقط؛ القيمة «all» تعني كل المستويات.
+function normalizeLevelFilter(value) {
+  const raw = String(value ?? "").trim();
+  if (!raw || raw === "all") return "all";
+  const level = Number(raw);
+  return Number.isInteger(level) && level >= 1 && level <= 4 ? level : "all";
+}
+
+function matchesLevelFilter(student, level) {
+  return level === "all" || Number(student.level) === level;
+}
+
+function countLevelFilters(students) {
+  const counts = { all: students.length, 1: 0, 2: 0, 3: 0, 4: 0 };
+  for (const student of students) {
+    const level = Number(student.level);
+    if (Object.prototype.hasOwnProperty.call(counts, level)) counts[level] += 1;
+  }
+  return counts;
+}
+
 /**
  * إدارة الطلاب — مشتركة بين بوابتي المالك والأستاذ.
  * الأستاذ يرى فقط الطلاب المسجّلين في مقرراته، والمالك يرى الجميع.
@@ -73,29 +94,50 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
       const searchValue = req.query.q ?? "";
       const query = String(searchValue).trim().toLowerCase();
       const track = normalizeTrackFilter(req.query.track);
+      const bachelorSelected = BACHELOR_TRACK_KEYS.has(track);
+      // المستوى يعمل داخل البكالوريوس فقط، ويُهمل في بقية المسارات حتى لو جاء في الرابط.
+      const level = bachelorSelected ? normalizeLevelFilter(req.query.level) : "all";
 
       // الفلتر محفوظ في الرابط؛ روابط التبويبات تحفظ كلمة البحث الحالية أيضاً.
       const tabHref = (value) => {
         const params = new URLSearchParams();
         params.set("track", value);
+        if (BACHELOR_TRACK_KEYS.has(value) && level !== "all") params.set("level", String(level));
         if (query) params.set("q", query);
         return `${basePath}?${params.toString()}`;
       };
 
-      const listLocals = ({ students, allStudents, totalVisible }) => ({
-        title: "الطلاب",
-        pageTitle: "الطلاب",
-        students,
-        searchAction: basePath,
-        searchPlaceholder: "ابحث باسم أو رقم...",
-        searchValue,
-        searchTrack: track,
-        track,
-        trackCounts: countTrackFilters(allStudents),
-        tabHref,
-        totalVisible,
-        pageCss: "/css/views/students.css",
-      });
+      const levelHref = (value) => {
+        const params = new URLSearchParams();
+        params.set("track", track);
+        if (value !== "all") params.set("level", String(value));
+        if (query) params.set("q", query);
+        return `${basePath}?${params.toString()}`;
+      };
+
+      const listLocals = ({ students, allStudents, totalVisible }) => {
+        const bachelorStudents = allStudents.filter((student) => BACHELOR_TRACK_KEYS.has(student.track));
+        const scopedBachelor = bachelorStudents.filter((student) => matchesLevelFilter(student, level));
+        return {
+          title: "الطلاب",
+          pageTitle: "الطلاب",
+          students,
+          searchAction: basePath,
+          searchPlaceholder: "ابحث باسم أو رقم...",
+          searchValue,
+          searchTrack: track,
+          searchLevel: level,
+          track,
+          trackCounts: countTrackFilters(allStudents),
+          level,
+          levelCounts: countLevelFilters(bachelorStudents),
+          bachelorGenderCounts: countTrackFilters(scopedBachelor),
+          tabHref,
+          levelHref,
+          totalVisible,
+          pageCss: "/css/views/students.css",
+        };
+      };
 
       const ids = await visibleStudentIds(req.user);
       if (!ids.length) {
@@ -120,6 +162,7 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
 
       const students = allStudents
         .filter((student) => matchesTrackFilter(student, track))
+        .filter((student) => matchesLevelFilter(student, level))
         .filter((student) => {
           if (!query) return true;
           return [student.name, student.university_id, student.platform_id, student.email].some((value) =>

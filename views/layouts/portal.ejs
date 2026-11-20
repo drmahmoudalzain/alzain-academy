@@ -112,6 +112,9 @@
             <% if (typeof searchTrack !== 'undefined' && searchTrack && searchTrack !== 'all') { %>
               <input type="hidden" name="track" value="<%= searchTrack %>">
             <% } %>
+            <% if (typeof searchLevel !== 'undefined' && searchLevel && searchLevel !== 'all') { %>
+              <input type="hidden" name="level" value="<%= searchLevel %>">
+            <% } %>
             <input type="search" name="q" value="<%= typeof searchValue !== 'undefined' ? searchValue : '' %>" placeholder="<%= typeof searchPlaceholder !== 'undefined' ? searchPlaceholder : 'ابحث...' %>" aria-label="بحث" />
           </form>
         <% } else { %>

@@ -2,10 +2,23 @@
   const activeTrack = typeof track !== 'undefined' ? track : 'all';
   const counts = typeof trackCounts !== 'undefined' ? trackCounts : {};
   const trackTabHref = typeof tabHref !== 'undefined' ? tabHref : (value) => `?track=${value}`;
+  const levelTabHref = typeof levelHref !== 'undefined' ? levelHref : (value) => `?track=${activeTrack}&level=${value}`;
   const searchText = typeof searchValue !== 'undefined' ? String(searchValue ?? '').trim() : '';
+  const activeLevel = typeof level !== 'undefined' ? level : 'all';
+  const countsByLevel = typeof levelCounts !== 'undefined' ? levelCounts : {};
+  const genderCounts = typeof bachelorGenderCounts !== 'undefined' ? bachelorGenderCounts : counts;
   const countOf = (key) => Number(counts[key] ?? 0);
+  const levelCountOf = (key) => Number(countsByLevel[key] ?? 0);
+  const genderCountOf = (key) => Number(genderCounts[key] ?? 0);
   const bachelorSelected = ['bachelor', 'bachelor_m', 'bachelor_f'].includes(activeTrack);
-  const narrowed = activeTrack !== 'all' || Boolean(searchText);
+  const narrowed = activeTrack !== 'all' || activeLevel !== 'all' || Boolean(searchText);
+  const levelOptions = [
+    { value: 'all', label: 'كل المستويات' },
+    { value: 1, label: 'الأول' },
+    { value: 2, label: 'الثاني' },
+    { value: 3, label: 'الثالث' },
+    { value: 4, label: 'الرابع' },
+  ];
 %>
 
 <section class="page-header">
@@ -38,16 +51,33 @@
   </div>
 
   <% if (bachelorSelected) { %>
-    <div class="student-filter-row student-filter-subrow">
-      <span class="student-filter-label">داخل البكالوريوس</span>
+    <div class="student-filter-row student-filter-subrow student-filter-levels">
+      <span class="student-filter-label">المستوى</span>
+      <% for (const option of levelOptions) { %>
+        <% const levelCount = levelCountOf(option.value); %>
+        <% const levelActive = String(activeLevel) === String(option.value); %>
+        <% if (levelCount === 0 && !levelActive) { %>
+          <span class="filter-tab filter-tab-level is-empty" aria-disabled="true">
+            <%= option.label %> <span class="tab-count">0</span>
+          </span>
+        <% } else { %>
+          <a class="filter-tab filter-tab-level <%= levelActive ? 'active' : '' %>" href="<%= levelTabHref(option.value) %>" <%= levelActive ? 'aria-current="page"' : '' %>>
+            <%= option.label %> <span class="tab-count"><%= levelCount %></span>
+          </a>
+        <% } %>
+      <% } %>
+    </div>
+
+    <div class="student-filter-row student-filter-subrow student-filter-genders">
+      <span class="student-filter-label">الجنس</span>
       <a class="filter-tab filter-tab-sub <%= activeTrack === 'bachelor' ? 'active' : '' %>" href="<%= trackTabHref('bachelor') %>" <%= activeTrack === 'bachelor' ? 'aria-current="page"' : '' %>>
-        كل البكالوريوس <span class="tab-count"><%= countOf('bachelor') %></span>
+        كل البكالوريوس <span class="tab-count"><%= genderCountOf('bachelor') %></span>
       </a>
       <a class="filter-tab filter-tab-sub <%= activeTrack === 'bachelor_m' ? 'active' : '' %>" href="<%= trackTabHref('bachelor_m') %>" <%= activeTrack === 'bachelor_m' ? 'aria-current="page"' : '' %>>
-        طلاب <span class="tab-count"><%= countOf('bachelor_m') %></span>
+        طلاب <span class="tab-count"><%= genderCountOf('bachelor_m') %></span>
       </a>
       <a class="filter-tab filter-tab-sub <%= activeTrack === 'bachelor_f' ? 'active' : '' %>" href="<%= trackTabHref('bachelor_f') %>" <%= activeTrack === 'bachelor_f' ? 'aria-current="page"' : '' %>>
-        طالبات <span class="tab-count"><%= countOf('bachelor_f') %></span>
+        طالبات <span class="tab-count"><%= genderCountOf('bachelor_f') %></span>
       </a>
     </div>
   <% } %>
