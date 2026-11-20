@@ -7,7 +7,7 @@ import { createManagementRouter } from "../lib/management.js";
 import { setSetting } from "../lib/settings.js";
 import { hashPassword } from "../lib/password.js";
 import { getSubjectGradesBulk } from "../lib/student-data.js";
-import { parseTrackKey, TRACK_PROFILES, TRACK_KEYS, resolveTrackAlias } from "../lib/tracks.js";
+import { parseStudentTrack, TRACK_PROFILES, STUDENT_TRACK_KEYS, resolveTrackAlias, getProfile } from "../lib/tracks.js";
 import { createStudentsRouter } from "../lib/students.js";
 import { isFounder } from "../lib/portals.js";
 import { provisionUser, generateTempPassword } from "../lib/platformCode.js";
@@ -17,6 +17,12 @@ const router = express.Router();
 
 const ownerPage = (res, view, locals) =>
   renderPage(res, view, { layout: "portal", portal: res.locals.portal, ...locals });
+
+// المستوى رقم صحيح بين 1 و4، وأي قيمة غير صالحة تُستبدل بالافتراضي بدل NaN.
+function parseLevel(value, fallback = 1) {
+  const number = Number(value);
+  return Number.isInteger(number) ? Math.min(4, Math.max(1, number)) : fallback;
+}
 
 async function count(table, apply = (q) => q) {
   const { count: total, error } = await apply(
@@ -123,8 +129,8 @@ router.post("/users", requirePortal("owner"), async (req, res, next) => {
     const universityId = String(req.body.university_id ?? "").trim() || null;
     const email = String(req.body.email ?? "").trim().toLowerCase() || null;
     const position = String(req.body.position ?? "").trim() || null;
-    const track = parseTrackKey(req.body.track);
-    const level = Math.min(4, Math.max(1, Number(req.body.level ?? 1)));
+    const track = parseStudentTrack(req.body.track);
+    const level = parseLevel(req.body.level);
 
     if (name.length < 3) return fail("الاسم قصير جداً.");
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return fail("صيغة البريد الإلكتروني غير صحيحة.");
@@ -264,15 +270,29 @@ router.post("/users/import", requirePortal("owner"), async (req, res, next) => {
     for (const [index, line] of lines.entries()) {
       const parts = line.split(/[,;\t|]/).map((part) => part.trim()).filter(Boolean);
       const name = parts[0] ?? "";
-      const trackRaw = (parts[1] ?? "bachelor_m").toLowerCase();
+      const trackInput = String(parts[1] ?? "").trim();
+      // يقبل المفتاح الإنجليزي أو الاسم العربي (طلاب/طالبات/معادلة/خارج/دراسات عليا).
+      const trackRaw = trackInput ? resolveTrackAlias(trackInput) : "bachelor_m";
       const universityId = parts[2] || null;
 
       if (name.length < 3) {
         failures.push({ line: index + 1, text: line, reason: "الاسم قصير جداً" });
         continue;
       }
-      if (!TRACK_KEYS.includes(trackRaw)) {
-        failures.push({ line: index + 1, text: line, reason: `مسار غير معروف «${trackRaw}» — المتاح: ${TRACK_KEYS.join(", ")}` });
+      if (!trackRaw) {
+        failures.push({
+          line: index + 1,
+          text: line,
+          reason: `مسار غير معروف «${trackInput}» — اكتب: طلاب، طالبات، معادلة، خارج، دراسات عليا`,
+        });
+        continue;
+      }
+      if (trackRaw === "bachelor") {
+        failures.push({
+          line: index + 1,
+          text: line,
+          reason: "«بكالوريوس» مسار المقرر الأصلي وليس مسار حساب طالب — حدد «طلاب» أو «طالبات».",
+        });
         continue;
       }
 
@@ -346,11 +366,11 @@ const uploadRoster = (req, res, next) =>
 
 router.post("/users/import-excel", requirePortal("owner"), uploadRoster, async (req, res, next) => {
   const trackRaw = String(req.body.track ?? "").toLowerCase();
-  const level = Math.min(4, Math.max(1, Number(req.body.level ?? 1)));
+  const level = parseLevel(req.body.level);
   const fail = (message) => renderImportPage(res, { status: 422, error: message });
 
   try {
-    if (!TRACK_KEYS.includes(trackRaw)) return fail("اختر مساراً صحيحاً للدفعة.");
+    if (!STUDENT_TRACK_KEYS.includes(trackRaw)) return fail("اختر مساراً صحيحاً للدفعة (طلاب/طالبات/معادلة/خارج/دراسات عليا).");
 
     const rows = await extractRosterFromFile(req.file);
     if (!rows.length) return fail("لم يتم العثور على أسماء في العمود الأول من الملف.");
@@ -374,6 +394,10 @@ router.post("/users/import-excel", requirePortal("owner"), uploadRoster, async (
         track = resolveTrackAlias(cellTrack);
         if (!track) {
           failures.push({ line, text: name, reason: `مسار غير معروف «${cellTrack}»` });
+          continue;
+        }
+        if (track === "bachelor") {
+          failures.push({ line, text: name, reason: "«بكالوريوس» مسار المقرر الأصلي وليس مسار حساب طالب — حدد «طلاب» أو «طالبات»." });
           continue;
         }
       }
@@ -582,9 +606,10 @@ const csvCell = (value) => {
   return `"${text.replace(/"/g, '""')}"`;
 };
 
-const SECTION_ORDER = ["bachelor_m", "bachelor_f", "equiv", "external", "grad"];
+const SECTION_ORDER = ["bachelor", "bachelor_m", "bachelor_f", "equiv", "external", "grad"];
 
 const TRACK_META = {
+  bachelor: { label: "بكالوريوس — مشترك", title: "قسم البكالوريوس — المقرر الأصلي (مشترك)" },
   bachelor_m: { label: "مسار الطلاب", title: "قسم مسار الطلاب — نظام الدراسة المنفصلة" },
   bachelor_f: { label: "مسار الطالبات", title: "قسم مسار الطالبات — نظام الدراسة المنفصلة" },
   equiv: { label: "قسم المعادلة", title: "قسم المعادلة — نظام الدراسة المختلطة" },
@@ -609,8 +634,9 @@ async function buildStudentReport() {
   // كل البيانات تُجلب دفعة واحدة، ثم تُحسب الدرجات محلياً بدل مئات الاستعلامات.
   const [enrollRes, pointsRes] = await Promise.all([
     db.from("enrollments")
-      .select("student_id, courses(id, title, code, parent_course_id, attendance_weight, exams_weight, assignments_weight)")
-      .in("student_id", studentIds),
+      .select("student_id, status, courses(id, title, code, parent_course_id, archived)")
+      .in("student_id", studentIds)
+      .eq("status", "active"),
     db.from("points_ledger").select("user_id, points").in("user_id", studentIds),
   ]);
   if (enrollRes.error) throw enrollRes.error;
@@ -618,7 +644,8 @@ async function buildStudentReport() {
 
   const coursesByStudent = new Map(studentIds.map((id) => [id, []]));
   for (const row of enrollRes.data ?? []) {
-    if (row.courses) coursesByStudent.get(row.student_id)?.push(row.courses);
+    if (!row.courses || row.courses.archived) continue;
+    coursesByStudent.get(row.student_id)?.push(row.courses);
   }
   const pointsByStudent = new Map();
   for (const row of pointsRes.data ?? []) {
@@ -640,7 +667,7 @@ async function buildStudentReport() {
       code: student.platform_id ?? student.university_id ?? "—",
       track: student.track ?? "bachelor_m",
       level: student.level ?? "—",
-      trackLabel: TRACK_META[student.track]?.label ?? "—",
+      trackLabel: TRACK_META[student.track]?.label ?? getProfile(student.track).label,
       courses: grades.length,
       average: Math.round(average * 10) / 10,
       attendanceRate: totalLectures ? Math.round((attendanceCount / totalLectures) * 100) : 0,
@@ -656,9 +683,16 @@ function reportSections(students) {
     if (!byTrack.has(key)) byTrack.set(key, []);
     byTrack.get(key).push(student);
   }
-  return SECTION_ORDER
+  // أي مسار غير معروف في الترتيب الثابت يظهر في قسم مستقل بدل أن يختفي من التقرير.
+  const keys = [...SECTION_ORDER, ...[...byTrack.keys()].filter((key) => !SECTION_ORDER.includes(key))];
+  return keys
     .filter((key) => (byTrack.get(key) ?? []).length)
-    .map((key) => ({ track: key, title: TRACK_META[key].title, short: TRACK_META[key].label, rows: byTrack.get(key) }));
+    .map((key) => ({
+      track: key,
+      title: TRACK_META[key]?.title ?? "قسم غير محدد",
+      short: TRACK_META[key]?.label ?? key,
+      rows: byTrack.get(key),
+    }));
 }
 
 router.get("/report/html", requirePortal("owner"), async (req, res, next) => {

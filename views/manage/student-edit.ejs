@@ -35,10 +35,11 @@
       <label>البريد الإلكتروني
         <input type="email" name="email" value="<%= student.email ?? '' %>" maxlength="160" dir="ltr" style="text-align:left;">
       </label>
+      <% if (isStaffOwner) { %>
       <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr;">
         <label>القسم الأكاديمي
           <select name="track">
-            <%- include('../partials/track-options', { currentTrack: student.track }) %>
+            <%- include('../partials/track-options', { currentTrack: student.track, forStudent: true }) %>
           </select>
         </label>
         <label>المستوى
@@ -54,6 +55,9 @@
           </select>
         </label>
       </div>
+      <% } else { %>
+        <p class="form-hint">القسم الأكاديمي والمستوى والجنس يحددها المالك فقط. يمكنك تعديل بيانات الاتصال بالطالب.</p>
+      <% } %>
       <% if (isStaffOwner) { %>
         <label class="checkbox-row" style="display:flex;align-items:center;gap:10px;">
           <input type="checkbox" name="is_active" <%= student.is_active ? 'checked' : '' %>>

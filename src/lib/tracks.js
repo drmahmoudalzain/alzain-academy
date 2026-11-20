@@ -80,6 +80,17 @@ export const TRACK_PROFILES = {
 export const TRACK_KEYS = Object.keys(TRACK_PROFILES);
 export const DEFAULT_TRACK = "bachelor_m";
 
+// «bachelor» مسار المقرر الأصلي المشترك فقط، ولا يجوز أن يكون مسار حساب طالب.
+export const STUDENT_TRACK_KEYS = TRACK_KEYS.filter((key) => key !== "bachelor");
+
+/** مسار طالب صالح: يستبعد «bachelor» ويعيد الافتراضي عند أي قيمة غير مسموحة. */
+export function parseStudentTrack(value, fallback = DEFAULT_TRACK) {
+  const raw = String(value ?? "").trim();
+  if (STUDENT_TRACK_KEYS.includes(raw)) return raw;
+  // القيمة الاحتياطية نفسها قد تكون غير صالحة (مثل حساب قديم على «bachelor»).
+  return STUDENT_TRACK_KEYS.includes(fallback) ? fallback : DEFAULT_TRACK;
+}
+
 /**
  * حلّ ما يكتبه المستخدم في عمود «المسار/النوع» إلى مفتاح مسار معروف.
  * يقبل المفاتيح والرموز والأسماء العربية والإنجليزية (طلاب/طالبات، ذكر/أنثى...).

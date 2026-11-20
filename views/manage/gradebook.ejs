@@ -1,7 +1,7 @@
 <section class="page-header">
   <div class="page-header-info">
     <h2>سجل الدرجات — <%= course.title %></h2>
-    <p><code><%= course.code %></code> · <% if (isBachelor) { %>الحضور <%= weights.attendance %> · التفاعل <%= weights.interaction %> · الاختبارات <%= weights.exams %> <% } else { %>الواجبات <%= weights.assignments %> <% } %>— المجموع من 300 نقطة</p>
+    <p><code><%= course.code %></code> · <% if (isBachelor) { %>الحضور <%= weights.attendance %> · التفاعل <%= weights.interaction %> · الاختبارات <%= weights.exams %> <% } else { %>الواجبات <%= weights.assignments %> <% } %>— المجموع من <%= rows[0]?.grade.max ?? 300 %> نقطة<% if (isBachelor && rows.length && rows[0].grade.max < 300) { %> (الحد الأقصى المتاح بحسب المحاضرات المنشورة)<% } %></p>
   </div>
   <div class="page-header-actions">
     <a class="btn btn-secondary" href="<%= basePath %>/courses/<%= course.id %>">العودة للمقرر</a>
@@ -34,7 +34,7 @@
             <% } else { %>
               <td><%= g.assignments.earned %> / <%= g.assignments.weight %></td>
             <% } %>
-            <td><strong><%= g.total %> / 300</strong></td>
+            <td><strong><%= g.total %> / <%= g.max %></strong></td>
             <td><span class="chip"><%= g.letter %></span></td>
           </tr>
         <% } %>

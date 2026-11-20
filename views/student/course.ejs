@@ -44,11 +44,11 @@
     </div>
     <div class="course-grade-total">
       <span class="total-label">الدرجة النهائية</span>
-      <span class="total-value" style="--total-color:var(--success);"><%= grade.total %><small>/300 — <%= grade.letter %></small></span>
+      <span class="total-value" style="--total-color:var(--success);"><%= grade.total %><small>/<%= grade.max %> — <%= grade.letter %></small></span>
     </div>
   </div>
 </div>
-<p class="muted" style="margin:-8px 0 20px;font-size:0.78rem;"><%= !isBachelor ? 'درجة الواجبات وحدها من 300 نقطة.' : 'تُحتسب أول 10 محاضرات فقط؛ ما زاد عليها لا يضيف نقاطاً. المحاضرة المسجلة تُحتسب اختباراً فقط بسقف 30 نقطة.' %></p>
+<p class="muted" style="margin:-8px 0 20px;font-size:0.78rem;"><%= !isBachelor ? 'درجة الواجبات وحدها من 300 نقطة.' : 'تُحتسب أول 10 محاضرات فقط؛ ما زاد عليها لا يضيف نقاطاً. المحاضرة المسجلة تُحتسب اختباراً فقط بسقف 30 نقطة.' %><% if (grade.max < 300) { %> الحد الأقصى المتاح لهذا المقرر حالياً <%= grade.max %> نقطة من 300 بحسب عدد المحاضرات المنشورة.<% } %></p>
 
 <!-- المحاضرات -->
 <div class="table-card">

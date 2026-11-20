@@ -4,6 +4,11 @@ import { renderPage } from "./render.js";
 import { requireAuth } from "../middleware/auth.js";
 import { PORTALS, primaryPortal, isFounder } from "./portals.js";
 
+function parsePositiveNumber(value, fallback = 1, min = 1) {
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.max(min, number) : fallback;
+}
+
 /** المكتبة والبحوث — للطلاب كقارئي والمالك/الأساتذة كرافعين. */
 export function createLibraryRouter() {
   const router = express.Router();
@@ -48,6 +53,7 @@ export function createLibraryRouter() {
   router.get("/item/:id", async (req, res, next) => {
     try {
       const id = Number(req.params.id);
+      if (!Number.isInteger(id) || id <= 0) return res.status(400).render("error", { title: "طلب غير صالح", code: 400, message: "معرّف غير صحيح." });
       const { data, error } = await db
         .from("library_items")
         .select("*, library_sections(id, name, icon)")
@@ -108,7 +114,7 @@ export function createLibraryRouter() {
       const originalName = String(req.body.original_name ?? "").trim() || null;
       const researcher = String(req.body.researcher ?? "").trim() || null;
       const journal = String(req.body.journal ?? "").trim() || null;
-      const publishYear = req.body.publish_year ? Number(req.body.publish_year) : null;
+      const publishYear = req.body.publish_year ? parsePositiveNumber(req.body.publish_year, null, 1) : null;
       const doi = String(req.body.doi ?? "").trim() || null;
       const abstract = String(req.body.abstract ?? "").trim() || null;
       const sectionIdInput = String(req.body.section_id ?? "").trim();

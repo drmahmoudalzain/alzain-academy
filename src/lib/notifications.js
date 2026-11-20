@@ -116,7 +116,7 @@ export function createNotificationsRouter() {
       const body = String(req.body.body ?? "").trim() || null;
       const link = String(req.body.link ?? "").trim() || null;
       const audience = ["all", "course"].includes(req.body.audience) ? req.body.audience : "all";
-      const courseId = audience === "course" ? Number(req.body.course_id) : null;
+      const courseId = audience === "course" ? (Number.isInteger(Number(req.body.course_id)) ? Number(req.body.course_id) : null) : null;
 
       if (title.length < 3) return res.redirect("/notifications?error=title");
 

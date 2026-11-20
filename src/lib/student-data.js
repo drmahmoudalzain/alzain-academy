@@ -509,9 +509,15 @@ export async function getCourseGrade(course, studentId, preloaded = null) {
   const interactionWeight = examTrack ? liveIds.size * 10 : 0;
   const examsWeight = examTrack ? liveIds.size * 10 + recordedIds.size * 30 : 0;
   const assignmentsWeight = examTrack ? 0 : 300;
-  const total = examTrack
+
+  // السقف الفعلي = مجموع أوزان المكوّنات المتاحة. مقرر فيه 3 محاضرات سقفه 90 لا 300،
+  // وإلا ظهر الطالب المتفوق راسباً لأن النسبة تُقسم على 300 دائماً.
+  const max = attendanceWeight + interactionWeight + examsWeight + assignmentsWeight;
+  const rawTotal = examTrack
     ? Math.min(300, attendanceEarned + interactionEarned + examsEarned)
     : Math.min(300, assignmentsRatio * 300);
+  const total = max ? Math.min(max, rawTotal) : 0;
+  const percent = max ? Math.min(100, Math.round((total / max) * 100)) : 0;
 
   const round1 = (value) => Math.round(value * 10) / 10;
   const ratioOf = (earned, weight) => (weight ? Math.min(100, Math.round((earned / weight) * 100)) : 0);
@@ -519,6 +525,7 @@ export async function getCourseGrade(course, studentId, preloaded = null) {
   return {
     course,
     scale: 300,
+    max,
     attendance: {
       weight: attendanceWeight,
       ratio: ratioOf(attendanceEarned, attendanceWeight),
@@ -546,8 +553,8 @@ export async function getCourseGrade(course, studentId, preloaded = null) {
       total: totalAssignmentPoints,
     },
     total: round1(total),
-    percent: Math.round(total / 3),
-    letter: letterGrade(total / 3),
+    percent,
+    letter: letterGrade(percent),
   };
 }
 
@@ -600,6 +607,7 @@ export async function getExamForStudent(examId, studentId) {
     .from("exams")
     .select("*, courses(id, title, code, color, teacher_id)")
     .eq("id", examId)
+    .eq("exam_kind", "exam")
     .maybeSingle();
   if (error) throw error;
   if (!data || !data.is_published) return null;

@@ -79,6 +79,7 @@ router.get("/messages", async (req, res, next) => {
 router.post("/messages", async (req, res, next) => {
   try {
     const roomId = Number(req.body.room_id);
+    if (!Number.isInteger(roomId)) return res.redirect("/forum");
     const body = String(req.body.body ?? "").trim();
 
     const room = await getAccessibleRoom(req.user, roomId);

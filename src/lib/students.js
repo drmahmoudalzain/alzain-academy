@@ -3,7 +3,7 @@ import { db } from "./supabase.js";
 import { renderPage } from "./render.js";
 import { requirePortal } from "../middleware/auth.js";
 import { getSubjectGrades } from "./student-data.js";
-import { parseTrackKey } from "./tracks.js";
+import { parseStudentTrack } from "./tracks.js";
 import { hashPassword } from "./password.js";
 import { generateTempPassword } from "./platformCode.js";
 
@@ -172,13 +172,30 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
         return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا تملك صلاحية تعديل هذا الطالب." });
       }
 
+      const { data: current, error: currentError } = await db
+        .from("users")
+        .select("id, track, level, gender")
+        .eq("id", id)
+        .maybeSingle();
+      if (currentError) throw currentError;
+      if (!current) {
+        return res.status(404).render("error", { title: "غير موجود", code: 404, message: "الطالب غير موجود." });
+      }
+
       const name = String(req.body.name ?? "").trim();
       const email = String(req.body.email ?? "").trim().toLowerCase() || null;
       const phone = String(req.body.phone ?? "").trim() || null;
       const universityId = String(req.body.university_id ?? "").trim() || null;
-      const track = parseTrackKey(req.body.track);
-      const level = Math.min(4, Math.max(1, Number(req.body.level ?? 1)));
-      const gender = ["M", "F"].includes(req.body.gender) ? req.body.gender : null;
+
+      // القسم والمستوى والجنس بيانات أكاديمية مركزية: يعدّلها المالك فقط.
+      const track = isOwnerMode ? parseStudentTrack(req.body.track, current.track ?? undefined) : current.track;
+      const levelNumber = Number(req.body.level);
+      const level = isOwnerMode
+        ? (Number.isInteger(levelNumber) ? Math.min(4, Math.max(1, levelNumber)) : current.level ?? 1)
+        : current.level;
+      const gender = isOwnerMode
+        ? (["M", "F"].includes(req.body.gender) ? req.body.gender : null)
+        : current.gender;
       const isActive = req.body.is_active === "on";
       const update = { name, email, phone, university_id: universityId, track, level, gender };
       // الإيقاف العام للحساب من صلاحية المالك؛ الأستاذ يوقف الطالب داخل مقرره فقط.

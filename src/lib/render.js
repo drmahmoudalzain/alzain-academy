@@ -1,5 +1,5 @@
 import * as format from "./format.js";
-import { getProfile, parseTrackKey, isSeparateTrack, isMixedTrack, TRACK_KEYS, DEFAULT_TRACK } from "./tracks.js";
+import { getProfile, parseTrackKey, isSeparateTrack, isMixedTrack, TRACK_KEYS, STUDENT_TRACK_KEYS, DEFAULT_TRACK } from "./tracks.js";
 
 // عرض صفحة داخل تخطيط (layout) دون حزمة خارجية.
 export function renderView(res, view, locals) {
@@ -18,6 +18,7 @@ export async function renderPage(res, view, locals = {}) {
     isSeparateTrack,
     isMixedTrack,
     TRACK_KEYS,
+    STUDENT_TRACK_KEYS,
     DEFAULT_TRACK,
   };
   const body = await renderView(res, view, data);

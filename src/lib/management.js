@@ -13,6 +13,18 @@ import { aiStatus } from "./ai.js";
 import { getProfile, parseTrackKey } from "./tracks.js";
 import { provisionUser } from "./platformCode.js";
 
+// عدد صحيح (level) بين 1 و4 — أي قيمة غير صالحة تُستبدل بالافتراضي بدل NaN.
+function parseLevel(value, fallback = 1) {
+  const number = Number(value);
+  return Number.isInteger(number) ? Math.min(4, Math.max(1, number)) : fallback;
+}
+
+// عدد موجب (points/max_points/duration) — أي قيمة غير صالحة تُستبدل بالافتراضي.
+function parsePositiveNumber(value, fallback = 1, min = 1) {
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.max(min, number) : fallback;
+}
+
 /**
  * نطاق الطلاب المسموح تسجيلهم في مقرر: مستوى المقرر + مسار الطالب.
  * المقرر الأصل (bachelor) يقبل الفرعين معاً، والفرع يقبل جنسه فقط.
@@ -38,6 +50,14 @@ export function studentMatchesScope(student, scope) {
   if (scope.level && String(student?.level ?? "") !== scope.level) return false;
   if (scope.tracks.length && !scope.tracks.includes(String(student?.track ?? ""))) return false;
   return true;
+}
+
+/** تحويل تاريخ من نموذج إلى ISO، مع إرجاع null بدل رمي استثناء عند نص غير صالح. */
+function isoOrNull(value) {
+  const text = String(value ?? "").trim();
+  if (!text) return null;
+  const date = new Date(text);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
 /**
@@ -175,7 +195,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       const code = String(req.body.code ?? "").trim().toUpperCase();
       const description = String(req.body.description ?? "").trim() || null;
       const track = parseTrackKey(req.body.track);
-      const level = Math.min(4, Math.max(1, Number(req.body.level ?? 1)));
+      const level = parseLevel(req.body.level);
       const color = String(req.body.color ?? "#123A63");
       const teacherId = isOwnerMode ? Number(req.body.teacher_id) : req.user.id;
       const parentId = toInt(req.body.parent_course_id);
@@ -556,7 +576,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       const track = String(req.body.track ?? "").trim();
       const level = filters.scope.level
         ? Number(filters.scope.level)
-        : Math.min(4, Math.max(1, Number(req.body.level ?? 1)));
+        : parseLevel(req.body.level);
       const universityId = String(req.body.university_id ?? "").trim() || null;
       const email = String(req.body.email ?? "").trim().toLowerCase() || null;
       const allCourses = await ownCourses(req.user);
@@ -715,7 +735,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       const code = String(req.body.code ?? "").trim().toUpperCase();
       const description = String(req.body.description ?? "").trim() || null;
       const track = parseTrackKey(req.body.track);
-      const level = Math.min(4, Math.max(1, Number(req.body.level ?? 1)));
+      const level = parseLevel(req.body.level);
       const color = String(req.body.color ?? "#123A63");
       const teacherId = isOwnerMode ? Number(req.body.teacher_id) : course.teacher_id;
       const parentId = toInt(req.body.parent_course_id);
@@ -835,8 +855,8 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
           title,
           course_id: newCourse ? newCourse.id : lecture.course_id,
           description: String(req.body.description ?? "").trim() || null,
-          scheduled_at: String(req.body.scheduled_at ?? "").trim() ? new Date(String(req.body.scheduled_at)).toISOString() : null,
-          duration_min: Math.max(15, Number(req.body.duration_min ?? 120)),
+          scheduled_at: isoOrNull(req.body.scheduled_at),
+          duration_min: parsePositiveNumber(req.body.duration_min, 120, 15),
           lecture_type: ["direct", "online", "recorded"].includes(req.body.lecture_type) ? req.body.lecture_type : "direct",
           youtube_url: String(req.body.youtube_url ?? "").trim() || null,
           live_url: String(req.body.live_url ?? "").trim() || null,
@@ -910,7 +930,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       const lectureId = toInt(req.body.lecture_id);
       const startsAt = String(req.body.starts_at ?? "").trim();
       const endsAt = String(req.body.ends_at ?? "").trim();
-      const duration = Math.max(5, Number(req.body.duration_min ?? 60));
+      const duration = parsePositiveNumber(req.body.duration_min, 60, 5);
       const published = req.body.is_published === "on";
 
       const renderError = async (message) => {
@@ -949,8 +969,8 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
           description: String(req.body.description ?? "").trim() || null,
           course_id: newCourse ? newCourse.id : exam.course_id,
           lecture_id: validLectureId,
-          starts_at: startsAt ? new Date(startsAt).toISOString() : null,
-          ends_at: endsAt ? new Date(endsAt).toISOString() : null,
+          starts_at: isoOrNull(startsAt),
+          ends_at: isoOrNull(endsAt),
           duration_min: duration,
           is_published: published,
         })
@@ -974,7 +994,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
 
       const type = ["mcq", "multi", "truefalse", "essay"].includes(req.body.type) ? req.body.type : "mcq";
       const text = String(req.body.text ?? "").trim();
-      const points = Math.max(1, Number(req.body.points ?? 1));
+      const points = parsePositiveNumber(req.body.points, 1, 1);
       const optionsRaw = String(req.body.options ?? "").trim();
       const options = type === "essay" ? null : optionsRaw.split("\n").map((line) => line.trim()).filter(Boolean);
       const correctRaw = String(req.body.correct ?? "").trim();
@@ -1070,7 +1090,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       const title = String(req.body.title ?? "").trim();
       const courseId = toInt(req.body.course_id);
       const newCourse = courseId ? await courseOr403(req, res, courseId) : null;
-      const maxPoints = Math.max(1, Number(req.body.max_points ?? 10));
+      const maxPoints = parsePositiveNumber(req.body.max_points, 10, 1);
       const due = String(req.body.due_at ?? "").trim();
 
       if (title.length < 3) {
@@ -1091,7 +1111,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
           title,
           course_id: newCourse ? newCourse.id : assignment.course_id,
           description: String(req.body.description ?? "").trim() || null,
-          due_at: due ? new Date(due).toISOString() : null,
+          due_at: isoOrNull(due),
           max_points: maxPoints,
         })
         .eq("id", assignment.id);
@@ -1285,7 +1305,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       const title = String(req.body.title ?? "").trim();
       const description = String(req.body.description ?? "").trim() || null;
       const scheduled = String(req.body.scheduled_at ?? "").trim();
-      const duration = Math.max(15, Number(req.body.duration_min ?? 120));
+      const duration = parsePositiveNumber(req.body.duration_min, 120, 15);
       const lectureType = ["direct", "online", "recorded"].includes(req.body.lecture_type) ? req.body.lecture_type : "direct";
       const youtube = String(req.body.youtube_url ?? "").trim() || null;
       const live = String(req.body.live_url ?? "").trim() || null;
@@ -1311,7 +1331,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
         description,
         youtube_url: youtube,
         live_url: live,
-        scheduled_at: scheduled ? new Date(scheduled).toISOString() : null,
+        scheduled_at: isoOrNull(scheduled),
         duration_min: duration,
         attendance_code: code,
         attendance_open: attendanceOpen,
@@ -1490,7 +1510,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       if (!course) return res.status(403).json({ ok: false, error: "لا تملك صلاحية هذا المقرر." });
 
       const topic = String(req.body.topic ?? "").trim() || course.title;
-      const count = Math.max(1, Math.min(12, Number(req.body.count) || 5));
+      const count = Math.min(12, parsePositiveNumber(req.body.count, 5, 1));
 
       const { generateExamQuestions } = await import("./ai.js");
       const result = await generateExamQuestions(topic, count);
@@ -1546,7 +1566,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       const lectureId = toInt(req.body.lecture_id);
       const startsAt = String(req.body.starts_at ?? "").trim();
       const endsAt = String(req.body.ends_at ?? "").trim();
-      const duration = Math.max(5, Number(req.body.duration_min ?? 60));
+      const duration = parsePositiveNumber(req.body.duration_min, 60, 5);
       const published = req.body.is_published === "on";
 
       const renderError = async (message) => {
@@ -1578,8 +1598,8 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
         lecture_id: validLectureId,
         title,
         description,
-        starts_at: startsAt ? new Date(startsAt).toISOString() : null,
-        ends_at: endsAt ? new Date(endsAt).toISOString() : null,
+        starts_at: isoOrNull(startsAt),
+        ends_at: isoOrNull(endsAt),
         duration_min: duration,
         is_published: published,
         exam_kind: "exam",
@@ -1694,20 +1714,42 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       if (!exam) return res.status(404).render("error", { title: "غير موجود", code: 404, message: "الاختبار غير موجود." });
       if (!canManageFlag(req.user) && exam.courses?.teacher_id !== req.user.id) return res.status(403).render("error", { title: "غير مسموح", code: 403, message: "لا صلاحية." });
 
-      const answers = Array.isArray(req.body.answers) ? req.body.answers : [req.body.answers];
+      const answers = (Array.isArray(req.body.answers) ? req.body.answers : [req.body.answers])
+        .map(Number)
+        .filter((value) => Number.isInteger(value));
       const points = Array.isArray(req.body.points) ? req.body.points : [req.body.points];
       const feedback = Array.isArray(req.body.feedback) ? req.body.feedback : [req.body.feedback];
+
+      if (!answers.length) return res.redirect(`${basePath}/exams/${exam.id}`);
+
+      // نتحقق أن كل إجابة تخص هذا الاختبار وأن سؤالها مقالي، ونجلب سقف نقاطه.
+      const answerRes = await db
+        .from("exam_answers")
+        .select("id, attempt_id, question_id, exam_questions(exam_id, type, points)")
+        .in("id", answers);
+      if (answerRes.error) throw answerRes.error;
+      const answerById = new Map((answerRes.data ?? []).map((row) => [row.id, row]));
 
       // نجمع النقاط لكل محاولة ثم نحدّثها دفعة واحدة
       const touched = new Set();
       for (let i = 0; i < answers.length; i += 1) {
-        const answerId = Number(answers[i]);
-        const value = Math.max(0, Number(points[i] ?? 0));
-        if (!Number.isInteger(answerId)) continue;
-        const updated = await db.from("exam_answers").update({ points: value, feedback: String(feedback[i] ?? "").trim() || null }).eq("id", answerId);
+        const answer = answerById.get(answers[i]);
+        if (!answer) continue;
+        const question = answer.exam_questions;
+        if (!question || Number(question.exam_id) !== Number(exam.id)) continue;
+        if (question.type !== "essay") continue;
+
+        const maxPoints = Number(question.points);
+        const cap = Number.isFinite(maxPoints) && maxPoints > 0 ? maxPoints : 0;
+        const raw = Number(points[i]);
+        const value = Number.isFinite(raw) ? Math.max(0, Math.min(cap, raw)) : 0;
+
+        const updated = await db
+          .from("exam_answers")
+          .update({ points: value, feedback: String(feedback[i] ?? "").trim() || null })
+          .eq("id", answer.id);
         if (updated.error) throw updated.error;
-        const { data: answerRow } = await db.from("exam_answers").select("attempt_id").eq("id", answerId).maybeSingle();
-        if (answerRow?.attempt_id) touched.add(answerRow.attempt_id);
+        touched.add(answer.attempt_id);
       }
 
       for (const attemptId of touched) {
@@ -1787,7 +1829,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       const title = String(req.body.title ?? "").trim();
       const description = String(req.body.description ?? "").trim() || null;
       const due = String(req.body.due_at ?? "").trim();
-      const maxPoints = Math.max(1, Number(req.body.max_points ?? 10));
+      const maxPoints = parsePositiveNumber(req.body.max_points, 10, 1);
 
       if (title.length < 3) {
         const courses = await ownCourses(req.user);
@@ -1804,7 +1846,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
         course_id: course.id,
         title,
         description,
-        due_at: due ? new Date(due).toISOString() : null,
+        due_at: isoOrNull(due),
         max_points: maxPoints,
       }).select("id").maybeSingle();
       if (created.error) throw created.error;
@@ -1858,28 +1900,35 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       const points = Array.isArray(req.body.points) ? req.body.points : [req.body.points];
       const feedbacks = Array.isArray(req.body.feedback) ? req.body.feedback : [req.body.feedback];
 
+      const maxPoints = Number(assignment.max_points);
+      const cap = Number.isFinite(maxPoints) && maxPoints > 0 ? maxPoints : 0;
+
       for (let i = 0; i < submissionIds.length; i += 1) {
         const submissionId = Number(submissionIds[i]);
-        if (!Number.isInteger(submissionId)) continue;
-        const value = Math.max(0, Math.min(Number(assignment.max_points), Number(points[i] ?? 0)));
+        if (!Number.isInteger(submissionId) || !cap) continue;
+        const raw = Number(points[i]);
+        const value = Number.isFinite(raw) ? Math.max(0, Math.min(cap, raw)) : 0;
+
+        // القيد على assignment_id يمنع تصحيح تسليم لا يخص هذا الواجب.
         const updated = await db
           .from("submissions")
           .update({ points: value, feedback: String(feedbacks[i] ?? "").trim() || null, graded_at: new Date().toISOString() })
-          .eq("id", submissionId);
+          .eq("id", submissionId)
+          .eq("assignment_id", assignment.id)
+          .select("id, student_id")
+          .maybeSingle();
         if (updated.error) throw updated.error;
+        if (!updated.data) continue;
 
-        const { data: submission } = await db.from("submissions").select("student_id").eq("id", submissionId).maybeSingle();
-        if (submission) {
-          const award = await db.from("points_ledger").insert({
-            user_id: submission.student_id,
-            course_id: assignment.courses.id,
-            source_type: "assignment",
-            source_id: submissionId,
-            source_detail: `تصحيح واجب: ${assignment.courses.title}`,
-            points: 5,
-          });
-          if (award.error && award.error.code !== "23505") throw award.error;
-        }
+        const award = await db.from("points_ledger").upsert({
+          user_id: updated.data.student_id,
+          course_id: assignment.courses.id,
+          source_type: "assignment",
+          source_id: submissionId,
+          source_detail: `تصحيح واجب: ${assignment.courses.title}`,
+          points: value,
+        }, { onConflict: "user_id,course_id,source_type,source_id" });
+        if (award.error) throw award.error;
       }
 
       return res.redirect(`${basePath}/assignments/${assignment.id}`);

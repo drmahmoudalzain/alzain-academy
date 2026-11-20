@@ -1,5 +1,7 @@
-<% // خيارات الأقسام الستة الموحدة في كل النماذج (بكالوريوس مشترك للمقرر الأصلي) %>
+<% // خيارات الأقسام الستة. «بكالوريوس المشترك» للمقرر الأصلي فقط، لا لحساب طالب. %>
+<% if (!forStudent) { %>
 <option value="bachelor" <%= currentTrack === 'bachelor' ? 'selected' : '' %>>بكالوريوس — المقرر الأصلي (مشترك)</option>
+<% } %>
 <option value="bachelor_m" <%= currentTrack === 'bachelor_m' ? 'selected' : '' %>>مسار الطلاب — بكالوريوس (منفصلة)</option>
 <option value="bachelor_f" <%= currentTrack === 'bachelor_f' ? 'selected' : '' %>>مسار الطالبات — بكالوريوس (منفصلة)</option>
 <option value="equiv" <%= currentTrack === 'equiv' ? 'selected' : '' %>>قسم المعادلة (مختلطة)</option>

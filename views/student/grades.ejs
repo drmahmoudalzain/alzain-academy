@@ -1,7 +1,7 @@
 <section class="page-header">
   <div class="page-header-info">
     <h2>درجاتي</h2>
-    <p>سجل أكاديمي شامل بدرجاتك من 300 نقطة؛ مقررات البكالوريوس تعرض الحضور والتفاعل والاختبارات، وبقية المسارات تعرض الواجبات.</p>
+    <p>سجل أكاديمي شامل بدرجاتك من 300 نقطة؛ مقررات البكالوريوس تعرض الحضور والتفاعل والاختبارات، وبقية المسارات تعرض الواجبات. إذا كان المقرر أقل من 10 محاضرات، يُعرض مجموعك من الحد الأقصى المتاح فعلياً.</p>
   </div>
 </section>
 
@@ -107,7 +107,7 @@
             </div>
             <div class="course-grade-total">
               <span class="total-label">الدرجة النهائية</span>
-              <span class="total-value" style="--total-color:var(--success);"><%= grade.total %><small>/300 — <%= grade.letter %></small></span>
+              <span class="total-value" style="--total-color:var(--success);"><%= grade.total %><small>/<%= grade.max %> — <%= grade.letter %></small></span>
             </div>
           </div>
         </div>
@@ -135,7 +135,7 @@
               <th>الاختبارات</th>
             <% } %>
             <% if (hasAssign) { %><th>الواجبات</th><% } %>
-            <th>المجموع (من 300)</th>
+            <th>المجموع</th>
             <th>التقدير</th>
           </tr>
         </thead>

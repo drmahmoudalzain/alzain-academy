@@ -21,7 +21,7 @@
     <div class="form-grid">
       <label>المسار الافتراضي
         <select name="track" required>
-          <% TRACK_KEYS.forEach(function (key) { %>
+          <% STUDENT_TRACK_KEYS.forEach(function (key) { %>
             <option value="<%= key %>"><%= getProfile(key).label %> — <%= key %></option>
           <% }); %>
         </select>

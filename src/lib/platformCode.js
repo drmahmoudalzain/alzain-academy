@@ -3,6 +3,7 @@
 import crypto from "node:crypto";
 import { db } from "./supabase.js";
 import { hashPassword } from "./password.js";
+import { parseStudentTrack } from "./tracks.js";
 
 export const PREFIX_BY_TRACK = {
   bachelor_m: "BM",
@@ -24,17 +25,23 @@ export function prefixFor({ role, track, founder = false }) {
 
 /** التالي في التسلسل لبادئة معيّنة (مثلاً BM0004 بعد BM0003). */
 export async function nextPlatformId(prefix) {
+  // لا نعتمد على الترتيب النصّي لأن «BM9999» يأتي بعد «BM10000» نصّياً،
+  // فيتكرر الرمز عند تجاوز 9999. نحسب أعلى رقم فعلياً.
   const { data, error } = await db
     .from("users")
     .select("platform_id")
-    .ilike("platform_id", `${prefix}%`)
-    .order("platform_id", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+    .ilike("platform_id", `${prefix}%`);
   if (error) throw error;
 
-  const match = data?.platform_id?.match(/(\d+)$/);
-  const next = (match ? Number(match[1]) : 0) + 1;
+  let highest = 0;
+  const wanted = String(prefix).toUpperCase();
+  for (const row of data ?? []) {
+    const match = String(row.platform_id ?? "").match(/^([A-Za-z]+)(\d+)$/);
+    if (!match || match[1].toUpperCase() !== wanted) continue;
+    highest = Math.max(highest, Number(match[2]));
+  }
+
+  const next = highest + 1;
   return `${prefix}${String(next).padStart(4, "0")}`;
 }
 
@@ -56,7 +63,10 @@ export function generateTempPassword(length = 10) {
  */
 export async function provisionUser({ role, name, track = null, level = null, universityId = null, email = null, position = null }) {
   const password = generateTempPassword();
-  const prefix = prefixFor({ role, track, founder: role === "teacher" ? !(await anyTeacherExists()) : false });
+  // حساب الطالب لا يقبل «bachelor» (مسار المقرر الأصلي)؛ أي قيمة غير صالحة تُستبدل بالافتراضي
+  // حتى لا تفشل قاعدة البيانات بسبب قيد users_track_check.
+  const studentTrack = role === "student" ? parseStudentTrack(track) : null;
+  const prefix = prefixFor({ role, track: studentTrack, founder: role === "teacher" ? !(await anyTeacherExists()) : false });
 
   // إعادة المحاولة عند تسابق بين طلبين على نفس التسلسل
   for (let attempt = 0; attempt < 5; attempt += 1) {
@@ -69,7 +79,7 @@ export async function provisionUser({ role, name, track = null, level = null, un
         email,
         university_id: universityId,
         position,
-        track,
+        track: studentTrack,
         level: role === "student" ? level : null,
         password_hash: hashPassword(password),
         platform_id: platformId,

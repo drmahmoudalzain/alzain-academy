@@ -67,7 +67,7 @@
             <% } else { %>
               <td><%= grade.assignments.earned %> / <%= grade.assignments.weight %></td>
             <% } %>
-            <td><strong><%= grade.total %> / 300</strong></td>
+            <td><strong><%= grade.total %> / <%= grade.max %></strong></td>
             <td><span class="chip"><%= grade.letter %></span></td>
           </tr>
         <% } %>

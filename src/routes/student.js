@@ -30,6 +30,18 @@ const requireAssessment = (kind) => (req, res, next) => {
   return res.redirect("/student");
 };
 
+// صفحة خطأ موحّدة للمسارات التي تُعيد 404 بعد التحقق من الملكية.
+function errorPage(res, status, title, message) {
+  return renderPage(res.status(status), "error", {
+    title,
+    layout: "base",
+    styles: ["/css/views/home.css"],
+    bodyClass: "site-page",
+    code: status,
+    message,
+  });
+}
+
 const FLASH = {
   attendance_ok: { tone: "success", text: "تم تسجيل حضورك بنجاح واحتساب نقاط المحاضرة." },
   attendance_already: { tone: "info", text: "حضورك مسجّل مسبقاً لهذه المحاضرة." },
@@ -238,7 +250,6 @@ router.get("/lectures/:id", requirePortal("student"), async (req, res, next) => 
         db.from("questions").select("id, text, type, options, correct_index, correct_indices, is_open, created_at").eq("lecture_id", lecture.id).order("created_at"),
         db.from("question_answers").select("question_id, choice_index, choice_indices, text").eq("student_id", studentId),
         db.from("lectures").select("id, title, scheduled_at, duration_min, lecture_type").eq("course_id", lecture.course_id).neq("id", lecture.id).order("scheduled_at", { ascending: false }).limit(3),
-        db.from("lectures").select("id").eq("course_id", lecture.course_id),
       ]);
 
     for (const result of [teacherRes, attendanceRes, presenceRes, presenceCountRes, filesRes, questionsRes, answersRes, relatedRes]) {
@@ -328,7 +339,7 @@ router.post("/lectures/:id/attendance", requirePortal("student"), async (req, re
   try {
     const studentId = req.user.id;
     const lecture = await getLectureForStudent(Number(req.params.id), studentId);
-    if (!lecture) return res.status(404).render("error", {});
+    if (!lecture) return errorPage(res, 404, "المحاضرة غير موجودة", "المحاضرة التي تبحث عنها غير موجودة أو لا تملك صلاحية الوصول إليها.");
 
     const code = String(req.body.code ?? "").trim();
     const existing = await db
@@ -383,13 +394,19 @@ router.post("/lectures/:id/heartbeat", requirePortal("student"), async (req, res
 
     const current = await db
       .from("lecture_presence")
-      .select("total_seconds")
+      .select("total_seconds, last_heartbeat_at")
       .eq("lecture_id", lecture.id)
       .eq("student_id", studentId)
       .maybeSingle();
     if (current.error) throw current.error;
 
-    const total = Math.min((lecture.duration_min ?? 120) * 60, (current.data?.total_seconds ?? 0) + 30);
+    // نضيف الزمن الفعلي المنقضي منذ آخر نبضة (بحد أقصى 30 ثانية)، لا 30 ثانية لكل طلب.
+    // هذا يمنع تكرار الطلب السريع من جمع نقاط حضور وهمية.
+    const currentSeconds = Number(current.data?.total_seconds ?? 0);
+    const lastAt = current.data?.last_heartbeat_at ? new Date(current.data.last_heartbeat_at).getTime() : 0;
+    const elapsedSeconds = lastAt ? Math.max(0, Math.floor((Date.now() - lastAt) / 1000)) : 30;
+    const step = Math.min(30, elapsedSeconds);
+    const total = Math.min((lecture.duration_min ?? 120) * 60, currentSeconds + step);
     const saved = await db.from("lecture_presence").upsert(
       {
         lecture_id: lecture.id,
@@ -429,7 +446,7 @@ router.post("/lectures/:id/questions/:questionId/answer", requirePortal("student
     const lectureId = Number(req.params.id);
     const questionId = Number(req.params.questionId);
     const lecture = await getLectureForStudent(lectureId, studentId);
-    if (!lecture) return res.status(404).render("error", {});
+    if (!lecture) return errorPage(res, 404, "المحاضرة غير موجودة", "المحاضرة التي تبحث عنها غير موجودة أو لا تملك صلاحية الوصول إليها.");
 
     const questionRes = await db
       .from("questions")
@@ -537,6 +554,13 @@ router.post("/lectures/:id/questions/discuss", requirePortal("student"), async (
   }
 });
 
+// مقارنة مجموعتين رقميتين بغض النظر عن الترتيب أو التكرار.
+function sameNumberSet(left, right) {
+  const a = [...new Set(left)].sort((x, y) => x - y);
+  const b = [...new Set(right)].sort((x, y) => x - y);
+  return a.length === b.length && a.every((value, index) => value === b[index]);
+}
+
 // يجمع إجابات الاختبار من الطلب ويحسب النتيجة الموضوعية.
 function collectExamAnswers(questions, body, attemptId, mode) {
   let score = 0;
@@ -552,11 +576,13 @@ function collectExamAnswers(questions, body, attemptId, mode) {
 
     if (question.type === "multi") {
       const values = Array.isArray(raw) ? raw : raw != null ? [raw] : [];
-      choiceIndices = values.map(Number).filter((value) => Number.isInteger(value));
+      choiceIndices = [...new Set(values.map(Number).filter((value) => Number.isInteger(value)))];
       if (mode === "submit") {
-        const expected = Array.isArray(question.correct_indices) ? question.correct_indices.map(Number) : [];
-        const correct =
-          expected.length === choiceIndices.length && expected.every((value) => choiceIndices.includes(value));
+        const expected = Array.isArray(question.correct_indices)
+          ? question.correct_indices.map(Number).filter((value) => Number.isInteger(value))
+          : [];
+        // لا تُعدّ الإجابة صحيحة إذا لم يحدد الأستاذ أي خيار صحيح.
+        const correct = expected.length > 0 && sameNumberSet(expected, choiceIndices);
         points = correct ? Number(question.points ?? 0) : 0;
         score += points;
       }
@@ -564,17 +590,23 @@ function collectExamAnswers(questions, body, attemptId, mode) {
       text = String(raw ?? "").trim() || null;
       hasEssay = true;
     } else if (question.type === "truefalse") {
-      choiceIndex = raw === "true" ? 1 : raw === "false" ? 0 : null;
+      choiceIndex = raw === "true" || raw === "1" || raw === 1
+        ? 1
+        : raw === "false" || raw === "0" || raw === 0
+          ? 0
+          : null;
       if (mode === "submit") {
-        const expected = Number(question.correct_index ?? (question.correct_index === 0 ? 0 : 1));
-        const correct = choiceIndex != null && choiceIndex === expected;
+        const expected = question.correct_index == null ? null : Number(question.correct_index);
+        const correct = expected != null && choiceIndex != null && choiceIndex === expected;
         points = correct ? Number(question.points ?? 0) : 0;
         score += points;
       }
     } else {
       choiceIndex = raw != null && raw !== "" ? Number(raw) : null;
+      if (!Number.isInteger(choiceIndex)) choiceIndex = null;
       if (mode === "submit") {
-        const correct = choiceIndex != null && choiceIndex === Number(question.correct_index);
+        const expected = question.correct_index == null ? null : Number(question.correct_index);
+        const correct = expected != null && choiceIndex != null && choiceIndex === expected;
         points = correct ? Number(question.points ?? 0) : 0;
         score += points;
       }
@@ -591,6 +623,61 @@ function collectExamAnswers(questions, body, attemptId, mode) {
   }
 
   return { rows, score, hasEssay };
+}
+
+// حساب نتيجة محاولة من الإجابات المحفوظة فقط (عند التسليم بعد انتهاء الوقت).
+function scoreStoredAnswers(questions, storedAnswers) {
+  const byQuestion = new Map((storedAnswers ?? []).map((answer) => [answer.question_id, answer]));
+  let score = 0;
+  let hasEssay = false;
+
+  for (const question of questions) {
+    const answer = byQuestion.get(question.id);
+    if (question.type === "essay") {
+      hasEssay = true;
+      continue;
+    }
+    if (!answer) continue;
+
+    let correct = false;
+    if (question.type === "multi") {
+      const expected = Array.isArray(question.correct_indices)
+        ? question.correct_indices.map(Number).filter((value) => Number.isInteger(value))
+        : [];
+      const given = Array.isArray(answer.choice_indices)
+        ? answer.choice_indices.map(Number).filter((value) => Number.isInteger(value))
+        : [];
+      correct = expected.length > 0 && sameNumberSet(expected, given);
+    } else {
+      const expected = question.correct_index == null ? null : Number(question.correct_index);
+      correct = expected != null && answer.choice_index != null && Number(answer.choice_index) === expected;
+    }
+    if (correct) score += Number(question.points ?? 0);
+  }
+
+  return { score, hasEssay };
+}
+
+// يبني صفوف exam_answers مع نقاط موضوعية (للتسليم بعد انتهاء الوقت) كي لا تُفقد\n// نقاط الأسئلة الموضوعية عند تصحيح المقالية لاحقاً.\nfunction buildExpiredSubmitRows(questions, storedAnswers, attemptId) {\n  const byQuestion = new Map((storedAnswers ?? []).map((answer) => [answer.question_id, answer]));\n  let score = 0;\n  let hasEssay = false;\n  const rows = [];\n\n  for (const question of questions) {\n    const answer = byQuestion.get(question.id);\n    let points = null;\n    if (question.type === \"essay\") {\n      hasEssay = true;\n    } else if (answer) {\n      let correct = false;\n      if (question.type === \"multi\") {\n        const expected = Array.isArray(question.correct_indices)\n          ? question.correct_indices.map(Number).filter((value) => Number.isInteger(value))\n          : [];\n        const given = Array.isArray(answer.choice_indices)\n          ? answer.choice_indices.map(Number).filter((value) => Number.isInteger(value))\n          : [];\n        correct = expected.length > 0 && sameNumberSet(expected, given);\n      } else {\n        const expected = question.correct_index == null ? null : Number(question.correct_index);\n        correct = expected != null && answer.choice_index != null && Number(answer.choice_index) === expected;\n      }\n      points = correct ? Number(question.points ?? 0) : 0;\n      if (correct) score += Number(question.points ?? 0);\n    }\n\n    rows.push({\n      attempt_id: attemptId,\n      question_id: question.id,\n      choice_index: answer?.choice_index ?? null,\n      choice_indices: answer?.choice_indices ?? null,\n      text: answer?.text ?? null,\n      points,\n    });\n  }\n\n  return { rows, score, hasEssay };\n}
+
+/** آخر لحظة مسموحة للتسليم: نهاية الاختبار أو انتهاء مدته، أيهما أسبق. */
+function attemptDeadline(exam, attempt) {
+  const deadlines = [];
+  if (exam?.ends_at) {
+    const ends = new Date(exam.ends_at).getTime();
+    if (Number.isFinite(ends)) deadlines.push(ends);
+  }
+  const duration = Number(exam?.duration_min ?? 0);
+  if (attempt?.started_at && duration > 0) {
+    const started = new Date(attempt.started_at).getTime();
+    if (Number.isFinite(started)) deadlines.push(started + duration * 60000);
+  }
+  return deadlines.length ? Math.min(...deadlines) : null;
+}
+
+function isAttemptExpired(exam, attempt) {
+  const deadline = attemptDeadline(exam, attempt);
+  return deadline != null && Date.now() > deadline + EXAM_GRACE_MS;
 }
 
 // ---------- الاختبارات ----------
@@ -742,13 +829,17 @@ router.post("/exams/:id/autosave", requirePortal("student"), requireAssessment("
 
     const attemptRes = await db
       .from("exam_attempts")
-      .select("id, status")
+      .select("id, status, started_at")
       .eq("exam_id", examId)
       .eq("student_id", studentId)
       .maybeSingle();
     if (attemptRes.error) throw attemptRes.error;
     if (!attemptRes.data || attemptRes.data.status !== "in_progress") {
       return res.json({ ok: false, reason: "not_in_progress" });
+    }
+    // لا تُقبل إجابات جديدة بعد انتهاء الوقت (مع مهلة سماح قصيرة لاضطراب الشبكة).
+    if (isAttemptExpired(exam, attemptRes.data)) {
+      return res.json({ ok: false, reason: "time_up" });
     }
 
     const questionsRes = await db
@@ -834,11 +925,30 @@ router.post("/exams/:id/submit", requirePortal("student"), requireAssessment("ex
 
     const questions = questionsRes.data ?? [];
     const attemptId = attemptRes.data.id;
-    const { rows, score, hasEssay } = collectExamAnswers(questions, req.body, attemptId, "submit");
+    const expired = isAttemptExpired(exam, attemptRes.data);
 
-    if (rows.length) {
-      const saved = await db.from("exam_answers").upsert(rows, { onConflict: "attempt_id,question_id" });
-      if (saved.error) throw saved.error;
+    let rows = [];
+    let score = 0;
+    let hasEssay = false;
+
+    if (expired) {
+      // بعد انتهاء الوقت نعتمد الإجابات المحفوظة تلقائياً فقط، ولا نقبل إجابات جديدة من الطلب.
+      const stored = await db
+        .from("exam_answers")
+        .select("question_id, choice_index, choice_indices, text")
+        .eq("attempt_id", attemptId);
+      if (stored.error) throw stored.error;
+      ({ rows, score, hasEssay } = buildExpiredSubmitRows(questions, stored.data ?? [], attemptId));
+      if (rows.length) {
+        const saved = await db.from("exam_answers").upsert(rows, { onConflict: "attempt_id,question_id" });
+        if (saved.error) throw saved.error;
+      }
+    } else {
+      ({ rows, score, hasEssay } = collectExamAnswers(questions, req.body, attemptId, "submit"));
+      if (rows.length) {
+        const saved = await db.from("exam_answers").upsert(rows, { onConflict: "attempt_id,question_id" });
+        if (saved.error) throw saved.error;
+      }
     }
 
     const updated = await db
@@ -851,21 +961,6 @@ router.post("/exams/:id/submit", requirePortal("student"), requireAssessment("ex
       })
       .eq("id", attemptId);
     if (updated.error) throw updated.error;
-
-    // نقاط التفاعل للإجابات الصحيحة.
-    for (const row of rows) {
-      if (row.points && row.points > 0) {
-        const award = await db.from("points_ledger").insert({
-          user_id: studentId,
-          course_id: exam.course_id,
-          source_type: "interaction",
-          source_id: row.question_id,
-          source_detail: `إجابة صحيحة في ${exam.title}`,
-          points: 1,
-        });
-        if (award.error && award.error.code !== "23505") throw award.error;
-      }
-    }
 
     return res.redirect(`/student/exams/${examId}?flash=exam_submitted`);
   } catch (error) {
