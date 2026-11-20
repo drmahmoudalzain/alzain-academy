@@ -41,6 +41,16 @@
     menuBtn.addEventListener("click", () => setSidebar(!sidebar.classList.contains("open")));
   }
   if (overlay) overlay.addEventListener("click", closeSidebar);
+  // على الهاتف قد لا يصل حدث click إلى العنصر الشفاف؛ نُغلق عند أي لمسة خارج القائمة.
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      if (!sidebar || !sidebar.classList.contains("open")) return;
+      if (sidebar.contains(event.target) || (menuBtn && menuBtn.contains(event.target))) return;
+      closeSidebar();
+    },
+    { passive: true }
+  );
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") closeSidebar();
   });
