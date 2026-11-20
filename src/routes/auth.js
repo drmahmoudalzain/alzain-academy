@@ -6,6 +6,7 @@ import {
   hashToken,
   newSessionToken,
   sessionCookieOptions,
+  setSessionCookie,
 } from "../lib/session.js";
 import { getSettings, isFlagOn } from "../lib/settings.js";
 import {
@@ -59,6 +60,43 @@ function clearLoginFails(req, identifier) {
 function safeNext(value) {
   const next = String(value ?? "");
   return next.startsWith("/") && !next.startsWith("//") ? next : null;
+}
+
+/**
+ * مسار داخلي آمن للرجوع من الدليل العام: يجب أن يبدأ بـ / ولا يكون نسبةً للبروتوكول
+ * ولا يشير إلى صفحتي الدخول أو الدليل نفسه حتى لا نخلق حلقة رجوع.
+ */
+function safeInternalPath(value) {
+  const raw = String(value ?? "").trim();
+  if (!raw.startsWith("/") || raw.startsWith("//") || raw.includes("\\")) return null;
+  if (/^\/(login|guide)(\?|$)/i.test(raw)) return null;
+  try {
+    const url = new URL(raw, "http://internal.local");
+    if (url.origin !== "http://internal.local") return null;
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return null;
+  }
+}
+
+/** وجهة الرجوع من الدليل: رابط صريح من البوابة، ثم Referer، ثم الصفحة الرئيسية. */
+function guideReturnTarget(req) {
+  const fromQuery = safeInternalPath(req.query?.returnTo);
+  if (fromQuery) return fromQuery;
+
+  const referer = String(req.get("referer") ?? "");
+  if (referer) {
+    try {
+      const ref = new URL(referer);
+      if (ref.host === req.get("host")) {
+        const path = safeInternalPath(`${ref.pathname}${ref.search}${ref.hash}`);
+        if (path) return path;
+      }
+    } catch {
+      //referer غير صالح — نتجاهله ونستخدم القيمة الافتراضية.
+    }
+  }
+  return null;
 }
 
 // البحث عن حساب بالرمز الموحد للمنصة فقط (لا بريد، لا رقم جامعي).
@@ -152,12 +190,20 @@ router.get("/demo", async (req, res, next) => {
 // ---------- دليل المستخدم (عام — بلا تسجيل دخول) ----------
 router.get("/guide", async (req, res, next) => {
   try {
+    const signedIn = Boolean(req.user);
+    const returnTo =
+      guideReturnTarget(req) || (signedIn ? res.locals.homePath || "/" : "/");
+
     return renderPage(res, "guide/index", {
       title: "دليل المستخدم",
       layout: "base",
       bodyClass: "site-page guide-page",
       styles: ["/css/views/home.css?v=20261120", "/css/views/user-guide.css?v=20261120"],
       scripts: ["/js/home.js?v=20261120"],
+      guideReturnTo: returnTo,
+      guideReturnLabel: signedIn ? "العودة إلى لوحة التحكم" : "العودة للرئيسية",
+      guideBreadcrumbLabel: signedIn ? "لوحة التحكم" : "الرئيسية",
+      guideLoggedIn: signedIn,
     });
   } catch (error) {
     next(error);
@@ -304,10 +350,7 @@ router.post("/login", async (req, res, next) => {
       .eq("id", user.id);
     if (touched.error) console.error("تعذر تحديث آخر دخول:", touched.error.message);
 
-    res.cookie(SESSION_COOKIE, token, {
-      ...sessionCookieOptions(),
-      maxAge: env.SESSION_DAYS * 24 * 60 * 60 * 1000,
-    });
+    setSessionCookie(res, req, token, env.SESSION_DAYS * 24 * 60 * 60 * 1000);
 
     const destination =
       safeNext(req.body.next) ??
@@ -326,7 +369,7 @@ router.post("/logout", async (req, res, next) => {
       const { error } = await db.from("sessions").delete().eq("token_hash", req.sessionTokenHash);
       if (error) console.error("تعذر حذف الجلسة:", error.message);
     }
-    res.clearCookie(SESSION_COOKIE, sessionCookieOptions());
+    res.clearCookie(SESSION_COOKIE, sessionCookieOptions(req));
     return res.redirect("/");
   } catch (error) {
     next(error);

@@ -176,7 +176,7 @@ scripts/
 
 ### روابط الوصول
 
-- العام المؤقت الحالي: `https://providence-mainstream-reform-thats.trycloudflare.com/`
+- العام المؤقت الحالي: `https://optics-post-obtained-time.trycloudflare.com/`
 - المحلي: `http://localhost:3001/`
 
 > رابط Cloudflare Quick Tunnel مؤقت ويتغير عند إعادة تشغيل النفق. للتشغيل الدائم 24/7 راجع [تقرير الحالة ومتطلبات التشغيل](docs/PROJECT_STATUS_24_7.md).

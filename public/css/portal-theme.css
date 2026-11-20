@@ -78,6 +78,15 @@ body.portal {
   opacity: 1;
 }
 
+/* ضمان إضافي: لا يظهر الغشاء مطلقاً ما لم تكن القائمة مفتوحة فعلياً.
+   يحمي من بقاء صنف is-open عالقاً بعد استرجاع الصفحة من ذاكرة المتصفح على الهاتف. */
+body:not(.sidebar-open) .sidebar-overlay {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 /* زر الرجوع */
 .topbar-back {
   display: inline-flex;

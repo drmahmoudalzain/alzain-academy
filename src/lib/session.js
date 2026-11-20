@@ -29,11 +29,38 @@ export function parseCookies(header) {
   return jar;
 }
 
-export function sessionCookieOptions() {
+/**
+ * خيارات كوكي الجلسة.
+ * نحدد علم Secure من بروتوكول الطلب الفعلي (بعد المرور عبر proxy أو Cloudflare)
+ * بدل الاعتماد على NODE_ENV وحده، حتى يعمل الكوكي بشكل صحيح على:
+ *   - http://localhost:3001
+ *   - https://<tunnel>.trycloudflare.com
+ *   - الاستضافة الدائمة خلف HTTPS proxy
+ * أي خطأ في علم Secure يجعل المتصفح يتجاهل الكوكي عند إعادة التحميل فيخرج المستخدم.
+ */
+export function sessionCookieOptions(req) {
+  const forwarded = String(
+    req?.get?.("x-forwarded-proto") ?? req?.headers?.["x-forwarded-proto"] ?? ""
+  );
+  const proto = forwarded.split(",")[0].trim().toLowerCase();
+
+  let secure;
+  if (proto === "https" || req?.secure === true) secure = true;
+  else if (proto === "http") secure = false;
+  else secure = process.env.NODE_ENV === "production";
+
   return {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure,
     path: "/",
   };
+}
+
+/** كتابة كوكي الجلسة بصلاحية مجددة — تُستخدم عند الدخول وفي كل طلب صفحة موثّق. */
+export function setSessionCookie(res, req, token, maxAgeMs) {
+  return res.cookie(SESSION_COOKIE, token, {
+    ...sessionCookieOptions(req),
+    maxAge: maxAgeMs,
+  });
 }

@@ -41,7 +41,10 @@
           <% for (const item of group.items) { %>
             <% const active = item.href === portal.home ? currentPath === item.href : (currentPath === item.href || currentPath.startsWith(item.href + '/')); %>
             <% const badge = item.badgeKey ? ((navBadges || {})[item.badgeKey] || 0) : 0; %>
-            <a href="<%= item.method === 'post' ? '#' : item.href %>"
+            <% const itemHref = item.href === '/guide'
+                 ? ('/guide?returnTo=' + encodeURIComponent(typeof currentUrl !== 'undefined' ? currentUrl : (typeof currentPath !== 'undefined' ? currentPath : '/')))
+                 : item.href; %>
+            <a href="<%= item.method === 'post' ? '#' : itemHref %>"
                class="nav-item <%= active ? 'active' : '' %>"
                <% if (active) { %>aria-current="page"<% } %>
                <% if (item.method === 'post') { %>data-logout-link<% } %>>

@@ -4,6 +4,7 @@ import {
   hashToken,
   parseCookies,
   sessionCookieOptions,
+  setSessionCookie,
 } from "../lib/session.js";
 import { getSettings, isFlagOn } from "../lib/settings.js";
 import { PORTALS, canEnterPortal, primaryPortal } from "../lib/portals.js";
@@ -16,29 +17,55 @@ export async function attachUser(req, res, next) {
   res.locals.portal = null;
   res.locals.portals = PORTALS;
   res.locals.currentPath = req.path;
+  res.locals.currentUrl = req.originalUrl || req.path || "/";
 
   try {
     const token = parseCookies(req.headers.cookie)[SESSION_COOKIE];
     if (!token) return next();
 
     const tokenHash = hashToken(token);
-    const { data, error } = await db
-      .from("sessions")
-      .select("token_hash, expires_at, users(*)")
-      .eq("token_hash", tokenHash)
-      .maybeSingle();
+    const selectSession = () =>
+      db
+        .from("sessions")
+        .select("token_hash, expires_at, users(*)")
+        .eq("token_hash", tokenHash)
+        .maybeSingle();
 
+    // محاولة ثانية عند خطأ قاعدة عابر؛ خطأ لحظي واحد لا يعني أن المستخدم قد خرج.
+    let { data, error } = await selectSession();
+    if (error) ({ data, error } = await selectSession());
     if (error) throw error;
 
     if (!data || !data.users || new Date(data.expires_at) <= new Date()) {
       if (data) await db.from("sessions").delete().eq("token_hash", tokenHash);
-      res.clearCookie(SESSION_COOKIE, sessionCookieOptions());
+      res.clearCookie(SESSION_COOKIE, sessionCookieOptions(req));
       return next();
     }
 
     req.user = data.users;
     req.sessionTokenHash = tokenHash;
     res.locals.user = data.users;
+
+    // صفحات البوابات لا تُخزَّن في المتصفح حتى يعاد التحقق من الجلسة عند كل تحديث.
+    res.set("Cache-Control", "no-store");
+
+    // جلسة متجددة (sliding session): نعيد إرسال الكوكي بصلاحية كاملة في كل طلب صفحة،
+    // لذلك لا يؤدي تحديث الصفحة (F5 / إعادة تحميل على الهاتف) إلى انتهاء الكوكي والخروج.
+    const ttlMs = Math.max(1, Number(process.env.SESSION_DAYS ?? 7)) * 24 * 60 * 60 * 1000;
+    setSessionCookie(res, req, token, ttlMs);
+
+    // نُمدّد تاريخ انتهاء الجلسة في قاعدة البيانات قبل قرب انتهائها، من غير تعطيل الطلب
+    // ولا اعتباره خطأً يُخرج المستخدم إذا تعذّر التحديث لأي سبب عابر.
+    const remaining = new Date(data.expires_at).getTime() - Date.now();
+    if (remaining < 24 * 60 * 60 * 1000) {
+      db.from("sessions")
+        .update({ expires_at: new Date(Date.now() + ttlMs).toISOString() })
+        .eq("token_hash", tokenHash)
+        .then(({ error: updateError }) => {
+          if (updateError) console.error("تعذر تمديد الجلسة:", updateError.message);
+        });
+    }
+
     const portalKey = await primaryPortal(data.users);
     res.locals.homePath = PORTALS[portalKey]?.home ?? "/";
     res.locals.nav = navigationFor(portalKey, data.users);

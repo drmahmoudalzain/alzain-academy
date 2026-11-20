@@ -27,15 +27,28 @@
     document.body.classList.toggle("sidebar-open", open);
   }
 
+  // نُغلق القائمة والغشاء عند كل تحميل للصفحة، بما في ذلك استرجاع الصفحة من
+  // ذاكرة المتصفح (bfcache) عند الضغط على رجوع في الهاتف؛ وإلا بقي الغشاء يغطي اللوحة.
+  const closeSidebar = () => setSidebar(false);
+  closeSidebar();
+  window.addEventListener("pageshow", closeSidebar);
+  window.addEventListener("pagehide", closeSidebar);
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) closeSidebar();
+  });
+
   if (menuBtn) {
     menuBtn.addEventListener("click", () => setSidebar(!sidebar.classList.contains("open")));
   }
-  if (overlay) overlay.addEventListener("click", () => setSidebar(false));
+  if (overlay) overlay.addEventListener("click", closeSidebar);
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") setSidebar(false);
+    if (event.key === "Escape") closeSidebar();
+  });
+  document.querySelectorAll(".sidebar-nav a").forEach((link) => {
+    link.addEventListener("click", closeSidebar);
   });
   window.addEventListener("resize", () => {
-    if (window.innerWidth > 900) setSidebar(false);
+    if (window.innerWidth > 900) closeSidebar();
   });
 
   // ---------- روابط الخروج (POST) ----------
