@@ -1,9 +1,57 @@
+<%
+  const activeTrack = typeof track !== 'undefined' ? track : 'all';
+  const counts = typeof trackCounts !== 'undefined' ? trackCounts : {};
+  const trackTabHref = typeof tabHref !== 'undefined' ? tabHref : (value) => `?track=${value}`;
+  const searchText = typeof searchValue !== 'undefined' ? String(searchValue ?? '').trim() : '';
+  const countOf = (key) => Number(counts[key] ?? 0);
+  const bachelorSelected = ['bachelor', 'bachelor_m', 'bachelor_f'].includes(activeTrack);
+  const narrowed = activeTrack !== 'all' || Boolean(searchText);
+%>
+
 <section class="page-header">
   <div class="page-header-info">
     <h2>الطلاب</h2>
-    <p>الطلاب المسموح لك بعرض بياناتهم — <%= typeof totalVisible !== 'undefined' ? totalVisible : students.length %> طالب.</p>
+    <p>
+      الطلاب المسموح لك بعرض بياناتهم — <%= typeof totalVisible !== 'undefined' ? totalVisible : students.length %> طالب.
+      <% if (narrowed) { %>المعروض الآن: <%= students.length %>.<% } %>
+    </p>
   </div>
 </section>
+
+<nav class="student-filters" aria-label="تصفية الطلاب">
+  <div class="student-filter-row">
+    <a class="filter-tab <%= activeTrack === 'all' ? 'active' : '' %>" href="<%= trackTabHref('all') %>" <%= activeTrack === 'all' ? 'aria-current="page"' : '' %>>
+      الكل <span class="tab-count"><%= countOf('all') %></span>
+    </a>
+    <a class="filter-tab <%= bachelorSelected ? 'active' : '' %>" href="<%= trackTabHref('bachelor') %>" <%= bachelorSelected ? 'aria-current="page"' : '' %>>
+      بكالوريوس <span class="tab-count"><%= countOf('bachelor') %></span>
+    </a>
+    <a class="filter-tab <%= activeTrack === 'equiv' ? 'active' : '' %>" href="<%= trackTabHref('equiv') %>" <%= activeTrack === 'equiv' ? 'aria-current="page"' : '' %>>
+      المعادلة <span class="tab-count"><%= countOf('equiv') %></span>
+    </a>
+    <a class="filter-tab <%= activeTrack === 'external' ? 'active' : '' %>" href="<%= trackTabHref('external') %>" <%= activeTrack === 'external' ? 'aria-current="page"' : '' %>>
+      من الخارج <span class="tab-count"><%= countOf('external') %></span>
+    </a>
+    <a class="filter-tab <%= activeTrack === 'grad' ? 'active' : '' %>" href="<%= trackTabHref('grad') %>" <%= activeTrack === 'grad' ? 'aria-current="page"' : '' %>>
+      الدراسات العليا <span class="tab-count"><%= countOf('grad') %></span>
+    </a>
+  </div>
+
+  <% if (bachelorSelected) { %>
+    <div class="student-filter-row student-filter-subrow">
+      <span class="student-filter-label">داخل البكالوريوس</span>
+      <a class="filter-tab filter-tab-sub <%= activeTrack === 'bachelor' ? 'active' : '' %>" href="<%= trackTabHref('bachelor') %>" <%= activeTrack === 'bachelor' ? 'aria-current="page"' : '' %>>
+        كل البكالوريوس <span class="tab-count"><%= countOf('bachelor') %></span>
+      </a>
+      <a class="filter-tab filter-tab-sub <%= activeTrack === 'bachelor_m' ? 'active' : '' %>" href="<%= trackTabHref('bachelor_m') %>" <%= activeTrack === 'bachelor_m' ? 'aria-current="page"' : '' %>>
+        طلاب <span class="tab-count"><%= countOf('bachelor_m') %></span>
+      </a>
+      <a class="filter-tab filter-tab-sub <%= activeTrack === 'bachelor_f' ? 'active' : '' %>" href="<%= trackTabHref('bachelor_f') %>" <%= activeTrack === 'bachelor_f' ? 'aria-current="page"' : '' %>>
+        طالبات <span class="tab-count"><%= countOf('bachelor_f') %></span>
+      </a>
+    </div>
+  <% } %>
+</nav>
 
 <% if (students.length) { %>
   <div class="table-card">
@@ -27,5 +75,15 @@
     </div>
   </div>
 <% } else { %>
-  <div class="empty-state"><h3>لا يوجد طلاب</h3><p>لا يوجد طلاب ضمن نطاق صلاحياتك أو وفق بحثك.</p></div>
+  <div class="empty-state student-empty">
+    <h3><%= narrowed ? 'لا توجد نتائج مطابقة' : 'لا يوجد طلاب' %></h3>
+    <p>
+      <% if (narrowed) { %>
+        لا يوجد طلاب ضمن الفئة المختارة أو البحث الحالي. يمكنك تغيير التبويب أو مسح البحث.
+      <% } else { %>
+        لا يوجد طلاب ضمن نطاق صلاحياتك حالياً.
+      <% } %>
+    </p>
+    <% if (narrowed) { %><a class="btn btn-secondary" href="<%= basePath %>">عرض كل الطلاب</a><% } %>
+  </div>
 <% } %>

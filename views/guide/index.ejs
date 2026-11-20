@@ -1,0 +1,391 @@
+<!-- ============ خلفية ============ -->
+<div class="bg-layer" aria-hidden="true">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+  <div class="pattern"></div>
+  <div class="vignette"></div>
+</div>
+
+<!-- ============ الشريط العلوي ============ -->
+<header class="site-header" id="header">
+  <div class="container nav-inner">
+    <a href="/" class="brand" aria-label="أكاديمية آل الزين — الرئيسية">
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M32 6v46" />
+        <path d="M20 52h24" />
+        <circle cx="32" cy="10" r="3" fill="currentColor" stroke="none" />
+        <path d="M10 18h44" />
+        <path d="M10 18L4 32h12L10 18z" />
+        <path d="M54 18L48 32h12L54 18z" />
+        <path d="M4 32a6 6 0 0 0 12 0" />
+        <path d="M48 32a6 6 0 0 0 12 0" />
+      </svg>
+      <span class="brand-text">
+        أكاديمية آل الزين
+        <small>للعلوم القانونية والعدلية</small>
+      </span>
+    </a>
+
+    <nav class="nav-links" aria-label="التنقل الرئيسي">
+      <a href="/">الرئيسية</a>
+      <a href="/#portals">البوابات</a>
+      <a href="/publication/guide">دليل النشر</a>
+      <a href="/guide" aria-current="page">دليل المستخدم</a>
+    </nav>
+
+    <a href="/" class="nav-cta">
+      العودة للرئيسية
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M10 19l-7-7 7-7" />
+        <path d="M3 12h18" />
+      </svg>
+    </a>
+
+    <button class="menu-toggle" aria-label="القائمة" id="menuToggle">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <path d="M3 6h18M3 12h18M3 18h18" />
+      </svg>
+    </button>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ============ ترويسة الدليل ============ -->
+  <section class="ug-hero">
+    <div class="container">
+      <div class="ug-breadcrumb"><a href="/">الرئيسية</a> · <span>دليل المستخدم</span></div>
+
+      <div class="ug-hero-grid">
+        <div class="ug-hero-main">
+          <span class="ug-kicker">مرجع سريع ومحدَّث</span>
+          <h1>دليل <span class="accent">استخدام المنصة</span></h1>
+          <p class="ug-lead">
+            يشرح هذا الدليل البوابات الثلاث، وخطوات الدخول والإعداد الأولي، وصلاحيات كل دور،
+            ونظام الدرجات المعتمد، وطريقة متابعة الحضور والتفاعل والاختبارات والواجبات.
+          </p>
+          <div class="ug-hero-actions">
+            <button type="button" class="btn btn-primary" onclick="window.print()">
+              حفظ الدليل أو طباعته
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M6 9V3h12v6" />
+                <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+                <path d="M6 15h12v6H6z" />
+              </svg>
+            </button>
+            <a href="/" class="btn btn-ghost">العودة إلى الرئيسية</a>
+          </div>
+          <p class="ug-print-note">يمكنك من زر الطباعة اختيار «حفظ كملف PDF» في نافذة المتصفح.</p>
+        </div>
+
+        <aside class="ug-tip" aria-label="ملاحظة مهمة">
+          <h2>قبل أن تبدأ</h2>
+          <p>
+            الحسابات تُنشأ من الإدارة فقط، ولا يُستخدم البريد للدخول. بيانات الدخول تُسلَّم مرة واحدة
+            عند إنشاء الحساب، ثم تُلزم المنصة بتغيير كلمة المرور وإدخال البريد في الجلسة الأولى.
+          </p>
+          <p class="ug-tip-strong">لا يحوي هذا الدليل أي رموز أو كلمات مرور حقيقية.</p>
+        </aside>
+      </div>
+
+      <nav class="ug-toc" aria-label="فهرس الدليل">
+        <a href="#start">١ · البداية والدخول</a>
+        <a href="#owner">٢ · بوابة المالك</a>
+        <a href="#teacher">٣ · بوابة الأستاذ</a>
+        <a href="#student">٤ · بوابة الطالب</a>
+        <a href="#grading">٥ · نظام الدرجات</a>
+        <a href="#tools">٦ · الحضور والتقييم</a>
+        <a href="#faq">٧ · الأسئلة الشائعة</a>
+      </nav>
+    </div>
+  </section>
+
+  <div class="ug-body container">
+
+    <!-- ============ البداية ============ -->
+    <section class="ug-section" id="start" aria-labelledby="ug-h-start">
+      <div class="ug-section-head">
+        <span class="ug-num" aria-hidden="true">١</span>
+        <h2 id="ug-h-start">البداية وطريقة الدخول</h2>
+      </div>
+
+      <p class="ug-lead-small">
+        المنصة مقسّمة إلى ثلاث بوابات منفصلة. تظهر الروابط على الصفحة الرئيسية، ويمكن الدخول إلى البوابة
+        المخصصة لدورك فقط؛ فلا يمكن لحساب طالب أن يدخل بوابة الأستاذ، ولا لحساب أستاذ أن يدخل بوابة المالك.
+      </p>
+
+      <div class="ug-portal-grid">
+        <article class="ug-card">
+          <h3>بوابة المالك</h3>
+          <p>إدارة الحسابات والمقررات والمحاضرات والاختبارات والتسجيل والتقارير والإعدادات.</p>
+        </article>
+        <article class="ug-card">
+          <h3>بوابة الأستاذ</h3>
+          <p>إدارة المقررات المسندة إليه، والمحتوى والاختبارات، ومتابعة طلاب تلك المقررات.</p>
+        </article>
+        <article class="ug-card">
+          <h3>بوابة الطالب</h3>
+          <p>متابعة المقررات والمحاضرات والتقييمات والدرجات والنقاط والإشعارات.</p>
+        </article>
+      </div>
+
+      <ol class="ug-steps">
+        <li>
+          <h3>استلم رمز الدخول</h3>
+          <p>يُعطى الرمز الموحّد وكلمة المرور المؤقتة لك عند إنشاء الحساب من قبل الإدارة. لا يمكن إنشاء حساب ذاتياً من صفحة الدخول.</p>
+        </li>
+        <li>
+          <h3>افتح بوابة دورك</h3>
+          <p>اختر البوابة المناسبة من الصفحة الرئيسية، ثم أدخل الرمز الموحّد وكلمة المرور. البريد الإلكتروني ليس معرّف دخول.</p>
+        </li>
+        <li>
+          <h3>أكمل الإعداد في أول جلسة</h3>
+          <p>تطلب المنصة تغيير كلمة المرور وإدخال بريد إلكتروني صحيح قبل الانتقال إلى بقية صفحات البوابة. صفحة الإشعارات متاحة أثناء هذه الخطوة.</p>
+        </li>
+        <li>
+          <h3>ابدأ الاستخدام</h3>
+          <p>بعد الإكمال، تفتح البوابة كاملة ويمكنك العودة إلى دليل المستخدم في أي وقت من قائمة البوابة أو من الصفحة الرئيسية.</p>
+        </li>
+      </ol>
+
+      <div class="ug-note">
+        <strong>تنبيه أمني:</strong> لا تشارك رمز الدخول أو كلمة المرور. عند نسيان كلمة المرور، اطلب إعادة تعيينها من الإدارة؛
+        تظهر كلمة المرور الجديدة مرة واحدة فقط، وتُلزم المنصة بتغييرها عند الدخول التالي.
+      </div>
+    </section>
+
+    <!-- ============ المالك ============ -->
+    <section class="ug-section" id="owner" aria-labelledby="ug-h-owner">
+      <div class="ug-section-head">
+        <span class="ug-num" aria-hidden="true">٢</span>
+        <h2 id="ug-h-owner">بوابة المالك</h2>
+      </div>
+
+      <p class="ug-lead-small">المالك هو الجهة الوحيدة المخوّلة بإنشاء الحسابات وإدارة الصلاحيات العامة للمنصة.</p>
+
+      <div class="ug-two-col">
+        <div class="ug-card">
+          <h3>ما يمكن فعله</h3>
+          <ul class="ug-list">
+            <li>إنشاء المستخدمين فردياً، أو بدفعة نصوص، أو عبر ملف إكسل، ثم نسخ بيانات الدخول مرة واحدة.</li>
+            <li>إعادة تعيين كلمات المرور، وتفعيل الحسابات أو إيقافها على مستوى المنصة.</li>
+            <li>إنشاء المقررات الأصلية وفروعها، وضبط المستويات والمسارات، وإسناد الأساتذة.</li>
+            <li>تسجيل الطلاب في المقررات وفق مستوى المقرر ومساره، مع إبقاء الاستثناء بالرمز يدوياً.</li>
+            <li>إنشاء المحاضرات والاختبارات والواجبات، ومتابعة الدرجات والتقارير والأرشيف والإعدادات.</li>
+          </ul>
+        </div>
+        <div class="ug-card">
+          <h3>قائمة الطلاب</h3>
+          <p>تعلو قائمة الطلاب تبويبات بعدّادات:</p>
+          <ul class="ug-list">
+            <li><strong>الكل</strong> — جميع الطلاب المسموح للمالك رؤيتهم.</li>
+            <li><strong>بكالوريوس</strong> — وبداخله <strong>كل البكالوريوس</strong> و<strong>طلاب</strong> و<strong>طالبات</strong>.</li>
+            <li><strong>المعادلة</strong> و<strong>من الخارج</strong> و<strong>الدراسات العليا</strong>.</li>
+          </ul>
+          <p>يعمل البحث داخل الفئة المختارة، ويبقى الفلتر محفوظاً في الرابط حتى بعد تحديث الصفحة أو الرجوع إليها.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ الأستاذ ============ -->
+    <section class="ug-section" id="teacher" aria-labelledby="ug-h-teacher">
+      <div class="ug-section-head">
+        <span class="ug-num" aria-hidden="true">٣</span>
+        <h2 id="ug-h-teacher">بوابة الأستاذ</h2>
+      </div>
+
+      <div class="ug-two-col">
+        <div class="ug-card">
+          <h3>داخل مقرراته المسندة فقط</h3>
+          <ul class="ug-list">
+            <li>إنشاء المحاضرات بأنواعها وتحديد رمز الحضور ومدة المحاضرة.</li>
+            <li>إنشاء الاختبارات وأسئلتها وربط الاختبار بالمحاضرة المناسبة.</li>
+            <li>متابعة طلاب مقرراته، والاطلاع على الحضور والتفاعل والدرجات.</li>
+            <li>إيقاف طالب داخل مقرر معيّن أو إعادة تنشيطه فيه.</li>
+            <li>استخدام تبويبات قائمة الطلاب والأعداد والبحث داخل نطاق مقرراته.</li>
+          </ul>
+        </div>
+        <div class="ug-card">
+          <h3>خارج نطاق الصلاحية</h3>
+          <ul class="ug-list">
+            <li>إنشاء حسابات جديدة أو إعادة تعيين كلمات المرور.</li>
+            <li>إنشاء المقررات أو تعديلها أو أرشفتها أو حذفها.</li>
+            <li>تسجيل الطلاب في المقررات أو إيقاف الحساب عاماً.</li>
+            <li>إدارة الواجبات أو التعديلات العامة على بيانات الطلاب.</li>
+          </ul>
+          <p class="ug-muted">أي محاولة للوصول المباشر إلى هذه الوظائف تُرفض، حتى لو كُتب الرابط يدوياً.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ الطالب ============ -->
+    <section class="ug-section" id="student" aria-labelledby="ug-h-student">
+      <div class="ug-section-head">
+        <span class="ug-num" aria-hidden="true">٤</span>
+        <h2 id="ug-h-student">بوابة الطالب</h2>
+      </div>
+
+      <ul class="ug-list ug-list-wide">
+        <li><strong>لوحة التحكم:</strong> نظرة سريعة على المقررات والمحاضرات والدرجات.</li>
+        <li><strong>مقرراتي والمحاضرات:</strong> فتح المحتوى المرتبط بالمقررات المسجّل فيها الطالب.</li>
+        <li><strong>الاختبارات أو الواجبات:</strong> يظهر النوع المناسب لمسار الطالب؛ طلاب البكالوريوس يستخدمون الاختبارات، بينما تستخدم بقية المسارات الواجبات.</li>
+        <li><strong>درجاتي ونقاطي:</strong> متابعة التحصيل أولاً بأول، مع عرض الدرجة من 300.</li>
+        <li><strong>الإشعارات والمكتبة والمنتدى والنشر العلمي:</strong> متابعة المستجدات والمراجع والمشاركة الأكاديمية.</li>
+      </ul>
+
+      <div class="ug-note">
+        <strong>فرق المسارات:</strong> في مسارات البكالوريوس تُعرض أعمدة الحضور والتفاعل والاختبارات والمجموع والتقدير،
+        ولا يظهر عمود الواجبات. في المعادلة ومن الخارج والدراسات العليا يُعرض الواجبات والمجموع والتقدير فقط.
+      </div>
+    </section>
+
+    <!-- ============ الدرجات ============ -->
+    <section class="ug-section" id="grading" aria-labelledby="ug-h-grading">
+      <div class="ug-section-head">
+        <span class="ug-num" aria-hidden="true">٥</span>
+        <h2 id="ug-h-grading">نظام الدرجات — 300 نقطة</h2>
+      </div>
+
+      <p class="ug-lead-small">
+        تُحسب الدرجة لكل مادة مرة واحدة، حتى لو كانت للمقرر فروع منفصلة؛ فتُجمع النقاط من الأصل والفروع ضمن سقف
+        واحد هو 300 نقطة، دون تكرار صفوف المقرر.
+      </p>
+
+      <div class="ug-table-wrap">
+        <table class="ug-table">
+          <thead>
+            <tr>
+              <th>نوع المحاضرة</th>
+              <th>الحضور</th>
+              <th>التفاعل</th>
+              <th>الاختبار</th>
+              <th>السقف</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>مباشرة / إلكترونية</strong></td>
+              <td>10</td>
+              <td>10</td>
+              <td>10</td>
+              <td><strong>30 نقطة</strong></td>
+            </tr>
+            <tr>
+              <td><strong>مسجَّلة</strong></td>
+              <td>—</td>
+              <td>—</td>
+              <td>30</td>
+              <td><strong>30 نقطة</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <ul class="ug-list ug-list-wide">
+        <li>تُحتسب <strong>أول 10 محاضرات فقط</strong> في المادة؛ وما بعدها لا يضيف نقاطاً ولا تُعاد توزيع الدرجات.</li>
+        <li>إذا قلّ عدد المحاضرات عن 10، يكون السقف المتاح أقل تبعاً لذلك.</li>
+        <li>نقطة الحضور لا تُمنح بمجرد فتح الصفحة؛ بل بعد إدخال رمز المحاضرة وتسجيل التواجد.</li>
+        <li>التقدير يُحسب بعد تحويل الدرجة من 300 إلى نسبة مئوية بقسمتها على 3.</li>
+        <li>تُطبَّق هذه القواعد على العمل الجديد، ولا تُعاد كتابة الدرجات التاريخية السابقة.</li>
+      </ul>
+    </section>
+
+    <!-- ============ الأدوات ============ -->
+    <section class="ug-section" id="tools" aria-labelledby="ug-h-tools">
+      <div class="ug-section-head">
+        <span class="ug-num" aria-hidden="true">٦</span>
+        <h2 id="ug-h-tools">الحضور والتفاعل والاختبارات والواجبات</h2>
+      </div>
+
+      <div class="ug-subsection">
+        <h3>الحضور</h3>
+        <ul class="ug-list">
+          <li>افتح المحاضرة من «المحاضرات»، ثم أدخل رمز الحضور الذي يضعه الأستاذ.</li>
+          <li>تُحتسب نقطة عن كل <strong>10 دقائق</strong> تواجد مسجَّل، بحد أقصى <strong>10 نقاط</strong> بعد 100 دقيقة من أصل 120 دقيقة.</li>
+          <li>يتوقف العداد عند مغادرة الصفحة أو إخفاء التبويب، ويستأنف عند العودة إليه.</li>
+          <li>فتح المحاضرة من دون رمز صحيح لا يسجّل حضوراً ولا يمنح نقاطاً.</li>
+        </ul>
+      </div>
+
+      <div class="ug-subsection">
+        <h3>التفاعل</h3>
+        <ul class="ug-list">
+          <li>في المحاضرات المباشرة والإلكترونية، تُمنح نقطة واحدة لكل إجابة صحيحة.</li>
+          <li>الحد الأقصى للتفاعل <strong>10 نقاط لكل محاضرة</strong>؛ وزيادة الأسئلة لا تزيد السقف.</li>
+          <li>لا يتوفر التفاعل في المحاضرات المسجَّلة.</li>
+        </ul>
+      </div>
+
+      <div class="ug-subsection">
+        <h3>الاختبارات</h3>
+        <ul class="ug-list">
+          <li>يجب أن يكون الاختبار مرتبطاً بمحاضرة؛ ويُشتق نوعه من نوع تلك المحاضرة.</li>
+          <li>سقف اختبار المحاضرة المباشرة أو الإلكترونية 10 نقاط، وسقف اختبار المحاضرة المسجَّلة 30 نقطة.</li>
+          <li>تُحوَّل درجة الاختبار إلى سقف المحاضرة، لذلك لا تزيد كثرة الأسئلة عن السقف المقرر.</li>
+          <li>الاختبارات غير المرتبطة بمحاضرة لا تُحتسب في الدرجة.</li>
+        </ul>
+      </div>
+
+      <div class="ug-subsection">
+        <h3>الواجبات</h3>
+        <ul class="ug-list">
+          <li>تُستخدم الواجبات أداةَ التقييم في مسارات المعادلة ومن الخارج والدراسات العليا فقط.</li>
+          <li>تُحسب ضمن السقف العام البالغ 300 نقطة، وتعرض شاشات الدرجات الأعمدة الخاصة بهذه المسارات.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ الأسئلة الشائعة ============ -->
+    <section class="ug-section" id="faq" aria-labelledby="ug-h-faq">
+      <div class="ug-section-head">
+        <span class="ug-num" aria-hidden="true">٧</span>
+        <h2 id="ug-h-faq">الأسئلة الشائعة</h2>
+      </div>
+
+      <div class="ug-faq">
+        <div class="ug-faq-item">
+          <h3>هل يمكن الدخول بالبريد الإلكتروني؟</h3>
+          <p>لا. الدخول يتم بالرمز الموحّد وكلمة المرور فقط. البريد يُطلب في الجلسة الأولى ويُستخدم لاحقاً داخل الحساب.</p>
+        </div>
+        <div class="ug-faq-item">
+          <h3>كيف أحصل على حساب جديد؟</h3>
+          <p>بواسطة الإدارة فقط. أنشئ الحساب من بوابة المالك، ثم تُسلَّم بيانات الدخول مرة واحدة للنسخ أو الطباعة.</p>
+        </div>
+        <div class="ug-faq-item">
+          <h3>لماذا لم تُحتسب نقاط حضوري؟</h3>
+          <p>تأكد من إدخال رمز المحاضرة الصحيح، ومن بقاء صفحة المحاضرة مفتوحة ونشطة؛ فالعداد يتوقف عند إخفاء التبويب.</p>
+        </div>
+        <div class="ug-faq-item">
+          <h3>لماذا لا تزيد درجتي بعد محاضرات كثيرة؟</h3>
+          <p>لأن أول 10 محاضرات فقط في المادة تدخل في الحساب، ولكل محاضرة سقف ثابت لا تتجاوزه كثرة الأسئلة.</p>
+        </div>
+        <div class="ug-faq-item">
+          <h3>لماذا لا يظهر الواجبات في درجات البكالوريوس؟</h3>
+          <p>لأن أداة التقييم في مسارات البكالوريوس هي الاختبارات، بينما تُستخدم الواجبات في بقية المسارات.</p>
+        </div>
+        <div class="ug-faq-item">
+          <h3>هل يستطيع الأستاذ إيقاف طالب عاماً؟</h3>
+          <p>لا. يمكنه إيقاف الطالب داخل مقرره فقط. التفعيل والإيقاف العام للحساب من صلاحية المالك.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="ug-end" role="note">
+      <h2>هل تحتاج إلى مساعدة إضافية؟</h2>
+      <p>راجع الإدارة عند الحاجة إلى حساب، أو إعادة تعيين كلمة مرور، أو تصحيح بيانات مسارك ومستواك.</p>
+      <a href="/" class="btn btn-ghost">العودة إلى الصفحة الرئيسية</a>
+    </div>
+
+  </div>
+</main>
+
+<!-- ============ التذييل ============ -->
+<footer class="site-footer ug-footer">
+  <div class="container">
+    <div class="footer-bottom">
+      <span>© 2026 <strong style="color: var(--gold-light);">أكاديمية آل الزين للعلوم القانونية والعدلية</strong> — جميع الحقوق محفوظة</span>
+      <span>دليل استخدام المنصة</span>
+    </div>
+  </div>
+</footer>

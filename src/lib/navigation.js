@@ -50,6 +50,7 @@ export const NAVIGATION = {
         { label: "المكتبة", href: "/library", icon: "library" },
         { label: "المساعد الذكي", href: "/assistant", icon: "assistant" },
         { label: "الإشعارات", href: "/notifications", icon: "bell" },
+        { label: "دليل المستخدم", href: "/guide", icon: "file" },
       ],
     },
     {
@@ -95,6 +96,7 @@ export const NAVIGATION = {
         { label: "المكتبة", href: "/library", icon: "library" },
         { label: "المساعد الذكي", href: "/assistant", icon: "assistant" },
         { label: "الإشعارات", href: "/notifications", icon: "bell" },
+        { label: "دليل المستخدم", href: "/guide", icon: "file" },
       ],
     },
     {
@@ -123,6 +125,7 @@ export const NAVIGATION = {
         { label: "التقارير", href: "/owner/report/html", icon: "grades" },
         { label: "الأرشيف", href: "/owner/archive", icon: "archive" },
         { label: "الإعدادات", href: "/owner/settings", icon: "settings" },
+        { label: "دليل المستخدم", href: "/guide", icon: "file" },
       ],
     },
     {

@@ -158,6 +158,30 @@
         }
       }
 
+      // ============ نافذة دليل المستخدم عند أول زيارة ============
+      (function setupGuideWelcome() {
+        const modal = document.getElementById('guideWelcomeModal');
+        if (!modal) return;
+        const key = 'az_user_guide_seen_v1';
+        let seen = false;
+        try { seen = localStorage.getItem(key) === '1'; } catch (e) { /* تخزين غير متاح */ }
+        if (!seen) {
+          modal.classList.add('open');
+          modal.setAttribute('aria-hidden', 'false');
+          document.body.classList.add('guide-modal-open');
+        }
+        const dismiss = () => {
+          modal.classList.remove('open');
+          modal.setAttribute('aria-hidden', 'true');
+          document.body.classList.remove('guide-modal-open');
+          try { localStorage.setItem(key, '1'); } catch (e) { /* تخزين غير متاح */ }
+        };
+        modal.querySelectorAll('[data-guide-dismiss]').forEach((el) => el.addEventListener('click', dismiss));
+        modal.querySelector('[data-guide-open]')?.addEventListener('click', dismiss);
+        modal.addEventListener('click', (event) => { if (event.target === modal) dismiss(); });
+        document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && modal.classList.contains('open')) dismiss(); });
+      })();
+
       console.log('%c[AlZain Academy]', 'color:#D4A017;font-weight:bold;font-size:14px;', 'الصفحة الرئيسية جاهزة');
     })();
-  
+   

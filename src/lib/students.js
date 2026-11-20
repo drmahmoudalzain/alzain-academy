@@ -7,6 +7,38 @@ import { parseStudentTrack } from "./tracks.js";
 import { hashPassword } from "./password.js";
 import { generateTempPassword } from "./platformCode.js";
 
+// تبويبات فلترة الطلاب. «bachelor» يضم الأصل والطلاب والطالبات؛ والباقي مسارات منفصلة.
+const TRACK_FILTER_KEYS = ["all", "bachelor", "bachelor_m", "bachelor_f", "equiv", "external", "grad"];
+const BACHELOR_TRACK_KEYS = new Set(["bachelor", "bachelor_m", "bachelor_f"]);
+
+function normalizeTrackFilter(value) {
+  const track = String(value ?? "").trim();
+  return TRACK_FILTER_KEYS.includes(track) ? track : "all";
+}
+
+function matchesTrackFilter(student, track) {
+  if (track === "all") return true;
+  if (track === "bachelor") return BACHELOR_TRACK_KEYS.has(student.track);
+  return student.track === track;
+}
+
+function countTrackFilters(students) {
+  const counts = {
+    all: students.length,
+    bachelor: 0,
+    bachelor_m: 0,
+    bachelor_f: 0,
+    equiv: 0,
+    external: 0,
+    grad: 0,
+  };
+  for (const student of students) {
+    if (BACHELOR_TRACK_KEYS.has(student.track)) counts.bachelor += 1;
+    if (Object.prototype.hasOwnProperty.call(counts, student.track)) counts[student.track] += 1;
+  }
+  return counts;
+}
+
 /**
  * إدارة الطلاب — مشتركة بين بوابتي المالك والأستاذ.
  * الأستاذ يرى فقط الطلاب المسجّلين في مقرراته، والمالك يرى الجميع.
@@ -38,10 +70,36 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
   // ---------- القائمة ----------
   router.get("/", guard, async (req, res, next) => {
     try {
-      const query = String(req.query.q ?? "").trim().toLowerCase();
+      const searchValue = req.query.q ?? "";
+      const query = String(searchValue).trim().toLowerCase();
+      const track = normalizeTrackFilter(req.query.track);
+
+      // الفلتر محفوظ في الرابط؛ روابط التبويبات تحفظ كلمة البحث الحالية أيضاً.
+      const tabHref = (value) => {
+        const params = new URLSearchParams();
+        params.set("track", value);
+        if (query) params.set("q", query);
+        return `${basePath}?${params.toString()}`;
+      };
+
+      const listLocals = ({ students, allStudents, totalVisible }) => ({
+        title: "الطلاب",
+        pageTitle: "الطلاب",
+        students,
+        searchAction: basePath,
+        searchPlaceholder: "ابحث باسم أو رقم...",
+        searchValue,
+        searchTrack: track,
+        track,
+        trackCounts: countTrackFilters(allStudents),
+        tabHref,
+        totalVisible,
+        pageCss: "/css/views/students.css",
+      });
+
       const ids = await visibleStudentIds(req.user);
       if (!ids.length) {
-        return page(res, "manage/students", { title: "الطلاب", pageTitle: "الطلاب", students: [], searchValue: req.query.q ?? "" });
+        return page(res, "manage/students", listLocals({ students: [], allStudents: [], totalVisible: 0 }));
       }
 
       const { data, error } = await db
@@ -51,15 +109,17 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
         .order("id");
       if (error) throw error;
 
-      const studentIds = ids;
+      const allStudents = data ?? [];
+
       // عدد المقررات لكل طالب (ضمن مقررات الرؤية)
-      const enrollRes = await db.from("enrollments").select("student_id").in("student_id", studentIds);
+      const enrollRes = await db.from("enrollments").select("student_id").in("student_id", ids);
       const courseCount = new Map();
       for (const row of enrollRes.data ?? []) {
         courseCount.set(row.student_id, (courseCount.get(row.student_id) ?? 0) + 1);
       }
 
-      const students = (data ?? [])
+      const students = allStudents
+        .filter((student) => matchesTrackFilter(student, track))
         .filter((student) => {
           if (!query) return true;
           return [student.name, student.university_id, student.platform_id, student.email].some((value) =>
@@ -68,15 +128,7 @@ export function createStudentsRouter({ portalKey, basePath, isOwner }) {
         })
         .map((student) => ({ ...student, courseCount: courseCount.get(student.id) ?? 0 }));
 
-      return page(res, "manage/students", {
-        title: "الطلاب",
-        pageTitle: "الطلاب",
-        students,
-        searchAction: basePath,
-        searchPlaceholder: "ابحث باسم أو رقم...",
-        searchValue: req.query.q ?? "",
-        totalVisible: ids.length,
-      });
+      return page(res, "manage/students", listLocals({ students, allStudents, totalVisible: allStudents.length }));
     } catch (error) {
       next(error);
     }

@@ -33,6 +33,7 @@
         <a href="#tracks">المسارات</a>
         <a href="#library">المكتبة</a>
         <a href="/publication/guide">دليل النشر</a>
+        <a href="/guide">دليل المستخدم</a>
         <a href="#portals">البوابات</a>
       </nav>
 
@@ -797,3 +798,25 @@
       </div>
     </div>
   </footer>
+
+  <!-- ============ نافذة دليل المستخدم عند أول زيارة ============ -->
+  <div class="guide-welcome" id="guideWelcomeModal" role="dialog" aria-modal="true" aria-labelledby="guideWelcomeTitle" aria-hidden="true">
+    <div class="guide-welcome-card">
+      <button type="button" class="guide-welcome-close" data-guide-dismiss aria-label="إغلاق">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <div class="guide-welcome-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></svg>
+      </div>
+      <h2 id="guideWelcomeTitle">أول مرة هنا؟</h2>
+      <p>
+        دليل المستخدم يشرح لك البوابات الثلاث، وطريقة الدخول، ونظام الدرجات، وكيفية متابعة المحاضرات والواجبات —
+        ويمكنك حفظه على جهازك للرجوع إليه أثناء استخدام المنصة.
+      </p>
+      <div class="guide-welcome-actions">
+        <a href="/guide" class="btn btn-primary" data-guide-open>اطّلع على الدليل</a>
+        <button type="button" class="btn btn-ghost" data-guide-dismiss>تخطٍ الآن</button>
+      </div>
+      <small class="guide-welcome-note">تظهر هذه النافذة مرة واحدة فقط على هذا الجهاز.</small>
+    </div>
+  </div>

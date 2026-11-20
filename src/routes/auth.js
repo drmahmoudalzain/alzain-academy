@@ -149,6 +149,21 @@ router.get("/demo", async (req, res, next) => {
   }
 });
 
+// ---------- دليل المستخدم (عام — بلا تسجيل دخول) ----------
+router.get("/guide", async (req, res, next) => {
+  try {
+    return renderPage(res, "guide/index", {
+      title: "دليل المستخدم",
+      layout: "base",
+      bodyClass: "site-page guide-page",
+      styles: ["/css/views/home.css?v=20261120", "/css/views/user-guide.css?v=20261120"],
+      scripts: ["/js/home.js?v=20261120"],
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 // ---------- صفحة الدخول ----------
 router.get("/login", async (req, res, next) => {
   try {

@@ -109,6 +109,9 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <%- include('../partials/nav-icon', { icon: 'search' }) %>
             </svg>
+            <% if (typeof searchTrack !== 'undefined' && searchTrack && searchTrack !== 'all') { %>
+              <input type="hidden" name="track" value="<%= searchTrack %>">
+            <% } %>
             <input type="search" name="q" value="<%= typeof searchValue !== 'undefined' ? searchValue : '' %>" placeholder="<%= typeof searchPlaceholder !== 'undefined' ? searchPlaceholder : 'ابحث...' %>" aria-label="بحث" />
           </form>
         <% } else { %>
