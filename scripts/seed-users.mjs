@@ -12,6 +12,10 @@ const URL_ = env.SUPABASE_URL;
 const KEY = env.SUPABASE_SECRET_KEY;
 const H = { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" };
 
+// لا تُخزَّن كلمات مرور حقيقية في المستودع؛ استخدم متغيرات SEED_* عند الحاجة.
+const OWNER_SEED_PASSWORD = process.env.SEED_OWNER_PASSWORD ?? "CHANGE_ME_OWNER";
+const STUDENT_SEED_PASSWORD = process.env.SEED_STUDENT_PASSWORD ?? "CHANGE_ME_STUDENT";
+
 // scrypt: format  s1$N$r$p$saltB64$hashB64
 function hashPassword(password) {
   const N = 16384, r = 8, p = 1, keylen = 64;
@@ -23,21 +27,21 @@ function hashPassword(password) {
 const founder = {
   role: "teacher", name: "د. محمود الزين عبدالله",
   email: "admin@lectures.local", position: "المالك - مالك الأكاديمية",
-  is_staff: true, must_change_password: false, password: "HLDCCYJJDZT3", platform_id: "AD0001",
+  is_staff: true, must_change_password: false, password: OWNER_SEED_PASSWORD, platform_id: "AD0001",
 };
 
 const trackOf = (uid, gender) => (gender === "F" ? "bachelor_f" : uid === "2024003" ? "equiv" : "bachelor_m");
 const prefixOf = (uid, gender) => (gender === "F" ? "BF" : uid === "2024003" ? "EQ" : "BM");
 
 const students = [
-  ["2024001", "أحمد سالم باوزير",     "M", "Student1234"],
-  ["2024002", "فاطمة علي الحسني",    "F", "MGKGQ3QGUW"],
-  ["2024003", "محمد عبدالعزيز الشمري", "M", "5U2DY5C58D"],
-  ["2024004", "نورة سعد القحطاني",   "F", "38CPVR8W8V"],
-  ["2024005", "عمر خالد العمري",     "M", "PNYGYF7TCT"],
-  ["2024006", "سارة يوسف الزهراني",  "F", "KFG27SYV7Y"],
-  ["2024007", "خالد إبراهيم الغامدي", "M", "JGKEPLMUSB"],
-  ["2024008", "ريم محمد الدوسري",    "F", "FQM7MBE4W8"],
+  ["2024001", "أحمد سالم باوزير",     "M", STUDENT_SEED_PASSWORD],
+  ["2024002", "فاطمة علي الحسني",    "F", STUDENT_SEED_PASSWORD],
+  ["2024003", "محمد عبدالعزيز الشمري", "M", STUDENT_SEED_PASSWORD],
+  ["2024004", "نورة سعد القحطاني",   "F", STUDENT_SEED_PASSWORD],
+  ["2024005", "عمر خالد العمري",     "M", STUDENT_SEED_PASSWORD],
+  ["2024006", "سارة يوسف الزهراني",  "F", STUDENT_SEED_PASSWORD],
+  ["2024007", "خالد إبراهيم الغامدي", "M", STUDENT_SEED_PASSWORD],
+  ["2024008", "ريم محمد الدوسري",    "F", STUDENT_SEED_PASSWORD],
 ];
 
 async function rest(path, opts = {}) {
@@ -92,5 +96,5 @@ console.log(JSON.stringify(
   null, 2
 ));
 console.log("\nالدخول بالرموز الموحدة فقط (لا بريد):");
-console.log("  المالك: AD0001 / HLDCCYJJDZT3");
+console.log("  المالك: AD0001 / " + OWNER_SEED_PASSWORD);
 console.log("  الطالبات/الطلاب: BM0001..BM0003 · BF0001..BF0002 · EQ0001");

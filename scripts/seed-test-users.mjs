@@ -4,12 +4,17 @@ import { founderId } from "../src/lib/portals.js";
 import { nextPlatformId, prefixFor } from "../src/lib/platformCode.js";
 
 // إعداد الحسابات التجريبية من الصفر — يولّد الرمز الموحد تلقائياً.
+// لا تُخزَّن كلمات مرور حقيقية في المستودع؛ استخدم متغيرات SEED_* عند الحاجة.
+const OWNER_SEED_PASSWORD = process.env.SEED_OWNER_PASSWORD ?? "CHANGE_ME_OWNER";
+const TEACHER_SEED_PASSWORD = process.env.SEED_TEACHER_PASSWORD ?? "CHANGE_ME_TEACHER";
+const STUDENT_SEED_PASSWORD = process.env.SEED_STUDENT_PASSWORD ?? "CHANGE_ME_STUDENT";
+
 const TEST_USERS = [
   {
     role: "teacher",
     name: "د. محمود الزين عبدالله",
     email: "admin@lectures.local",
-    password: "HLDCCYJJDZT3",
+    password: OWNER_SEED_PASSWORD,
     position: "مالك الأكاديمية",
     is_staff: true,
   },
@@ -17,7 +22,7 @@ const TEST_USERS = [
     role: "teacher",
     name: "أ. سامي الحربي",
     email: "teacher@test.local",
-    password: "Teacher1234",
+    password: TEACHER_SEED_PASSWORD,
     position: "أستاذ القانون",
     is_staff: true,
   },
@@ -26,7 +31,7 @@ const TEST_USERS = [
     name: "أحمد سالم باوزير",
     email: "student@test.local",
     university_id: "2024001",
-    password: "Student1234",
+    password: STUDENT_SEED_PASSWORD,
     track: "bachelor_m",
     level: 1,
     gender: "M",
@@ -86,6 +91,6 @@ for (const spec of TEST_USERS) {
 const founder = await founderId({ force: true });
 console.log(`\nالمالك (founder) في القاعدة id=${founder}`);
 console.log("حسابات الدخول:");
-console.log("  المالك:  AD0001 / HLDCCYJJDZT3");
-console.log("  الأستاذ: TE0001 / Teacher1234");
-console.log("  الطالب:  BM0001 / Student1234");
+console.log("  المالك:  AD0001 / " + OWNER_SEED_PASSWORD);
+console.log("  الأستاذ: TE0001 / " + TEACHER_SEED_PASSWORD);
+console.log("  الطالب:  BM0001 / " + STUDENT_SEED_PASSWORD);
