@@ -35,6 +35,12 @@ select jsonb_pretty(jsonb_build_object(
       )
   ),
   'users_total', (select count(*) from public.users),
-  'users_linked', (select count(*) from public.users where auth_id is not null),
-  'users_unlinked', (select count(*) from public.users where auth_id is null)
+  'users_linked', (
+    select count(*) from public.users u
+    where (to_jsonb(u) ->> 'auth_id') is not null
+  ),
+  'users_unlinked', (
+    select count(*) from public.users u
+    where (to_jsonb(u) ->> 'auth_id') is null
+  )
 ));

@@ -14,10 +14,14 @@ const env = Object.fromEntries(
 );
 
 const ref = env.SUPABASE_PROJECT_REF;
-const token = env.SUPABASE_ACCESS_TOKEN;
+const token = env.SUPABASE_ACCESS_TOKEN || process.env.SUPABASE_ACCESS_TOKEN;
 const file = process.argv[2];
 
-if (!ref || !token) throw new Error("SUPABASE_PROJECT_REF / SUPABASE_ACCESS_TOKEN مفقودان في .env");
+if (!ref || !token) {
+  throw new Error(
+    "SUPABASE_PROJECT_REF / SUPABASE_ACCESS_TOKEN مفقودان. ضعهما في .env أو صدّر SUPABASE_ACCESS_TOKEN."
+  );
+}
 if (!file) throw new Error("مرّر مسار ملف SQL: node scripts/run-sql.mjs <file.sql>");
 
 const sql = fs.readFileSync(file, "utf8");
@@ -34,4 +38,4 @@ const res = await fetch(`https://api.supabase.com/v1/projects/${ref}/database/qu
 const text = await res.text();
 console.log("HTTP", res.status);
 console.log(text.slice(0, 6000));
-process.exit(res.ok ? 0 : 1);
+process.exitCode = res.ok ? 0 : 1;
