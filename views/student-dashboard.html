@@ -832,4 +832,26 @@
         'لوحة الطالب جاهزة'
       );
     })();
-  </script>
+  
+    // ---- Live data (BaaS proof) ----
+    (async () => {
+      try {
+        if (!window.supabase) {
+          await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+            s.onload = resolve; s.onerror = reject;
+            document.head.appendChild(s);
+          });
+        }
+        const sb = window.supabase.createClient('https://nsgahdnxpgctkljeusnp.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zZ2FoZG54cGdjdGtsamV1c25wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5OTg2NjMsImV4cCI6MjExMDU3NDY2M30.9De9nZY5EFLYFOEkzxIqfuP5MFsQJPI56G58slC8TyM');
+        const { data: { session } } = await sb.auth.getSession();
+        if (!session) return;
+        const { data, error } = await sb.rpc('student_dashboard');
+        const box = document.createElement('div');
+        box.style.cssText = 'position:fixed;bottom:12px;left:12px;background:#0B2545;color:#fff;padding:10px 14px;border-radius:8px;font-size:12px;z-index:9999;max-width:300px;box-shadow:0 4px 12px rgba(0,0,0,.3);direction:rtl;';
+        box.textContent = error ? ('RPC error: ' + error.message) : ('Live: courses=' + data.data.courses_count + ' · points=' + data.data.points_total + ' · exams=' + data.data.upcoming_exams + ' · pending=' + data.data.pending_assignments);
+        document.body.appendChild(box);
+      } catch (e) { console.error('live-data', e); }
+    })();
+</script>
