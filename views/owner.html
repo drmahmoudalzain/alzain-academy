@@ -286,9 +286,14 @@
 
   </div>
 
-  <script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
     (function () {
       'use strict';
+
+      const SUPABASE_URL = 'https://nsgahdnxpgctkljeusnp.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zZ2FoZG54cGdjdGtsamV1c25wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5OTg2NjMsImV4cCI6MjExMDU3NDY2M30.9De9nZY5EFLYFOEkzxIqfuP5MFsQJPI56G58slC8TyM';
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
       const form       = document.getElementById('loginForm');
       const emailInput = document.getElementById('email');
@@ -313,16 +318,8 @@
         });
       }
 
-      // ============ تعبئة البيانات التجريبية ============
-      if (fillDemo) {
-        fillDemo.addEventListener('click', () => {
-          emailInput.value = fillDemo.dataset.email;
-          pwdInput.value = fillDemo.dataset.password;
-          emailInput.dispatchEvent(new Event('input', { bubbles: true }));
-          pwdInput.dispatchEvent(new Event('input', { bubbles: true }));
-          emailInput.focus();
-        });
-      }
+      // ============ إزالة بيانات تجريبية ============
+      if (fillDemo) fillDemo.remove();
 
       // ============ اكتشاف حالات الخطأ من URL ============
       const params = new URLSearchParams(window.location.search);
@@ -385,15 +382,28 @@
         submitBtn.classList.add('loading');
         submitBtn.disabled = true;
 
-        // محاكاة إرسال (واجهة فقط — لا يوجد backend فعلي)
-        setTimeout(() => {
-          submitBtn.classList.remove('loading');
-          submitBtn.disabled = false;
-          showError(
-            'هذه واجهة تجريبية',
-            'لم يتم ربط النموذج بالخادم بعد — سيتم تفعيل المصادقة عند اكتمال البناء.'
-          );
-        }, 1600);
+        // Supabase Auth (BaaS)
+        (async () => {
+          try {
+            const { data, error } = await supabase.auth.signInWithPassword({
+              email: emailInput.value.trim(),
+              password: pwdInput.value,
+            });
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+            if (error) {
+              showError('فشل الدخول', error.message || 'بيانات الدخول غير صحيحة.');
+              return;
+            }
+            // نجاح: الانتقال للصفحة الرئيسية (البيانات الحقيقية تتطلب RPC لاحقاً)
+            window.location.hash = '#/';
+            location.reload();
+          } catch (err) {
+            submitBtn.classList.remove('loading');
+            submitBtn.disabled = false;
+            showError('خطأ', (err && err.message) ? err.message : 'حدث خطأ غير متوقع.');
+          }
+        })();
       });
 
       // ============ مسح التنبيهات عند الكتابة ============
