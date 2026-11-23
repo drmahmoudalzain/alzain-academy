@@ -187,7 +187,7 @@
               class="demo-btn"
               id="fillDemo"
               data-id="2024001"
-              data-password="Student1234"
+              data-password="PjX5oKcBEgmT"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M12 5v14M5 12h14" />
@@ -370,8 +370,16 @@
         });
       }
 
-      // ============ إزالة بيانات تجريبية ============
-      if (fillDemo) fillDemo.remove();
+      // ============ تعبئة تلقائية ============
+      if (fillDemo) {
+        fillDemo.addEventListener('click', () => {
+          emailInput.value = fillDemo.dataset.email;
+          pwdInput.value = fillDemo.dataset.password;
+          emailInput.dispatchEvent(new Event('input', { bubbles: true }));
+          pwdInput.dispatchEvent(new Event('input', { bubbles: true }));
+          emailInput.focus();
+        });
+      }
 
       // اكتشاف حالات URL
       const params = new URLSearchParams(window.location.search);
