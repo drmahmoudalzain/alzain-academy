@@ -88,7 +88,7 @@
                 type="text"
                 id="identifier"
                 name="identifier"
-                placeholder="2024001"
+                placeholder="bm0062@students.local"
                 autocomplete="username"
                 spellcheck="false"
                 inputmode="text"
@@ -180,13 +180,13 @@
           </summary>
           <div class="demo-content">
             <p>
-              للتجربة فقط — استخدم الرقم الجامعي <code>2024001</code> وكلمة المرور <code>Student1234</code>
+              للتجربة فقط — استخدم الرقم الجامعي <code>bm0062@students.local</code> وكلمة المرور <code>PjX5oKcBEgmT</code>
             </p>
             <button
               type="button"
               class="demo-btn"
               id="fillDemo"
-              data-id="2024001"
+              data-id="bm0062@students.local"
               data-password="PjX5oKcBEgmT"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -337,188 +337,3 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script>
-    (function () {
-      'use strict';
-
-      const SUPABASE_URL = 'https://nsgahdnxpgctkljeusnp.supabase.co';
-      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zZ2FoZG54cGdjdGtsamV1c25wIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTQ5OTg2NjMsImV4cCI6MjExMDU3NDY2M30.9De9nZY5EFLYFOEkzxIqfuP5MFsQJPI56G58slC8TyM';
-      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-      const form            = document.getElementById('loginForm');
-      const identifierInput = document.getElementById('identifier');
-      const pwdInput        = document.getElementById('password');
-      const submitBtn       = document.getElementById('submitBtn');
-      const togglePwd       = document.getElementById('togglePwd');
-      const errorAlert      = document.getElementById('errorAlert');
-      const roleAlert       = document.getElementById('roleAlert');
-      const mustChangeAlert = document.getElementById('mustChangeAlert');
-      const errorTitle      = document.getElementById('errorTitle');
-      const errorMsg        = document.getElementById('errorMsg');
-      const fillDemo        = document.getElementById('fillDemo');
-      const registerLink    = document.getElementById('registerLink');
-
-      // إظهار/إخفاء كلمة المرور
-      if (togglePwd) {
-        togglePwd.addEventListener('click', () => {
-          const isPwd = pwdInput.type === 'password';
-          pwdInput.type = isPwd ? 'text' : 'password';
-          togglePwd.classList.toggle('revealed', isPwd);
-          togglePwd.setAttribute('aria-pressed', String(isPwd));
-          togglePwd.setAttribute('aria-label', isPwd ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور');
-          pwdInput.focus();
-        });
-      }
-
-      // ============ تعبئة تلقائية ============
-      if (fillDemo) {
-        fillDemo.addEventListener('click', () => {
-          emailInput.value = fillDemo.dataset.email;
-          pwdInput.value = fillDemo.dataset.password;
-          emailInput.dispatchEvent(new Event('input', { bubbles: true }));
-          pwdInput.dispatchEvent(new Event('input', { bubbles: true }));
-          emailInput.focus();
-        });
-      }
-
-      // اكتشاف حالات URL
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('error') === 'role' || params.get('denied') === '1') {
-        roleAlert.hidden = false;
-      }
-      if (params.get('error') === 'invalid') {
-        errorTitle.textContent = 'بيانات الدخول غير صحيحة';
-        errorMsg.textContent = 'تحقق من الرقم الجامعي وكلمة المرور ثم أعد المحاولة.';
-        errorAlert.hidden = false;
-      }
-      if (params.get('error') === 'inactive') {
-        errorTitle.textContent = 'الحساب غير مُفعَّل';
-        errorMsg.textContent = 'حسابك الحالي غير مفعّل — يرجى التواصل مع إدارة المنصة.';
-        errorAlert.hidden = false;
-      }
-      if (params.get('must_change') === '1') {
-        mustChangeAlert.hidden = false;
-      }
-
-      // إظهار خطأ
-      function showError(title, msg) {
-        errorTitle.textContent = title;
-        errorMsg.textContent = msg;
-        errorAlert.hidden = false;
-        errorAlert.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-
-      // التحقق
-      function validate() {
-        const id = identifierInput.value.trim();
-        const pwd = pwdInput.value;
-
-        if (!id) {
-          showError('حقل مطلوب', 'يرجى إدخال الرقم الجامعي أو البريد الإلكتروني.');
-          identifierInput.focus();
-          return false;
-        }
-
-        // إذا أدخل بريداً إلكترونياً، تحقق من صيغته
-        if (id.includes('@')) {
-          const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-          if (!emailRegex.test(id)) {
-            showError('بريد غير صالح', 'يرجى إدخال بريد إلكتروني بصيغة صحيحة أو رقم جامعي.');
-            identifierInput.focus();
-            return false;
-          }
-        } else {
-          // الرقم الجامعي: أرقام فقط (يمكن أن يكون 7 أو 8 أو 9 أرقام)
-          const idRegex = /^\d{5,12}$/;
-          if (!idRegex.test(id)) {
-            showError('رقم جامعي غير صالح', 'الرقم الجامعي يجب أن يتكون من أرقام فقط (5 إلى 12 رقماً).');
-            identifierInput.focus();
-            return false;
-          }
-        }
-
-        if (!pwd) {
-          showError('حقل مطلوب', 'يرجى إدخال كلمة المرور.');
-          pwdInput.focus();
-          return false;
-        }
-        if (pwd.length < 6) {
-          showError('كلمة المرور قصيرة', 'يجب أن تكون كلمة المرور 6 أحرف على الأقل.');
-          pwdInput.focus();
-          return false;
-        }
-        return true;
-      }
-
-      // إرسال
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        errorAlert.hidden = true;
-        roleAlert.hidden = true;
-        mustChangeAlert.hidden = true;
-
-        if (!validate()) return;
-
-        submitBtn.classList.add('loading');
-        submitBtn.disabled = true;
-
-                // Supabase Auth (BaaS)
-        (async () => {
-          try {
-            const { data, error } = await supabase.auth.signInWithPassword({
-              email: emailInput.value.trim(),
-              password: pwdInput.value,
-            });
-            submitBtn.classList.remove('loading');
-            submitBtn.disabled = false;
-            if (error) {
-              showError('فشل الدخول', error.message || 'بيانات الدخول غير صحيحة.');
-              return;
-            }
-            // نجاح: الانتقال للصفحة الرئيسية (البيانات الحقيقية تتطلب RPC لاحقاً)
-            window.location.hash = '#/';
-            location.reload();
-          } catch (err) {
-            submitBtn.classList.remove('loading');
-            submitBtn.disabled = false;
-            showError('خطأ', (err && err.message) ? err.message : 'حدث خطأ غير متوقع.');
-          }
-        })();
-      });
-
-      // مسح عند الكتابة
-      [identifierInput, pwdInput].forEach((input) => {
-        input.addEventListener('input', () => {
-          errorAlert.hidden = true;
-          roleAlert.hidden = true;
-          mustChangeAlert.hidden = true;
-        });
-      });
-
-      // ESC
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          errorAlert.hidden = true;
-          roleAlert.hidden = true;
-          mustChangeAlert.hidden = true;
-        }
-      });
-
-      // زر التسجيل (إن كان معطّلاً)
-      if (registerLink) {
-        registerLink.addEventListener('click', (e) => {
-          e.preventDefault();
-          showError(
-            'التسجيل مغلق',
-            'التسجيل حالياً مغلق — يرجى التواصل مع إدارة المنصة لطلب حساب طالب جديد.'
-          );
-        });
-      }
-
-      console.log(
-        '%c[AlZain Academy]',
-        'color:#166E3F;font-weight:bold;font-size:13px;',
-        'بوابة الطلاب جاهزة — وضع تجريبي'
-      );
-    })();
-  </script>

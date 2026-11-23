@@ -13,6 +13,8 @@
   <link rel="stylesheet" href="css/app.css">
   <style>
     #spa-root { min-height: 100vh; }
+    /* منع تنبيهات مخفية من الظهور بسبب CSS العرض */
+    [hidden] { display: none !important; }
     .spa-loading {
       min-height: 60vh;
       display: grid;
@@ -47,6 +49,7 @@
     <div class="spa-loading"><span class="dot"></span> جاري التحميل…</div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script src="js/app.js" defer></script>
 </body>
 </html>
