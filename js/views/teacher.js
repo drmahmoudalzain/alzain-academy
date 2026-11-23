@@ -133,7 +133,7 @@
             showRoleError('هذه البوابة للأساتذة فقط — حسابك ليس أستاذاً.');
             return;
           }
-          window.location.hash = '#/';
+          window.location.hash = '#/soon';
         } catch (err) {
           setLoading(false);
           showError('خطأ', authErrorText(err));

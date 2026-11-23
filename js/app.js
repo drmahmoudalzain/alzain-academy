@@ -5,7 +5,7 @@
   "use strict";
 
   const VIEW_CSS_ID = "spa-view-css";
-  const CACHE_VERSION = "8ebf130"; // يتغيّر مع كل نشر لضمان جلب الملفات الجديدة
+  const CACHE_VERSION = "c3a74e1"; // يتغيّر مع كل نشر لضمان جلب الملفات الجديدة
   const ROOT = document.getElementById("spa-root");
 
   // خريطة المسارات → ملفات العرض
@@ -19,6 +19,7 @@
     { match: /^#\/student\/exam/, view: "student-exam" },
     { match: /^#\/student\/dashboard$/, view: "student-dashboard" },
     { match: /^#\/student$/, view: "student-dashboard" },
+    { match: /^#\/(soon|coming-soon)$/, view: "coming-soon" },
   ];
 
   // خريطة عناصر الشريط الجانبي → مسارات
@@ -62,7 +63,7 @@
       link.rel = "stylesheet";
       document.head.appendChild(link);
     }
-    link.href = "css/views/" + view + ".css";
+    link.href = "css/views/" + view + ".css?v=" + CACHE_VERSION;
   }
 
   function runScript(text) {
@@ -115,6 +116,7 @@
       "student-lectures": "المحاضرات | لوحة الطالب",
       "student-lecture": "المحاضرة | لوحة الطالب",
       "student-exam": "أداء الاختبار | أكاديمية آل الزين",
+      "coming-soon": "قيد الإنشاء | أكاديمية آل الزين",
     };
     return map[view] || "أكاديمية آل الزين للعلوم القانونية والعدلية";
   }

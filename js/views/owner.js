@@ -125,7 +125,7 @@
             showRoleError('هذه البوابة للمالك فقط — حسابك ليس مالكاً.');
             return;
           }
-          window.location.hash = '#/';
+          window.location.hash = '#/soon';
         } catch (err) {
           setLoading(false);
           showError('خطأ', authErrorText(err));

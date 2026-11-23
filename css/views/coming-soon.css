@@ -1,0 +1,280 @@
+/* ==========================================================================
+   صفحة «قيد الإنشاء» — بنفس هوية التصميم المعتمدة
+   ========================================================================== */
+
+.soon-main {
+  position: relative;
+  z-index: 1;
+  min-height: calc(100vh - var(--topbar-h));
+  display: grid;
+  place-items: center;
+  padding: 56px 20px 80px;
+}
+
+.soon-card {
+  width: min(780px, 100%);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  box-shadow: 0 24px 70px rgba(8, 29, 56, 0.22);
+  padding: 46px 44px 38px;
+  text-align: center;
+}
+
+.soon-icon {
+  width: 84px;
+  height: 84px;
+  margin: 0 auto 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 24px;
+  color: var(--gold);
+  background: var(--gold-soft);
+  border: 1px solid rgba(212, 160, 23, 0.3);
+}
+
+.soon-icon svg { width: 42px; height: 42px; }
+
+.soon-eyebrow {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--green);
+  background: var(--green-soft);
+  border: 1px solid rgba(22, 110, 63, 0.2);
+  padding: 7px 16px;
+  border-radius: 999px;
+  margin-bottom: 16px;
+}
+
+.soon-title {
+  font-family: var(--font-head);
+  font-size: clamp(32px, 5vw, 48px);
+  line-height: 1.3;
+  color: var(--navy);
+  margin: 0 0 14px;
+}
+
+.soon-title .accent { color: var(--gold); }
+
+.soon-lead {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.95;
+  color: var(--muted);
+  max-width: 600px;
+  margin: 0 auto 28px;
+}
+
+.soon-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  text-align: right;
+}
+
+.soon-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--ink);
+  text-decoration: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.soon-link:hover {
+  border-color: var(--gold);
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+
+.soon-link:focus-visible,
+.signout-btn:focus-visible,
+.nav-cta:focus-visible {
+  outline: 3px solid rgba(212, 160, 23, 0.45);
+  outline-offset: 2px;
+}
+
+.soon-link-accent { background: linear-gradient(135deg, #fff 0%, #fffaf0 100%); }
+
+.soon-link-icon {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--gold-soft);
+  color: var(--gold-deep);
+}
+
+.soon-link-icon svg { width: 22px; height: 22px; }
+
+.soon-link-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+
+.soon-link-text strong {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.soon-link-text small {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.soon-arrow {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  margin-inline-start: auto;
+  color: var(--gold-deep);
+}
+
+.soon-note {
+  margin: 26px 0 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.9;
+}
+
+/* الشريط العلوي */
+.site-header {
+  position: relative;
+  z-index: 2;
+  background: rgba(8, 29, 56, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+}
+
+.nav-inner {
+  min-height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  text-decoration: none;
+}
+
+.brand svg { width: 40px; height: 40px; color: var(--gold); flex: 0 0 auto; }
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-head);
+  font-size: 18px;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.brand-text small {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 400;
+  color: #a9bed6;
+}
+
+.nav-actions { display: flex; align-items: center; gap: 10px; }
+
+.session-pill {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  color: #d7e6f5;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 7px 14px;
+  border-radius: 999px;
+}
+
+.signout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffd9da;
+  background: rgba(180, 35, 42, 0.16);
+  border: 1px solid rgba(255, 130, 135, 0.35);
+  border-radius: 10px;
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.signout-btn:hover { background: rgba(180, 35, 42, 0.3); }
+.signout-btn:disabled { opacity: 0.6; cursor: default; }
+.signout-btn svg { width: 17px; height: 17px; }
+
+.nav-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--navy);
+  background: var(--gold);
+  border-radius: 10px;
+  padding: 9px 16px;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.nav-cta:hover { background: #e2b12e; }
+.nav-cta svg { width: 16px; height: 16px; }
+
+/* الخلفية */
+.bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 0%, #123a63 0%, #0b2545 45%, #081d38 100%);
+}
+
+.orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.32; }
+.orb-1 { width: 380px; height: 380px; background: #d4a017; top: -160px; right: -100px; }
+.orb-2 { width: 420px; height: 420px; background: #166e3f; bottom: -200px; left: -120px; }
+.orb-3 { width: 260px; height: 260px; background: #1e5c96; top: 45%; left: 30%; opacity: 0.18; }
+
+.pattern {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.35;
+}
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 40%, rgba(8, 29, 56, 0.7) 100%);
+}
+
+@media (max-width: 720px) {
+  .soon-card { padding: 34px 20px 28px; }
+  .soon-links { grid-template-columns: 1fr; }
+  .brand-text { font-size: 16px; }
+  .session-pill { display: none; }
+  .soon-lead { font-size: 15px; }
+}
