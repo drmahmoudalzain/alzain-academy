@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 
-$root = 'D:\Projects\alzain-academy'
+$root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $tmp = Join-Path $env:TEMP 'opencode'
 New-Item -ItemType Directory -Force -Path $tmp | Out-Null
 

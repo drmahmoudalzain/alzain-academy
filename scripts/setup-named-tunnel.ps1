@@ -7,7 +7,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-$root = 'D:\Projects\alzain-academy'
+$root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $tmp = Join-Path $env:TEMP 'opencode'
 $cloudflared = 'C:\Program Files (x86)\cloudflared\cloudflared.exe'
 $cloudflaredDir = Join-Path $env:USERPROFILE '.cloudflared'
@@ -66,7 +66,7 @@ $oldTunnel = Get-CimInstance Win32_Process -Filter "Name='cloudflared.exe'"
 $oldTunnel | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
 Start-Sleep -Seconds 2
 
-Start-Process -FilePath cmd.exe -ArgumentList '/c D:\Projects\alzain-academy\scripts\start-tunnel.bat' `
+Start-Process -FilePath cmd.exe -ArgumentList "/c $root\scripts\start-tunnel.bat" `
   -WindowStyle Hidden `
   -RedirectStandardOutput (Join-Path $tmp 'cf-loop.out.log') `
   -RedirectStandardError (Join-Path $tmp 'cf-loop.err.log')

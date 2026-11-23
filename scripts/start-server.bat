@@ -1,5 +1,5 @@
 @echo off
-cd /d "D:\Projects\alzain-academy"
+cd /d "%~dp0.."
 if not exist "%TEMP%\opencode" mkdir "%TEMP%\opencode"
 :loop
 netstat -ano | findstr /C:":3001 " | findstr /C:"LISTENING" >nul
