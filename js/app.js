@@ -5,6 +5,7 @@
   "use strict";
 
   const VIEW_CSS_ID = "spa-view-css";
+  const CACHE_VERSION = "2b3a66a"; // يتغيّر مع كل نشر لضمان جلب الملفات الجديدة
   const ROOT = document.getElementById("spa-root");
 
   // خريطة المسارات → ملفات العرض
@@ -78,13 +79,13 @@
     loadCss(view);
 
     try {
-      const res = await fetch("views/" + view + ".html", { cache: "no-cache" });
+      const res = await fetch("views/" + view + ".html?v=" + CACHE_VERSION, { cache: "no-cache" });
       if (!res.ok) throw new Error("HTTP " + res.status);
       const html = await res.text();
       ROOT.innerHTML = html;
 
       // تحميل JS الخاص بالعرض
-      const jsRes = await fetch("js/views/" + view + ".js", { cache: "no-cache" });
+      const jsRes = await fetch("js/views/" + view + ".js?v=" + CACHE_VERSION, { cache: "no-cache" });
       if (jsRes.ok) {
         const js = await jsRes.text();
         runScript(js);
