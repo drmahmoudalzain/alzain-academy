@@ -131,4 +131,5 @@
           showError('خطأ', authErrorText(err));
         }
       });
+      document.documentElement.dataset.loginReady = 'owner';
     })();

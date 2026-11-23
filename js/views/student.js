@@ -152,4 +152,5 @@
           showError('التسجيل مغلق', 'يرجى التواصل مع إدارة المنصة لطلب حساب طالب جديد.');
         });
       }
+      document.documentElement.dataset.loginReady = 'student';
     })();
