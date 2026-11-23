@@ -5,7 +5,7 @@
   "use strict";
 
   const VIEW_CSS_ID = "spa-view-css";
-  const CACHE_VERSION = "2b3a66a"; // يتغيّر مع كل نشر لضمان جلب الملفات الجديدة
+  const CACHE_VERSION = "8ebf130"; // يتغيّر مع كل نشر لضمان جلب الملفات الجديدة
   const ROOT = document.getElementById("spa-root");
 
   // خريطة المسارات → ملفات العرض
