@@ -467,8 +467,8 @@ begin
     return jsonb_build_object('ok', false, 'error', 'attempt_closed');
   end if;
 
-  insert into exam_answers (attempt_id, question_id, choice_index, choice_indices, text, created_at)
-  values (p_attempt_id, p_question_id, p_choice_index, p_choice_indices, p_text, now())
+  insert into exam_answers (attempt_id, question_id, choice_index, choice_indices, text)
+  values (p_attempt_id, p_question_id, p_choice_index, p_choice_indices, p_text)
   on conflict (attempt_id, question_id) do update
     set choice_index = excluded.choice_index,
         choice_indices = excluded.choice_indices,
@@ -517,8 +517,8 @@ begin
   where aa.attempt_id = p_attempt_id and aa.question_id = q.id;
 
   -- أسئلة لم تُجب تُحتسب صفراً.
-  insert into exam_answers (attempt_id, question_id, points, created_at)
-  select p_attempt_id, q.id, 0, now()
+  insert into exam_answers (attempt_id, question_id, points)
+  select p_attempt_id, q.id, 0
   from exam_questions q
   where q.exam_id = v_exam_id
     and not exists (select 1 from exam_answers aa where aa.attempt_id = p_attempt_id and aa.question_id = q.id)

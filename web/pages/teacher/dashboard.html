@@ -4,23 +4,68 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0B2545" />
-  <meta name="description" content="لوحة التحكم — أكاديمية آل الزين للعلوم القانونية والعدلية" />
-  <title>لوحة الأستاذ — أكاديمية آل الزين</title>
+  <meta name="description" content="لوحة التحكم — بوابة الأستاذ، أكاديمية آل الزين للعلوم القانونية والعدلية" />
+  <title>لوحة التحكم — أكاديمية آل الزين</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="/css/views/student-dashboard.css" />
+  <link rel="stylesheet" href="/css/views/teacher-common.css" />
+  <link rel="stylesheet" href="/css/views/teacher-dashboard.css" />
   <link rel="stylesheet" href="/css/portal-theme.css" />
 </head>
 <body class="portal">
   <div id="app">
     <main class="content" id="content">
-      <div class="empty-state" role="status">جارٍ تحميل لوحة التحكم…</div>
+      <div class="td-page">
+        <section class="td-hero">
+          <div class="td-hero-body">
+            <span class="td-tag"><span class="td-tag-dot" aria-hidden="true"></span>بوابة الأستاذ</span>
+            <h1>لوحة التحكم</h1>
+            <p id="tdIntro">جارٍ تحميل ملخص يومك…</p>
+          </div>
+          <div class="td-hero-art" aria-hidden="true">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 8h40v48H12z" /><path d="M20 8v48M12 20h40" /><path d="M26 30h18M26 38h18M26 46h10" />
+            </svg>
+          </div>
+        </section>
+
+        <section class="td-stats" id="tdStats" aria-live="polite" aria-label="إحصاءات لوحة الأستاذ">
+          <div class="tt-skeleton tt-skeleton-stat"></div>
+          <div class="tt-skeleton tt-skeleton-stat"></div>
+          <div class="tt-skeleton tt-skeleton-stat"></div>
+          <div class="tt-skeleton tt-skeleton-stat"></div>
+        </section>
+
+        <div class="td-columns">
+          <section class="td-panel" id="tdCoursesPanel">
+            <div class="td-panel-head">
+              <h2><span>مقرراتي</span></h2>
+              <a class="td-link" id="tdAllCourses" href="#">كل المقررات</a>
+            </div>
+            <div id="tdCourses" aria-live="polite"><div class="tt-skeleton tt-skeleton-card"></div></div>
+          </section>
+
+          <section class="td-panel" id="tdGradingPanel">
+            <div class="td-panel-head">
+              <h2><span>بانتظار التصحيح</span></h2>
+              <span class="td-count" id="tdPendingCount">—</span>
+            </div>
+            <div id="tdSubmissions" aria-live="polite"><div class="tt-skeleton tt-skeleton-row"></div></div>
+          </section>
+        </div>
+
+        <section class="td-panel" id="tdSchedulePanel">
+          <div class="td-panel-head"><h2><span>جدول الأيام القادمة</span></h2><span class="td-hint">خلال 7 أيام</span></div>
+          <div id="tdSchedule" aria-live="polite"><div class="tt-skeleton tt-skeleton-row"></div></div>
+        </section>
+      </div>
     </main>
   </div>
 
-  <script type="module" src="/src/pages/portal-coming.js"></script>
+  <script type="module" src="/src/pages/teacher/dashboard.js"></script>
 </body>
 </html>

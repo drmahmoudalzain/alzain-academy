@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0B2545" />
-  <meta name="description" content="مقرراتي — أكاديمية آل الزين للعلوم القانونية والعدلية" />
+  <meta name="description" content="مقرراتي — بوابة الأستاذ، أكاديمية آل الزين للعلوم القانونية والعدلية" />
   <title>مقرراتي — أكاديمية آل الزين</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -12,15 +12,66 @@
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="/css/views/student-dashboard.css" />
+  <link rel="stylesheet" href="/css/views/teacher-common.css" />
+  <link rel="stylesheet" href="/css/views/teacher-courses.css" />
   <link rel="stylesheet" href="/css/portal-theme.css" />
 </head>
 <body class="portal">
   <div id="app">
     <main class="content" id="content">
-      <div class="empty-state" role="status">جارٍ تحميل الصفحة…</div>
+      <div class="tc-page">
+        <section class="tc-header">
+          <div>
+            <h1>مقرراتي</h1>
+            <p>إدارة مقرراتك، متابعة طلابك، وإنشاء محتوى تعليمي جديد.</p>
+          </div>
+          <button class="tt-btn tt-btn-primary" type="button" id="tcNewCourse">مقرر جديد</button>
+        </section>
+
+        <section class="tc-stats" id="tcStats" aria-live="polite" aria-label="إحصاءات المقررات">
+          <div class="tt-skeleton tt-skeleton-stat"></div>
+          <div class="tt-skeleton tt-skeleton-stat"></div>
+          <div class="tt-skeleton tt-skeleton-stat"></div>
+          <div class="tt-skeleton tt-skeleton-stat"></div>
+        </section>
+
+        <section class="tc-filters" aria-label="تصفية المقررات">
+          <div class="tc-tabs" id="tcTabs" role="tablist" aria-label="حالة المقرر">
+            <button class="tc-tab tc-active" type="button" data-filter="all" role="tab" aria-selected="true">الكل <span data-count="all">—</span></button>
+            <button class="tc-tab" type="button" data-filter="active" role="tab" aria-selected="false">نشطة <span data-count="active">—</span></button>
+            <button class="tc-tab" type="button" data-filter="archived" role="tab" aria-selected="false">مؤرشفة <span data-count="archived">—</span></button>
+          </div>
+          <div class="tc-controls">
+            <label class="tc-sr-only" for="tcLevel">تصفية حسب المستوى</label>
+            <select class="tc-input" id="tcLevel" disabled>
+              <option value="all">كل المستويات</option>
+              <option value="1">المستوى الأول</option>
+              <option value="2">المستوى الثاني</option>
+              <option value="3">المستوى الثالث</option>
+              <option value="4">المستوى الرابع</option>
+            </select>
+            <label class="tc-sr-only" for="tcSort">ترتيب المقررات</label>
+            <select class="tc-input" id="tcSort" disabled>
+              <option value="code">حسب الرمز</option>
+              <option value="students">حسب عدد الطلاب</option>
+              <option value="recent">الأحدث</option>
+            </select>
+            <label class="tc-sr-only" for="tcSearch">بحث في المقررات</label>
+            <div class="tc-search">
+              <span class="tc-search-icon" aria-hidden="true"></span>
+              <input class="tc-input" id="tcSearch" type="search" placeholder="ابحث عن مقرر..." autocomplete="off" disabled />
+            </div>
+          </div>
+        </section>
+
+        <section class="tc-grid" id="tcGrid" aria-live="polite" aria-label="قائمة المقررات">
+          <div class="tt-skeleton tt-skeleton-card"></div>
+          <div class="tt-skeleton tt-skeleton-card"></div>
+        </section>
+      </div>
     </main>
   </div>
 
-  <script type="module" src="/src/pages/portal-coming.js"></script>
+  <script type="module" src="/src/pages/teacher/courses.js"></script>
 </body>
 </html>
