@@ -1,0 +1,134 @@
+/* =========================================================
+   قائمة الطلاب — تبويبات الفلترة بعدّادات
+   تُحمَّل فقط في صفحة الطلاب داخل بوابتي المالك والأستاذ
+   ========================================================= */
+
+.student-filters {
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg-surface);
+}
+
+.student-filter-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.student-filter-subrow {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+
+.student-filter-label {
+  min-width: 72px;
+  margin-left: 4px;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.student-filter-levels {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+
+.student-filter-genders {
+  margin-top: 8px;
+  padding-top: 4px;
+  border-top: 0;
+}
+
+.student-filters .filter-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 13px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  font-weight: 700;
+  line-height: 1.6;
+  white-space: nowrap;
+  transition: background 0.18s var(--ease), border-color 0.18s var(--ease), color 0.18s var(--ease), transform 0.18s var(--ease);
+}
+
+.student-filters .filter-tab:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.student-filters .filter-tab.active {
+  border-color: var(--navy-mid);
+  background: var(--navy-mid);
+  color: #fff;
+  box-shadow: 0 6px 16px -10px rgba(11, 37, 69, 0.8);
+}
+
+.student-filters .tab-count {
+  min-width: 24px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(11, 37, 69, 0.08);
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-align: center;
+  direction: ltr;
+}
+
+.student-filters .filter-tab.active .tab-count {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.student-filters .filter-tab-sub {
+  padding: 6px 11px;
+  font-size: 0.8rem;
+}
+
+.student-filters .filter-tab-level {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+}
+
+.student-filters .filter-tab.is-empty {
+  opacity: 0.45;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.student-empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 42px 20px;
+}
+
+.student-empty h3 { color: var(--text-primary); }
+.student-empty p { max-width: 520px; }
+
+@media (max-width: 640px) {
+  .student-filters { padding: 12px; }
+  .student-filter-row { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
+  .student-filter-row::-webkit-scrollbar { height: 0; }
+  .student-filters .filter-tab { font-size: 0.78rem; padding: 7px 10px; }
+  .student-filter-label { flex: 0 0 auto; }
+}
+
+.export-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.export-actions .btn { padding: 8px 14px; }
+.data-table input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--green, #1B4A7A); cursor: pointer; }

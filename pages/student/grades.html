@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B2545" />
+  <meta name="description" content="درجاتي — السجل الأكاديمي للطالب في أكاديمية آل الزين للعلوم القانونية والعدلية" />
+  <title>درجاتي — أكاديمية آل الزين</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/alzain-academy/css/views/student-dashboard.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/views/student-grades.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-student-grades-CR8GJ1Oe.js"></script>
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-BGBkidcA.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-eUwZL1O8.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/api-Cx-w9ZQ2.js">
+</head>
+<body class="portal">
+  <div id="app">
+    <main class="content" id="content">
+      <div class="gr-page">
+        <header class="gr-header">
+          <div>
+            <h1>درجاتي</h1>
+            <p>اطّلع على معدلك التراكمي، ومتوسط درجاتك، وتفصيل أدائك في كل مقرر دراسي.</p>
+          </div>
+          <button class="gr-btn gr-btn-secondary" id="grReload" type="button" aria-label="تحديث الدرجات">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/></svg>
+            تحديث
+          </button>
+        </header>
+
+        <div id="grView" aria-live="polite">
+          <div class="gr-skeleton gr-skeleton-hero"></div>
+          <div class="gr-stats">
+            <div class="gr-skeleton gr-skeleton-stat"></div>
+            <div class="gr-skeleton gr-skeleton-stat"></div>
+            <div class="gr-skeleton gr-skeleton-stat"></div>
+          </div>
+          <div class="gr-skeleton gr-skeleton-card"></div>
+          <div class="gr-skeleton gr-skeleton-card"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+</body>
+</html>

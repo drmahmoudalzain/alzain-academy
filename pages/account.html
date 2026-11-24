@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B2545" />
+  <meta name="description" content="إدارة معلوماتك الشخصية وكلمة المرور والجلسات وتفضيلات الإشعارات — أكاديمية آل الزين" />
+  <title>حسابي | أكاديمية آل الزين</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/alzain-academy/css/views/student-dashboard.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/views/account.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-account-CsXolyzB.js"></script>
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-BGBkidcA.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-eUwZL1O8.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/api-Cx-w9ZQ2.js">
+</head>
+<body class="portal">
+  <div id="app">
+    <main class="content" id="content">
+      <div class="acct-page">
+
+        <section class="acct-head">
+          <div>
+            <h2>حسابي</h2>
+            <p>إدارة معلوماتك الشخصية، تحديث كلمة المرور، ومراجعة جلستك الحالية وتفضيلات الإشعارات.</p>
+          </div>
+        </section>
+
+        <div class="acct-notice" id="passwordNotice" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+          <span>يجب تحديث كلمة المرور قبل متابعة استخدام البوابة.</span>
+          <a href="#password">تحديث الآن</a>
+        </div>
+
+        <div class="acct-layout">
+
+          <aside class="acct-aside">
+            <div class="acct-profile">
+              <div class="acct-cover"></div>
+              <div class="acct-avatar" id="acctAvatar" aria-hidden="true">أ</div>
+              <div class="acct-profile-info">
+                <h3 id="acctName">—</h3>
+                <span class="acct-role" id="acctRole">—</span>
+                <div class="acct-email" id="acctEmail">—</div>
+                <div class="acct-code">الرمز: <strong id="acctCode">—</strong></div>
+              </div>
+              <div class="acct-stats">
+                <div class="acct-stat">
+                  <strong id="statCourses">0</strong>
+                  <span>مقررات</span>
+                </div>
+                <div class="acct-stat">
+                  <strong id="statUnread">0</strong>
+                  <span>إشعارات غير مقروءة</span>
+                </div>
+              </div>
+            </div>
+
+            <nav class="acct-nav" aria-label="أقسام الحساب">
+              <a href="#personal" class="active" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>المعلومات الشخصية</span></a>
+              <a href="#password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><span>كلمة المرور</span></a>
+              <a href="#sessions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg><span>الجلسة الحالية</span></a>
+              <a href="#preferences"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>تفضيلات الإشعارات</span></a>
+            </nav>
+          </aside>
+
+          <div class="acct-sections">
+
+            <!-- المعلومات الشخصية -->
+            <section class="acct-card personal" id="personal" aria-labelledby="personalTitle">
+              <div class="acct-card-head">
+                <span class="acct-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                <div><h3 id="personalTitle">المعلومات الشخصية</h3><p>الرمز والمستوى الدراسي للقراءة فقط.</p></div>
+              </div>
+              <div class="acct-card-body">
+                <form id="personalForm" class="acct-form">
+                  <div class="acct-field">
+                    <label for="acctFullName">الاسم الكامل <span aria-hidden="true">*</span></label>
+                    <input id="acctFullName" name="name" type="text" maxlength="120" required autocomplete="name" />
+                  </div>
+                  <div class="acct-field">
+                    <label for="acctCodeInput">الرمز الجامعي / الوظيفي</label>
+                    <input id="acctCodeInput" type="text" disabled />
+                    <small>لا يمكن تغيير الرمز — تواصل مع الإدارة.</small>
+                  </div>
+                  <div class="acct-field full">
+                    <label for="acctEmailInput">البريد الإلكتروني للتواصل</label>
+                    <input id="acctEmailInput" name="email" type="email" maxlength="200" dir="ltr" autocomplete="email" />
+                    <small>يُستخدم للتواصل الأكاديمي، وليس لتسجيل الدخول.</small>
+                  </div>
+                  <div class="acct-field">
+                    <label for="acctPhone">رقم الجوال</label>
+                    <input id="acctPhone" name="phone" type="tel" maxlength="40" dir="ltr" autocomplete="tel" />
+                  </div>
+                  <div class="acct-field">
+                    <label for="acctLevelInput">المستوى / الوظيفة</label>
+                    <input id="acctLevelInput" type="text" disabled />
+                  </div>
+                  <div class="acct-actions">
+                    <button type="button" class="btn btn-secondary" id="resetPersonalBtn">إلغاء التغييرات</button>
+                    <button type="submit" class="btn btn-primary" id="savePersonalBtn">حفظ التغييرات</button>
+                  </div>
+                </form>
+              </div>
+            </section>
+
+            <!-- كلمة المرور -->
+            <section class="acct-card password" id="password" aria-labelledby="passwordTitle">
+              <div class="acct-card-head">
+                <span class="acct-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+                <div><h3 id="passwordTitle">كلمة المرور</h3><p>اختر كلمة مرور قوية لحماية حسابك الأكاديمي.</p></div>
+              </div>
+              <div class="acct-card-body">
+                <form id="passwordForm" class="acct-form">
+                  <div class="acct-field full">
+                    <label for="currentPwd">كلمة المرور الحالية <span aria-hidden="true">*</span></label>
+                    <div class="pwd-wrap">
+                      <input id="currentPwd" type="password" autocomplete="current-password" required placeholder="أدخل كلمة المرور الحالية" />
+                      <button type="button" class="pwd-toggle" data-target="currentPwd" aria-label="إظهار كلمة المرور" aria-pressed="false"></button>
+                    </div>
+                  </div>
+                  <div class="acct-field full">
+                    <label for="newPwd">كلمة المرور الجديدة <span aria-hidden="true">*</span></label>
+                    <div class="pwd-wrap">
+                      <input id="newPwd" type="password" autocomplete="new-password" required placeholder="كلمة المرور الجديدة" />
+                      <button type="button" class="pwd-toggle" data-target="newPwd" aria-label="إظهار كلمة المرور" aria-pressed="false"></button>
+                    </div>
+                  </div>
+                  <div class="acct-field full">
+                    <label for="confirmPwd">تأكيد كلمة المرور <span aria-hidden="true">*</span></label>
+                    <div class="pwd-wrap">
+                      <input id="confirmPwd" type="password" autocomplete="new-password" required placeholder="أعد إدخال كلمة المرور" />
+                      <button type="button" class="pwd-toggle" data-target="confirmPwd" aria-label="إظهار كلمة المرور" aria-pressed="false"></button>
+                    </div>
+                  </div>
+                  <div class="acct-field full">
+                    <div class="strength" id="strengthWrap" hidden>
+                      <div class="strength-bar" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+                      <span id="strengthLabel">قوة كلمة المرور: —</span>
+                    </div>
+                    <ul class="pwd-rules" id="pwdRules">
+                      <li data-req="length">8 أحرف على الأقل</li>
+                      <li data-req="upper">حرف كبير (A-Z)</li>
+                      <li data-req="lower">حرف صغير (a-z)</li>
+                      <li data-req="number">رقم واحد على الأقل</li>
+                      <li data-req="special">رمز خاص (!@#$%)</li>
+                    </ul>
+                  </div>
+                  <div class="acct-actions">
+                    <button type="submit" class="btn btn-primary" id="changePasswordBtn">تحديث كلمة المرور</button>
+                  </div>
+                </form>
+              </div>
+            </section>
+
+            <!-- الجلسة الحالية -->
+            <section class="acct-card sessions" id="sessions" aria-labelledby="sessionsTitle">
+              <div class="acct-card-head">
+                <span class="acct-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
+                <div><h3 id="sessionsTitle">الجلسة الحالية</h3><p>لا يمكن عرض الأجهزة الأخرى من واجهة المستخدم؛ يمكنك إنهاء جميع الجلسات الأخرى.</p></div>
+              </div>
+              <div class="acct-card-body">
+                <div class="session-list" id="sessionsList" aria-live="polite"></div>
+                <div class="acct-actions">
+                  <button type="button" class="btn btn-danger-outline" id="revokeOthersBtn">إنهاء جميع الجلسات الأخرى</button>
+                </div>
+              </div>
+            </section>
+
+            <!-- تفضيلات الإشعارات -->
+            <section class="acct-card preferences" id="preferences" aria-labelledby="prefsTitle">
+              <div class="acct-card-head">
+                <span class="acct-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>
+                <div><h3 id="prefsTitle">تفضيلات الإشعارات</h3><p>اختر أنواع التنبيهات التي تظهر في صفحة الإشعارات.</p></div>
+              </div>
+              <div class="acct-card-body">
+                <div class="pref-list" id="prefList">
+                  <div class="pref-item"><div><h4>الإعلانات العامة</h4><p>إعلانات الإدارة والأخبار المهمة.</p></div><label class="switch"><input type="checkbox" data-pref="announcement" checked /><span></span></label></div>
+                  <div class="pref-item"><div><h4>إشعارات المقررات والمحاضرات</h4><p>المحتوى الجديد ومواعيد المحاضرات.</p></div><label class="switch"><input type="checkbox" data-pref="course" checked /><span></span></label></div>
+                  <div class="pref-item"><div><h4>الاختبارات</h4><p>الاختبارات الجديدة والمواعيد النهائية.</p></div><label class="switch"><input type="checkbox" data-pref="exam" checked /><span></span></label></div>
+                  <div class="pref-item"><div><h4>الواجبات</h4><p>الواجبات الجديدة وتصحيح التسليمات.</p></div><label class="switch"><input type="checkbox" data-pref="assignment" checked /><span></span></label></div>
+                  <div class="pref-item"><div><h4>الرسائل الشخصية</h4><p>الرسائل الواردة من الأساتذة والإدارة.</p></div><label class="switch"><input type="checkbox" data-pref="message" checked /><span></span></label></div>
+                  <div class="pref-item"><div><h4>تنبيهات النظام</h4><p>تغييرات الحساب وإشعارات الدخول.</p></div><label class="switch"><input type="checkbox" data-pref="system" checked /><span></span></label></div>
+                  <div class="pref-item"><div><h4>الدرجات</h4><p>إشعارات النتائج والتقييمات.</p></div><label class="switch"><input type="checkbox" data-pref="grade" checked /><span></span></label></div>
+                </div>
+              </div>
+            </section>
+
+          </div>
+        </div>
+
+        <div class="acct-toasts" id="acctToasts" aria-live="polite"></div>
+      </div>
+    </main>
+  </div>
+
+</body>
+</html>

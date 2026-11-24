@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B2545" />
+  <meta name="description" content="الإشعارات — أكاديمية آل الزين للعلوم القانونية والعدلية" />
+  <title>الإشعارات — أكاديمية آل الزين</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/alzain-academy/css/views/student-dashboard.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/views/notifications.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-notifications-TB4tA-F1.js"></script>
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-BGBkidcA.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-eUwZL1O8.js">
+</head>
+<body class="portal">
+  <div id="app">
+    <main class="content" id="content">
+      <div class="notif-page">
+
+        <!-- ترويسة الصفحة -->
+        <section class="notif-header">
+          <div class="notif-header-info">
+            <h2>
+              الإشعارات
+              <span class="notif-unread-pill" id="unreadPill" hidden>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="currentColor" stroke="none" /></svg>
+                <span id="unreadPillCount">0</span> غير مقروء
+              </span>
+            </h2>
+            <p>تابع كل ما يخصّك من إعلانات وإشعارات المقررات والاختبارات والواجبات والرسائل.</p>
+          </div>
+          <div class="notif-header-actions">
+            <button class="notif-btn notif-btn-secondary" id="reloadBtn" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 12a9 9 0 1 1-3-6.7" /><path d="M21 3v6h-6" />
+              </svg>
+              تحديث
+            </button>
+            <button class="notif-btn notif-btn-primary" id="markAllReadBtn" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 6L7 17l-5-5" /><path d="M22 10l-8 8-3-3" />
+              </svg>
+              تعليم الكل كمقروء
+            </button>
+          </div>
+        </section>
+
+        <!-- الإحصاءات -->
+        <section class="notif-stats" id="notifStats" aria-label="إحصاءات الإشعارات">
+          <button class="notif-stat all" type="button" data-jump="all">
+            <span class="notif-stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+            </span>
+            <span class="notif-stat-body">
+              <span class="notif-stat-label">إجمالي الإشعارات</span>
+              <span class="notif-stat-value" id="statTotal">0 <small>إشعار</small></span>
+            </span>
+          </button>
+
+          <button class="notif-stat unread" type="button" data-jump="unread">
+            <span class="notif-stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" /><path d="M12 8v4M12 16h.01" />
+              </svg>
+            </span>
+            <span class="notif-stat-body">
+              <span class="notif-stat-label">غير مقروءة</span>
+              <span class="notif-stat-value" id="statUnread">0 <small>إشعار</small></span>
+            </span>
+          </button>
+
+          <button class="notif-stat courses" type="button" data-jump="course">
+            <span class="notif-stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              </svg>
+            </span>
+            <span class="notif-stat-body">
+              <span class="notif-stat-label">إشعارات المقررات</span>
+              <span class="notif-stat-value" id="statCourses">0 <small>إشعار</small></span>
+            </span>
+          </button>
+
+          <button class="notif-stat system" type="button" data-jump="system">
+            <span class="notif-stat-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              </svg>
+            </span>
+            <span class="notif-stat-body">
+              <span class="notif-stat-label">إشعارات النظام</span>
+              <span class="notif-stat-value" id="statSystem">0 <small>إشعار</small></span>
+            </span>
+          </button>
+        </section>
+
+        <!-- الفلاتر -->
+        <section class="notif-filters">
+          <div class="notif-tabs" id="notifTabs" role="tablist" aria-label="تصفية الإشعارات"></div>
+          <div class="notif-spacer"></div>
+          <select class="notif-select" id="timeFilter" aria-label="تصفية زمنية">
+            <option value="all">كل الأوقات</option>
+            <option value="today">اليوم</option>
+            <option value="week">هذا الأسبوع</option>
+            <option value="month">هذا الشهر</option>
+          </select>
+        </section>
+
+        <!-- قائمة الإشعارات -->
+        <div class="notif-list-card" id="notifCard">
+          <div class="notif-toolbar">
+            <div class="notif-toolbar-left">
+              <span id="toolbarSummary">جارٍ تحميل الإشعارات…</span>
+            </div>
+            <div class="notif-toolbar-actions">
+              <button class="notif-btn notif-btn-text notif-btn-sm" id="toolbarMarkRead" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M18 6L7 17l-5-5" /><path d="M22 10l-8 8-3-3" />
+                </svg>
+                تعليم الكل كمقروء
+              </button>
+            </div>
+          </div>
+
+          <div id="notifList" aria-live="polite">
+            <div class="notif-skeleton"></div>
+            <div class="notif-skeleton"></div>
+            <div class="notif-skeleton"></div>
+          </div>
+
+          <div class="notif-loadmore" id="loadMoreWrap" hidden>
+            <button class="notif-loadmore-btn" id="loadMoreBtn" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+              تحميل إشعارات أقدم
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="notif-toasts" id="notifToasts" aria-live="polite"></div>
+    </main>
+  </div>
+
+</body>
+</html>

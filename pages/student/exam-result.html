@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B2545" />
+  <meta name="description" content="نتيجة الاختبار — أكاديمية آل الزين للعلوم القانونية والعدلية" />
+  <title>نتيجة الاختبار — أكاديمية آل الزين</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/alzain-academy/css/views/student-dashboard.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/views/student-exam-result.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-student-exam-result-qo-CBuHH.js"></script>
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-BGBkidcA.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-eUwZL1O8.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/api-Cx-w9ZQ2.js">
+</head>
+<body class="portal">
+  <div id="app">
+    <main class="content" id="content">
+
+      <div class="res-page" id="resPage">
+        <section class="res-top">
+          <div>
+            <h1>نتيجة الاختبار</h1>
+            <p>مراجعة درجتك وإجاباتك بعد تصحيح الاختبار.</p>
+          </div>
+          <div class="res-top-actions">
+            <button class="res-btn res-btn-secondary" id="resShare" type="button" aria-label="نسخ رابط النتيجة">
+              <span data-icon="copy" aria-hidden="true"></span><span>نسخ الرابط</span>
+            </button>
+            <a class="res-btn res-btn-secondary" id="resBackLink" href="#">
+              <span data-icon="arrow" aria-hidden="true"></span><span>العودة للاختبارات</span>
+            </a>
+          </div>
+        </section>
+
+        <section class="res-hero" id="resHero" aria-label="ملخص النتيجة">
+          <div class="res-hero-info">
+            <div class="res-skeleton res-skeleton-line"></div>
+            <div class="res-skeleton res-skeleton-title"></div>
+            <div class="res-skeleton res-skeleton-line short"></div>
+            <div class="res-skeleton res-skeleton-line"></div>
+          </div>
+          <div class="res-skeleton res-skeleton-score" aria-hidden="true"></div>
+        </section>
+
+        <section class="res-stats" id="resStats" aria-label="إحصاءات الإجابات">
+          <div class="res-skeleton res-skeleton-stat"></div>
+          <div class="res-skeleton res-skeleton-stat"></div>
+          <div class="res-skeleton res-skeleton-stat"></div>
+          <div class="res-skeleton res-skeleton-stat"></div>
+        </section>
+
+        <nav class="res-tabs" id="resTabs" role="tablist" aria-label="أقسام النتيجة">
+          <button class="res-tab active" type="button" role="tab" id="resTabReview" aria-controls="resPaneReview" aria-selected="true" data-tab="review">
+            <span data-icon="details" aria-hidden="true"></span><span>مراجعة الإجابات</span>
+            <span class="res-tab-count" id="resReviewCount">—</span>
+          </button>
+          <button class="res-tab" type="button" role="tab" id="resTabBreakdown" aria-controls="resPaneBreakdown" aria-selected="false" data-tab="breakdown">
+            <span data-icon="grades" aria-hidden="true"></span><span>ملخص الإجابات</span>
+          </button>
+          <button class="res-tab" type="button" role="tab" id="resTabInfo" aria-controls="resPaneInfo" aria-selected="false" data-tab="info">
+            <span data-icon="file" aria-hidden="true"></span><span>معلومات النتيجة</span>
+          </button>
+        </nav>
+
+        <section class="res-pane" id="resPaneReview" role="tabpanel" aria-labelledby="resTabReview">
+          <div class="res-review" id="resReview" aria-live="polite">
+            <div class="res-skeleton res-skeleton-question"></div>
+            <div class="res-skeleton res-skeleton-question"></div>
+          </div>
+        </section>
+
+        <section class="res-pane" id="resPaneBreakdown" role="tabpanel" aria-labelledby="resTabBreakdown" hidden>
+          <div class="res-cards" id="resBreakdown"></div>
+        </section>
+
+        <section class="res-pane" id="resPaneInfo" role="tabpanel" aria-labelledby="resTabInfo" hidden>
+          <div class="res-cards" id="resInfo"></div>
+        </section>
+
+        <div class="res-toast" id="resToast" role="status" aria-live="polite" hidden></div>
+      </div>
+
+    </main>
+  </div>
+
+</body>
+</html>

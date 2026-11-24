@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B2545" />
+  <meta name="description" content="الاختبارات — أكاديمية آل الزين للعلوم القانونية والعدلية" />
+  <title>الاختبارات — أكاديمية آل الزين</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/alzain-academy/css/views/student-dashboard.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/views/student-exams.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-student-exams-BIQhM4Lb.js"></script>
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-BGBkidcA.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-eUwZL1O8.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/api-Cx-w9ZQ2.js">
+</head>
+<body class="portal">
+  <div id="app">
+    <main class="content" id="content">
+
+      <div class="ex-page">
+        <section class="ex-header">
+          <h1>اختباراتي</h1>
+          <p>تابع اختباراتك القادمة والجارية، واستعرض نتائجك السابقة ودخولك المباشر إلى الاختبار.</p>
+        </section>
+
+        <section class="ex-stats" id="exStats" aria-label="إحصاءات الاختبارات">
+          <div class="ex-skeleton ex-skeleton-stat"></div>
+          <div class="ex-skeleton ex-skeleton-stat"></div>
+          <div class="ex-skeleton ex-skeleton-stat"></div>
+          <div class="ex-skeleton ex-skeleton-stat"></div>
+        </section>
+
+        <section class="ex-filters" id="exFilters" aria-label="تصفية الاختبارات">
+          <div class="ex-tabs" id="exTabs" role="tablist" aria-label="تصفية حسب الحالة">
+            <div class="ex-skeleton ex-skeleton-tab"></div>
+            <div class="ex-skeleton ex-skeleton-tab"></div>
+            <div class="ex-skeleton ex-skeleton-tab"></div>
+          </div>
+          <div class="ex-controls">
+            <div class="ex-field">
+              <label class="ex-sr-only" for="exCourse">تصفية حسب المقرر</label>
+              <select class="ex-select" id="exCourse" disabled>
+                <option value="all">كل المقررات</option>
+              </select>
+            </div>
+            <div class="ex-field ex-search">
+              <label class="ex-sr-only" for="exSearch">بحث في الاختبارات</label>
+              <span class="ex-search-icon" data-icon="search" aria-hidden="true"></span>
+              <input class="ex-input" id="exSearch" type="search" placeholder="ابحث عن اختبار..." autocomplete="off" disabled />
+            </div>
+          </div>
+        </section>
+
+        <section class="ex-grid" id="exGrid" aria-live="polite" aria-label="قائمة الاختبارات">
+          <div class="ex-skeleton ex-skeleton-card"></div>
+          <div class="ex-skeleton ex-skeleton-card"></div>
+        </section>
+      </div>
+
+      <div class="ex-modal-overlay" id="exModal" role="dialog" aria-modal="true" aria-labelledby="exModalTitle" hidden>
+        <div class="ex-modal">
+          <div class="ex-modal-head">
+            <button class="ex-icon-btn" id="exModalClose" type="button" aria-label="إغلاق نافذة بدء الاختبار">
+              <span data-icon="close" aria-hidden="true"></span>
+            </button>
+            <span class="ex-modal-icon" data-icon="exams" aria-hidden="true"></span>
+            <h2 id="exModalTitle">الاستعداد لبدء الاختبار</h2>
+            <p id="exModalSubtitle">راجع معلومات الاختبار قبل الدخول.</p>
+          </div>
+
+          <div class="ex-modal-body">
+            <div class="ex-modal-grid">
+              <div class="ex-info-tile">
+                <span class="ex-info-icon" data-icon="clock" aria-hidden="true"></span>
+                <span class="ex-info-body"><span>المدة المقررة</span><strong id="exModalDuration">—</strong></span>
+              </div>
+              <div class="ex-info-tile">
+                <span class="ex-info-icon" data-icon="paper" aria-hidden="true"></span>
+                <span class="ex-info-body"><span>عدد الأسئلة</span><strong id="exModalQuestions">—</strong></span>
+              </div>
+              <div class="ex-info-tile">
+                <span class="ex-info-icon" data-icon="points" aria-hidden="true"></span>
+                <span class="ex-info-body"><span>الدرجة الكلية</span><strong id="exModalPoints">—</strong></span>
+              </div>
+            </div>
+            <div class="ex-warning">
+              <span data-icon="bell" aria-hidden="true"></span>
+              <p>بمجرد الدخول إلى صفحة الاختبار يبدأ الوقت، وتُحتسب الإجابات المسجّلة عند التسليم. تأكد من استقرار اتصالك قبل البدء.</p>
+            </div>
+          </div>
+
+          <div class="ex-modal-actions">
+            <button class="ex-btn ex-btn-secondary" id="exModalCancel" type="button">إلغاء</button>
+            <button class="ex-btn ex-btn-primary" id="exModalConfirm" type="button">ابدأ الاختبار الآن</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+</body>
+</html>

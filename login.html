@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تسجيل الدخول — أكاديمية آل الزين</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/login-extra.css" />
+  <style>
+    :root { --gold: #D4A017; --navy: #0B2545; --navy-mid: #123A63; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Tajawal, system-ui, sans-serif; background: linear-gradient(135deg, #0B2545 0%, #123A63 55%, #1b4a7a 100%); color: #123A63; }
+    .login-wrap { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+    .login-card { width: 100%; max-width: 400px; background: #fff; border-radius: 16px; padding: 32px 28px; box-shadow: 0 24px 60px rgba(0,0,0,.35); }
+    .login-brand { text-align: center; margin-bottom: 20px; }
+    .login-brand .mark { font-family: Amiri, serif; font-size: 28px; color: #D4A017; }
+    .login-brand .sub { color: #6b7280; font-size: 13px; }
+    .login-card label { display: block; font-weight: 700; font-size: 13.5px; margin: 14px 0 6px; color: #0B2545; }
+    .login-card input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #d1d5db; font-size: 15px; }
+    .login-card input:focus { outline: 2px solid #D4A017; border-color: transparent; }
+    .login-card button { width: 100%; margin-top: 20px; padding: 12px; border-radius: 10px; background: #0B2545; color: #fff; border: none; font-size: 16px; font-weight: 700; cursor: pointer; }
+    .login-card button:disabled { opacity: .6; cursor: default; }
+    #msg { text-align: center; min-height: 1.2em; margin-top: 12px; font-size: 14px; color: #c00; }
+  </style>
+  <script type="module" crossorigin src="/alzain-academy/assets/login-o-1qhiKh.js"></script>
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-BGBkidcA.js">
+</head>
+<body>
+  <div class="login-wrap">
+    <form id="login-form" class="login-card" autocomplete="on">
+      <div class="login-brand">
+        <div class="mark">أكاديمية آل الزين</div>
+        <div class="sub">للعلوم القانونية والعدلية</div>
+      </div>
+      <label for="identifier">الرمز الجامعي / الوظيفي</label>
+      <input id="identifier" type="text" placeholder="مثال: BM0001 أو TE0002" autocomplete="username" required />
+      <label for="password">كلمة المرور</label>
+      <input id="password" type="password" placeholder="كلمة المرور" autocomplete="current-password" required />
+      <button id="submit" type="submit">دخول</button>
+      <p id="msg"></p>
+    </form>
+  </div>
+</body>
+</html>

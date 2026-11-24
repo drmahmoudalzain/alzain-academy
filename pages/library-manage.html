@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B2545" />
+  <meta name="description" content="إدارة المكتبة القانونية — أكاديمية آل الزين" />
+  <title>إدارة المكتبة — أكاديمية آل الزين</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/alzain-academy/css/views/student-dashboard.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/views/library.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-library-manage-CpYMLTQv.js"></script>
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-BGBkidcA.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-eUwZL1O8.js">
+</head>
+<body class="portal">
+  <div id="app">
+    <main class="content" id="content">
+      <div class="library-page">
+
+        <section class="lib-header">
+          <div class="lib-header-info">
+            <h2>إدارة المكتبة</h2>
+            <p>إضافة المراجع ورفع ملفاتها وتنظيم أقسام المكتبة. الملفات تُحفظ في مخزن خاص ولا تُتاح للتنزيل.</p>
+          </div>
+          <div class="lib-header-actions">
+            <a class="btn btn-secondary" id="libBrowseLink" href="library.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+              عرض المكتبة
+            </a>
+            <button class="btn btn-secondary" id="libSectionsBtn" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="5" rx="1"/><path d="M4 9v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9M10 13h4"/></svg>
+              الأقسام
+            </button>
+            <button class="btn btn-primary" id="libAddBtn" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+              إضافة مرجع
+            </button>
+          </div>
+        </section>
+
+        <div class="lib-toolbar">
+          <div class="lib-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="search" id="libAdminSearch" placeholder="ابحث بالعنوان أو المؤلف..." aria-label="بحث" />
+          </div>
+          <select class="lib-select" id="libAdminSection" aria-label="تصفية بالقسم"></select>
+          <span class="lib-chip" id="libAdminCount">—</span>
+        </div>
+
+        <div class="lib-table-wrap">
+          <table class="lib-table">
+            <thead>
+              <tr>
+                <th>المرجع</th>
+                <th>القسم</th>
+                <th>النوع</th>
+                <th>السنة</th>
+                <th>الملف</th>
+                <th>إجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="libAdminBody"></tbody>
+          </table>
+        </div>
+
+        <div id="libAdminEmpty" hidden></div>
+
+      </div>
+
+      <!-- نموذج إضافة/تعديل مرجع -->
+      <div class="lib-modal-overlay" id="libFormModal" role="dialog" aria-modal="true" aria-labelledby="libFormTitle">
+        <div class="lib-modal lib-modal--form">
+          <button class="lib-modal-close" id="libFormClose" type="button" aria-label="إغلاق">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+          <div class="lib-modal-body">
+            <h2 id="libFormTitle">إضافة مرجع</h2>
+            <form class="lib-form" id="libItemForm">
+              <div class="lib-field">
+                <label for="fSection">القسم *</label>
+                <select id="fSection" required></select>
+              </div>
+              <div class="lib-field">
+                <label for="fKind">النوع</label>
+                <select id="fKind">
+                  <option value="book">كتاب</option>
+                  <option value="paper">بحث علمي</option>
+                  <option value="media">وسائط تعليمية</option>
+                </select>
+              </div>
+              <div class="lib-field full">
+                <label for="fTitle">عنوان المرجع *</label>
+                <input id="fTitle" type="text" required maxlength="200" placeholder="مثال: الوسيط في القانون المدني" />
+              </div>
+              <div class="lib-field">
+                <label for="fResearcher">المؤلف / الباحث</label>
+                <input id="fResearcher" type="text" maxlength="160" />
+              </div>
+              <div class="lib-field">
+                <label for="fYear">سنة النشر</label>
+                <input id="fYear" type="number" min="1300" max="2100" step="1" />
+              </div>
+              <div class="lib-field">
+                <label for="fJournal">المجلة / الناشر</label>
+                <input id="fJournal" type="text" maxlength="160" />
+              </div>
+              <div class="lib-field">
+                <label for="fDoi">DOI</label>
+                <input id="fDoi" type="text" maxlength="120" placeholder="10.xxxx/..." />
+              </div>
+              <div class="lib-field full">
+                <label for="fAbstract">نبذة عن المرجع</label>
+                <textarea id="fAbstract" maxlength="2000"></textarea>
+              </div>
+              <div class="lib-field full">
+                <label for="fFile">ملف المرجع (PDF)</label>
+                <input id="fFile" type="file" accept="application/pdf" />
+                <span class="hint" id="fFileHint">الحد الأقصى 20 ميجابايت. الملف للمعاينة فقط.</span>
+              </div>
+              <div class="lib-form-actions">
+                <button class="btn btn-secondary" type="button" id="libFormCancel">إلغاء</button>
+                <button class="btn btn-primary" type="submit" id="libFormSave">حفظ</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- إدارة الأقسام -->
+      <div class="lib-modal-overlay" id="libSectionsModal" role="dialog" aria-modal="true" aria-labelledby="libSectionsTitle">
+        <div class="lib-modal lib-modal--form">
+          <button class="lib-modal-close" id="libSectionsClose" type="button" aria-label="إغلاق">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+          <div class="lib-modal-body">
+            <h2 id="libSectionsTitle">أقسام المكتبة</h2>
+            <form class="lib-form" id="libSectionForm">
+              <div class="lib-field">
+                <label for="sName">اسم القسم *</label>
+                <input id="sName" type="text" required maxlength="80" />
+              </div>
+              <div class="lib-field">
+                <label for="sIcon">الأيقونة</label>
+                <input id="sIcon" type="text" maxlength="8" placeholder="⚖️" />
+              </div>
+              <div class="lib-form-actions">
+                <button class="btn btn-primary" type="submit" id="libSectionSave">إضافة القسم</button>
+              </div>
+            </form>
+            <div class="lib-sections-list" id="libSectionsList"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lib-toasts" id="libToasts" aria-live="polite"></div>
+    </main>
+  </div>
+
+</body>
+</html>
