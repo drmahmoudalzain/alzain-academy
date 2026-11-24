@@ -12,7 +12,7 @@ export async function getProfile(user) {
   if (!user) return null;
   const { data, error } = await supabase
     .from("users")
-    .select("id, role, name, platform_id, university_id, track, level, gender, position, is_staff, must_change_password")
+    .select("id, role, name, email, phone, platform_id, university_id, track, level, gender, position, is_staff, must_change_password")
     .eq("auth_id", user.id)
     .maybeSingle();
 
@@ -24,6 +24,8 @@ export async function getProfile(user) {
     id: am.academy_user_id ?? null,
     role: am.role || "student",
     name: md.full_name || user.email || "مستخدم",
+    email: md.contact_email || null,
+    phone: md.phone || null,
     platform_id: md.platform_id || null,
     university_id: null,
     track: null,

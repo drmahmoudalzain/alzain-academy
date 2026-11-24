@@ -18,6 +18,7 @@ export const NAVIGATION = {
       { label: "المنتدى", href: "forum.html", icon: "forum" },
     ] },
     { section: "المكتبة والدعم", items: [
+      { label: "المساعد الذكي", href: "pages/ai-assistant.html", icon: "sparkles" },
       { label: "المكتبة القانونية", href: "pages/library.html", icon: "library" },
       { label: "الإشعارات", href: "pages/notifications.html", icon: "bell" },
       { label: "دليل المستخدم", href: "guide.html", icon: "file" },
@@ -35,6 +36,7 @@ export const NAVIGATION = {
       { label: "الاختبارات", href: "pages/teacher/exams.html", icon: "exams" },
     ] },
     { section: "المكتبة والدعم", items: [
+      { label: "المساعد الذكي", href: "pages/ai-assistant.html", icon: "sparkles" },
       { label: "المكتبة القانونية", href: "pages/library.html", icon: "library" },
       { label: "الإشعارات", href: "pages/notifications.html", icon: "bell" },
       { label: "دليل المستخدم", href: "guide.html", icon: "file" },
@@ -49,6 +51,7 @@ export const NAVIGATION = {
       { label: "الطلاب", href: "pages/assistant/students.html", icon: "users" },
     ] },
     { section: "المكتبة", items: [
+      { label: "المساعد الذكي", href: "pages/ai-assistant.html", icon: "sparkles" },
       { label: "المكتبة القانونية", href: "pages/library.html", icon: "library" },
       { label: "إدارة المكتبة", href: "pages/library-manage.html", icon: "settings" },
       { label: "الإشعارات", href: "pages/notifications.html", icon: "bell" },
@@ -60,6 +63,7 @@ export const NAVIGATION = {
   ],
   owner: [
     { section: "المكتبة", items: [
+      { label: "المساعد الذكي", href: "pages/ai-assistant.html", icon: "sparkles" },
       { label: "المكتبة القانونية", href: "pages/library.html", icon: "library" },
       { label: "إدارة المكتبة", href: "pages/library-manage.html", icon: "settings" },
     ] },

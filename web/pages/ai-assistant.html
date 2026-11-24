@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B2545" />
+  <meta name="description" content="المساعد القانوني الذكي — أكاديمية آل الزين للعلوم القانونية والعدلية" />
+  <title>المساعد الذكي | أكاديمية آل الزين</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/css/views/student-dashboard.css" />
+  <link rel="stylesheet" href="/css/views/ai-assistant.css" />
+  <link rel="stylesheet" href="/css/portal-theme.css" />
+</head>
+<body class="portal">
+  <div id="app">
+    <main class="content" id="content">
+      <div class="ai-page">
+
+        <header class="ai-head">
+          <div class="ai-head-info">
+            <h2>المساعد الذكي</h2>
+            <p>اسأل عن المفاهيم القانونية، واطلب تبسيط الدروس أو أمثلة توضيحية.</p>
+          </div>
+          <div class="ai-head-actions">
+            <span class="ai-status" id="aiStatus">جارٍ التحميل…</span>
+            <button type="button" class="ai-icon-btn" id="historyBtn" aria-label="عرض المحادثات" aria-expanded="false" aria-controls="aiSidebar" data-icon="history"></button>
+          </div>
+        </header>
+
+        <div class="ai-warning" id="aiWarning" hidden>
+          <span data-icon="shield"></span>
+          <span>المساعد غير مُفعّل بعد. يمكنك مراجعة محادثاتك السابقة، وسيظهر التنبيه هنا عند تفعيله.</span>
+        </div>
+
+        <div class="ai-overlay" id="aiOverlay" hidden></div>
+
+        <div class="ai-layout">
+
+          <!-- المحادثات والاقتراحات: درج على الهاتف، عمود ثابت على الشاشات الكبيرة -->
+          <aside class="ai-sidebar" id="aiSidebar" aria-label="لوحة المساعد">
+            <div class="ai-sidebar-inner">
+              <div class="ai-profile">
+                <div class="ai-avatar" data-icon="sparkles"></div>
+                <h3>المساعد القانوني</h3>
+                <p>مساعدك الذكي للإجابة على أسئلتك القانونية، وشرح المفاهيم، ومساعدتك في دراستك.</p>
+                <span class="ai-model-badge" id="aiModelBadge">—</span>
+              </div>
+
+              <div class="ai-section-title"><span data-icon="sparkles"></span> أسئلة مقترحة</div>
+              <div class="ai-suggestions" id="aiSuggestions">
+                <button type="button" data-prompt="ما الفرق بين القانون العام والقانون الخاص؟">ما الفرق بين القانون العام والخاص؟</button>
+                <button type="button" data-prompt="اشرح لي معنى الإجراءات القانونية بأسلوب مبسط">اشرح الإجراءات القانونية بأسلوب مبسط</button>
+                <button type="button" data-prompt="كيف أستذكر مواد القانون المدني بفعالية؟">طرق فعّالة لاستذكار القانون المدني</button>
+                <button type="button" data-prompt="ما الفرق بين الحق والواجب القانوني؟">ما الفرق بين الحق والواجب؟</button>
+              </div>
+
+              <div class="ai-section-title"><span data-icon="history"></span> محادثات سابقة</div>
+              <div class="ai-history" id="aiHistory" aria-live="polite"></div>
+            </div>
+
+            <div class="ai-sidebar-actions">
+              <button type="button" class="ai-side-action" id="newChatBtn"><span data-icon="plus"></span> محادثة جديدة</button>
+              <button type="button" class="ai-side-action danger" id="clearHistoryBtn"><span data-icon="trash"></span> حذف كل المحادثات</button>
+            </div>
+          </aside>
+
+          <section class="ai-main" aria-label="المحادثة">
+            <div class="ai-log" id="chatLog" role="log" aria-live="polite" aria-relevant="additions" aria-label="رسائل المحادثة">
+              <div class="ai-welcome" id="welcomeState">
+                <div class="ai-welcome-icon" data-icon="sparkles"></div>
+                <h2>مرحباً بك في <span>المساعد الذكي</span></h2>
+                <p>اختر سؤالاً للبدء، أو اكتب سؤالك في المربع أدناه. ستُحفظ محادثاتك لتعود إليها لاحقاً.</p>
+                <div class="ai-starters">
+                  <button type="button" class="ai-starter" data-prompt="لخّص لي الفرق بين القانون العام والخاص في نقاط">
+                    <span class="ai-starter-icon" data-icon="book"></span>
+                    <span class="ai-starter-body"><strong>تبسيط المفاهيم</strong><span>اشرح الفرق بين مفهومين قانونيين</span></span>
+                  </button>
+                  <button type="button" class="ai-starter" data-prompt="ضع لي خطة مذاكرة أسبوعية لمادة القانون المدني">
+                    <span class="ai-starter-icon" data-icon="calendar"></span>
+                    <span class="ai-starter-body"><strong>خطة مذاكرة</strong><span>اقترح خطة أسبوعية للمادة</span></span>
+                  </button>
+                  <button type="button" class="ai-starter" data-prompt="قدّم مثالاً عملياً على تطبيق قاعدة قانونية">
+                    <span class="ai-starter-icon" data-icon="file"></span>
+                    <span class="ai-starter-body"><strong>أمثلة تطبيقية</strong><span>مثال عملي يوضّح القاعدة</span></span>
+                  </button>
+                  <button type="button" class="ai-starter" data-prompt="ما الفرق بين الواجب القانوني والواجب الأخلاقي؟">
+                    <span class="ai-starter-icon" data-icon="shield"></span>
+                    <span class="ai-starter-body"><strong>أسئلة الامتحان</strong><span>قارن بين مفاهيم متقاربة</span></span>
+                  </button>
+                </div>
+                <div class="ai-welcome-note"><span data-icon="shield"></span> الإجابات استرشادية ولا تُغني عن الرجوع إلى المصادر الأصلية.</div>
+              </div>
+            </div>
+
+            <form class="ai-composer" id="chatForm">
+              <div class="ai-quick" id="aiQuick">
+                <button type="button" data-prompt="اشرح هذا المفهوم باختصار">اشرح باختصار</button>
+                <button type="button" data-prompt="قدّم مثالاً عملياً">مثال عملي</button>
+                <button type="button" data-prompt="لخّص الفكرة في نقاط">لخّص في نقاط</button>
+              </div>
+              <div class="ai-input-wrap">
+                <textarea id="chatInput" rows="1" maxlength="8000" placeholder="اكتب سؤالك هنا…" aria-label="اكتب رسالتك للمساعد"></textarea>
+                <button type="submit" class="ai-send" id="sendBtn" aria-label="إرسال الرسالة" data-icon="send"></button>
+              </div>
+              <div class="ai-composer-meta">
+                <span id="charCount">0 / 8000</span>
+                <span>اضغط Enter للإرسال و Shift + Enter لسطر جديد</span>
+              </div>
+            </form>
+          </section>
+        </div>
+
+        <div class="ai-toasts" id="aiToasts" aria-live="polite"></div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="/src/pages/ai-assistant.js"></script>
+</body>
+</html>
