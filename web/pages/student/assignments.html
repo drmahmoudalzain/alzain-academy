@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B2545" />
+  <meta name="description" content="الواجبات — أكاديمية آل الزين للعلوم القانونية والعدلية" />
+  <title>الواجبات — أكاديمية آل الزين</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/css/views/student-dashboard.css" />
+  <link rel="stylesheet" href="/css/views/student-assignments.css" />
+  <link rel="stylesheet" href="/css/portal-theme.css" />
+</head>
+<body class="portal">
+  <div id="app">
+    <main class="content" id="content">
+      <div class="asg-page">
+        <section class="asg-header">
+          <h1>واجباتي</h1>
+          <p>تابع واجباتك ومواعيدها، سلّم إجابتك نصياً، واستعرض درجاتك وملاحظات أستاذك.</p>
+        </section>
+
+        <section class="asg-stats" id="asgStats" aria-label="إحصاءات الواجبات" aria-live="polite">
+          <div class="asg-skeleton asg-skeleton-stat"></div>
+          <div class="asg-skeleton asg-skeleton-stat"></div>
+          <div class="asg-skeleton asg-skeleton-stat"></div>
+          <div class="asg-skeleton asg-skeleton-stat"></div>
+        </section>
+
+        <section class="asg-filters" aria-label="تصفية الواجبات">
+          <div class="asg-course-tabs" id="asgCourseTabs" role="tablist" aria-label="تصفية حسب المقرر">
+            <div class="asg-skeleton asg-skeleton-tab"></div>
+            <div class="asg-skeleton asg-skeleton-tab"></div>
+            <div class="asg-skeleton asg-skeleton-tab"></div>
+          </div>
+          <div class="asg-controls">
+            <div class="asg-field">
+              <label class="asg-sr-only" for="asgStatus">تصفية حسب الحالة</label>
+              <select class="asg-select" id="asgStatus" disabled>
+                <option value="all">كل الحالات</option>
+                <option value="pending">قيد الانتظار</option>
+                <option value="overdue">متأخر</option>
+                <option value="submitted">مُسلَّم</option>
+                <option value="late">مُسلَّم متأخراً</option>
+                <option value="graded">مُصحَّح</option>
+              </select>
+            </div>
+            <div class="asg-field asg-search">
+              <label class="asg-sr-only" for="asgSearch">بحث في الواجبات</label>
+              <span class="asg-search-icon" data-icon="search" aria-hidden="true"></span>
+              <input class="asg-input" id="asgSearch" type="search" placeholder="ابحث عن واجب..." autocomplete="off" disabled />
+            </div>
+          </div>
+        </section>
+
+        <section class="asg-grid" id="asgGrid" aria-live="polite" aria-label="قائمة الواجبات">
+          <div class="asg-skeleton asg-skeleton-card"></div>
+          <div class="asg-skeleton asg-skeleton-card"></div>
+        </section>
+      </div>
+
+      <div class="asg-modal-overlay" id="asgModal" role="dialog" aria-modal="true" aria-labelledby="asgModalTitle" hidden>
+        <div class="asg-modal">
+          <div class="asg-modal-head">
+            <button class="asg-icon-btn" id="asgModalClose" type="button" aria-label="إغلاق نافذة تسليم الواجب">
+              <span data-icon="close" aria-hidden="true"></span>
+            </button>
+            <span class="asg-modal-icon" data-icon="assignments" aria-hidden="true"></span>
+            <h2 id="asgModalTitle">تسليم الواجب</h2>
+            <p id="asgModalSubtitle">اكتب إجابتك ثم أرسلها.</p>
+          </div>
+
+          <form id="asgSubmitForm" novalidate>
+            <div class="asg-modal-body">
+              <div class="asg-instructions">
+                <strong>طريقة التسليم المتاحة حالياً</strong>
+                <p>يتم التسليم بنص مكتوب فقط في المربع أدناه. رفع الملفات غير متاح بعد، ولا توجد واجهة لاختيار ملفات.</p>
+              </div>
+
+              <div class="asg-form-field">
+                <label class="asg-label" for="asgSubmissionText">نص التسليم <span class="asg-required">*</span></label>
+                <span class="asg-hint" id="asgTextHint">الحد الأدنى 3 أحرف</span>
+                <textarea class="asg-textarea" id="asgSubmissionText" rows="7" placeholder="اكتب إجابتك أو ملخص عملك هنا..." aria-describedby="asgTextHint asgFormError" required></textarea>
+                <span class="asg-counter" id="asgCounter" aria-live="polite">0 حرف</span>
+              </div>
+
+              <p class="asg-form-error" id="asgFormError" role="alert" aria-live="assertive" hidden></p>
+            </div>
+
+            <div class="asg-modal-actions">
+              <button class="asg-btn asg-btn-secondary" id="asgModalCancel" type="button">إلغاء</button>
+              <button class="asg-btn asg-btn-primary" id="asgModalConfirm" type="submit">تسليم الواجب</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="asg-toasts" id="asgToasts" aria-live="polite"></div>
+    </main>
+  </div>
+
+  <script type="module" src="/src/pages/student/assignments.js"></script>
+</body>
+</html>

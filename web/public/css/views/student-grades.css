@@ -1,0 +1,517 @@
+/* =========================================================
+   صفحة درجات الطالب — أنماط مستقلة بالبادئة gr-
+   الهاتف أولاً، ثم نقاطا التوسّط 560px و 900px فقط.
+   ========================================================= */
+
+[hidden] { display: none !important; }
+
+.gr-page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.gr-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------------------------------------------------------
+   الترويسة والأزرار
+   --------------------------------------------------------- */
+.gr-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.gr-header h1 {
+  margin: 0 0 5px;
+  font-family: var(--font-head, "Amiri", serif);
+  font-size: 1.45rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--text-primary, #0B2545);
+}
+.gr-header p {
+  margin: 0;
+  max-width: 70ch;
+  font-size: 0.87rem;
+  line-height: 1.65;
+  color: var(--text-secondary, #4A5A6F);
+}
+
+.gr-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 15px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md, 12px);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.25s var(--ease, ease);
+}
+.gr-btn svg { width: 15px; height: 15px; flex: none; }
+.gr-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.gr-btn-primary {
+  background: linear-gradient(135deg, var(--gold-light, #E8BC3A), var(--gold, #D4A017));
+  color: var(--navy-dark, #0B2545);
+  box-shadow: 0 5px 14px -5px rgba(212, 160, 23, 0.5);
+}
+.gr-btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 18px -5px rgba(212, 160, 23, 0.65); }
+.gr-btn-secondary {
+  background: var(--bg-surface, #fff);
+  border-color: var(--border, #E2E8F0);
+  color: var(--text-primary, #0B2545);
+  box-shadow: var(--shadow-xs, 0 1px 2px rgba(11, 37, 69, 0.04));
+}
+.gr-btn-secondary:hover:not(:disabled) { background: var(--bg-subtle, #F8FAFC); border-color: var(--text-soft, #A0AEBF); }
+
+/* ---------------------------------------------------------
+   بطاقة المعدل
+   --------------------------------------------------------- */
+.gr-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+  padding: 20px;
+  border-radius: var(--radius-lg, 18px);
+  background: linear-gradient(135deg, var(--navy-dark, #0B2545), var(--navy-mid, #123A63));
+  color: var(--text-inverse, #F1F4F8);
+  box-shadow: var(--shadow-md, 0 4px 12px -2px rgba(11, 37, 69, 0.08));
+}
+.gr-hero-info { min-width: 0; }
+.gr-hero-tag,
+.gr-hero-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+}
+.gr-hero-tag {
+  padding: 4px 11px;
+  border: 1px solid color-mix(in srgb, var(--gold, #D4A017) 40%, transparent);
+  background: color-mix(in srgb, var(--gold, #D4A017) 15%, transparent);
+  color: var(--gold-light, #E8BC3A);
+}
+.gr-hero-tag svg,
+.gr-hero-link svg { width: 13px; height: 13px; flex: none; }
+.gr-hero-info h2 {
+  margin: 12px 0 7px;
+  font-family: var(--font-head, "Amiri", serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #fff;
+}
+.gr-hero-info p {
+  margin: 0 0 12px;
+  max-width: 56ch;
+  font-size: 0.84rem;
+  line-height: 1.75;
+  color: color-mix(in srgb, var(--text-inverse, #F1F4F8) 78%, transparent);
+}
+.gr-hero-link {
+  padding: 0;
+  color: var(--gold-light, #E8BC3A);
+  text-decoration: none;
+}
+.gr-hero-link:hover { color: #fff; }
+
+.gr-ring {
+  justify-self: center;
+  display: grid;
+  place-items: center;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--gold, #D4A017) 0deg,
+    var(--gold, #D4A017) var(--gr-ring, 0deg),
+    color-mix(in srgb, var(--text-inverse, #F1F4F8) 14%, transparent) var(--gr-ring, 0deg) 360deg
+  );
+}
+.gr-ring-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: var(--navy-dark, #0B2545);
+  line-height: 1;
+}
+.gr-ring-inner strong {
+  font-family: var(--font-head, "Amiri", serif);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--gold-light, #E8BC3A);
+}
+.gr-ring-inner span {
+  margin-top: 6px;
+  font-size: 0.68rem;
+  color: color-mix(in srgb, var(--text-inverse, #F1F4F8) 65%, transparent);
+}
+
+/* ---------------------------------------------------------
+   إحصاءات سريعة
+   --------------------------------------------------------- */
+.gr-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.gr-stat {
+  --gr-accent: var(--gold, #D4A017);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 13px;
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: var(--radius-lg, 18px);
+  background: var(--bg-surface, #fff);
+  box-shadow: var(--shadow-xs, 0 1px 2px rgba(11, 37, 69, 0.04));
+}
+.gr-stat.average { --gr-accent: var(--gold, #D4A017); }
+.gr-stat.courses { --gr-accent: var(--info, #2A5F94); }
+.gr-stat.completed { --gr-accent: var(--green, #166E3F); }
+.gr-stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--gr-accent) 12%, transparent);
+  color: var(--gr-accent);
+}
+.gr-stat-icon svg { width: 19px; height: 19px; }
+.gr-stat-body { min-width: 0; }
+.gr-stat-body > span {
+  display: block;
+  font-size: 0.74rem;
+  font-weight: 500;
+  color: var(--text-muted, #7A8A9F);
+}
+.gr-stat-body > strong {
+  display: block;
+  font-family: var(--font-head, "Amiri", serif);
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-primary, #0B2545);
+}
+.gr-stat-body small {
+  margin-inline-start: 2px;
+  font-family: var(--font-body, "Tajawal", sans-serif);
+  font-size: 0.72rem;
+  color: var(--text-muted, #7A8A9F);
+}
+
+/* ---------------------------------------------------------
+   عناوين الأقسام
+   --------------------------------------------------------- */
+.gr-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.gr-section-head h2,
+.gr-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-family: var(--font-head, "Amiri", serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary, #0B2545);
+}
+.gr-section-head h2 svg,
+.gr-card h3 svg { width: 18px; height: 18px; flex: none; color: var(--gold-dark, #B5870F); }
+.gr-section-head > span {
+  font-size: 0.76rem;
+  color: var(--text-muted, #7A8A9F);
+}
+
+/* ---------------------------------------------------------
+   بطاقات المقررات
+   --------------------------------------------------------- */
+.gr-courses {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+}
+.gr-course {
+  min-width: 0;
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: var(--radius-lg, 18px);
+  background: var(--bg-surface, #fff);
+  box-shadow: var(--shadow-xs, 0 1px 2px rgba(11, 37, 69, 0.04));
+  overflow: hidden;
+}
+.gr-course-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  border-bottom: 1px solid var(--border-soft, #EDF1F6);
+}
+.gr-course-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
+  background: var(--gr-course, #123A63);
+  color: #fff;
+  font-family: var(--font-head, "Amiri", serif);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+.gr-course-title { flex: 1; min-width: 0; }
+.gr-course-title h3 {
+  margin: 0 0 3px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--text-primary, #0B2545);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.gr-course-title p {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--text-muted, #7A8A9F);
+}
+.gr-sep { color: var(--border-strong, #CBD5E1); }
+.gr-letter {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: 8px;
+  background: var(--bg-subtle, #F8FAFC);
+  color: var(--text-secondary, #4A5A6F);
+  font-family: var(--font-head, "Amiri", serif);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+.gr-letter-A { background: var(--success-bg, #ECFDF5); border-color: var(--success-border, #A7F3D0); color: var(--success, #166E3F); }
+.gr-letter-B { background: var(--info-bg, #EFF6FF); border-color: var(--info-border, #BFDBFE); color: var(--info, #2A5F94); }
+.gr-letter-C { background: var(--warning-bg, #FFFBEB); border-color: var(--warning-border, #FDE68A); color: var(--gold-dark, #B5870F); }
+.gr-letter-D,
+.gr-letter-F { background: var(--danger-bg, #FEF2F2); border-color: var(--danger-border, #FECACA); color: var(--danger, #C73838); }
+
+.gr-metrics {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 11px;
+  padding: 14px;
+}
+.gr-metric { --gr-metric-color: var(--gold, #D4A017); min-width: 0; }
+.gr-metric[data-kind="exams"] { --gr-metric-color: var(--gold, #D4A017); }
+.gr-metric[data-kind="assignments"] { --gr-metric-color: var(--green, #166E3F); }
+.gr-metric[data-kind="attendance"] { --gr-metric-color: var(--info, #2A5F94); }
+.gr-metric-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 5px;
+  font-size: 0.78rem;
+}
+.gr-metric-head span { color: var(--text-secondary, #4A5A6F); font-weight: 600; }
+.gr-metric-head strong { color: var(--text-primary, #0B2545); font-weight: 700; }
+
+.gr-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--border-soft, #EDF1F6);
+  overflow: hidden;
+}
+.gr-bar > span {
+  display: block;
+  height: 100%;
+  width: var(--gr-bar, 0%);
+  border-radius: inherit;
+  background: var(--gr-metric-color, var(--gold, #D4A017));
+  transition: width 0.8s var(--ease, ease);
+}
+.gr-course-foot {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border-top: 1px dashed var(--border, #E2E8F0);
+  background: var(--bg-subtle, #F8FAFC);
+}
+.gr-course-foot > span { font-size: 0.8rem; color: var(--text-muted, #7A8A9F); font-weight: 600; }
+.gr-course-foot > strong {
+  font-family: var(--font-head, "Amiri", serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--navy-dark, #0B2545);
+}
+.gr-course-foot small {
+  margin-inline-start: 3px;
+  font-family: var(--font-body, "Tajawal", sans-serif);
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--text-muted, #7A8A9F);
+}
+
+/* ---------------------------------------------------------
+   توزيع التقديرات
+   --------------------------------------------------------- */
+.gr-card {
+  padding: 16px;
+  border: 1px solid var(--border, #E2E8F0);
+  border-radius: var(--radius-lg, 18px);
+  background: var(--bg-surface, #fff);
+  box-shadow: var(--shadow-xs, 0 1px 2px rgba(11, 37, 69, 0.04));
+}
+.gr-dist {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  margin-top: 14px;
+}
+.gr-dist-row {
+  --gr-metric-color: var(--text-soft, #A0AEBF);
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr) 34px;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+}
+.gr-dist-row.excellent { --gr-metric-color: var(--success, #166E3F); }
+.gr-dist-row.very_good { --gr-metric-color: var(--info, #2A5F94); }
+.gr-dist-row.good { --gr-metric-color: var(--gold, #D4A017); }
+.gr-dist-row.pass { --gr-metric-color: var(--gold-dark, #B5870F); }
+.gr-dist-row.low { --gr-metric-color: var(--danger, #C73838); }
+.gr-dist-label { color: var(--text-secondary, #4A5A6F); font-weight: 600; }
+.gr-dist-row strong {
+  font-family: var(--font-head, "Amiri", serif);
+  font-size: 0.95rem;
+  text-align: end;
+  color: var(--text-primary, #0B2545);
+}
+
+/* ---------------------------------------------------------
+   التحميل والفراغ والخطأ
+   --------------------------------------------------------- */
+.gr-skeleton {
+  border-radius: var(--radius-lg, 18px);
+  background: linear-gradient(90deg, var(--border-soft, #EDF1F6) 25%, var(--bg-subtle, #F8FAFC) 50%, var(--border-soft, #EDF1F6) 75%);
+  background-size: 200% 100%;
+  animation: grShimmer 1.3s infinite;
+}
+.gr-skeleton-hero { height: 150px; }
+.gr-skeleton-stat { height: 66px; }
+.gr-skeleton-card { height: 190px; }
+@keyframes grShimmer { to { background-position: -200% 0; } }
+
+.gr-empty {
+  padding: 30px 18px;
+  border: 1px dashed var(--border-strong, #CBD5E1);
+  border-radius: var(--radius-lg, 18px);
+  background: var(--bg-surface, #fff);
+  text-align: center;
+}
+.gr-empty-page { padding: 46px 20px; }
+.gr-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 14px;
+  border: 1px dashed var(--border, #E2E8F0);
+  border-radius: 50%;
+  background: var(--bg-subtle, #F8FAFC);
+  color: var(--text-soft, #A0AEBF);
+}
+.gr-empty-icon svg { width: 30px; height: 30px; }
+.gr-empty h2,
+.gr-empty h3 {
+  margin: 0 0 7px;
+  font-family: var(--font-head, "Amiri", serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary, #0B2545);
+}
+.gr-empty h3 { font-size: 1rem; }
+.gr-empty p {
+  max-width: 52ch;
+  margin: 0 auto;
+  font-size: 0.86rem;
+  line-height: 1.75;
+  color: var(--text-muted, #7A8A9F);
+}
+.gr-empty .gr-btn { margin-top: 16px; }
+
+/* ---------------------------------------------------------
+   التجاوب — الهاتف أولاً
+   --------------------------------------------------------- */
+@media (min-width: 560px) {
+  .gr-page { gap: 18px; }
+  .gr-hero { padding: 24px; gap: 24px; grid-template-columns: minmax(0, 1fr) auto; }
+  .gr-ring { width: 132px; height: 132px; }
+  .gr-ring-inner { width: 104px; height: 104px; }
+  .gr-ring-inner strong { font-size: 2rem; }
+  .gr-stats { gap: 14px; }
+  .gr-metrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .gr-courses { gap: 14px; }
+}
+
+@media (min-width: 900px) {
+  .gr-page { gap: 20px; }
+  .gr-header h1 { font-size: 1.65rem; }
+  .gr-hero { padding: 30px 34px; }
+  .gr-hero-info h2 { font-size: 1.6rem; }
+  .gr-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  .gr-stat { padding: 16px 18px; }
+  .gr-stat-icon { width: 44px; height: 44px; }
+  .gr-stat-body > strong { font-size: 1.55rem; }
+  .gr-courses { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gr-card { padding: 22px; }
+  .gr-dist-row { grid-template-columns: 100px minmax(0, 1fr) 44px; }
+}
