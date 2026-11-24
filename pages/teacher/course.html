@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B2545" />
+  <meta name="description" content="تفاصيل المقرر — بوابة الأستاذ، أكاديمية آل الزين للعلوم القانونية والعدلية" />
+  <title>تفاصيل المقرر — أكاديمية آل الزين</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/alzain-academy/css/views/student-dashboard.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/views/teacher-common.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/views/teacher-course.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-teacher-course-BmW29bOr.js"></script>
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-BGBkidcA.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-eUwZL1O8.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/api-Cx-w9ZQ2.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/common-Fo2juhks.js">
+</head>
+<body class="portal">
+  <div id="app">
+    <main class="content" id="content">
+      <div class="tdc-page">
+        <section class="tdc-hero" id="tdcHero" aria-live="polite">
+          <div class="tt-skeleton tt-skeleton-card"></div>
+        </section>
+
+        <nav class="tdc-tabs" id="tdcTabs" role="tablist" aria-label="أقسام المقرر" hidden>
+          <button class="tdc-tab tdc-active" type="button" data-tab="overview" role="tab" aria-selected="true">نظرة عامة</button>
+          <button class="tdc-tab" type="button" data-tab="students" role="tab" aria-selected="false">الطلاب <span data-tab-count="students">—</span></button>
+          <button class="tdc-tab" type="button" data-tab="lectures" role="tab" aria-selected="false">المحاضرات <span data-tab-count="lectures">—</span></button>
+          <button class="tdc-tab" type="button" data-tab="exams" role="tab" aria-selected="false">الاختبارات <span data-tab-count="exams">—</span></button>
+          <button class="tdc-tab" type="button" data-tab="assignments" role="tab" aria-selected="false">الواجبات <span data-tab-count="assignments">—</span></button>
+          <button class="tdc-tab" type="button" data-tab="gradebook" role="tab" aria-selected="false">سجل الدرجات</button>
+        </nav>
+
+        <div class="tdc-panes" id="tdcPanes" hidden>
+          <section class="tdc-pane" data-pane="overview" aria-label="نظرة عامة">
+            <div class="tdc-columns">
+              <div class="tdc-panel">
+                <div class="tdc-panel-head"><h2>آخر النشاطات</h2></div>
+                <div id="tdcActivity" aria-live="polite"></div>
+              </div>
+              <div class="tdc-panel">
+                <div class="tdc-panel-head"><h2>التسليمات</h2><span class="tdc-hint" id="tdcPendingCount">—</span></div>
+                <div id="tdcSubmissions" aria-live="polite"></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="tdc-pane" data-pane="students" aria-label="الطلاب" hidden>
+            <div class="tdc-toolbar">
+              <label class="tdc-sr-only" for="tdcStudentSearch">بحث في الطلاب</label>
+              <input class="tdc-input" id="tdcStudentSearch" type="search" placeholder="ابحث عن طالب..." autocomplete="off" />
+              <button class="tt-btn tt-btn-primary" type="button" id="tdcEnroll">إضافة طالب</button>
+            </div>
+            <div id="tdcStudents" aria-live="polite"></div>
+          </section>
+
+          <section class="tdc-pane" data-pane="lectures" aria-label="المحاضرات" hidden>
+            <div class="tdc-toolbar">
+              <span class="tdc-hint">إدارة محاضرات المقرر وفتح باب الحضور.</span>
+              <button class="tt-btn tt-btn-primary" type="button" id="tdcAddLecture">محاضرة جديدة</button>
+            </div>
+            <div class="tdc-list" id="tdcLectures" aria-live="polite"></div>
+          </section>
+
+          <section class="tdc-pane" data-pane="exams" aria-label="الاختبارات" hidden>
+            <div class="tdc-toolbar">
+              <span class="tdc-hint">الاختبارات غير المنشورة لا تظهر للطلاب.</span>
+              <button class="tt-btn tt-btn-primary" type="button" id="tdcAddExam">اختبار جديد</button>
+            </div>
+            <div class="tdc-list" id="tdcExams" aria-live="polite"></div>
+          </section>
+
+          <section class="tdc-pane" data-pane="assignments" aria-label="الواجبات" hidden>
+            <div class="tdc-toolbar">
+              <span class="tdc-hint">تُصحَّح تسليمات الواجبات من تبويب نظرة عامة.</span>
+              <button class="tt-btn tt-btn-primary" type="button" id="tdcAddAssignment">واجب جديد</button>
+            </div>
+            <div class="tdc-list" id="tdcAssignments" aria-live="polite"></div>
+          </section>
+
+          <section class="tdc-pane" data-pane="gradebook" aria-label="سجل الدرجات" hidden>
+            <div id="tdcGradebook" aria-live="polite"></div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+</body>
+</html>
