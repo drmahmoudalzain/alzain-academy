@@ -51,6 +51,7 @@ export const NAVIGATION = {
     { section: "المكتبة", items: [
       { label: "المكتبة القانونية", href: "pages/library.html", icon: "library" },
       { label: "إدارة المكتبة", href: "pages/library-manage.html", icon: "settings" },
+      { label: "الإشعارات", href: "pages/notifications.html", icon: "bell" },
       { label: "دليل المستخدم", href: "guide.html", icon: "file" },
     ] },
     { section: "الحساب", items: [
