@@ -27,3 +27,6 @@ Thumbs.db
 tmp/
 *.log
 public-url.txt
+
+# Vite build output
+dist/

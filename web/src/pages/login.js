@@ -1,19 +1,70 @@
 import { supabase } from "../lib/supabase.js";
+import { getProfile, homeOf } from "../lib/auth.js";
 
 const form = document.getElementById("login-form");
 const msg = document.getElementById("msg");
+const submit = document.getElementById("submit");
+
+async function resolveEmail(identifier) {
+  if (identifier.includes("@")) return identifier;
+  const { data, error } = await supabase.rpc("login_email_for_identifier", { p_identifier: identifier });
+  if (error) return null;
+  return typeof data === "string" ? data : null;
+}
+
+async function legacyLogin(platformId, password) {
+  const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/legacy-login`;
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: import.meta.env.VITE_SUPABASE_ANON_KEY },
+      body: JSON.stringify({ platformId, password }),
+    });
+    const body = await res.json().catch(() => ({}));
+    return body?.ok === true;
+  } catch {
+    return false;
+  }
+}
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  msg.textContent = "جاري الدخول…";
-  const email = document.getElementById("email").value.trim();
+  const identifier = document.getElementById("identifier").value.trim();
   const password = document.getElementById("password").value;
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) {
-    msg.textContent = "فشل الدخول: " + error.message;
+  if (!identifier || !password) {
+    msg.textContent = "أدخل الرمز وكلمة المرور.";
     return;
   }
+
+  msg.style.color = "";
+  msg.textContent = "جاري الدخول…";
+  submit.disabled = true;
+
+  const email = await resolveEmail(identifier);
+  if (!email) {
+    msg.textContent = "رمز غير معروف. تأكد من الرمز الجامعي أو الوظيفي.";
+    submit.disabled = false;
+    return;
+  }
+
+  let { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+  // ترحيل كسول: إن لم يوجد حساب Auth بعد، ننشئه بكلمة المرور القديمة ثم نعيد المحاولة.
+  if (error && !identifier.includes("@")) {
+    const okLegacy = await legacyLogin(identifier.toLowerCase(), password);
+    if (okLegacy) {
+      ({ data, error } = await supabase.auth.signInWithPassword({ email, password }));
+    }
+  }
+
+  if (error) {
+    msg.textContent = "فشل الدخول: بيانات غير صحيحة.";
+    submit.disabled = false;
+    return;
+  }
+
+  const profile = await getProfile(data.user);
   msg.style.color = "#0a0";
-  msg.textContent = "تم الدخول بنجاح. user_id=" + data.user.id;
-  console.log("session", data.session);
+  msg.textContent = "تم الدخول. جارِ التحويل…";
+  location.assign(homeOf(profile));
 });

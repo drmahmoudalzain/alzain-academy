@@ -1,0 +1,106 @@
+import { navFor } from "./navigation.js";
+import { icon } from "./icons.js";
+import { esc } from "./fmt.js";
+import { signOut, homeOf } from "./auth.js";
+import { p } from "./base.js";
+
+const PORTAL_LABELS = {
+  student: "بوابة الطلاب",
+  teacher: "بوابة الأساتذة",
+  assistant: "بوابة المساعد الإداري",
+  owner: "بوابة المالك",
+};
+
+// يرسم هيكل البوابة (شريط جانبي + شريط علوي + حاوية المحتوى) في #app.
+export function renderShell({ portal, title, profile }) {
+  const nav = navFor(portal, profile);
+  const current = location.pathname;
+  const name = profile?.name || "مستخدم";
+  const sub = profile?.platform_id || profile?.position || PORTAL_LABELS[portal];
+
+  const navHtml = nav
+    .map((section) => {
+      const items = section.items
+        .map((item) => {
+          const href = p(item.href);
+          const active = current === href;
+          return `<a href="${href}" class="nav-item${active ? " active" : ""}"${active ? ' aria-current="page"' : ""}>${icon(item.icon)}<span>${esc(item.label)}</span></a>`;
+        })
+        .join("");
+      return `<div class="nav-section">${esc(section.section)}</div>${items}`;
+    })
+    .join("");
+
+  return `
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M32 6v46"/><path d="M20 52h24"/><circle cx="32" cy="10" r="3" fill="currentColor" stroke="none"/>
+          <path d="M10 18h44"/><path d="M10 18L4 32h12L10 18z"/><path d="M54 18L48 32h12L54 18z"/>
+          <path d="M4 32a6 6 0 0 0 12 0"/><path d="M48 32a6 6 0 0 0 12 0"/>
+        </svg>
+        <div class="sidebar-brand-text"><strong>أكاديمية آل الزين</strong><small>للعلوم القانونية والعدلية</small></div>
+      </div>
+      <div class="sidebar-portal-badge">${esc(PORTAL_LABELS[portal])}</div>
+      <nav class="sidebar-nav" aria-label="التنقل الرئيسي">${navHtml}</nav>
+      <div class="sidebar-user">
+        <div class="user-card">
+          <div class="user-avatar">${esc((name.trim().charAt(0) || "؟"))}</div>
+          <div class="user-info"><strong>${esc(name)}</strong><span>${esc(sub)}</span></div>
+          <button type="button" class="sidebar-logout" id="logoutBtn" aria-label="تسجيل الخروج" title="تسجيل الخروج">${icon("logout")}</button>
+        </div>
+      </div>
+    </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay" role="button" tabindex="-1" aria-label="إغلاق القائمة" aria-hidden="true"></div>
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="topbar-back" id="backBtn" data-fallback="${esc(homeOf(profile))}" aria-label="رجوع" title="رجوع">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+            <span class="back-label">رجوع</span>
+          </button>
+          <button class="menu-btn" id="menuBtn" aria-label="فتح القائمة" aria-expanded="false">${icon("menu")}<span>القائمة</span></button>
+          <div class="topbar-title"><h1>${esc(title)}</h1>
+            <div class="breadcrumb"><span>الرئيسية</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icon("chevron").replace("stroke-width=\"1.8\"", "stroke-width=\"2.4\"")}</svg><span>${esc(title)}</span></div>
+          </div>
+        </div>
+        <div class="search-box search-box--static">${icon("search")}<input type="search" placeholder="ابحث في المنصة..." aria-label="بحث" disabled /></div>
+        <div class="topbar-actions">
+          <a class="icon-btn" href="${p("pages/account.html")}" aria-label="الحساب">${icon("settings")}</a>
+          <div class="topbar-divider"></div>
+          <button class="icon-btn" id="logoutBtnTop" aria-label="تسجيل الخروج" title="تسجيل الخروج">${icon("logout")}</button>
+        </div>
+      </header>
+      <main class="content" id="content"></main>
+    </div>
+  </div>`;
+}
+
+// ربط سلوك الشريط الجانبي والرجوع والخروج.
+export function bindShell() {
+  const sidebar = document.getElementById("sidebar");
+  const menuBtn = document.getElementById("menuBtn");
+  const overlay = document.getElementById("sidebarOverlay");
+  const setOpen = (open) => {
+    if (!sidebar) return;
+    sidebar.classList.toggle("open", open);
+    overlay?.classList.toggle("is-open", open);
+    menuBtn?.setAttribute("aria-expanded", String(open));
+    document.body.classList.toggle("sidebar-open", open);
+  };
+  const close = () => setOpen(false);
+  close();
+  window.addEventListener("pageshow", close);
+  menuBtn?.addEventListener("click", () => setOpen(!sidebar.classList.contains("open")));
+  overlay?.addEventListener("click", close);
+  document.addEventListener("keydown", (e) => e.key === "Escape" && close());
+  document.querySelectorAll(".sidebar-nav a").forEach((a) => a.addEventListener("click", close));
+  document.getElementById("backBtn")?.addEventListener("click", () => {
+    if (window.history.length > 1) window.history.back();
+    else location.assign(document.getElementById("backBtn").dataset.fallback || "/");
+  });
+  const doLogout = () => signOut();
+  document.getElementById("logoutBtn")?.addEventListener("click", doLogout);
+  document.getElementById("logoutBtnTop")?.addEventListener("click", doLogout);
+}
