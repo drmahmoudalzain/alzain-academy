@@ -30,3 +30,6 @@ public-url.txt
 
 # Vite build output
 dist/
+
+# Local legacy reference snapshot
+preview/old-ui/

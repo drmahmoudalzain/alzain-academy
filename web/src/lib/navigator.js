@@ -1,6 +1,7 @@
 import { setPendingPreset, takeMount, beginSoftNav, endSoftNav, isSoftNav } from "./page-registry.js";
 import { disposeAll } from "./lifecycle.js";
 import { routeProgress } from "./loading.js";
+import { initNavHistory, recordNavigation, syncNavHistory } from "./nav-history.js";
 
 export { beginSoftNav, endSoftNav, isSoftNav };
 
@@ -35,8 +36,9 @@ function addStyles(doc, baseUrl) {
   });
 }
 
-async function navigate(url, push) {
+async function navigate(url, push, restoreScroll = 0) {
   let done = false;
+  const href = `${url.pathname}${url.search}${url.hash}`;
   try {
     beginSoftNav();
     progress.start();
@@ -52,7 +54,10 @@ async function navigate(url, push) {
 
     const preset = target.getElementById("content")?.innerHTML || "";
     addStyles(target, url);
-    if (push) history.pushState({ soft: true }, "", `${url.pathname}${url.search}${url.hash}`);
+    if (push) {
+      recordNavigation(href, window.scrollY);
+      history.pushState({ soft: true }, "", href);
+    }
     if (target.title) document.title = target.title;
     setPendingPreset(preset);
 
@@ -68,7 +73,7 @@ async function navigate(url, push) {
     if (typeof mount !== "function") throw new Error("page did not register a mount");
     await mount();
     done = true;
-    window.scrollTo({ top: 0, behavior: "instant" });
+    window.scrollTo({ top: restoreScroll, behavior: "instant" });
   } catch (err) {
     console.warn("soft navigation failed, falling back", err);
   } finally {
@@ -81,6 +86,12 @@ async function navigate(url, push) {
 export function initNavigator() {
   if (started) return;
   started = true;
+  initNavHistory();
+  try {
+    history.scrollRestoration = "manual";
+  } catch {
+    // المتصفح لا يدعم التحكم اليدوي في التمرير.
+  }
 
   document.addEventListener("click", (event) => {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
@@ -95,10 +106,11 @@ export function initNavigator() {
 
   window.addEventListener("popstate", () => {
     const url = new URL(location.href);
+    const scrollY = syncNavHistory(`${url.pathname}${url.search}${url.hash}`);
     if (!canIntercept(url, true)) {
       location.reload();
       return;
     }
-    void navigate(url, false);
+    void navigate(url, false, scrollY);
   });
 }

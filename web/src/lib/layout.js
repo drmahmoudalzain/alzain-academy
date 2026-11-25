@@ -4,6 +4,7 @@ import { esc } from "./fmt.js";
 import { signOut, homeOf } from "./auth.js";
 import { p } from "./base.js";
 import { onDispose } from "./lifecycle.js";
+import { previousEntry } from "./nav-history.js";
 
 const PORTAL_LABELS = {
   student: "بوابة الطلاب",
@@ -65,6 +66,7 @@ export function renderShell({ portal, title, profile }) {
           <button class="topbar-back" id="backBtn" data-fallback="${esc(homeOf(profile))}" aria-label="رجوع" title="رجوع"><span class="back-label">رجوع</span></button>
         </div>
       </header>
+      ${profile?.is_preview ? `<div class="preview-banner" role="status" style="margin:12px 16px 0;padding:10px 14px;border-radius:10px;background:#fff8e1;border:1px solid #e6c65c;color:#6b4f00;font-size:13px;font-weight:700;text-align:center;">وضع المعاينة — هذه واجهة عرض فقط ولا تعرض بيانات حقيقية. <a href="${p("login.html")}" style="color:#0B2545;text-decoration:underline;margin-inline-start:8px;">العودة لتسجيل الدخول</a></div>` : ""}
       <main class="content" id="content"></main>
     </div>
   </div>`;
@@ -116,9 +118,22 @@ export function bindShell() {
   listen(overlay, "click", close);
   listen(document, "keydown", (e) => e.key === "Escape" && close());
   document.querySelectorAll(".sidebar-nav a").forEach((a) => listen(a, "click", close));
-  listen(document.getElementById("backBtn"), "click", () => {
-    if (window.history.length > 1) window.history.back();
-    else location.assign(document.getElementById("backBtn").dataset.fallback || "/");
+  const backBtn = document.getElementById("backBtn");
+  let goingBack = false;
+  listen(backBtn, "click", () => {
+    if (goingBack) return;
+    const previous = previousEntry();
+    if (!previous) {
+      location.assign(backBtn?.dataset.fallback || "/");
+      return;
+    }
+    goingBack = true;
+    backBtn.disabled = true;
+    window.history.back();
+  });
+  listen(window, "popstate", () => {
+    goingBack = false;
+    if (backBtn) backBtn.disabled = false;
   });
   const doLogout = () => signOut();
   listen(document.getElementById("logoutBtn"), "click", doLogout);

@@ -3,6 +3,7 @@ import { call } from "../../lib/api.js";
 import { esc, fmtNum, fmtDateTime, rel } from "../../lib/fmt.js";
 import { icon } from "../../lib/icons.js";
 import { p } from "../../lib/base.js";
+import { filterLectures } from "../../lib/lecture-filters.js";
 
 const STATUS = {
   live: { label: "جارية الآن", icon: "video" },
@@ -25,6 +26,8 @@ const state = {
   lectures: [],
   course: "all",
   status: "all",
+  type: "all",
+  view: "grid",
   query: "",
 };
 
@@ -44,14 +47,18 @@ function showSkeleton() {
   el.tabs.innerHTML = Array.from({ length: 3 }, () => '<div class="lcs-skeleton lcs-skeleton-tab"></div>').join("");
   el.grid.innerHTML = Array.from({ length: 2 }, () => '<div class="lcs-skeleton lcs-skeleton-card"></div>').join("");
   el.status.disabled = true;
+  el.type.disabled = true;
   el.search.disabled = true;
+  el.view.querySelectorAll("button").forEach((button) => { button.disabled = true; });
 }
 
 function showNotice({ title, text, retry = false, tone = "status" }) {
   el.stats.innerHTML = "";
   el.tabs.innerHTML = "";
   el.status.disabled = true;
+  el.type.disabled = true;
   el.search.disabled = true;
+  el.view.querySelectorAll("button").forEach((button) => { button.disabled = true; });
   el.grid.setAttribute("role", tone);
   el.grid.innerHTML = `<div class="lcs-empty">
     <div class="lcs-empty-icon">${icon("lectures")}</div>
@@ -132,9 +139,6 @@ function cardHtml(l) {
   const course = [l.course_code, l.course_title].filter(Boolean).map(esc).join(" — ") || "—";
   const color = esc(l.course_color || "#123A63");
   const date = dateParts(l.scheduled_at);
-  const query = state.query.trim().toLowerCase();
-  if (query && ![l.title, l.description, l.course_title, l.course_code, l.teacher].some((v) => String(v || "").toLowerCase().includes(query))) return "";
-
   let attendance = "";
   if (l.attended) {
     attendance = `<span class="lcs-meta-item">${icon("check")}<span>حضرتها</span></span>`;
@@ -178,15 +182,17 @@ function cardHtml(l) {
 
 function renderCards() {
   el.grid.removeAttribute("role");
-  const list = state.lectures.filter((l) => {
-    if (state.course !== "all" && String(l.course_id) !== state.course) return false;
-    if (state.status !== "all" && l.status !== state.status) return false;
-    return true;
+  el.grid.classList.toggle("lcs-grid--list", state.view === "list");
+  const list = filterLectures(state.lectures, {
+    course: state.course,
+    status: state.status,
+    type: state.type,
+    query: state.query,
   });
   const html = list.map(cardHtml).filter(Boolean).join("");
 
   if (!html) {
-    const filtered = state.course !== "all" || state.status !== "all" || state.query.trim() !== "";
+    const filtered = state.course !== "all" || state.status !== "all" || state.type !== "all" || state.query.trim() !== "";
     el.grid.innerHTML = `<div class="lcs-empty" role="status">
       <div class="lcs-empty-icon">${icon("lectures")}</div>
       <h2>${filtered ? "لا توجد محاضرات مطابقة" : "لا توجد محاضرات مسجلة حالياً"}</h2>
@@ -222,11 +228,22 @@ async function load() {
   state.lectures = Array.isArray(data.lectures) ? data.lectures : [];
   state.course = "all";
   state.status = "all";
+  state.type = "all";
+  state.view = "grid";
   state.query = "";
   el.status.value = "all";
+  el.type.value = "all";
   el.search.value = "";
-  el.status.disabled = false;
-  el.search.disabled = state.lectures.length === 0;
+  const hasLectures = state.lectures.length > 0;
+  el.status.disabled = !hasLectures;
+  el.type.disabled = !hasLectures;
+  el.search.disabled = !hasLectures;
+  el.view.querySelectorAll("button").forEach((button) => {
+    button.disabled = !hasLectures;
+    const active = button.dataset.view === state.view;
+    button.classList.toggle("is-active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
 
   renderStats();
   renderCourseTabs();
@@ -243,7 +260,9 @@ boot("student", "المحاضرات", async ({ profile, content }) => {
     stats: $("lcsStats"),
     tabs: $("lcsCourseTabs"),
     status: $("lcsStatus"),
+    type: $("lcsType"),
     search: $("lcsSearch"),
+    view: root.querySelector(".lcs-view-toggle"),
     grid: $("lcsGrid"),
   };
 
@@ -264,8 +283,25 @@ boot("student", "المحاضرات", async ({ profile, content }) => {
     renderCards();
   });
 
+  el.type.addEventListener("change", (e) => {
+    state.type = e.target.value;
+    renderCards();
+  });
+
   el.search.addEventListener("input", (e) => {
     state.query = e.target.value || "";
+    renderCards();
+  });
+
+  el.view.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-view]");
+    if (!button || button.disabled) return;
+    state.view = button.dataset.view === "list" ? "list" : "grid";
+    el.view.querySelectorAll("[data-view]").forEach((item) => {
+      const active = item === button;
+      item.classList.toggle("is-active", active);
+      item.setAttribute("aria-pressed", String(active));
+    });
     renderCards();
   });
 
@@ -277,8 +313,10 @@ boot("student", "المحاضرات", async ({ profile, content }) => {
     if (e.target.closest("[data-reset]")) {
       state.course = "all";
       state.status = "all";
+      state.type = "all";
       state.query = "";
       el.status.value = "all";
+      el.type.value = "all";
       el.search.value = "";
       renderCourseTabs();
       renderCards();

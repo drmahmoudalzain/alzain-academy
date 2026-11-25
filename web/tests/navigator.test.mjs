@@ -25,6 +25,26 @@ test("layout registers cleanup for its global listeners", () => {
   assert.match(source, /removeEventListener\(/);
 });
 
+test("back button follows the in-app stack, not history.length", () => {
+  const layout = readFileSync(new URL("../src/lib/layout.js", import.meta.url), "utf8");
+  assert.match(layout, /previousEntry\(\)/);
+  assert.match(layout, /history\.back\(\)/);
+  assert.doesNotMatch(layout, /history\.length/);
+
+  const navigator = readFileSync(new URL("../src/lib/navigator.js", import.meta.url), "utf8");
+  assert.match(navigator, /recordNavigation\(/);
+  assert.match(navigator, /syncNavHistory\(/);
+  assert.match(navigator, /initNavHistory\(\)/);
+});
+
+test("owner sidebar starts with dashboard and ends with account", async () => {
+  const { NAVIGATION } = await import("../src/lib/navigation.js");
+  const labels = NAVIGATION.owner.flatMap((section) => section.items.map((item) => item.label));
+  assert.equal(labels[0], "لوحة التحكم");
+  assert.equal(labels[labels.length - 1], "حسابي");
+  assert.deepEqual(labels.slice(-4), ["المساعد الذكي", "المكتبة القانونية", "إدارة المكتبة", "حسابي"]);
+});
+
 test("pages with document-level listeners register cleanup", () => {
   const files = [
     "src/pages/ai-assistant.js",

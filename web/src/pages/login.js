@@ -1,40 +1,45 @@
 import { supabase } from "../lib/supabase.js";
-import { getProfile, homeOf } from "../lib/auth.js";
-import { devLogins } from "../lib/dev-login.js";
+import { getProfile, homeOf, setPreviewRole, clearPreviewRole, previewProfileFor } from "../lib/auth.js";
 
 const form = document.getElementById("login-form");
 const msg = document.getElementById("msg");
 const submit = document.getElementById("submit");
+const passwordInput = document.getElementById("password");
+const togglePassword = document.getElementById("togglePassword");
 
-// أزرار تعبئة محلية للتطوير فقط؛ تبقى مخفية في الإنتاج حتى اكتمال المتغيرات.
-const devBar = document.querySelector(".dev-logins");
-const devEntries = devLogins({
-  DEV: import.meta.env.DEV,
-  MODE: import.meta.env.MODE,
-  VITE_DEV_OWNER_ID: import.meta.env.VITE_DEV_OWNER_ID,
-  VITE_DEV_OWNER_PASSWORD: import.meta.env.VITE_DEV_OWNER_PASSWORD,
-  VITE_DEV_STUDENT_ID: import.meta.env.VITE_DEV_STUDENT_ID,
-  VITE_DEV_STUDENT_PASSWORD: import.meta.env.VITE_DEV_STUDENT_PASSWORD,
-  VITE_DEV_TEACHER_ID: import.meta.env.VITE_DEV_TEACHER_ID,
-  VITE_DEV_TEACHER_PASSWORD: import.meta.env.VITE_DEV_TEACHER_PASSWORD,
-  VITE_DEV_TEACHER2_ID: import.meta.env.VITE_DEV_TEACHER2_ID,
-  VITE_DEV_TEACHER2_PASSWORD: import.meta.env.VITE_DEV_TEACHER2_PASSWORD,
+// العودة إلى صفحة الدخول تعني الخروج من وضع المعاينة.
+clearPreviewRole();
+
+togglePassword?.addEventListener("click", () => {
+  const show = passwordInput.type === "password";
+  passwordInput.type = show ? "text" : "password";
+  togglePassword.setAttribute("aria-pressed", String(show));
+  togglePassword.setAttribute("aria-label", show ? "إخفاء كلمة المرور" : "إظهار كلمة المرور");
+  togglePassword.setAttribute("title", show ? "إخفاء كلمة المرور" : "إظهار كلمة المرور");
+  togglePassword.classList.toggle("is-visible", show);
 });
 
-if (devBar && devEntries.length) {
-  devBar.hidden = false;
-  devBar.querySelectorAll("[data-dev]").forEach((button) => {
-    const entry = devEntries.find((item) => item.key === button.dataset.dev);
-    if (!entry) {
-      button.hidden = true;
-      return;
-    }
-    button.addEventListener("click", () => {
-      document.getElementById("identifier").value = entry.id;
-      document.getElementById("password").value = entry.password;
-      submit.focus();
-    });
+document.querySelectorAll("[data-preview]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const role = button.dataset.preview;
+    const profile = previewProfileFor(role);
+    if (!profile) return;
+    button.disabled = true;
+    setPreviewRole(role);
+    location.assign(homeOf(profile));
   });
+});
+
+function setMessage(text, kind = "error") {
+  msg.textContent = text;
+  msg.classList.toggle("is-success", kind === "success");
+  msg.classList.toggle("is-info", kind === "info");
+}
+
+function setBusy(busy) {
+  submit.disabled = busy;
+  submit.setAttribute("aria-busy", String(busy));
+  submit.querySelector(".btn-label").textContent = busy ? "جاري الدخول…" : "تسجيل الدخول";
 }
 
 async function resolveEmail(identifier) {
@@ -64,18 +69,22 @@ form.addEventListener("submit", async (e) => {
   const identifier = document.getElementById("identifier").value.trim();
   const password = document.getElementById("password").value;
   if (!identifier || !password) {
-    msg.textContent = "أدخل الرمز وكلمة المرور.";
+    setMessage("أدخل الرمز وكلمة المرور.");
     return;
   }
 
-  msg.style.color = "";
-  msg.textContent = "جاري الدخول…";
-  submit.disabled = true;
+  if (!import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY) {
+    setMessage("الاتصال بقاعدة البيانات غير مهيأ. يمكنك استخدام أزرار المعاينة أدناه.");
+    return;
+  }
+
+  setMessage("جاري الدخول…", "info");
+  setBusy(true);
 
   const email = await resolveEmail(identifier);
   if (!email) {
-    msg.textContent = "رمز غير معروف. تأكد من الرمز الأكاديمي أو الوظيفي.";
-    submit.disabled = false;
+    setMessage("رمز غير معروف. تأكد من الرمز الأكاديمي أو الوظيفي.");
+    setBusy(false);
     return;
   }
 
@@ -90,13 +99,12 @@ form.addEventListener("submit", async (e) => {
   }
 
   if (error) {
-    msg.textContent = "فشل الدخول: بيانات غير صحيحة.";
-    submit.disabled = false;
+    setMessage("فشل الدخول: بيانات غير صحيحة.");
+    setBusy(false);
     return;
   }
 
   const profile = await getProfile(data.user);
-  msg.style.color = "#0a0";
-  msg.textContent = "تم الدخول. جارِ التحويل…";
+  setMessage("تم الدخول. جارِ التحويل…", "success");
   location.assign(homeOf(profile));
 });

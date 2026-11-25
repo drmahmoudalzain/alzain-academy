@@ -62,11 +62,6 @@ export const NAVIGATION = {
     ] },
   ],
   owner: [
-    { section: "المكتبة", items: [
-      { label: "المساعد الذكي", href: "pages/ai-assistant.html", icon: "sparkles" },
-      { label: "المكتبة القانونية", href: "pages/library.html", icon: "library" },
-      { label: "إدارة المكتبة", href: "pages/library-manage.html", icon: "settings" },
-    ] },
     { section: "الإدارة", items: [
       { label: "لوحة التحكم", href: "pages/owner/dashboard.html", icon: "home" },
       { label: "المستخدمون", href: "pages/owner/users.html", icon: "users" },
@@ -79,6 +74,11 @@ export const NAVIGATION = {
       { label: "الأرشيف", href: "pages/owner/archive.html", icon: "archive" },
       { label: "الإعدادات", href: "pages/owner/settings.html", icon: "settings" },
       { label: "دليل المستخدم", href: "guide.html", icon: "file" },
+    ] },
+    { section: "المكتبة", items: [
+      { label: "المساعد الذكي", href: "pages/ai-assistant.html", icon: "sparkles" },
+      { label: "المكتبة القانونية", href: "pages/library.html", icon: "library" },
+      { label: "إدارة المكتبة", href: "pages/library-manage.html", icon: "settings" },
     ] },
     { section: "الحساب", items: [
       { label: "حسابي", href: "pages/account.html", icon: "user" },

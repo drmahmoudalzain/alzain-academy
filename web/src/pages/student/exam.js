@@ -3,6 +3,7 @@ import { call } from "../../lib/api.js";
 import { esc, fmtNum, fmtPoints, fmtDateTime, rel } from "../../lib/fmt.js";
 import { icon } from "../../lib/icons.js";
 import { p } from "../../lib/base.js";
+import { parseReviewFlags, serializeReviewFlags, toggleReviewFlag } from "../../lib/exam-review.js";
 
 const TYPE_LABEL = {
   mcq: "اختيار واحد",
@@ -94,6 +95,27 @@ function startKey() {
   return `tk-start:${S?.attemptId || examId || "unknown"}`;
 }
 
+function reviewStorageKey(attemptId = S?.attemptId) {
+  return `tk-review:${attemptId || examId || "unknown"}`;
+}
+
+function readStoredReviewFlags(attemptId, validQuestionIds) {
+  try {
+    return parseReviewFlags(sessionStorage.getItem(reviewStorageKey(attemptId)), validQuestionIds);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveReviewFlags() {
+  if (!S) return;
+  try {
+    sessionStorage.setItem(reviewStorageKey(), serializeReviewFlags(S.reviewFlags));
+  } catch {
+    /* Review markers remain available for the current page even if storage is blocked. */
+  }
+}
+
 function findQuestion(id) {
   return S?.questions.find((q) => qid(q) === id) || null;
 }
@@ -104,6 +126,37 @@ function cardOf(id) {
 
 function chipOf(index) {
   return contentEl?.querySelector(`.tk-chip[data-index="${index}"]`) || null;
+}
+
+function reviewAccessibleLabel(question, index, answered, flagged) {
+  const state = [answered ? "تمت الإجابة" : "لم تتم الإجابة"];
+  if (flagged) state.push("معلّم للمراجعة");
+  return `السؤال ${fmtNum(index + 1)}، ${state.join("، ")}`;
+}
+
+function updateReviewUI(id) {
+  if (!S) return;
+  const question = findQuestion(id);
+  const index = S.questions.findIndex((item) => qid(item) === id);
+  if (!question || index < 0) return;
+
+  const flagged = S.reviewFlags.has(id);
+  const answered = isAnswered(question, S.answers[id]);
+  const card = cardOf(id);
+  const chip = chipOf(index);
+  card?.classList.toggle("is-flagged", flagged);
+  chip?.classList.toggle("is-flagged", flagged);
+  chip?.setAttribute("aria-label", `الانتقال إلى ${reviewAccessibleLabel(question, index, answered, flagged)}`);
+
+  const button = card?.querySelector('[data-action="toggle-review"]');
+  if (button) {
+    button.setAttribute("aria-pressed", String(flagged));
+    button.setAttribute("aria-label", flagged
+      ? `إزالة علامة المراجعة عن السؤال ${fmtNum(index + 1)}`
+      : `تعليم السؤال ${fmtNum(index + 1)} للمراجعة`);
+    const label = button.querySelector(".tk-review-toggle__label");
+    if (label) label.textContent = flagged ? "معلّم للمراجعة" : "علّم للمراجعة";
+  }
 }
 
 /* ------------------------------------------------------------------ */
@@ -150,6 +203,7 @@ function questionHtml(q, index) {
   const id = qid(q);
   const type = String(q.type || "");
   const a = S.answers[id];
+  const flagged = S.reviewFlags.has(id);
   const opts = optionsOf(q);
   let body = "";
 
@@ -173,7 +227,7 @@ function questionHtml(q, index) {
     body = `<p class="tk-intro__note">لا توجد خيارات متاحة لهذا السؤال.</p>`;
   }
 
-  return `<article class="tk-q ${isAnswered(q, a) ? "is-answered" : ""} ${index === S.current ? "is-current" : ""}"
+  return `<article class="tk-q ${isAnswered(q, a) ? "is-answered" : ""} ${index === S.current ? "is-current" : ""} ${flagged ? "is-flagged" : ""}"
       id="tk-q-${esc(id)}" data-qid="${esc(id)}" data-index="${index}">
     <div class="tk-q__head">
       <span class="tk-q__num">${fmtNum(index + 1)}</span>
@@ -187,6 +241,10 @@ function questionHtml(q, index) {
     <div class="tk-q__foot">
       <span>السؤال ${fmtNum(index + 1)} من ${fmtNum(S.questions.length)}</span>
       <span class="tk-q__saved" data-saved="${esc(id)}" ${S.saved.has(id) ? "" : "hidden"}>تم الحفظ</span>
+      <button type="button" class="tk-review-toggle${flagged ? " is-flagged" : ""}" data-action="toggle-review" data-qid="${esc(id)}"
+        aria-pressed="${flagged}" aria-label="${flagged ? `إزالة علامة المراجعة عن السؤال ${fmtNum(index + 1)}` : `تعليم السؤال ${fmtNum(index + 1)} للمراجعة}`}">
+        <span class="tk-review-toggle__label">${flagged ? "معلّم للمراجعة" : "علّم للمراجعة"}</span>
+      </button>
       <button type="button" class="tk-step tk-step--prev" data-action="prev" data-index="${index}" ${index === 0 ? "disabled" : ""} aria-label="السؤال السابق">${icon("chevron")} السابق</button>
       <button type="button" class="tk-step" data-action="next" data-index="${index}" ${index === S.questions.length - 1 ? "disabled" : ""} aria-label="السؤال التالي">التالي ${icon("chevron")}</button>
     </div>
@@ -199,8 +257,10 @@ function navigatorHtml() {
     <p id="tk-current-label">السؤال ${fmtNum(S.current + 1)} من ${fmtNum(S.questions.length)}</p>
     <div class="tk-navgrid">${S.questions.map((q, i) => {
       const id = qid(q);
-      return `<button type="button" class="tk-chip ${isAnswered(q, S.answers[id]) ? "is-answered" : ""} ${i === S.current ? "is-current" : ""}"
-        data-action="goto" data-index="${i}" aria-label="الانتقال إلى السؤال ${fmtNum(i + 1)}">${fmtNum(i + 1)}</button>`;
+      const answered = isAnswered(q, S.answers[id]);
+      const flagged = S.reviewFlags.has(id);
+      return `<button type="button" class="tk-chip ${answered ? "is-answered" : ""} ${i === S.current ? "is-current" : ""} ${flagged ? "is-flagged" : ""}"
+        data-action="goto" data-index="${i}" aria-label="الانتقال إلى ${reviewAccessibleLabel(q, i, answered, flagged)}">${fmtNum(i + 1)}</button>`;
     }).join("")}</div>
   </aside>`;
 }
@@ -307,6 +367,7 @@ function refreshCard(id) {
     card.classList.remove("is-pending");
     chip?.classList.remove("is-pending");
   }
+  updateReviewUI(id);
 }
 
 function updateProgress() {
@@ -512,6 +573,7 @@ async function submitExam() {
     S.submitted = true;
     try {
       sessionStorage.removeItem(startKey());
+      sessionStorage.removeItem(reviewStorageKey());
     } catch {
       /* لا يؤثر فشل التخزين على التسليم */
     }
@@ -551,7 +613,13 @@ async function onClick(event) {
   }
   if (!S) return;
 
-  if (action === "goto") {
+  if (action === "toggle-review") {
+    const id = String(btn.dataset.qid || "");
+    if (!findQuestion(id)) return;
+    S.reviewFlags = toggleReviewFlag(S.reviewFlags, id);
+    saveReviewFlags();
+    updateReviewUI(id);
+  } else if (action === "goto") {
     setCurrent(Number(btn.dataset.index), true);
   } else if (action === "prev") {
     setCurrent(Number(btn.dataset.index) - 1, true);
@@ -648,6 +716,7 @@ async function load() {
 
   const answers = {};
   const saved = new Set();
+  const reviewFlags = readStoredReviewFlags(data.attempt_id, questions.map(qid));
   questions.forEach((q) => {
     const id = qid(q);
     answers[id] = readAnswer(q);
@@ -661,6 +730,7 @@ async function load() {
     questions,
     answers,
     saved,
+    reviewFlags,
     timers: new Map(),
     pending: new Set(),
     failed: new Set(),
@@ -671,6 +741,7 @@ async function load() {
     submitting: false,
     submitted: false,
   };
+  saveReviewFlags();
   renderExam();
 }
 

@@ -2,6 +2,29 @@ import { supabase } from "./supabase.js";
 import { p } from "./base.js";
 import { setCacheUser, peek, set, clear } from "./cache.js";
 import { profileFromMetadata } from "./profile.js";
+import { clearNavHistory } from "./nav-history.js";
+
+export const PREVIEW_KEY = "alzain_preview_role";
+const PREVIEW_PROFILES = {
+  owner: { id: "preview-owner", role: "teacher", name: "معاينة المدير", platform_id: "AD0000", position: "مدير المنصة", is_preview: true },
+  teacher: { id: "preview-teacher", role: "teacher", name: "معاينة الأستاذ", platform_id: "TE0000", position: "أستاذ", is_preview: true },
+  assistant: { id: "preview-assistant", role: "assistant", name: "معاينة المساعد الإداري", platform_id: "AS0000", position: "مساعد إداري", is_preview: true },
+  student: { id: "preview-student", role: "student", name: "معاينة الطالب", platform_id: "ST0000", track: "bachelor_m", level: 1, is_preview: true },
+};
+
+export function getPreviewRole() {
+  try { return sessionStorage.getItem(PREVIEW_KEY); } catch { return null; }
+}
+export function setPreviewRole(role) {
+  try { sessionStorage.setItem(PREVIEW_KEY, role); } catch {}
+}
+export function clearPreviewRole() {
+  try { sessionStorage.removeItem(PREVIEW_KEY); } catch {}
+}
+export function previewProfileFor(role) {
+  const profile = PREVIEW_PROFILES[role];
+  return profile ? { ...profile } : null;
+}
 
 // جلسة المستخدم الحالية (auth.users) أو null.
 export async function currentUser() {
@@ -42,9 +65,13 @@ export function homeOf(profile) {
 }
 
 // يتطلب تسجيل دخول؛ يعيد الملف أو يحوّل إلى صفحة الدخول.
+// في وضع المعاينة (بدون جلسة حقيقية) يُعاد ملف اصطناعي لعرض الواجهة فقط.
 export async function requireProfile() {
   const user = await currentUser();
   if (!user) {
+    const previewRole = getPreviewRole();
+    const preview = previewProfileFor(previewRole);
+    if (preview) return { profile: preview, preview: true };
     const next = encodeURIComponent(location.pathname + location.search);
     location.replace(p(`login.html?next=${next}`));
     return { profile: null };
@@ -59,6 +86,8 @@ export async function requireProfile() {
 }
 
 export async function signOut() {
+  clearPreviewRole();
+  clearNavHistory();
   await supabase.auth.signOut();
   clear();
   location.assign(p("login.html"));

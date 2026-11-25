@@ -73,24 +73,25 @@ test("all four named accounts are available in a development build", () => {
   assert.deepEqual(entries.map((entry) => entry.id), ["AD0001", "BM0062", "TE0002", "TE0003"]);
 });
 
-test("login markup hides the dev button group by default", () => {
+test("login markup shows the four role-preview buttons without credential autofill", () => {
   const html = readFileSync(new URL("../login.html", import.meta.url), "utf8");
-  assert.match(html, /class="dev-logins"[^>]*hidden/);
-  assert.match(html, /data-dev="owner"/);
-  assert.match(html, /data-dev="student"/);
-  assert.match(html, /data-dev="teacher"/);
-  assert.match(html, /data-dev="teacher2"/);
-  assert.doesNotMatch(html, /data-dev="assistant"/);
-  for (const label of ["المدير", "الأستاذ", "الطالب", "المساعد الإداري"]) {
-    assert.match(html, new RegExp(`>${label}</button>`), `missing portal label: ${label}`);
+  assert.match(html, /class="preview-logins"/);
+  assert.doesNotMatch(html, /class="dev-logins"|data-dev=/);
+  for (const role of ["owner", "teacher", "assistant", "student"]) {
+    assert.match(html, new RegExp(`data-preview="${role}"`), `missing preview role: ${role}`);
+  }
+  for (const label of ["دخول المدير", "دخول الأستاذ", "دخول المساعد", "دخول الطلاب"]) {
+    assert.ok(html.includes(label), `missing portal label: ${label}`);
   }
   for (const detail of ["محمود", "الحسين", "عثمان", "النذير"]) {
     assert.doesNotMatch(html, new RegExp(detail), `personal detail still visible: ${detail}`);
   }
 });
 
-test("autofill focuses the submit button exactly once", () => {
+test("password visibility and direct preview behavior remain wired", () => {
   const source = readFileSync(new URL("../src/pages/login.js", import.meta.url), "utf8");
-  assert.match(source, /submit\.focus\(\)/);
-  assert.doesNotMatch(source, /getElementById\("identifier"\)\.focus\(\)/);
+  assert.match(source, /passwordInput\.type = show \? "text" : "password"/);
+  assert.match(source, /aria-pressed/);
+  assert.match(source, /setPreviewRole\(role\)/);
+  assert.match(source, /homeOf\(profile\)/);
 });
