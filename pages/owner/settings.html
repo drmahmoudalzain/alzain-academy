@@ -4,26 +4,37 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0B2545" />
-  <meta name="description" content="الإعدادات — أكاديمية آل الزين للعلوم القانونية والعدلية" />
+  <meta name="description" content="الإعدادات — بوابة المالك، أكاديمية آل الزين" />
   <title>الإعدادات — أكاديمية آل الزين</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
-
-  <link rel="stylesheet" href="/alzain-academy/css/views/student-dashboard.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/views/owner-dashboard.css" />
   <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
-  <script type="module" crossorigin src="/alzain-academy/assets/base-CCmrW03f.js"></script>
-  <script type="module" crossorigin src="/alzain-academy/assets/auth-DXIz8ObO.js"></script>
-  <script type="module" crossorigin src="/alzain-academy/assets/portal-BGrs2lRg.js"></script>
-  <script type="module" crossorigin src="/alzain-academy/assets/portal-coming-DVkuuG5N.js"></script>
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-owner-settings--KVQKziR.js"></script>
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/base-CCmrW03f.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-DXIz8ObO.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-ByCz9Nvk.js">
 </head>
 <body class="portal">
   <div id="app">
     <main class="content" id="content">
-      <div class="empty-state" role="status">جارٍ تحميل الصفحة…</div>
+      <div class="od-page">
+        <section class="od-hero" aria-labelledby="osetTitle">
+          <div class="od-hero-head">
+            <div class="od-hero-body">
+              <span class="od-tag">بوابة المالك · الإعدادات</span>
+              <h1 id="osetTitle">الإعدادات</h1>
+              <p id="osetIntro">إعدادات المنصة (قراءة فقط).</p>
+            </div>
+          </div>
+        </section>
+        <section class="od-panel" aria-labelledby="osetListTitle">
+          <h2 class="od-section-title" id="osetListTitle">settings_public</h2>
+          <div id="osetTable" aria-live="polite"></div>
+        </section>
+      </div>
     </main>
   </div>
-
 </body>
 </html>

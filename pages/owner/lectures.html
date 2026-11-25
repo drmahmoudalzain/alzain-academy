@@ -4,26 +4,72 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0B2545" />
-  <meta name="description" content="المحاضرات — أكاديمية آل الزين للعلوم القانونية والعدلية" />
+  <meta name="description" content="المحاضرات — بوابة المالك، أكاديمية آل الزين" />
   <title>المحاضرات — أكاديمية آل الزين</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
-
-  <link rel="stylesheet" href="/alzain-academy/css/views/student-dashboard.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/views/owner-dashboard.css" />
   <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
-  <script type="module" crossorigin src="/alzain-academy/assets/base-CCmrW03f.js"></script>
-  <script type="module" crossorigin src="/alzain-academy/assets/auth-DXIz8ObO.js"></script>
-  <script type="module" crossorigin src="/alzain-academy/assets/portal-BGrs2lRg.js"></script>
-  <script type="module" crossorigin src="/alzain-academy/assets/portal-coming-DVkuuG5N.js"></script>
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-owner-lectures-BVaaQkiX.js"></script>
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/base-CCmrW03f.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-DXIz8ObO.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-ByCz9Nvk.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/api-BJFMNRHJ.js">
 </head>
 <body class="portal">
   <div id="app">
     <main class="content" id="content">
-      <div class="empty-state" role="status">جارٍ تحميل الصفحة…</div>
+      <div class="od-page">
+        <section class="od-hero" aria-labelledby="olTitle">
+          <div class="od-hero-head">
+            <div class="od-hero-body">
+              <span class="od-tag">بوابة المالك · إدارة المحاضرات</span>
+              <h1 id="olTitle">المحاضرات</h1>
+              <p id="olIntro">عرض وإضافة محاضرات المقررات.</p>
+            </div>
+          </div>
+        </section>
+        <section class="od-panel" aria-labelledby="olFilterTitle">
+          <h2 class="od-section-title" id="olFilterTitle">تصفية</h2>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <select class="od-select" id="olCourse"><option value="">كل المقررات</option></select>
+            <select class="od-select" id="olType">
+              <option value="all">كل الأنواع</option>
+              <option value="direct">مباشر</option>
+              <option value="online">أونلاين</option>
+              <option value="recorded">مسجل</option>
+            </select>
+          </div>
+        </section>
+        <section class="od-panel" aria-labelledby="olListTitle">
+          <div class="od-panel-head">
+            <h2 class="od-section-title" id="olListTitle">القائمة</h2>
+            <button class="od-btn od-btn-primary" id="olNewBtn">+ إضافة محاضرة</button>
+          </div>
+          <div id="olTable" aria-live="polite"></div>
+        </section>
+        <section class="od-panel" id="olFormPanel" hidden aria-labelledby="olFormTitle">
+          <h2 class="od-section-title" id="olFormTitle">إضافة محاضرة</h2>
+          <form id="olForm" class="od-form">
+            <div class="od-field"><label>المقرر</label><select name="course_id" id="olFormCourse" required></select></div>
+            <div class="od-field"><label>العنوان</label><input name="title" required /></div>
+            <div class="od-field"><label>الوصف</label><textarea name="description"></textarea></div>
+            <div class="od-field"><label>النوع</label><select name="lecture_type">
+              <option value="direct">مباشر</option>
+              <option value="online">أونلاين</option>
+              <option value="recorded">مسجل</option>
+            </select></div>
+            <div class="od-field"><label>المدة (دقيقة)</label><input name="duration_min" type="number" value="120" /></div>
+            <div class="od-field"><label>رابط YouTube</label><input name="youtube_url" /></div>
+            <div class="od-field"><label>رابط Live</label><input name="live_url" /></div>
+            <div class="od-field"><label>موعد (ISO)</label><input name="scheduled_at" type="datetime-local" /></div>
+            <div class="od-actions"><button type="submit" class="od-btn od-btn-primary">حفظ</button><button type="button" class="od-btn" id="olCancel">إلغاء</button></div>
+            <div id="olMsg" aria-live="polite"></div>
+          </form>
+        </section>
+      </div>
     </main>
   </div>
-
 </body>
 </html>

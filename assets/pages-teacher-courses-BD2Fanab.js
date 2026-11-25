@@ -1,4 +1,4 @@
-import{p as h}from"./base-CCmrW03f.js";import{b as m,i as n,s as u,c as o,e as i,a as $}from"./portal-BGrs2lRg.js";import{c as g}from"./api-BJFMNRHJ.js";import{$ as c,e as v,s as S}from"./common-fVEVKJuB.js";import"./auth-DXIz8ObO.js";import"https://esm.sh/@supabase/supabase-js@2";const a={courses:[],filter:"all",level:"all",sort:"code",query:""};function d(t,s,e,r,f=""){return`<div class="tc-stat ${f}">
+import{p as h}from"./base-CCmrW03f.js";import{b as m,i as n,s as u,a as o,e as i,c as $}from"./portal-ByCz9Nvk.js";import{c as g}from"./api-BJFMNRHJ.js";import{$ as c,e as v,s as S}from"./common-XznSPr_N.js";import"./auth-DXIz8ObO.js";import"https://esm.sh/@supabase/supabase-js@2";const a={courses:[],filter:"all",level:"all",sort:"code",query:""};function d(t,s,e,r,f=""){return`<div class="tc-stat ${f}">
     <span class="tc-stat-icon">${n(r)}</span>
     <span><span class="tc-stat-label">${i(t)}</span><span class="tc-stat-value">${i(o(s))}<small>${i(e)}</small></span></span>
   </div>`}function L(t){const s=S(t.color),e=`${h("pages/teacher/course.html")}?id=${encodeURIComponent(t.id)}`;return`<article class="tc-card" style="--tc-color:${s}">
