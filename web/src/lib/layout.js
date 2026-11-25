@@ -3,6 +3,7 @@ import { icon } from "./icons.js";
 import { esc } from "./fmt.js";
 import { signOut, homeOf } from "./auth.js";
 import { p } from "./base.js";
+import { onDispose } from "./lifecycle.js";
 
 const PORTAL_LABELS = {
   student: "بوابة الطلاب",
@@ -32,7 +33,7 @@ export function renderShell({ portal, title, profile }) {
     .join("");
 
   return `
-  <div class="app">
+  <div class="app" data-portal="${esc(portal)}">
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-brand">
         <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -77,11 +78,38 @@ export function renderShell({ portal, title, profile }) {
   </div>`;
 }
 
-// ربط سلوك الشريط الجانبي والرجوع والخروج.
+// يبقى الهيكل كما هو في التنقّل الناعم؛ هذه الدوال تحدّثه بدل إعادة رسمه.
+export function shellPortal() {
+  return document.querySelector(".app")?.dataset.portal || null;
+}
+
+export function syncActiveNav(path = location.pathname) {
+  document.querySelectorAll(".sidebar-nav a").forEach((a) => {
+    const active = a.getAttribute("href") === path;
+    a.classList.toggle("active", active);
+    if (active) a.setAttribute("aria-current", "page");
+    else a.removeAttribute("aria-current");
+  });
+}
+
+export function updateShellTitle(title) {
+  const heading = document.querySelector(".topbar-title h1");
+  if (heading) heading.textContent = title || "";
+  const crumbs = document.querySelectorAll(".topbar-title .breadcrumb span");
+  const last = crumbs[crumbs.length - 1];
+  if (last) last.textContent = title || "";
+}
+
+// ربط سلوك الشريط الجانبي والرجوع والخروج. كل مستمع عام يُسجّل للإزالة.
 export function bindShell() {
   const sidebar = document.getElementById("sidebar");
   const menuBtn = document.getElementById("menuBtn");
   const overlay = document.getElementById("sidebarOverlay");
+  const listen = (target, type, fn) => {
+    if (!target) return;
+    target.addEventListener(type, fn);
+    onDispose(() => target.removeEventListener(type, fn));
+  };
   const setOpen = (open) => {
     if (!sidebar) return;
     sidebar.classList.toggle("open", open);
@@ -91,16 +119,17 @@ export function bindShell() {
   };
   const close = () => setOpen(false);
   close();
-  window.addEventListener("pageshow", close);
-  menuBtn?.addEventListener("click", () => setOpen(!sidebar.classList.contains("open")));
-  overlay?.addEventListener("click", close);
-  document.addEventListener("keydown", (e) => e.key === "Escape" && close());
-  document.querySelectorAll(".sidebar-nav a").forEach((a) => a.addEventListener("click", close));
-  document.getElementById("backBtn")?.addEventListener("click", () => {
+  listen(window, "pageshow", close);
+  listen(menuBtn, "click", () => setOpen(!sidebar.classList.contains("open")));
+  listen(overlay, "click", close);
+  listen(document, "keydown", (e) => e.key === "Escape" && close());
+  document.querySelectorAll(".sidebar-nav a").forEach((a) => listen(a, "click", close));
+  listen(document.getElementById("backBtn"), "click", () => {
     if (window.history.length > 1) window.history.back();
     else location.assign(document.getElementById("backBtn").dataset.fallback || "/");
   });
   const doLogout = () => signOut();
-  document.getElementById("logoutBtn")?.addEventListener("click", doLogout);
-  document.getElementById("logoutBtnTop")?.addEventListener("click", doLogout);
+  listen(document.getElementById("logoutBtn"), "click", doLogout);
+  listen(document.getElementById("logoutBtnTop"), "click", doLogout);
+  syncActiveNav();
 }

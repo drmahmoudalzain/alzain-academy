@@ -3,6 +3,7 @@ import { call } from "../../lib/api.js";
 import { esc, fmtNum, fmtPoints, fmtDateTime, rel } from "../../lib/fmt.js";
 import { icon } from "../../lib/icons.js";
 import { p } from "../../lib/base.js";
+import { onDispose } from "../../lib/lifecycle.js";
 
 const TYPE = { mcq: "اختيار من متعدد", multi: "متعدد الإجابات", truefalse: "صح / خطأ", essay: "مقالي" };
 const LETTERS = ["أ", "ب", "ج", "د", "هـ", "و", "ز", "ح"];
@@ -13,6 +14,9 @@ const attemptId = new URLSearchParams(location.search).get("attempt");
 let pageHtml = "";
 let toastTimer = null;
 let el = {};
+onDispose(() => {
+  if (toastTimer) clearTimeout(toastTimer);
+});
 
 function initIcons(root) {
   root.querySelectorAll("[data-icon]").forEach((node) => {

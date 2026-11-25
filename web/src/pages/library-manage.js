@@ -3,6 +3,7 @@ import { supabase } from "../lib/supabase.js";
 import { p } from "../lib/base.js";
 import { esc } from "../lib/fmt.js";
 import { icon } from "../lib/icons.js";
+import { onDispose } from "../lib/lifecycle.js";
 
 const KIND_LABEL = { book: "كتاب", paper: "بحث", media: "وسائط" };
 const MAX_FILE = 20 * 1024 * 1024;
@@ -379,14 +380,16 @@ boot({
       if (section) deleteSection(section);
     });
 
-    document.addEventListener("keydown", (e) => {
+    const onEscape = (e) => {
       if (e.key !== "Escape") return;
       if (els.formModal.classList.contains("open")) closeForm();
       if (els.sectionsModal.classList.contains("open")) {
         els.sectionsModal.classList.remove("open");
         document.body.style.overflow = "";
       }
-    });
+    };
+    document.addEventListener("keydown", onEscape);
+    onDispose(() => document.removeEventListener("keydown", onEscape));
 
     await load();
   },

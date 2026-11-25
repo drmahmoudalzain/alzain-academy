@@ -2,6 +2,7 @@ import { boot } from "../../lib/portal.js";
 import { call } from "../../lib/api.js";
 import { esc, fmtNum, fmtPoints, fmtDateTime, rel } from "../../lib/fmt.js";
 import { icon } from "../../lib/icons.js";
+import { onDispose } from "../../lib/lifecycle.js";
 
 const STATUS = {
   pending: { label: "قيد الانتظار", icon: "clock" },
@@ -374,9 +375,11 @@ boot("student", "الواجبات", async ({ profile, content }) => {
     e.preventDefault();
     submitAssignment();
   });
-  document.addEventListener("keydown", (e) => {
+  const onEscape = (e) => {
     if (e.key === "Escape" && !el.modal.hidden) closeModal();
-  });
+  };
+  document.addEventListener("keydown", onEscape);
+  onDispose(() => document.removeEventListener("keydown", onEscape));
 
   await load();
 });

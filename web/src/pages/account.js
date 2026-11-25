@@ -4,6 +4,7 @@ import { call } from "../lib/api.js";
 import { currentUser } from "../lib/auth.js";
 import { esc, fmtDateTime } from "../lib/fmt.js";
 import { icon } from "../lib/icons.js";
+import { onDispose } from "../lib/lifecycle.js";
 
 const ROLE_LABEL = {
   student: "طالب",
@@ -310,6 +311,7 @@ boot({
     };
     links.forEach((a) => a.addEventListener("click", syncNav));
     window.addEventListener("hashchange", syncNav);
+    onDispose(() => window.removeEventListener("hashchange", syncNav));
     syncNav();
 
     /* -------------------------------------------------- */

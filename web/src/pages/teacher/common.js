@@ -2,6 +2,7 @@
 // البادئة tt- لا تتعارض مع بادئات الصفحات td- / tc- / tdc-.
 import { esc } from "../../lib/fmt.js";
 import { icon } from "../../lib/icons.js";
+import { onDispose } from "../../lib/lifecycle.js";
 
 // يقبل المعرّف مع أو بدون بادئة "#" (صفحة التفاصيل تستخدم الصيغة المألوفة).
 export const $ = (id) => document.getElementById(String(id).replace(/^#/, ""));
@@ -103,6 +104,11 @@ export function openForm({ title, intro = "", fields = [], submitLabel = "حفظ
       close();
       document.removeEventListener("keydown", escKey);
     }
+  });
+  onDispose(() => {
+    document.removeEventListener("keydown", escKey);
+    overlay.remove();
+    document.body.classList.remove("tt-dialog-open");
   });
 
   overlay.querySelectorAll("[data-color-input]").forEach((group) => {

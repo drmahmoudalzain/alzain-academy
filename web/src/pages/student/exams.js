@@ -3,6 +3,7 @@ import { call } from "../../lib/api.js";
 import { esc, fmtNum, fmtPoints, fmtDateTime, rel } from "../../lib/fmt.js";
 import { icon } from "../../lib/icons.js";
 import { p } from "../../lib/base.js";
+import { onDispose } from "../../lib/lifecycle.js";
 
 const STATUS = {
   open: { label: "جاري الآن", icon: "clock" },
@@ -34,6 +35,9 @@ const state = {
 };
 let countdownTimer = null;
 let el = null;
+onDispose(() => {
+  if (countdownTimer) clearInterval(countdownTimer);
+});
 
 function countdownText(ms) {
   const seconds = Math.floor(ms / 1000);
@@ -365,9 +369,11 @@ boot("student", "الاختبارات", async ({ content }) => {
     closeModal();
     location.assign(`${p("pages/student/exam.html")}?id=${encodeURIComponent(exam.id)}`);
   });
-  document.addEventListener("keydown", (e) => {
+  const onEscape = (e) => {
     if (e.key === "Escape" && !el.modal.hidden) closeModal();
-  });
+  };
+  document.addEventListener("keydown", onEscape);
+  onDispose(() => document.removeEventListener("keydown", onEscape));
 
   await load();
 });

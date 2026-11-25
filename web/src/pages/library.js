@@ -1,6 +1,7 @@
 import { boot } from "../lib/portal.js";
 import { supabase } from "../lib/supabase.js";
 import { p } from "../lib/base.js";
+import { onDispose } from "../lib/lifecycle.js";
 import { esc } from "../lib/fmt.js";
 import { icon } from "../lib/icons.js";
 
@@ -429,9 +430,11 @@ boot({
     el.modal.addEventListener("click", (e) => {
       if (e.target === el.modal) closeModal();
     });
-    document.addEventListener("keydown", (e) => {
+    const onEscape = (e) => {
       if (e.key === "Escape" && el.modal.classList.contains("open")) closeModal();
-    });
+    };
+    document.addEventListener("keydown", onEscape);
+    onDispose(() => document.removeEventListener("keydown", onEscape));
     el.previewBtn.addEventListener("click", preview);
     el.favModalBtn.addEventListener("click", () => {
       if (state.current) setFav(state.current.id, !isFav(state.current.id));

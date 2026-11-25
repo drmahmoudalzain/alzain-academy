@@ -3,6 +3,7 @@ import { supabase } from "../lib/supabase.js";
 import { call } from "../lib/api.js";
 import { esc, fmtDateTime } from "../lib/fmt.js";
 import { icon } from "../lib/icons.js";
+import { onDispose } from "../lib/lifecycle.js";
 
 const MAX_CHARS = 8000;
 
@@ -79,9 +80,11 @@ boot({
       el.historyBtn.setAttribute("aria-expanded", String(open));
     });
     el.overlay.addEventListener("click", closeDrawer);
-    document.addEventListener("keydown", (e) => {
+    const onEscape = (e) => {
       if (e.key === "Escape") closeDrawer();
-    });
+    };
+    document.addEventListener("keydown", onEscape);
+    onDispose(() => document.removeEventListener("keydown", onEscape));
 
     /* -------------------------------------------------- */
     /* عرض الرسائل                                         */
