@@ -81,6 +81,12 @@ test("login markup hides the dev button group by default", () => {
   assert.match(html, /data-dev="teacher"/);
   assert.match(html, /data-dev="teacher2"/);
   assert.doesNotMatch(html, /data-dev="assistant"/);
+  for (const label of ["المدير", "الأستاذ", "الطالب", "المساعد الإداري"]) {
+    assert.match(html, new RegExp(`>${label}</button>`), `missing portal label: ${label}`);
+  }
+  for (const detail of ["محمود", "الحسين", "عثمان", "النذير"]) {
+    assert.doesNotMatch(html, new RegExp(detail), `personal detail still visible: ${detail}`);
+  }
 });
 
 test("autofill focuses the submit button exactly once", () => {
