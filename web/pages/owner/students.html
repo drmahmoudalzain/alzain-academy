@@ -4,23 +4,46 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0B2545" />
-  <meta name="description" content="الطلاب — أكاديمية آل الزين للعلوم القانونية والعدلية" />
+  <meta name="description" content="الطلاب — بوابة المالك، أكاديمية آل الزين" />
   <title>الطلاب — أكاديمية آل الزين</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
-
-  <link rel="stylesheet" href="/css/views/student-dashboard.css" />
+  <link rel="stylesheet" href="/css/views/owner-dashboard.css" />
   <link rel="stylesheet" href="/css/portal-theme.css" />
 </head>
 <body class="portal">
   <div id="app">
     <main class="content" id="content">
-      <div class="empty-state" role="status">جارٍ تحميل الصفحة…</div>
+      <div class="od-page">
+        <section class="od-hero" aria-labelledby="ostTitle">
+          <div class="od-hero-head">
+            <div class="od-hero-body">
+              <span class="od-tag">بوابة المالك · إدارة الطلاب</span>
+              <h1 id="ostTitle">الطلاب</h1>
+              <p id="ostIntro">عرض الطلاب والتسجيل في المقررات.</p>
+            </div>
+          </div>
+        </section>
+        <section class="od-panel" aria-labelledby="ostEnrollTitle">
+          <h2 class="od-section-title" id="ostEnrollTitle">تسجيل طالب في مقرر</h2>
+          <form id="ostEnrollForm" class="od-form" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;">
+            <div class="od-field"><label>المقرر</label><select name="course_id" id="ostCourse" required></select></div>
+            <div class="od-field"><label>معرّف الطالب (بريد/رقم جامعي/منصة)</label><input name="identifier" required /></div>
+            <button type="submit" class="od-btn od-btn-primary">تسجيل</button>
+            <div id="ostEnrollMsg" aria-live="polite"></div>
+          </form>
+        </section>
+        <section class="od-panel" aria-labelledby="ostListTitle">
+          <div class="od-panel-head">
+            <h2 class="od-section-title" id="ostListTitle">القائمة</h2>
+            <span class="od-link" id="ostCount">—</span>
+          </div>
+          <div id="ostTable" aria-live="polite"></div>
+        </section>
+      </div>
     </main>
   </div>
-
-  <script type="module" src="/src/pages/portal-coming.js"></script>
+  <script type="module" src="/src/pages/owner/students.js"></script>
 </body>
 </html>

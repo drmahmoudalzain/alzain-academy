@@ -4,23 +4,69 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0B2545" />
-  <meta name="description" content="المقررات — أكاديمية آل الزين للعلوم القانونية والعدلية" />
+  <meta name="description" content="المقررات — بوابة المالك، أكاديمية آل الزين" />
   <title>المقررات — أكاديمية آل الزين</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
-
-  <link rel="stylesheet" href="/css/views/student-dashboard.css" />
+  <link rel="stylesheet" href="/css/views/owner-dashboard.css" />
   <link rel="stylesheet" href="/css/portal-theme.css" />
 </head>
 <body class="portal">
   <div id="app">
     <main class="content" id="content">
-      <div class="empty-state" role="status">جارٍ تحميل الصفحة…</div>
+      <div class="od-page">
+        <section class="od-hero" aria-labelledby="ocTitle">
+          <div class="od-hero-head">
+            <div class="od-hero-body">
+              <span class="od-tag">بوابة المالك · إدارة المقررات</span>
+              <h1 id="ocTitle">المقررات</h1>
+              <p id="ocIntro">إنشاء وتعديل المقررات وإسناد الأساتذة.</p>
+            </div>
+          </div>
+        </section>
+        <section class="od-panel" aria-labelledby="ocActionsTitle">
+          <h2 class="od-section-title" id="ocActionsTitle">إجراءات</h2>
+          <div id="ocActions" class="od-actions"></div>
+        </section>
+        <section class="od-panel" aria-labelledby="ocListTitle">
+          <div class="od-panel-head">
+            <h2 class="od-section-title" id="ocListTitle">القائمة</h2>
+            <label class="od-check"><input type="checkbox" id="ocShowArchived" /> عرض المؤرشفة</label>
+          </div>
+          <div id="ocTable" aria-live="polite"></div>
+        </section>
+        <section class="od-panel" id="ocFormPanel" hidden aria-labelledby="ocFormTitle">
+          <h2 class="od-section-title" id="ocFormTitle">إنشاء مقرر</h2>
+          <form id="ocForm" class="od-form">
+            <div class="od-field"><label>العنوان</label><input name="title" required /></div>
+            <div class="od-field"><label>الرمز</label><input name="code" required /></div>
+            <div class="od-field"><label>الوصف</label><textarea name="description"></textarea></div>
+            <div class="od-field"><label>المسار</label><select name="track">
+              <option value="bachelor_m">بكالوريوس (ذكور)</option>
+              <option value="bachelor_f">بكالوريوس (إناث)</option>
+              <option value="bachelor">بكالوريوس (مختلط)</option>
+              <option value="equiv">معادلة</option>
+              <option value="external">خارجي</option>
+              <option value="grad">دراسات عليا</option>
+            </select></div>
+            <div class="od-field"><label>المستوى</label><input name="level" type="number" min="1" max="4" /></div>
+            <div class="od-field"><label>اللون</label><input name="color" type="color" value="#123A63" /></div>
+            <div class="od-field"><label>الأستاذ المسؤول</label><select name="teacher_id" id="ocTeacher"></select></div>
+            <div class="od-field"><label>أوزان (حضور/اختبارات/واجبات)</label>
+              <div style="display:flex;gap:6px;">
+                <input name="aw" type="number" min="0" max="100" value="10" />/
+                <input name="ew" type="number" min="0" max="100" value="60" />/
+                <input name="asw" type="number" min="0" max="100" value="30" />
+              </div>
+            </div>
+            <div class="od-actions"><button type="submit" class="od-btn od-btn-primary">حفظ</button><button type="button" class="od-btn" id="ocCancel">إلغاء</button></div>
+            <div id="ocMsg" aria-live="polite"></div>
+          </form>
+        </section>
+      </div>
     </main>
   </div>
-
-  <script type="module" src="/src/pages/portal-coming.js"></script>
+  <script type="module" src="/src/pages/owner/courses.js"></script>
 </body>
 </html>
