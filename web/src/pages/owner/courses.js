@@ -33,8 +33,8 @@ function renderCourses() {
       <td>${c.level || "—"}</td>
       <td>${c.archived ? "أرشيف" : "نشط"}</td>
       <td>
-        <button class="od-btn od-btn-small" data-action="edit" data-id="${c.id}">تعديل</button>
-        <button class="od-btn od-btn-small" data-action="archive" data-id="${c.id}" data-archived="${c.archived}">${c.archived ? "استعادة" : "أرشفة"}</button>
+        <button class="od-btn od-btn--small ${c.archived ? "od-btn--ghost" : "od-btn--danger"}" data-action="archive" data-id="${c.id}" data-archived="${c.archived}">${icon(c.archived ? "refresh" : "archive")} ${c.archived ? "استعادة" : "أرشفة"}</button>
+        <button class="od-btn od-btn--small od-btn--ghost" data-action="edit" data-id="${c.id}">${icon("edit")} تعديل</button>
       </td>
     </tr>
   `).join("");
@@ -51,11 +51,16 @@ function renderCourses() {
         const archived = btn.dataset.archived === "true";
         const course = allCourses.find((c) => c.id === id);
         if (!course) return;
+        if (!confirm(archived ? "استعادة المقرر من الأرشيف؟" : "أرشفة المقرر؟")) return;
+        btn.classList.add("is-loading");
+        btn.disabled = true;
         const res = await call("management_update_course", {
           p_course_id: id,
           p_title: course.title,
           p_archived: !archived,
         });
+        btn.classList.remove("is-loading");
+        btn.disabled = false;
         if (!res?.ok) { alert(res?.error || "فشل"); return; }
         await reload();
       } else if (action === "edit") {
@@ -96,7 +101,7 @@ boot({
   portal: "owner",
   title: "المقررات",
   render: async () => {
-    $("ocActions").innerHTML = `<button class="od-action" id="ocNewBtn"><span class="od-action-icon">${icon("plus")}</span><span class="od-action-label">إنشاء مقرر</span></button>`;
+    $("ocActions").innerHTML = `<button class="od-btn od-btn--primary" id="ocNewBtn"><span data-icon="plus" aria-hidden="true"></span> إنشاء مقرر</button>`;
     $("ocNewBtn").addEventListener("click", () => {
       $("ocForm").reset();
       delete $("ocForm").dataset.editId;
@@ -113,7 +118,11 @@ boot({
       e.preventDefault();
       const f = e.target;
       const msg = $("ocMsg");
+      const btn = $("ocSubmitBtn");
       msg.textContent = "جارٍ الحفظ...";
+      msg.className = "od-inline-msg";
+      btn.classList.add("is-loading");
+      btn.disabled = true;
       const params = {
         p_title: f.elements.title.value,
         p_code: f.elements.code.value,
@@ -130,12 +139,16 @@ boot({
       const res = editId
         ? await call("management_update_course", { p_course_id: Number(editId), ...params })
         : await call("management_create_course", params);
+      btn.classList.remove("is-loading");
+      btn.disabled = false;
       if (res?.ok) {
         msg.textContent = "تم الحفظ بنجاح.";
+        msg.className = "od-inline-msg is-success";
         $("ocFormPanel").hidden = true;
         await reload();
       } else {
         msg.textContent = res?.error || "فشل الحفظ.";
+        msg.className = "od-inline-msg is-error";
       }
     });
   },

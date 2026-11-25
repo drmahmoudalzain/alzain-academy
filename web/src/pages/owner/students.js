@@ -60,16 +60,22 @@ boot({
       e.preventDefault();
       const f = e.target;
       const msg = $("ostEnrollMsg");
+      const btn = document.querySelector("#ostEnrollForm button[type=submit]") || $("ostSubmitBtn");
       msg.textContent = "جارٍ التسجيل...";
+      msg.className = "od-inline-msg";
+      if (btn) { btn.classList.add("is-loading"); btn.disabled = true; }
       const res = await call("management_enroll_student", {
         p_course_id: Number(f.elements.course_id.value),
         p_identifier: f.elements.identifier.value,
       });
+      if (btn) { btn.classList.remove("is-loading"); btn.disabled = false; }
       if (res?.ok) {
         msg.textContent = `تم تسجيل: ${res.data?.name || ""}`;
+        msg.className = "od-inline-msg is-success";
         f.reset();
       } else {
         msg.textContent = res?.error || "فشل.";
+        msg.className = "od-inline-msg is-error";
       }
     });
   },

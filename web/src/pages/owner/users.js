@@ -8,6 +8,21 @@ const $ = (id) => document.getElementById(id);
 
 let allUsers = [];
 
+async function loadUsers() {
+  $("ouTable").innerHTML = `<div class="od-skeleton od-skeleton-row" aria-hidden="true"></div>`.repeat(6);
+  const { data, error } = await supabase
+    .from("users")
+    .select("id, name, email, role, is_active, university_id, platform_id, must_change_password, created_at")
+    .order("created_at", { ascending: false });
+  if (error) {
+    $("ouTable").innerHTML = `<div class="od-empty" role="status"><span class="od-empty-icon">${icon("users")}</span><h3>تعذّر تحميل المستخدمين</h3><p>${esc(error.message || "خطأ غير معروف")}</p></div>`;
+    $("ouCount").textContent = "—";
+    return;
+  }
+  allUsers = Array.isArray(data) ? data : [];
+  applyFilters();
+}
+
 function roleLabel(role) {
   return role === "teacher" ? "أستاذ" : role === "assistant" ? "مساعد" : role === "student" ? "طالب" : role || "—";
 }
@@ -54,22 +69,20 @@ boot({
   portal: "owner",
   title: "المستخدمون",
   render: async () => {
-    $("ouTable").innerHTML = `<div class="od-skeleton od-skeleton-row" aria-hidden="true"></div>`.repeat(6);
-    const { data, error } = await supabase
-      .from("users")
-      .select("id, name, email, role, is_active, university_id, platform_id, must_change_password, created_at")
-      .order("created_at", { ascending: false });
-    if (error) {
-      $("ouTable").innerHTML = `<div class="od-empty" role="status"><span class="od-empty-icon">${icon("users")}</span><h3>تعذّر تحميل المستخدمين</h3><p>${esc(error.message || "خطأ غير معروف")}</p></div>`;
-      $("ouCount").textContent = "—";
-      return;
-    }
-    allUsers = Array.isArray(data) ? data : [];
     ["ouRole", "ouSearch", "ouActiveOnly"].forEach((id) => {
       const el = $(id);
-      if (el) el.addEventListener(el.tagName === "INPUT" && el.type === "checkbox" ? "change" : "input", applyFilters);
-      if (el && el.tagName === "SELECT") el.addEventListener("change", applyFilters);
+      if (!el) return;
+      const evt = (el.tagName === "INPUT" && el.type === "checkbox") ? "change" : (el.tagName === "SELECT" ? "change" : "input");
+      el.addEventListener(evt, applyFilters);
     });
-    applyFilters();
+    const refreshBtn = $("ouRefresh");
+    if (refreshBtn) refreshBtn.addEventListener("click", async () => {
+      refreshBtn.classList.add("is-loading");
+      refreshBtn.disabled = true;
+      await loadUsers();
+      refreshBtn.classList.remove("is-loading");
+      refreshBtn.disabled = false;
+    });
+    await loadUsers();
   },
 });

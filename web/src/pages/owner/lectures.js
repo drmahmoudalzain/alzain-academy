@@ -79,7 +79,11 @@ boot({
       e.preventDefault();
       const f = e.target;
       const msg = $("olMsg");
+      const btn = $("olSubmitBtn");
       msg.textContent = "جارٍ الحفظ...";
+      msg.className = "od-inline-msg";
+      btn.classList.add("is-loading");
+      btn.disabled = true;
       const res = await call("management_add_lecture", {
         p_course_id: Number(f.elements.course_id.value),
         p_title: f.elements.title.value,
@@ -90,13 +94,17 @@ boot({
         p_live_url: f.elements.live_url.value || null,
         p_scheduled_at: f.elements.scheduled_at.value ? new Date(f.elements.scheduled_at.value).toISOString() : null,
       });
+      btn.classList.remove("is-loading");
+      btn.disabled = false;
       if (res?.ok) {
         msg.textContent = "تمت الإضافة.";
+        msg.className = "od-inline-msg is-success";
         $("olFormPanel").hidden = true;
         f.reset();
         await reload();
       } else {
         msg.textContent = res?.error || "فشل.";
+        msg.className = "od-inline-msg is-error";
       }
     });
   },

@@ -30,7 +30,7 @@
           <form id="ostEnrollForm" class="od-form" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;">
             <div class="od-field"><label>المقرر</label><select name="course_id" id="ostCourse" required></select></div>
             <div class="od-field"><label>معرّف الطالب (بريد/رقم جامعي/منصة)</label><input name="identifier" required /></div>
-            <button type="submit" class="od-btn od-btn-primary">تسجيل</button>
+            <button type="submit" class="od-btn od-btn--primary" id="ostSubmitBtn"><span class="od-btn-spinner"></span> تسجيل</button>
             <div id="ostEnrollMsg" aria-live="polite"></div>
           </form>
         </section>
