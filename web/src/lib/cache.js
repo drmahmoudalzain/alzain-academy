@@ -5,6 +5,9 @@ const DEFAULT_TTL = 60000;
 
 let scope = "anon:";
 const memory = new Map();
+// قراءتان متزامنتان لنفس المفتاح تتشاركان نفس الطلب. تُعلَّم الدفعات الملغاة
+// كي لا تعيد كتابة قيمة قديمة بعد إبطال الكاش.
+const pending = new Map();
 
 function session() {
   try {
@@ -64,16 +67,39 @@ export function peek(key) {
 }
 
 export async function remember(key, ttl, loader) {
-  const cached = read(fullKey(key));
+  const full = fullKey(key);
+  const cached = read(full);
   if (cached !== undefined) return cached;
-  const value = await loader();
-  // undefined يعني «لا تخزّن»؛ تستخدمه طبقة API للأخطاء المؤقتة.
-  if (value !== undefined) set(key, value, ttl);
-  return value;
+
+  const existing = pending.get(full);
+  if (existing) return existing.promise;
+
+  const entry = { promise: null, cancelled: false };
+  entry.promise = (async () => {
+    try {
+      const value = await loader();
+      // undefined يعني «لا تخزّن»؛ تستخدمه طبقة API للأخطاء المؤقتة.
+      // إذا أُبطل الكاش أثناء الطلب فلا تُكتب النتيجة القديمة.
+      if (!entry.cancelled && value !== undefined) {
+        write(full, { v: value, exp: Date.now() + Math.max(0, ttl) });
+      }
+      return value;
+    } finally {
+      if (pending.get(full) === entry) pending.delete(full);
+    }
+  })();
+  pending.set(full, entry);
+  return entry.promise;
 }
 
 export function clear(prefix) {
   const match = prefix === undefined || prefix === null ? PREFIX : `${PREFIX}${prefix}`;
+  for (const [key, entry] of [...pending]) {
+    if (key.startsWith(match)) {
+      entry.cancelled = true;
+      pending.delete(key);
+    }
+  }
   for (const key of [...memory.keys()]) {
     if (key.startsWith(match)) memory.delete(key);
   }

@@ -45,3 +45,9 @@ test("login markup hides the dev button group by default", () => {
   assert.match(html, /data-dev="teacher"/);
   assert.match(html, /data-dev="assistant"/);
 });
+
+test("autofill focuses the submit button exactly once", () => {
+  const source = readFileSync(new URL("../src/pages/login.js", import.meta.url), "utf8");
+  assert.match(source, /submit\.focus\(\)/);
+  assert.doesNotMatch(source, /getElementById\("identifier"\)\.focus\(\)/);
+});

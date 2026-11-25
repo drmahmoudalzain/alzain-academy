@@ -1,6 +1,7 @@
 import { supabase } from "./supabase.js";
 import { p } from "./base.js";
-import { setCacheUser, remember, clear } from "./cache.js";
+import { setCacheUser, peek, set, clear } from "./cache.js";
+import { profileFromMetadata } from "./profile.js";
 
 // جلسة المستخدم الحالية (auth.users) أو null.
 export async function currentUser() {
@@ -9,37 +10,23 @@ export async function currentUser() {
 }
 
 // ملف المستخدم من جدول users (مرتبط عبر auth_id)، مع احتياط من metadata.
-// يقرأ من الكاش المقيد بالمستخدم لتفادي إعادة الجلب في كل تنقّل.
+// تُخزَّن صفوف users الناجحة فقط؛ الاحتياطي يُعاد بلا كاش حتى لا يثبت خطأ عابر.
 export async function getProfile(user) {
   if (!user) return null;
   setCacheUser(user.id);
-  return remember(`profile:${user.id}`, 300000, async () => {
-    const { data, error } = await supabase
-      .from("users")
-      .select("id, role, name, email, phone, platform_id, university_id, track, level, gender, position, is_staff, must_change_password")
-      .eq("auth_id", user.id)
-      .maybeSingle();
 
-    if (!error && data) return data;
+  const key = `profile:${user.id}`;
+  const cached = peek(key);
+  if (cached) return cached;
 
-    const md = user.user_metadata || {};
-    const am = user.app_metadata || {};
-    return {
-      id: am.academy_user_id ?? null,
-      role: am.role || "student",
-      name: md.full_name || user.email || "مستخدم",
-      email: md.contact_email || null,
-      phone: md.phone || null,
-      platform_id: md.platform_id || null,
-      university_id: null,
-      track: null,
-      level: null,
-      gender: null,
-      position: null,
-      is_staff: am.role === "teacher" || am.role === "assistant",
-      must_change_password: false,
-    };
-  });
+  const { data, error } = await supabase
+    .from("users")
+    .select("id, role, name, email, phone, platform_id, university_id, track, level, gender, position, is_staff, must_change_password")
+    .eq("auth_id", user.id)
+    .maybeSingle();
+
+  if (!error && data) return set(key, data, 300000);
+  return profileFromMetadata(user);
 }
 
 // البوابة الفعلية حسب الدور (المالك = أستاذ برمز AD).

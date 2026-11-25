@@ -23,8 +23,14 @@ function paramsKey(params) {
 }
 
 export async function call(fn, params = {}) {
-  // أي كتابة تُبطل كل النطاق: لوحة التحكم والإحصاءات تعتمد على أكثر من RPC.
-  if (isInvalidating(fn)) clear();
+  // أي كتابة تُبطل كل النطاق قبل التنفيذ وبعد نجاحها: لوحة التحكم والإحصاءات
+  // تعتمد على أكثر من RPC، وقد تبدأ قراءة أثناء تنفيذ الكتابة.
+  if (isInvalidating(fn)) {
+    clear();
+    const res = await rawCall(fn, params);
+    if (res.ok) clear();
+    return res;
+  }
 
   if (!isCacheable(fn)) return rawCall(fn, params);
 

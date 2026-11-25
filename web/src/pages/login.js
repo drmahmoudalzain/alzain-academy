@@ -29,7 +29,6 @@ if (devBar && devEntries.length) {
     button.addEventListener("click", () => {
       document.getElementById("identifier").value = entry.id;
       document.getElementById("password").value = entry.password;
-      document.getElementById("identifier").focus();
       submit.focus();
     });
   });
