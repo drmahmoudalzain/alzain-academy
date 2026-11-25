@@ -17,6 +17,49 @@
   gap: 8px;
 }
 
+.password-field {
+  position: relative;
+}
+
+.password-field input {
+  padding-inline-end: 44px;
+}
+
+.password-toggle {
+  position: absolute;
+  inset-inline-end: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #6b7280;
+  cursor: pointer;
+  display: inline-grid;
+  place-items: center;
+}
+
+.password-toggle:hover,
+.password-toggle:focus-visible {
+  background: #f3f4f6;
+  color: #0B2545;
+  outline: 2px solid #D4A017;
+  outline-offset: 1px;
+}
+
+.password-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+.password-toggle .eye-off { display: none; }
+.password-toggle.is-visible .eye-open { display: none; }
+.password-toggle.is-visible .eye-off { display: block; }
+
 .preview-logins {
   margin-top: 18px;
   padding-top: 16px;

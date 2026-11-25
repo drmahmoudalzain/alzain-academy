@@ -25,7 +25,7 @@
     .login-card button:disabled { opacity: .6; cursor: default; }
     #msg { text-align: center; min-height: 1.2em; margin-top: 12px; font-size: 14px; color: #c00; }
   </style>
-  <script type="module" crossorigin src="/alzain-academy/assets/login-ahFRwVgi.js"></script>
+  <script type="module" crossorigin src="/alzain-academy/assets/login-BmmxMxO8.js"></script>
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-DvFUNVfe.js">
 </head>
@@ -39,7 +39,13 @@
       <label for="identifier">الرمز الأكاديمي / الوظيفي</label>
       <input id="identifier" type="text" placeholder="مثال: BM0001 أو TE0002" autocomplete="username" required />
       <label for="password">كلمة المرور</label>
-      <input id="password" type="password" placeholder="كلمة المرور" autocomplete="current-password" required />
+      <div class="password-field">
+        <input id="password" type="password" placeholder="كلمة المرور" autocomplete="current-password" required />
+        <button type="button" id="togglePassword" class="password-toggle" aria-label="إظهار كلمة المرور" aria-pressed="false" title="إظهار كلمة المرور">
+          <svg class="eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+          <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20C5 20 1 12 1 12a21.86 21.86 0 0 1 5.06-6.06"/><path d="M9.9 4.24A10.54 10.54 0 0 1 12 4c7 0 11 8 11 8a21.83 21.83 0 0 1-2.16 3.19"/><path d="M14.12 14.12a3 3 0 0 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>
+        </button>
+      </div>
       <div class="preview-logins" aria-label="معاينة البوابات">
         <p class="preview-logins__title">معاينة البوابات بدون تسجيل دخول</p>
         <div class="preview-logins__grid">
