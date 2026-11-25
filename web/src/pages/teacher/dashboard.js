@@ -3,6 +3,7 @@ import { call } from "../../lib/api.js";
 import { esc, fmtDateTime, fmtNum, rel } from "../../lib/fmt.js";
 import { icon } from "../../lib/icons.js";
 import { p } from "../../lib/base.js";
+import { skeleton } from "../../lib/loading.js";
 import { $, emptyState, initial, openForm, safeColor } from "./common.js";
 
 function stat(label, value, unit, ico, cls = "") {
@@ -84,6 +85,10 @@ boot({
   title: "لوحة التحكم",
   render: async ({ content }) => {
     $("tdAllCourses").href = p("pages/teacher/courses.html");
+    $("tdStats").innerHTML = skeleton("stats", 4);
+    $("tdCourses").innerHTML = skeleton("cards", 2);
+    $("tdSubmissions").innerHTML = skeleton("rows", 2);
+    $("tdSchedule").innerHTML = skeleton("rows", 2);
 
     content.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-grade]");

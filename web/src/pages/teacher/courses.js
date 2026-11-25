@@ -3,6 +3,7 @@ import { call } from "../../lib/api.js";
 import { esc, fmtDate, fmtNum } from "../../lib/fmt.js";
 import { icon } from "../../lib/icons.js";
 import { p } from "../../lib/base.js";
+import { skeleton } from "../../lib/loading.js";
 import { $, emptyState, initial, openForm, safeColor } from "./common.js";
 
 const TRACKS = [
@@ -172,6 +173,8 @@ boot({
   title: "مقرراتي",
   render: async ({ content }) => {
     $("tcSearch").closest(".tc-search").querySelector(".tc-search-icon").innerHTML = icon("search");
+    $("tcStats").innerHTML = skeleton("stats", 4);
+    $("tcGrid").innerHTML = skeleton("cards", 2);
 
     content.addEventListener("click", (e) => {
       const tab = e.target.closest(".tc-tab");

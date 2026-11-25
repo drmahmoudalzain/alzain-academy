@@ -3,6 +3,7 @@
 import { esc } from "../../lib/fmt.js";
 import { icon } from "../../lib/icons.js";
 import { onDispose } from "../../lib/lifecycle.js";
+import { busy } from "../../lib/loading.js";
 
 // يقبل المعرّف مع أو بدون بادئة "#" (صفحة التفاصيل تستخدم الصيغة المألوفة).
 export const $ = (id) => document.getElementById(String(id).replace(/^#/, ""));
@@ -132,7 +133,7 @@ export function openForm({ title, intro = "", fields = [], submitLabel = "حفظ
       return;
     }
     const submit = overlay.querySelector("button[type=submit]");
-    submit.disabled = true;
+    busy(submit, true);
     error.hidden = true;
     try {
       const res = await onSubmit(values);
@@ -147,7 +148,7 @@ export function openForm({ title, intro = "", fields = [], submitLabel = "حفظ
       error.textContent = String(err?.message || err);
       error.hidden = false;
     } finally {
-      submit.disabled = false;
+      busy(submit, false);
     }
   });
 

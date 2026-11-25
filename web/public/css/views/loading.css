@@ -1,0 +1,107 @@
+/* أنميشن تحميل موحّد — الأساس للهاتف، وأي توسيع عبر min-width فقط. */
+
+:root {
+  --ld-base: rgba(18, 58, 99, 0.08);
+  --ld-shine: rgba(255, 255, 255, 0.65);
+  --ld-radius: 14px;
+}
+
+.ld-skeleton {
+  position: relative;
+  overflow: hidden;
+  min-height: 64px;
+  border-radius: var(--ld-radius);
+  background: var(--ld-base);
+}
+
+.ld-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, var(--ld-shine), transparent);
+  animation: ld-shimmer 1.35s ease-in-out infinite;
+}
+
+.ld-skeleton--stat { min-height: 96px; }
+.ld-skeleton--card { min-height: 150px; }
+.ld-skeleton--row { min-height: 56px; }
+.ld-skeleton--hero { min-height: 168px; }
+.ld-skeleton--table { min-height: 220px; }
+.ld-skeleton--profile { min-height: 120px; border-radius: 999px; }
+.ld-skeleton--chat { min-height: 44px; border-radius: 18px; }
+
+.ld-error {
+  padding: 16px;
+  border-radius: var(--ld-radius);
+  background: rgba(180, 35, 35, 0.08);
+  color: #9b2c2c;
+  font-size: 0.86rem;
+  line-height: 1.7;
+}
+
+.route-progress {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  z-index: 9999;
+  width: 0;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: linear-gradient(90deg, #d4a24c, #f2c878);
+  opacity: 0;
+  transition: width 220ms ease, opacity 180ms ease;
+  pointer-events: none;
+}
+
+.route-progress.is-active {
+  width: 42%;
+  opacity: 1;
+  animation: ld-progress 1.2s ease-in-out infinite alternate;
+}
+
+.route-progress.is-slow { width: 72%; }
+
+button.is-busy {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+button.is-busy::after {
+  content: "";
+  position: absolute;
+  inset-block-start: 50%;
+  inset-inline-start: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  color: inherit;
+  animation: ld-spin 0.7s linear infinite;
+}
+
+@keyframes ld-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes ld-progress {
+  from { width: 32%; }
+  to { width: 66%; }
+}
+
+@keyframes ld-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ld-skeleton::after,
+  .route-progress.is-active,
+  button.is-busy::after {
+    animation: none;
+  }
+  .route-progress { transition: none; }
+}

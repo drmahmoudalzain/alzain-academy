@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="/css/views/student-dashboard.css" />
   <link rel="stylesheet" href="/css/views/teacher-common.css" />
   <link rel="stylesheet" href="/css/views/teacher-dashboard.css" />
+  <link rel="stylesheet" href="/css/views/loading.css" />
   <link rel="stylesheet" href="/css/portal-theme.css" />
 </head>
 <body class="portal">
@@ -33,12 +34,7 @@
           </div>
         </section>
 
-        <section class="td-stats" id="tdStats" aria-live="polite" aria-label="إحصاءات لوحة الأستاذ">
-          <div class="tt-skeleton tt-skeleton-stat"></div>
-          <div class="tt-skeleton tt-skeleton-stat"></div>
-          <div class="tt-skeleton tt-skeleton-stat"></div>
-          <div class="tt-skeleton tt-skeleton-stat"></div>
-        </section>
+        <section class="td-stats" id="tdStats" aria-live="polite" aria-label="إحصاءات لوحة الأستاذ"></section>
 
         <div class="td-columns">
           <section class="td-panel" id="tdCoursesPanel">
@@ -46,7 +42,7 @@
               <h2><span>مقرراتي</span></h2>
               <a class="td-link" id="tdAllCourses" href="#">كل المقررات</a>
             </div>
-            <div id="tdCourses" aria-live="polite"><div class="tt-skeleton tt-skeleton-card"></div></div>
+            <div id="tdCourses" aria-live="polite"></div>
           </section>
 
           <section class="td-panel" id="tdGradingPanel">
@@ -54,13 +50,13 @@
               <h2><span>بانتظار التصحيح</span></h2>
               <span class="td-count" id="tdPendingCount">—</span>
             </div>
-            <div id="tdSubmissions" aria-live="polite"><div class="tt-skeleton tt-skeleton-row"></div></div>
+            <div id="tdSubmissions" aria-live="polite"></div>
           </section>
         </div>
 
         <section class="td-panel" id="tdSchedulePanel">
           <div class="td-panel-head"><h2><span>جدول الأيام القادمة</span></h2><span class="td-hint">خلال 7 أيام</span></div>
-          <div id="tdSchedule" aria-live="polite"><div class="tt-skeleton tt-skeleton-row"></div></div>
+          <div id="tdSchedule" aria-live="polite"></div>
         </section>
       </div>
     </main>

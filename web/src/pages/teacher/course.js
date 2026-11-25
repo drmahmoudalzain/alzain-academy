@@ -3,6 +3,7 @@ import { call } from "../../lib/api.js";
 import { esc, fmtDate, fmtDateTime, fmtNum, fmtPoints, rel } from "../../lib/fmt.js";
 import { icon } from "../../lib/icons.js";
 import { p } from "../../lib/base.js";
+import { skeleton } from "../../lib/loading.js";
 import { $, emptyState, openForm, safeColor, toast } from "./common.js";
 
 const id = Number(new URLSearchParams(location.search).get("id"));
@@ -365,6 +366,7 @@ boot({
       $("#tdcHero").innerHTML = emptyState("مقرر غير محدد", "افتح المقرر من صفحة مقرراتي.", "courses");
       return;
     }
+    $("#tdcHero").innerHTML = skeleton("hero", 1);
     const f = forms();
 
     content.addEventListener("click", (e) => {

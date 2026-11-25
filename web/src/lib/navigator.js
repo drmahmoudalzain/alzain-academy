@@ -1,10 +1,12 @@
 import { setPendingPreset, takeMount, beginSoftNav, endSoftNav, isSoftNav } from "./page-registry.js";
 import { disposeAll } from "./lifecycle.js";
+import { routeProgress } from "./loading.js";
 
 export { beginSoftNav, endSoftNav, isSoftNav };
 
 let started = false;
 let navCount = 0;
+const progress = routeProgress();
 
 // صفحات ذات حالة خاصة (حفظ مؤجّل / مؤقتات / تحذير مغادرة) تبقى بتنقّل كامل.
 function isExcluded(url) {
@@ -37,6 +39,7 @@ async function navigate(url, push) {
   let done = false;
   try {
     beginSoftNav();
+    progress.start();
     const response = await fetch(`${url.pathname}${url.search}`, {
       headers: { "X-Requested-With": "fetch" },
     });
@@ -69,6 +72,7 @@ async function navigate(url, push) {
   } catch (err) {
     console.warn("soft navigation failed, falling back", err);
   } finally {
+    progress.end();
     endSoftNav();
   }
   if (!done) location.assign(url.href);
