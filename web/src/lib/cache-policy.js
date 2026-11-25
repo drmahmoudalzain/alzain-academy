@@ -35,6 +35,7 @@ const INVALIDATES = new Set([
   "student_lecture_attendance",
   "management_create_course",
   "management_update_course",
+  "management_assign_course_teacher",
   "management_add_lecture",
   "management_create_exam",
   "teacher_create_assignment",

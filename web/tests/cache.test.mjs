@@ -84,6 +84,7 @@ test("read whitelist contains dashboards but never the management writes", () =>
 
 test("write list invalidates management writes and submission calls but leaves unknown RPCs alone", () => {
   assert.equal(isInvalidating("management_grade_submission"), true);
+  assert.equal(isInvalidating("management_assign_course_teacher"), true);
   assert.equal(isInvalidating("teacher_create_assignment"), true);
   assert.equal(isInvalidating("student_exam_submit"), true);
   assert.equal(isInvalidating("unknown_rpc"), false);
