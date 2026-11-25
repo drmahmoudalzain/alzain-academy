@@ -1,4 +1,4 @@
-import"./modulepreload-polyfill-B5Qt9EMX.js";import{b as f,s as d,c as o,i as u,e,f as $,r as b}from"./portal-DKRVLX1f.js";import{c as g}from"./api-E-OWc22n.js";import{p as h}from"./auth-BoGIE3PA.js";import{$ as t,e as l,s as v,i as _}from"./common-DZC5ELq4.js";import"https://esm.sh/@supabase/supabase-js@2";function c(s,a,n,i,r=""){return`<div class="td-stat ${r}">
+import"./modulepreload-polyfill-B5Qt9EMX.js";import{b as f,s as d,c as o,i as u,e,f as $,r as b}from"./portal-DKRVLX1f.js";import{c as g}from"./api-BHmEBtaJ.js";import{p as h}from"./auth-BoGIE3PA.js";import{$ as t,e as l,s as v,i as _}from"./common-DZC5ELq4.js";import"https://esm.sh/@supabase/supabase-js@2";function c(s,a,n,i,r=""){return`<div class="td-stat ${r}">
     <span class="td-stat-icon">${u(i)}</span>
     <span class="td-stat-label">${e(s)}</span>
     <span class="td-stat-value">${e(o(a))}<small>${e(n)}</small></span>
