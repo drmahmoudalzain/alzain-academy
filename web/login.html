@@ -37,6 +37,11 @@
       <input id="identifier" type="text" placeholder="مثال: BM0001 أو TE0002" autocomplete="username" required />
       <label for="password">كلمة المرور</label>
       <input id="password" type="password" placeholder="كلمة المرور" autocomplete="current-password" required />
+      <div class="dev-logins" hidden aria-label="دخول التطوير">
+        <button type="button" data-dev="student">طالب تجريبي</button>
+        <button type="button" data-dev="teacher">أستاذ تجريبي</button>
+        <button type="button" data-dev="assistant">مساعد تجريبي</button>
+      </div>
       <button id="submit" type="submit">دخول</button>
       <p id="msg"></p>
     </form>

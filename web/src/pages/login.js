@@ -1,9 +1,39 @@
 import { supabase } from "../lib/supabase.js";
 import { getProfile, homeOf } from "../lib/auth.js";
+import { devLogins } from "../lib/dev-login.js";
 
 const form = document.getElementById("login-form");
 const msg = document.getElementById("msg");
 const submit = document.getElementById("submit");
+
+// أزرار تعبئة محلية للتطوير فقط؛ تبقى مخفية في الإنتاج حتى اكتمال المتغيرات.
+const devBar = document.querySelector(".dev-logins");
+const devEntries = devLogins({
+  DEV: import.meta.env.DEV,
+  VITE_DEV_STUDENT_ID: import.meta.env.VITE_DEV_STUDENT_ID,
+  VITE_DEV_STUDENT_PASSWORD: import.meta.env.VITE_DEV_STUDENT_PASSWORD,
+  VITE_DEV_TEACHER_ID: import.meta.env.VITE_DEV_TEACHER_ID,
+  VITE_DEV_TEACHER_PASSWORD: import.meta.env.VITE_DEV_TEACHER_PASSWORD,
+  VITE_DEV_ASSISTANT_ID: import.meta.env.VITE_DEV_ASSISTANT_ID,
+  VITE_DEV_ASSISTANT_PASSWORD: import.meta.env.VITE_DEV_ASSISTANT_PASSWORD,
+});
+
+if (devBar && devEntries.length) {
+  devBar.hidden = false;
+  devBar.querySelectorAll("[data-dev]").forEach((button) => {
+    const entry = devEntries.find((item) => item.key === button.dataset.dev);
+    if (!entry) {
+      button.hidden = true;
+      return;
+    }
+    button.addEventListener("click", () => {
+      document.getElementById("identifier").value = entry.id;
+      document.getElementById("password").value = entry.password;
+      document.getElementById("identifier").focus();
+      submit.focus();
+    });
+  });
+}
 
 async function resolveEmail(identifier) {
   if (identifier.includes("@")) return identifier;
