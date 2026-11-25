@@ -10,6 +10,7 @@ const submit = document.getElementById("submit");
 const devBar = document.querySelector(".dev-logins");
 const devEntries = devLogins({
   DEV: import.meta.env.DEV,
+  MODE: import.meta.env.MODE,
   VITE_DEV_STUDENT_ID: import.meta.env.VITE_DEV_STUDENT_ID,
   VITE_DEV_STUDENT_PASSWORD: import.meta.env.VITE_DEV_STUDENT_PASSWORD,
   VITE_DEV_TEACHER_ID: import.meta.env.VITE_DEV_TEACHER_ID,

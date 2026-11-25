@@ -26,6 +26,25 @@ test("an explicit DEV flag is required even when credentials exist", () => {
   assert.deepEqual(entries, []);
 });
 
+test("a development-mode build enables the buttons on a deployed site", () => {
+  const entries = devLogins({
+    MODE: "development",
+    VITE_DEV_STUDENT_ID: "BM9001",
+    VITE_DEV_STUDENT_PASSWORD: "local-only",
+  });
+  assert.equal(entries.length, 1);
+  assert.equal(entries[0].key, "student");
+});
+
+test("a production-mode build still hides the buttons", () => {
+  const entries = devLogins({
+    MODE: "production",
+    VITE_DEV_STUDENT_ID: "BM9001",
+    VITE_DEV_STUDENT_PASSWORD: "local-only",
+  });
+  assert.deepEqual(entries, []);
+});
+
 test("development credentials are returned only for complete pairs", () => {
   const entries = devLogins({
     DEV: true,
