@@ -16,3 +16,41 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+
+.dev-logins {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.dev-logins[hidden],
+.dev-logins button[hidden] {
+  display: none;
+}
+
+.dev-logins button {
+  flex: 1 1 100%;
+  margin-top: 0;
+  padding: 9px 10px;
+  border: 1px dashed #b8892f;
+  border-radius: 9px;
+  background: #fff8e8;
+  color: #7a5715;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dev-logins button:hover,
+.dev-logins button:focus-visible {
+  background: #fdefc8;
+  outline: 2px solid #d4a017;
+  outline-offset: 2px;
+}
+
+@media (min-width: 480px) {
+  .dev-logins button {
+    flex-basis: 0;
+  }
+}

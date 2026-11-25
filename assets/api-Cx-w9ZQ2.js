@@ -1,1 +1,0 @@
-import{s as t}from"./auth-BGBkidcA.js";async function s(o,a={}){const{data:r,error:e}=await t.rpc(o,a??{});return e?{ok:!1,error:e.message,code:e.code}:r&&typeof r=="object"&&"ok"in r?r.ok===!1?{ok:!1,error:r.error||"unknown",code:r.code}:{ok:!0,data:r.data??r}:{ok:!0,data:r}}export{s as c};
