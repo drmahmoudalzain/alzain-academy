@@ -31,3 +31,15 @@ test("header no longer contains settings, logout or search controls", () => {
   assert.doesNotMatch(shell, /search-box/);
   assert.match(shell, /id="logoutBtn"/, "sidebar logout must stay available");
 });
+
+test("header styles are mobile-first with a three-slot grid", () => {
+  const css = readFileSync(new URL("../public/css/portal-theme.css", import.meta.url), "utf8");
+  const marker = "/* هيدر البوابات — mobile-first */";
+  const index = css.indexOf(marker);
+  assert.notEqual(index, -1, "header CSS marker missing");
+  const block = css.slice(index);
+  assert.match(block, /grid-template-columns: auto minmax\(0, 1fr\) auto/);
+  assert.match(block, /@media \(min-width: 640px\)/);
+  assert.match(block, /@media \(min-width: 900px\)/);
+  assert.doesNotMatch(block, /@media \(max-width:/);
+});
