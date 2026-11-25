@@ -220,8 +220,10 @@ Deno.serve(async (req: Request): Promise<Response> => {
       const changed = await data.rpc('management_set_user_active', { p_user_id: userId, p_active: active })
       if (changed.error || !changed.data?.ok) {
         if (profile.auth_id) {
+          // التراجع يعيد الحالة الأصلية = عكس المطلوب، بغض النظر عن
+          // ما قرأته loadProfile بعد أن حدّث المتصفح قاعدة البيانات أولاً.
           await admin.auth.admin.updateUserById(profile.auth_id, {
-            ban_duration: profile.is_active ? 'none' : '876000h',
+            ban_duration: active ? '876000h' : 'none',
           })
         }
         return fail(String(changed.data?.error ?? changed.error?.message ?? 'activation_failed'))
