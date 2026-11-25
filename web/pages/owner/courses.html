@@ -25,24 +25,21 @@
             </div>
           </div>
         </section>
+
         <section class="od-panel" aria-labelledby="ocActionsTitle">
-          <h2 class="od-section-title" id="ocActionsTitle">إجراءات</h2>
-          <div id="ocActions" class="od-actions"></div>
-        </section>
-        <section class="od-panel" aria-labelledby="ocListTitle">
           <div class="od-panel-head">
-            <h2 class="od-section-title" id="ocListTitle">القائمة</h2>
-            <label class="od-check"><input type="checkbox" id="ocShowArchived" /> عرض المؤرشفة</label>
+            <h2 class="od-section-title" id="ocActionsTitle">إجراءات</h2>
+            <div id="ocActions" class="od-actions"></div>
           </div>
-          <div id="ocTable" aria-live="polite"></div>
         </section>
+
         <section class="od-panel" id="ocFormPanel" hidden aria-labelledby="ocFormTitle">
           <h2 class="od-section-title" id="ocFormTitle">إنشاء مقرر</h2>
           <form id="ocForm" class="od-form">
-            <div class="od-field"><label>العنوان</label><input name="title" required /></div>
-            <div class="od-field"><label>الرمز</label><input name="code" required /></div>
-            <div class="od-field"><label>الوصف</label><textarea name="description"></textarea></div>
-            <div class="od-field"><label>المسار</label><select name="track">
+            <div class="od-field"><label for="ocTitleInput">العنوان</label><input class="od-input" id="ocTitleInput" name="title" required /></div>
+            <div class="od-field"><label for="ocCodeInput">الرمز</label><input class="od-input" id="ocCodeInput" name="code" required dir="ltr" /></div>
+            <div class="od-field"><label for="ocDescriptionInput">الوصف</label><textarea class="od-textarea" id="ocDescriptionInput" name="description"></textarea></div>
+            <div class="od-field"><label for="ocTrackInput">المسار</label><select class="od-select" id="ocTrackInput" name="track">
               <option value="bachelor_m">بكالوريوس (ذكور)</option>
               <option value="bachelor_f">بكالوريوس (إناث)</option>
               <option value="bachelor">بكالوريوس (مختلط)</option>
@@ -50,19 +47,27 @@
               <option value="external">خارجي</option>
               <option value="grad">دراسات عليا</option>
             </select></div>
-            <div class="od-field"><label>المستوى</label><input name="level" type="number" min="1" max="4" /></div>
-            <div class="od-field"><label>اللون</label><input name="color" type="color" value="#123A63" /></div>
-            <div class="od-field"><label>الأستاذ المسؤول</label><select name="teacher_id" id="ocTeacher"></select></div>
-            <div class="od-field"><label>أوزان (حضور/اختبارات/واجبات)</label>
+            <div class="od-field"><label for="ocLevelInput">المستوى</label><input class="od-input" id="ocLevelInput" name="level" type="number" min="1" max="4" /></div>
+            <div class="od-field"><label for="ocColorInput">اللون</label><input class="od-input" id="ocColorInput" name="color" type="color" value="#123A63" /></div>
+            <div class="od-field"><label for="ocTeacher">الأستاذ المسؤول</label><select class="od-select" name="teacher_id" id="ocTeacher"></select></div>
+            <div class="od-field"><label for="ocAwInput">أوزان (حضور/اختبارات/واجبات)</label>
               <div style="display:flex;gap:6px;">
-                <input name="aw" type="number" min="0" max="100" value="10" />/
-                <input name="ew" type="number" min="0" max="100" value="60" />/
-                <input name="asw" type="number" min="0" max="100" value="30" />
+                <input class="od-input" id="ocAwInput" name="aw" type="number" min="0" max="100" value="10" />/
+                <input class="od-input" name="ew" type="number" min="0" max="100" value="60" />/
+                <input class="od-input" name="asw" type="number" min="0" max="100" value="30" />
               </div>
             </div>
-            <div class="od-btn-row"><button type="submit" class="od-btn od-btn--primary" id="ocSubmitBtn"><span class="od-btn-spinner"></span> حفظ</button><button type="button" class="od-btn od-btn--ghost" id="ocCancel">إلغاء</button></div>
-            <div id="ocMsg" aria-live="polite"></div>
+            <div class="od-form-actions"><button type="submit" class="od-btn od-btn--primary" id="ocSubmitBtn"><span class="od-btn-spinner"></span> حفظ</button><button type="button" class="od-btn od-btn--ghost" id="ocCancel">إلغاء</button></div>
+            <div id="ocMsg" class="od-inline-msg" aria-live="polite" hidden></div>
           </form>
+        </section>
+
+        <section class="od-panel" aria-labelledby="ocListTitle">
+          <div class="od-panel-head">
+            <h2 class="od-section-title" id="ocListTitle">القائمة</h2>
+            <label class="od-check"><input type="checkbox" id="ocShowArchived" /> عرض المؤرشفة</label>
+          </div>
+          <div id="ocTable" aria-live="polite"></div>
         </section>
       </div>
     </main>

@@ -16,6 +16,84 @@ async function loadTeachers() {
   if (sel) sel.innerHTML = teachers.map((t) => `<option value="${t.id}">${esc(t.name || "")}</option>`).join("") || `<option value="">لا يوجد</option>`;
 }
 
+function courseParams(course, overrides = {}) {
+  return {
+    p_title: course.title || "",
+    p_code: course.code || "",
+    p_description: course.description || null,
+    p_track: course.track || "bachelor_m",
+    p_level: course.level ?? null,
+    p_color: course.color || "#123A63",
+    p_attendance_weight: course.attendance_weight ?? 10,
+    p_exams_weight: course.exams_weight ?? 60,
+    p_assignments_weight: course.assignments_weight ?? 30,
+    p_teacher_id: course.teacher_id || null,
+    ...overrides,
+  };
+}
+
+function fillForm(course) {
+  const f = $("ocForm");
+  f.elements.title.value = course.title || "";
+  f.elements.code.value = course.code || "";
+  f.elements.description.value = course.description || "";
+  f.elements.track.value = course.track || "bachelor_m";
+  f.elements.level.value = course.level ?? "";
+  f.elements.color.value = course.color || "#123A63";
+  f.elements.teacher_id.value = course.teacher_id || "";
+  f.elements.aw.value = course.attendance_weight ?? 10;
+  f.elements.ew.value = course.exams_weight ?? 60;
+  f.elements.asw.value = course.assignments_weight ?? 30;
+  f.dataset.editId = course.id;
+  $("ocFormTitle").textContent = "تعديل مقرر";
+  $("ocFormPanel").hidden = false;
+}
+
+function setButton(btn, state) {
+  btn.classList.toggle("is-loading", state);
+  btn.disabled = state;
+}
+
+async function archiveCourse(btn, course, archived) {
+  if (!confirm(archived ? "استعادة المقرر من الأرشيف؟" : "أرشفة المقرر؟")) return;
+  setButton(btn, true);
+  const res = await call("management_update_course", courseParams(course, { p_archived: !archived }));
+  setButton(btn, false);
+  if (!res?.ok) { alert(res?.error || "فشل"); return; }
+  await reload();
+}
+
+async function deleteCourse(btn, course) {
+  const preflight = await call("management_preflight_delete_course", { p_course_id: course.id });
+  if (!preflight.ok) {
+    alert(preflight.error || "تعذّر فحص تبعيات المقرر");
+    return;
+  }
+  const info = preflight.data || {};
+  const counts = info.counts || {};
+  const blockers = Array.isArray(info.blockers) ? info.blockers : [];
+  const summary = [
+    ["مقررات فرعية", counts.children],
+    ["محاضرات", counts.lectures],
+    ["اختبارات", counts.exams],
+    ["واجبات", counts.assignments],
+    ["تسجيلات", counts.enrollments],
+    ["تسليمات", counts.submissions],
+    ["نقاط", counts.points],
+    ["حضور", counts.attendance],
+  ].map(([label, value]) => `${label}: ${fmtNum(value ?? 0)}`).join(" · ");
+
+  const question = `حذف المقرر ${course.title} نهائياً؟ لا يمكن التراجع.\n\n${summary}`
+    + (blockers.length ? `\n\nيمنع الحذف: ${blockers.join("، ")}` : "");
+  if (!confirm(question)) return;
+
+  setButton(btn, true);
+  const res = await call("management_delete_course", { p_course_id: course.id });
+  setButton(btn, false);
+  if (!res?.ok) { alert(res?.error || "فشل الحذف"); return; }
+  await reload();
+}
+
 function renderCourses() {
   const showArchived = $("ocShowArchived").checked;
   const list = allCourses.filter((c) => showArchived || !c.archived);
@@ -33,8 +111,11 @@ function renderCourses() {
       <td>${c.level || "—"}</td>
       <td>${c.archived ? "أرشيف" : "نشط"}</td>
       <td>
-        <button class="od-btn od-btn--small ${c.archived ? "od-btn--ghost" : "od-btn--danger"}" data-action="archive" data-id="${c.id}" data-archived="${c.archived}">${icon(c.archived ? "refresh" : "archive")} ${c.archived ? "استعادة" : "أرشفة"}</button>
-        <button class="od-btn od-btn--small od-btn--ghost" data-action="edit" data-id="${c.id}">${icon("edit")} تعديل</button>
+        <div class="od-btn-group">
+          <button class="od-btn od-btn--small ${c.archived ? "od-btn--ghost" : "od-btn--danger"}" data-action="archive" data-id="${c.id}" data-archived="${c.archived}">${icon(c.archived ? "refresh" : "archive")} ${c.archived ? "استعادة" : "أرشفة"}</button>
+          <button class="od-btn od-btn--small od-btn--ghost" data-action="edit" data-id="${c.id}">${icon("edit")} تعديل</button>
+          <button class="od-btn od-btn--small od-btn--danger" data-action="delete" data-id="${c.id}">${icon("trash")} حذف</button>
+        </div>
       </td>
     </tr>
   `).join("");
@@ -47,40 +128,14 @@ function renderCourses() {
     btn.addEventListener("click", async () => {
       const id = Number(btn.dataset.id);
       const action = btn.dataset.action;
+      const course = allCourses.find((c) => c.id === id);
+      if (!course) return;
       if (action === "archive") {
-        const archived = btn.dataset.archived === "true";
-        const course = allCourses.find((c) => c.id === id);
-        if (!course) return;
-        if (!confirm(archived ? "استعادة المقرر من الأرشيف؟" : "أرشفة المقرر؟")) return;
-        btn.classList.add("is-loading");
-        btn.disabled = true;
-        const res = await call("management_update_course", {
-          p_course_id: id,
-          p_title: course.title,
-          p_archived: !archived,
-        });
-        btn.classList.remove("is-loading");
-        btn.disabled = false;
-        if (!res?.ok) { alert(res?.error || "فشل"); return; }
-        await reload();
+        await archiveCourse(btn, course, btn.dataset.archived === "true");
+      } else if (action === "delete") {
+        await deleteCourse(btn, course);
       } else if (action === "edit") {
-        // populate form
-        const course = allCourses.find((c) => c.id === id);
-        if (!course) return;
-        const f = $("ocForm");
-        f.elements.title.value = course.title || "";
-        f.elements.code.value = course.code || "";
-        f.elements.description.value = course.description || "";
-        f.elements.track.value = course.track || "bachelor_m";
-        f.elements.level.value = course.level || "";
-        f.elements.color.value = course.color || "#123A63";
-        f.elements.teacher_id.value = course.teacher_id || "";
-        f.elements.aw.value = course.attendance_weight ?? 10;
-        f.elements.ew.value = course.exams_weight ?? 60;
-        f.elements.asw.value = course.assignments_weight ?? 30;
-        $("ocForm").dataset.editId = id;
-        $("ocFormTitle").textContent = "تعديل مقرر";
-        $("ocFormPanel").hidden = false;
+        fillForm(course);
       }
     });
   });
@@ -102,28 +157,30 @@ boot({
   title: "المقررات",
   render: async () => {
     if ($("ocSubmitBtn")) $("ocSubmitBtn").innerHTML = `<span class="od-btn-spinner"></span>${icon("check")} حفظ`;
-    $("ocActions").innerHTML = `<button class="od-btn od-btn--primary" id="ocNewBtn">${icon("plus")} إنشاء مقرر</button>`;
+    $("ocActions").innerHTML = `<button class="od-btn od-btn--primary" id="ocNewBtn" type="button">${icon("plus")} إنشاء مقرر</button>`;
     $("ocNewBtn").addEventListener("click", () => {
       $("ocForm").reset();
       delete $("ocForm").dataset.editId;
       $("ocFormTitle").textContent = "إنشاء مقرر";
       $("ocFormPanel").hidden = false;
+      $("ocTitleInput").focus();
     });
     $("ocCancel").addEventListener("click", () => { $("ocFormPanel").hidden = true; });
     $("ocShowArchived").addEventListener("change", renderCourses);
 
     await loadTeachers();
     await reload();
+    if (new URLSearchParams(location.search).get("new") === "1") $("ocNewBtn").click();
 
     $("ocForm").addEventListener("submit", async (e) => {
       e.preventDefault();
       const f = e.target;
       const msg = $("ocMsg");
       const btn = $("ocSubmitBtn");
+      msg.hidden = false;
       msg.textContent = "جارٍ الحفظ...";
       msg.className = "od-inline-msg";
-      btn.classList.add("is-loading");
-      btn.disabled = true;
+      setButton(btn, true);
       const params = {
         p_title: f.elements.title.value,
         p_code: f.elements.code.value,
@@ -140,16 +197,15 @@ boot({
       const res = editId
         ? await call("management_update_course", { p_course_id: Number(editId), ...params })
         : await call("management_create_course", params);
-      btn.classList.remove("is-loading");
-      btn.disabled = false;
+      setButton(btn, false);
       if (res?.ok) {
         msg.textContent = "تم الحفظ بنجاح.";
-        msg.className = "od-inline-msg is-success";
+        msg.className = "od-inline-msg od-inline-msg--success";
         $("ocFormPanel").hidden = true;
         await reload();
       } else {
         msg.textContent = res?.error || "فشل الحفظ.";
-        msg.className = "od-inline-msg is-error";
+        msg.className = "od-inline-msg od-inline-msg--error";
       }
     });
   },
