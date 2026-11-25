@@ -56,21 +56,13 @@ export function renderShell({ portal, title, profile }) {
     <div class="sidebar-overlay" id="sidebarOverlay" role="button" tabindex="-1" aria-label="إغلاق القائمة" aria-hidden="true"></div>
     <div class="main">
       <header class="topbar">
-        <div class="topbar-left">
-          <button class="topbar-back" id="backBtn" data-fallback="${esc(homeOf(profile))}" aria-label="رجوع" title="رجوع">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-            <span class="back-label">رجوع</span>
-          </button>
-          <button class="menu-btn" id="menuBtn" aria-label="فتح القائمة" aria-expanded="false">${icon("menu")}<span>القائمة</span></button>
-          <div class="topbar-title"><h1>${esc(title)}</h1>
-            <div class="breadcrumb"><span>الرئيسية</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icon("chevron").replace("stroke-width=\"1.8\"", "stroke-width=\"2.4\"")}</svg><span>${esc(title)}</span></div>
-          </div>
+        <button class="menu-btn" id="menuBtn" aria-label="فتح القائمة" aria-expanded="false">القائمة</button>
+        <div class="topbar-title"><h1>${esc(title)}</h1>
+          <div class="breadcrumb"><span>الرئيسية</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icon("chevron").replace("stroke-width=\"1.8\"", "stroke-width=\"2.4\"")}</svg><span>${esc(title)}</span></div>
         </div>
-        <div class="search-box search-box--static">${icon("search")}<input type="search" placeholder="ابحث في المنصة..." aria-label="بحث" disabled /></div>
-        <div class="topbar-actions">
-          <a class="icon-btn" href="${p("pages/account.html")}" aria-label="الحساب">${icon("settings")}</a>
-          <div class="topbar-divider"></div>
-          <button class="icon-btn" id="logoutBtnTop" aria-label="تسجيل الخروج" title="تسجيل الخروج">${icon("logout")}</button>
+        <div class="topbar-end">
+          <a class="icon-btn topbar-notif" href="${p("pages/notifications.html")}" aria-label="الإشعارات" title="الإشعارات">${icon("bell")}</a>
+          <button class="topbar-back" id="backBtn" data-fallback="${esc(homeOf(profile))}" aria-label="رجوع" title="رجوع"><span class="back-label">رجوع</span></button>
         </div>
       </header>
       <main class="content" id="content"></main>
@@ -130,6 +122,5 @@ export function bindShell() {
   });
   const doLogout = () => signOut();
   listen(document.getElementById("logoutBtn"), "click", doLogout);
-  listen(document.getElementById("logoutBtnTop"), "click", doLogout);
   syncActiveNav();
 }
