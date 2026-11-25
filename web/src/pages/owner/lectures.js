@@ -68,6 +68,8 @@ boot({
   portal: "owner",
   title: "المحاضرات",
   render: async () => {
+    if ($("olSubmitBtn")) $("olSubmitBtn").innerHTML = `<span class="od-btn-spinner"></span>${icon("check")} حفظ`;
+    if ($("olNewBtn")) $("olNewBtn").innerHTML = `${icon("plus")} إضافة محاضرة`;
     await loadCourses();
     await reload();
     $("olCourse").addEventListener("change", render);

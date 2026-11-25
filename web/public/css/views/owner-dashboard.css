@@ -384,3 +384,23 @@
 .od-btn .od-btn-spinner{display:none;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:od-spin .7s linear infinite;}
 .od-btn.is-loading .od-btn-spinner{display:inline-block;}
 @keyframes od-spin{to{transform:rotate(360deg);}}
+
+/* === Button improvements: spacing, icons, grouping === */
+.od-btn-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-top:8px;}
+.od-btn{gap:10px;padding:10px 18px;}
+.od-btn svg{width:18px;height:18px;}
+.od-btn-group{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0;}
+.od-btn + .od-btn{margin-inline-start:4px;}
+.od-actions{gap:14px;}
+.od-table .od-btn{margin:0 2px;}
+.od-table .od-btn + .od-btn{margin-inline-start:6px;}
+
+/* === Stronger button distinction === */
+.od-btn{min-height:38px;}
+.od-table .od-btn{margin:3px;}
+.od-table .od-btn + .od-btn{margin-inline-start:6px;}
+.od-btn--danger{font-weight:800;}
+.od-btn--ghost{border:1px dashed var(--border,#E3E9F0);}
+.od-btn-row{gap:14px;}
+.od-btn-group{gap:12px;}
+.od-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}

@@ -10,6 +10,7 @@ boot({
   portal: "owner",
   title: "الطلاب",
   render: async () => {
+    if ($("ostSubmitBtn")) $("ostSubmitBtn").innerHTML = `<span class="od-btn-spinner"></span>${icon("check")} تسجيل`;
     // load courses for enroll form
     const { data: courses } = await supabase.from("courses").select("id, title, code").order("title");
     const courseOpts = (courses || []).map((c) => `<option value="${c.id}">${esc(c.code || "")} — ${esc(c.title || "")}</option>`).join("");

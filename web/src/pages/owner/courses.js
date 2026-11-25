@@ -101,7 +101,8 @@ boot({
   portal: "owner",
   title: "المقررات",
   render: async () => {
-    $("ocActions").innerHTML = `<button class="od-btn od-btn--primary" id="ocNewBtn"><span data-icon="plus" aria-hidden="true"></span> إنشاء مقرر</button>`;
+    if ($("ocSubmitBtn")) $("ocSubmitBtn").innerHTML = `<span class="od-btn-spinner"></span>${icon("check")} حفظ`;
+    $("ocActions").innerHTML = `<button class="od-btn od-btn--primary" id="ocNewBtn">${icon("plus")} إنشاء مقرر</button>`;
     $("ocNewBtn").addEventListener("click", () => {
       $("ocForm").reset();
       delete $("ocForm").dataset.editId;

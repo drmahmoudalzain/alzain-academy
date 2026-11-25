@@ -69,6 +69,7 @@ boot({
   portal: "owner",
   title: "المستخدمون",
   render: async () => {
+    if ($("ouRefresh")) $("ouRefresh").innerHTML = `${icon("refresh")} تحديث`;
     ["ouRole", "ouSearch", "ouActiveOnly"].forEach((id) => {
       const el = $(id);
       if (!el) return;
