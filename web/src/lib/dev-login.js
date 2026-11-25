@@ -1,9 +1,10 @@
-// أزواج بيانات الدخول للتطوير فقط. تُفعّل في خادم Vite (DEV) أو في بناء
+// أزواج بيانات الدخول للتطوير. تُفعّل في خادم Vite (DEV) أو في بناء
 // development صريح (MODE) يُنشر كنسخة تجريبية؛ بناء الإنتاج لا يراها أبداً.
 const ROLES = [
+  { key: "owner", prefix: "VITE_DEV_OWNER" },
   { key: "student", prefix: "VITE_DEV_STUDENT" },
   { key: "teacher", prefix: "VITE_DEV_TEACHER" },
-  { key: "assistant", prefix: "VITE_DEV_ASSISTANT" },
+  { key: "teacher2", prefix: "VITE_DEV_TEACHER2" },
 ];
 
 export function devLogins(env) {

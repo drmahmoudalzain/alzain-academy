@@ -57,12 +57,30 @@ test("development credentials are returned only for complete pairs", () => {
   assert.equal(entries[0].id, "BM9001");
 });
 
+test("all four named accounts are available in a development build", () => {
+  const entries = devLogins({
+    MODE: "development",
+    VITE_DEV_OWNER_ID: "AD0001",
+    VITE_DEV_OWNER_PASSWORD: "one",
+    VITE_DEV_STUDENT_ID: "BM0062",
+    VITE_DEV_STUDENT_PASSWORD: "two",
+    VITE_DEV_TEACHER_ID: "TE0002",
+    VITE_DEV_TEACHER_PASSWORD: "three",
+    VITE_DEV_TEACHER2_ID: "TE0003",
+    VITE_DEV_TEACHER2_PASSWORD: "four",
+  });
+  assert.deepEqual(entries.map((entry) => entry.key), ["owner", "student", "teacher", "teacher2"]);
+  assert.deepEqual(entries.map((entry) => entry.id), ["AD0001", "BM0062", "TE0002", "TE0003"]);
+});
+
 test("login markup hides the dev button group by default", () => {
   const html = readFileSync(new URL("../login.html", import.meta.url), "utf8");
   assert.match(html, /class="dev-logins"[^>]*hidden/);
+  assert.match(html, /data-dev="owner"/);
   assert.match(html, /data-dev="student"/);
   assert.match(html, /data-dev="teacher"/);
-  assert.match(html, /data-dev="assistant"/);
+  assert.match(html, /data-dev="teacher2"/);
+  assert.doesNotMatch(html, /data-dev="assistant"/);
 });
 
 test("autofill focuses the submit button exactly once", () => {
