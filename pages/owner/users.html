@@ -12,10 +12,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/alzain-academy/css/views/owner-dashboard.css" />
   <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
-  <script type="module" crossorigin src="/alzain-academy/assets/pages-owner-users-BOX4RExW.js"></script>
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-owner-users-DyT0wF-J.js"></script>
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/base-CCmrW03f.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-DXIz8ObO.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-ByCz9Nvk.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-39CNNLuZ.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-DpRmRpVW.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/owner-admin-CRw8Y5Uo.js">
 </head>
 <body class="portal">
   <div id="app">
@@ -26,9 +27,100 @@
             <div class="od-hero-body">
               <span class="od-tag">بوابة المالك · إدارة المستخدمين</span>
               <h1 id="ouTitle">المستخدمون</h1>
-              <p id="ouIntro">عرض جميع حسابات المنصة (قراءة فقط). إنشاء/تعطيل الحسابات يتم عبر Supabase Auth.</p>
+              <p id="ouIntro">إدارة كاملة لحسابات المنصة: إنشاء المستخدمين وتعديلهم وتفعيلهم أو تعطيلهم وإعادة تعيين كلمات المرور وحذفهم.</p>
             </div>
           </div>
+        </section>
+
+        <section class="od-panel" aria-labelledby="ouActionsTitle">
+          <div class="od-panel-head">
+            <h2 class="od-section-title" id="ouActionsTitle">إجراءات</h2>
+            <button class="od-btn od-btn--primary od-btn--small" id="ouNewBtn" type="button">＋ إضافة مستخدم</button>
+          </div>
+          <div class="od-inline-msg" id="ouNotice" role="status" hidden></div>
+        </section>
+
+        <section class="od-panel" id="ouFormPanel" aria-labelledby="ouFormTitle" hidden>
+          <div class="od-panel-head">
+            <h2 class="od-section-title" id="ouFormTitle">إضافة مستخدم</h2>
+          </div>
+          <form class="od-form" id="ouForm" novalidate>
+            <input type="hidden" id="ouUserId" name="user_id" />
+
+            <div class="od-field">
+              <label for="ouName">الاسم</label>
+              <input class="od-input" id="ouName" name="name" type="text" required maxlength="120" autocomplete="name" />
+            </div>
+            <div class="od-field">
+              <label for="ouEmail">البريد للمراسلة</label>
+              <input class="od-input" id="ouEmail" name="email" type="email" required dir="ltr" autocomplete="email" />
+            </div>
+            <div class="od-field">
+              <label for="ouPhone">الهاتف</label>
+              <input class="od-input" id="ouPhone" name="phone" type="tel" dir="ltr" autocomplete="tel" />
+            </div>
+            <div class="od-field">
+              <label for="ouFormRole">الدور</label>
+              <select class="od-select" id="ouFormRole" name="role">
+                <option value="student">طالب</option>
+                <option value="teacher">أستاذ</option>
+                <option value="assistant">مساعد</option>
+              </select>
+            </div>
+            <div class="od-field" id="ouTrackField">
+              <label for="ouTrack">مسار الطالب</label>
+              <select class="od-select" id="ouTrack" name="track">
+                <option value="">— اختر المسار —</option>
+                <option value="bachelor_m">بكالوريوس · ذكور</option>
+                <option value="bachelor_f">بكالوريوس · إناث</option>
+                <option value="equiv">معادل</option>
+                <option value="external">خارجي</option>
+                <option value="grad">دراسات عليا</option>
+              </select>
+            </div>
+            <div class="od-field" id="ouLevelField">
+              <label for="ouLevel">المستوى</label>
+              <select class="od-select" id="ouLevel" name="level">
+                <option value="">—</option>
+                <option value="1">الأول</option>
+                <option value="2">الثاني</option>
+                <option value="3">الثالث</option>
+                <option value="4">الرابع</option>
+              </select>
+            </div>
+            <div class="od-field" id="ouUniversityField">
+              <label for="ouUniversityId">الرقم الجامعي</label>
+              <input class="od-input" id="ouUniversityId" name="university_id" type="text" dir="ltr" />
+            </div>
+            <div class="od-field" id="ouGenderField">
+              <label for="ouGender">النوع</label>
+              <select class="od-select" id="ouGender" name="gender">
+                <option value="">—</option>
+                <option value="M">ذكر</option>
+                <option value="F">أنثى</option>
+              </select>
+            </div>
+            <div class="od-field" id="ouPositionField" hidden>
+              <label for="ouPosition">الوظيفة</label>
+              <input class="od-input" id="ouPosition" name="position" type="text" />
+            </div>
+            <div class="od-field">
+              <label for="ouPlatformId">رمز المنصة (معرّف الدخول)</label>
+              <input class="od-input" id="ouPlatformId" name="platform_id" type="text" dir="ltr" />
+            </div>
+            <div class="od-field" id="ouTemporaryField" hidden>
+              <label for="ouTemporaryPassword">كلمة المرور المؤقتة</label>
+              <input class="od-input" id="ouTemporaryPassword" name="temporary_password" type="text" dir="ltr" readonly />
+            </div>
+            <div class="od-field">
+              <label class="od-check"><input type="checkbox" id="ouMustChange" name="must_change_password" checked /> إجبار تغيير كلمة المرور عند الدخول</label>
+            </div>
+            <div class="od-form-actions">
+              <button class="od-btn od-btn--primary od-btn--small" id="ouSaveBtn" type="submit">حفظ</button>
+              <button class="od-btn od-btn--ghost od-btn--small" id="ouCancelBtn" type="button">إلغاء</button>
+            </div>
+          </form>
+          <div class="od-inline-msg" id="ouFormMsg" role="status" hidden></div>
         </section>
 
         <section class="od-panel" aria-labelledby="ouFiltersTitle">

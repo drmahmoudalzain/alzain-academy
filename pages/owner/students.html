@@ -11,11 +11,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/alzain-academy/css/views/owner-dashboard.css" />
   <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
-  <script type="module" crossorigin src="/alzain-academy/assets/pages-owner-students-B5P68QvA.js"></script>
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-owner-students-BGbSGsrp.js"></script>
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/base-CCmrW03f.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-DXIz8ObO.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-ByCz9Nvk.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/api-BJFMNRHJ.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-39CNNLuZ.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-DpRmRpVW.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/api-BIxq6nME.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/owner-admin-CRw8Y5Uo.js">
 </head>
 <body class="portal">
   <div id="app">
@@ -26,19 +27,111 @@
             <div class="od-hero-body">
               <span class="od-tag">بوابة المالك · إدارة الطلاب</span>
               <h1 id="ostTitle">الطلاب</h1>
-              <p id="ostIntro">عرض الطلاب والتسجيل في المقررات.</p>
+              <p id="ostIntro">إنشاء الطلاب وتسجيلهم في المقررات أو المسارات ونقلهم بينها.</p>
             </div>
           </div>
         </section>
-        <section class="od-panel" aria-labelledby="ostEnrollTitle">
-          <h2 class="od-section-title" id="ostEnrollTitle">تسجيل طالب في مقرر</h2>
-          <form id="ostEnrollForm" class="od-form" style="display:flex;gap:8px;flex-wrap:wrap;align-items:end;">
-            <div class="od-field"><label>المقرر</label><select name="course_id" id="ostCourse" required></select></div>
-            <div class="od-field"><label>معرّف الطالب (بريد/رقم جامعي/منصة)</label><input name="identifier" required /></div>
-            <button type="submit" class="od-btn od-btn--primary" id="ostSubmitBtn"><span class="od-btn-spinner"></span> تسجيل</button>
-            <div id="ostEnrollMsg" aria-live="polite"></div>
+
+        <section class="od-panel" aria-labelledby="ostActionsTitle">
+          <div class="od-panel-head">
+            <h2 class="od-section-title" id="ostActionsTitle">إجراءات</h2>
+            <div class="od-actions">
+              <button class="od-btn od-btn--primary" id="ostNewBtn" type="button">＋ طالب جديد</button>
+              <button class="od-btn" id="ostEnrollBtn" type="button">تسجيل طالب</button>
+              <button class="od-btn" id="ostTransferBtn" type="button">نقل بين مقررات</button>
+              <button class="od-btn" id="ostTrackBtn" type="button">تغيير المسار</button>
+            </div>
+          </div>
+          <p class="od-inline-msg">التسجيل في المسارين bachelor_m و bachelor_f يشمل المقرر الأصل وفرع الجنس معاً. النقل بين المقررات يُبقي التسجيل القديم موقوفاً ويحفظ الدرجات والحضور.</p>
+          <select class="od-select" id="ostTrackFilter" aria-label="تصفية الطلاب حسب المسار">
+            <option value="all">كل المسارات</option>
+            <option value="bachelor_m">بكالوريوس · ذكور</option>
+            <option value="bachelor_f">بكالوريوس · إناث</option>
+            <option value="equiv">معادل</option>
+            <option value="external">خارجي</option>
+            <option value="grad">دراسات عليا</option>
+          </select>
+        </section>
+
+        <section class="od-panel" id="ostNewPanel" hidden aria-labelledby="ostNewTitle">
+          <h2 class="od-section-title" id="ostNewTitle">طالب جديد</h2>
+          <form id="ostNewForm" class="od-form" novalidate>
+            <div class="od-field"><label for="ostNewName">الاسم</label><input class="od-input" id="ostNewName" name="name" required /></div>
+            <div class="od-field"><label for="ostNewEmail">البريد للمراسلة</label><input class="od-input" id="ostNewEmail" name="email" type="email" required dir="ltr" /></div>
+            <div class="od-field"><label for="ostNewPhone">الهاتف</label><input class="od-input" id="ostNewPhone" name="phone" type="tel" dir="ltr" /></div>
+            <div class="od-field"><label for="ostNewTrack">المسار</label><select class="od-select" id="ostNewTrack" name="track" required>
+              <option value="">— اختر المسار —</option>
+              <option value="bachelor_m">بكالوريوس · ذكور</option>
+              <option value="bachelor_f">بكالوريوس · إناث</option>
+              <option value="equiv">معادل</option>
+              <option value="external">خارجي</option>
+              <option value="grad">دراسات عليا</option>
+            </select></div>
+            <div class="od-field"><label for="ostNewLevel">المستوى</label><select class="od-select" id="ostNewLevel" name="level">
+              <option value="">—</option><option value="1">الأول</option><option value="2">الثاني</option><option value="3">الثالث</option><option value="4">الرابع</option>
+            </select></div>
+            <div class="od-field"><label for="ostNewUniversityId">الرقم الجامعي</label><input class="od-input" id="ostNewUniversityId" name="university_id" dir="ltr" /></div>
+            <div class="od-field"><label for="ostNewGender">النوع</label><select class="od-select" id="ostNewGender" name="gender">
+              <option value="">—</option><option value="M">ذكر</option><option value="F">أنثى</option>
+            </select></div>
+            <div class="od-field"><label for="ostNewCourse">تسجيل فوري في مقرر (اختياري)</label><select class="od-select" id="ostNewCourse" name="course_id"><option value="">— لا شيء —</option></select></div>
+            <div class="od-field" id="ostNewTrackEnrollField" hidden><label for="ostNewTrackEnroll">أو تسجيل في مسار (اختياري)</label><select class="od-select" id="ostNewTrackEnroll" name="enroll_track"><option value="">— لا شيء —</option></select></div>
+            <div class="od-field" id="ostNewPasswordField" hidden><label for="ostNewPassword">كلمة المرور المؤقتة</label><input class="od-input" id="ostNewPassword" name="temporary_password" type="text" dir="ltr" readonly /></div>
+            <div class="od-form-actions">
+              <button type="submit" class="od-btn od-btn--primary" id="ostNewSubmitBtn"><span class="od-btn-spinner"></span> إنشاء الطالب</button>
+              <button type="button" class="od-btn od-btn--ghost" id="ostNewCancel">إلغاء</button>
+            </div>
+            <div id="ostNewMsg" class="od-inline-msg" role="status" hidden></div>
           </form>
         </section>
+
+        <section class="od-panel" id="ostEnrollPanel" aria-labelledby="ostEnrollTitle">
+          <h2 class="od-section-title" id="ostEnrollTitle">تسجيل طالب في مقرر</h2>
+          <form id="ostEnrollForm" class="od-form">
+            <div class="od-field"><label for="ostCourse">المقرر</label><select class="od-select" name="course_id" id="ostCourse" required></select></div>
+            <div class="od-field"><label for="ostIdentifier">معرّف الطالب (بريد/رقم جامعي/منصة)</label><input class="od-input" id="ostIdentifier" name="identifier" required /></div>
+            <div class="od-field"><label for="ostEnrollTrack">أو تسجيل في مسار كامل (اختياري)</label><select class="od-select" id="ostEnrollTrack" name="enroll_track"><option value="">— لا شيء —</option></select></div>
+            <button type="submit" class="od-btn od-btn--primary" id="ostSubmitBtn"><span class="od-btn-spinner"></span> تسجيل</button>
+            <div id="ostEnrollMsg" class="od-inline-msg" role="status" hidden></div>
+          </form>
+        </section>
+
+        <section class="od-panel" id="ostTransferPanel" hidden aria-labelledby="ostTransferTitle">
+          <h2 class="od-section-title" id="ostTransferTitle">نقل طالب بين مقررات</h2>
+          <form id="ostTransferForm" class="od-form">
+            <div class="od-field"><label for="ostTransferStudent">الطالب</label><select class="od-select" id="ostTransferStudent" name="student_id" required></select></div>
+            <div class="od-field"><label for="ostTransferFrom">المقرر الحالي</label><select class="od-select" id="ostTransferFrom" name="from_course_id" required></select></div>
+            <div class="od-field"><label for="ostTransferTo">المقرر الهدف</label><select class="od-select" id="ostTransferTo" name="to_course_id" required></select></div>
+            <div class="od-form-actions">
+              <button type="submit" class="od-btn od-btn--primary" id="ostTransferSubmit">نقل</button>
+              <button type="button" class="od-btn od-btn--ghost" id="ostTransferCancel">إلغاء</button>
+            </div>
+            <div id="ostTransferMsg" class="od-inline-msg" role="status" hidden></div>
+          </form>
+        </section>
+
+        <section class="od-panel" id="ostTrackPanel" hidden aria-labelledby="ostTrackTitle">
+          <h2 class="od-section-title" id="ostTrackTitle">تغيير مسار الطالب</h2>
+          <form id="ostTrackForm" class="od-form">
+            <div class="od-field"><label for="ostTrackStudent">الطالب</label><select class="od-select" id="ostTrackStudent" name="student_id" required></select></div>
+            <div class="od-field"><label for="ostTrackNew">المسار الجديد</label><select class="od-select" id="ostTrackNew" name="track" required>
+              <option value="bachelor_m">بكالوريوس · ذكور</option>
+              <option value="bachelor_f">بكالوريوس · إناث</option>
+              <option value="equiv">معادل</option>
+              <option value="external">خارجي</option>
+              <option value="grad">دراسات عليا</option>
+            </select></div>
+            <div class="od-field"><label for="ostTrackLevel">المستوى</label><select class="od-select" id="ostTrackLevel" name="level">
+              <option value="">—</option><option value="1">الأول</option><option value="2">الثاني</option><option value="3">الثالث</option><option value="4">الرابع</option>
+            </select></div>
+            <div class="od-form-actions">
+              <button type="submit" class="od-btn od-btn--primary" id="ostTrackSubmit">تغيير المسار</button>
+              <button type="button" class="od-btn od-btn--ghost" id="ostTrackCancel">إلغاء</button>
+            </div>
+            <div id="ostTrackMsg" class="od-inline-msg" role="status" hidden></div>
+          </form>
+        </section>
+
         <section class="od-panel" aria-labelledby="ostListTitle">
           <div class="od-panel-head">
             <h2 class="od-section-title" id="ostListTitle">القائمة</h2>
