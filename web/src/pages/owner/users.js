@@ -284,19 +284,28 @@ async function deleteUser(button, user) {
   }
 }
 
+function showTableError(message) {
+  $("ouTable").innerHTML = `<div class="od-empty" role="status"><span class="od-empty-icon">${icon("users")}</span><h3>تعذّر تحميل المستخدمين</h3><p>${esc(message || "خطأ غير معروف")}</p></div>`;
+  $("ouCount").textContent = "—";
+}
+
 async function loadUsers() {
   const table = $("ouTable");
   table.innerHTML = `<div class="od-skeleton od-skeleton-row" aria-hidden="true"></div>`.repeat(6);
-  const { data, error } = await supabase
-    .from("users")
-    .select("id, name, email, phone, role, is_active, university_id, platform_id, auth_id, track, level, gender, position, must_change_password, created_at")
-    .order("created_at", { ascending: false });
-  if (error) {
-    table.innerHTML = `<div class="od-empty" role="status"><span class="od-empty-icon">${icon("users")}</span><h3>تعذّر تحميل المستخدمين</h3><p>${esc(error.message || "خطأ غير معروف")}</p></div>`;
-    $("ouCount").textContent = "—";
+  try {
+    const { data, error } = await supabase
+      .from("users")
+      .select("id, name, email, phone, role, is_active, university_id, platform_id, auth_id, track, level, gender, position, must_change_password, created_at")
+      .order("created_at", { ascending: false });
+    if (error) {
+      showTableError(error.message);
+      return;
+    }
+    allUsers = Array.isArray(data) ? data : [];
+  } catch (error) {
+    showTableError(error?.message || String(error));
     return;
   }
-  allUsers = Array.isArray(data) ? data : [];
   applyFilters();
 }
 

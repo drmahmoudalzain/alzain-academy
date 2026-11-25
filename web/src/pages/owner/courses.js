@@ -9,11 +9,20 @@ const $ = (id) => document.getElementById(id);
 let allCourses = [];
 let teachers = [];
 
+function showTableError(target, message, iconName) {
+  target.innerHTML = `<div class="od-empty" role="status"><span class="od-empty-icon">${icon(iconName)}</span><h3>تعذّر تحميل البيانات</h3><p>${esc(message || "خطأ غير معروف")}</p></div>`;
+}
+
 async function loadTeachers() {
-  const { data } = await supabase.from("users").select("id, name").eq("role", "teacher").eq("is_active", true).order("name");
-  teachers = Array.isArray(data) ? data : [];
+  try {
+    const { data } = await supabase.from("users").select("id, name").eq("role", "teacher").eq("is_active", true).order("name");
+    teachers = Array.isArray(data) ? data : [];
+  } catch (error) {
+    teachers = [];
+    console.warn("تعذّر تحميل الأساتذة:", error);
+  }
   const sel = $("ocTeacher");
-  if (sel) sel.innerHTML = teachers.map((t) => `<option value="${t.id}">${esc(t.name || "")}</option>`).join("") || `<option value="">لا يوجد</option>`;
+  if (sel) sel.innerHTML = teachers.map((t) => `<option value="${t.id}">${esc(t.name || "")}</option>`).join("") || `<option value="">لا يوجد أساتذة متاحون</option>`;
 }
 
 function courseParams(course, overrides = {}) {
@@ -142,13 +151,19 @@ function renderCourses() {
 }
 
 async function reload() {
-  $("ocTable").innerHTML = `<div class="od-skeleton od-skeleton-row" aria-hidden="true"></div>`.repeat(5);
-  const { data, error } = await supabase.from("courses").select("id, teacher_id, title, code, description, color, track, level, archived, attendance_weight, exams_weight, assignments_weight").order("title");
-  if (error) {
-    $("ocTable").innerHTML = `<div class="od-empty" role="status"><span class="od-empty-icon">${icon("courses")}</span><h3>تعذّر تحميل المقررات</h3><p>${esc(error.message || "")}</p></div>`;
+  const target = $("ocTable");
+  target.innerHTML = `<div class="od-skeleton od-skeleton-row" aria-hidden="true"></div>`.repeat(5);
+  try {
+    const { data, error } = await supabase.from("courses").select("id, teacher_id, title, code, description, color, track, level, archived, attendance_weight, exams_weight, assignments_weight").order("title");
+    if (error) {
+      showTableError(target, error.message || "", "courses");
+      return;
+    }
+    allCourses = Array.isArray(data) ? data : [];
+  } catch (error) {
+    showTableError(target, error?.message || String(error), "courses");
     return;
   }
-  allCourses = Array.isArray(data) ? data : [];
   renderCourses();
 }
 

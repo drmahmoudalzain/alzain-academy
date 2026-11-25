@@ -72,9 +72,7 @@ function findStudentByIdentifier(raw) {
   ].some((value) => String(value || "").toLowerCase() === identifier));
 }
 
-async function loadCourses() {
-  const { data } = await supabase.from("courses").select("id, title, code, track, level, archived").order("title");
-  allCourses = Array.isArray(data) ? data : [];
+function syncCourseSelects() {
   $("ostCourse").innerHTML = courseOptions();
   $("ostNewCourse").innerHTML = `<option value="">— لا شيء —</option>` + courseOptions();
   $("ostNewTrackEnroll").innerHTML = trackOptions("", true);
@@ -82,26 +80,47 @@ async function loadCourses() {
   $("ostTransferTo").innerHTML = courseOptions();
 }
 
+async function loadCourses() {
+  try {
+    const { data } = await supabase.from("courses").select("id, title, code, track, level, archived").order("title");
+    allCourses = Array.isArray(data) ? data : [];
+  } catch (error) {
+    allCourses = [];
+    console.warn("تعذّر تحميل المقررات:", error);
+  }
+  syncCourseSelects();
+}
+
+function showTableError(message) {
+  $("ostTable").innerHTML = `<div class="od-empty" role="status"><span class="od-empty-icon">${icon("users")}</span><h3>تعذّر تحميل الطلاب</h3><p>${esc(message || "خطأ غير معروف")}</p></div>`;
+  $("ostCount").textContent = "—";
+}
+
 async function loadStudents() {
-  $("ostTable").innerHTML = `<div class="od-skeleton od-skeleton-row" aria-hidden="true"></div>`.repeat(5);
-  const { data: users, error } = await supabase
-    .from("users")
-    .select("id, name, email, university_id, platform_id, is_active, track, level, created_at")
-    .eq("role", "student")
-    .order("name");
-  if (error) {
-    $("ostTable").innerHTML = `<div class="od-empty" role="status"><span class="od-empty-icon">${icon("users")}</span><h3>تعذّر تحميل الطلاب</h3><p>${esc(error.message || "")}</p></div>`;
-    $("ostCount").textContent = "—";
+  const table = $("ostTable");
+  table.innerHTML = `<div class="od-skeleton od-skeleton-row" aria-hidden="true"></div>`.repeat(5);
+  try {
+    const { data: users, error } = await supabase
+      .from("users")
+      .select("id, name, email, university_id, platform_id, is_active, track, level, created_at")
+      .eq("role", "student")
+      .order("name");
+    if (error) {
+      showTableError(error.message);
+      return;
+    }
+
+    const { data: enrs } = await supabase.from("enrollments").select("student_id, course_id, status");
+    enrollmentMap = new Map();
+    for (const enrollment of (enrs || [])) {
+      if (!enrollmentMap.has(enrollment.student_id)) enrollmentMap.set(enrollment.student_id, []);
+      enrollmentMap.get(enrollment.student_id).push(enrollment);
+    }
+    allStudents = Array.isArray(users) ? users : [];
+  } catch (error) {
+    showTableError(error?.message || String(error));
     return;
   }
-
-  const { data: enrs } = await supabase.from("enrollments").select("student_id, course_id, status");
-  enrollmentMap = new Map();
-  for (const enrollment of (enrs || [])) {
-    if (!enrollmentMap.has(enrollment.student_id)) enrollmentMap.set(enrollment.student_id, []);
-    enrollmentMap.get(enrollment.student_id).push(enrollment);
-  }
-  allStudents = Array.isArray(users) ? users : [];
   renderTable();
 }
 
