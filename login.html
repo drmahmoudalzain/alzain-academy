@@ -25,9 +25,9 @@
     .login-card button:disabled { opacity: .6; cursor: default; }
     #msg { text-align: center; min-height: 1.2em; margin-top: 12px; font-size: 14px; color: #c00; }
   </style>
-  <script type="module" crossorigin src="/alzain-academy/assets/login-D-RBhOST.js"></script>
+  <script type="module" crossorigin src="/alzain-academy/assets/login-ahFRwVgi.js"></script>
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/modulepreload-polyfill-B5Qt9EMX.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-BoGIE3PA.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-DvFUNVfe.js">
 </head>
 <body>
   <div class="login-wrap">
@@ -40,11 +40,14 @@
       <input id="identifier" type="text" placeholder="مثال: BM0001 أو TE0002" autocomplete="username" required />
       <label for="password">كلمة المرور</label>
       <input id="password" type="password" placeholder="كلمة المرور" autocomplete="current-password" required />
-      <div class="dev-logins" hidden aria-label="دخول التطوير">
-        <button type="button" data-dev="owner">المدير</button>
-        <button type="button" data-dev="teacher">الأستاذ</button>
-        <button type="button" data-dev="student">الطالب</button>
-        <button type="button" data-dev="teacher2">المساعد الإداري</button>
+      <div class="preview-logins" aria-label="معاينة البوابات">
+        <p class="preview-logins__title">معاينة البوابات بدون تسجيل دخول</p>
+        <div class="preview-logins__grid">
+          <button type="button" class="preview-login-btn" data-preview="owner">دخول المدير</button>
+          <button type="button" class="preview-login-btn" data-preview="teacher">دخول الأستاذ</button>
+          <button type="button" class="preview-login-btn" data-preview="assistant">دخول المساعد</button>
+          <button type="button" class="preview-login-btn" data-preview="student">دخول الطلاب</button>
+        </div>
       </div>
       <button id="submit" type="submit">دخول</button>
       <p id="msg"></p>
