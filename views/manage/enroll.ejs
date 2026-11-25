@@ -55,7 +55,7 @@
       <button type="submit" class="btn btn-primary">تسجيل كل طلاب المستوى دفعة واحدة</button>
     </form>
     <form method="post" action="<%= basePath %>/courses/<%= course.id %>/enroll/by-code" style="display:flex;gap:8px;align-items:end;">
-      <label>رمز الطالب أو الرقم الجامعي
+      <label>رمز الطالب أو الرقم الأكاديمي
         <input type="text" name="student_code" required maxlength="24" dir="ltr" style="text-align:left;" placeholder="BM0001">
       </label>
       <button type="submit" class="btn btn-secondary">إضافة طالب بعينه</button>
@@ -87,7 +87,7 @@
           <input type="text" value="<%= fixedLevel ? 'المستوى ' + fixedLevel : 'كل المستويات' %>" disabled>
           <% if (fixedLevel) { %><input type="hidden" name="level" value="<%= fixedLevel %>"><% } %>
         </label>
-        <label>الرقم الجامعي <span class="muted">(اختياري)</span>
+        <label>الرقم الأكاديمي <span class="muted">(اختياري)</span>
           <input type="text" name="university_id" maxlength="20" dir="ltr" style="text-align:left;" placeholder="2024009">
         </label>
         <label>البريد الإلكتروني <span class="muted">(اختياري)</span>

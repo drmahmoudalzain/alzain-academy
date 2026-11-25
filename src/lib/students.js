@@ -381,7 +381,7 @@ export function createStudentsRouter({ portalKey, basePath, isOwner, readOnly = 
         });
       }
 
-      // فحص تعارض البريد والرقم الجامعي
+      // فحص تعارض البريد والرقم الأكاديمي
       if (universityId) {
         const clash = await db.from("users").select("id").eq("university_id", universityId).neq("id", id).maybeSingle();
         if (clash.error) throw clash.error;
@@ -390,7 +390,7 @@ export function createStudentsRouter({ portalKey, basePath, isOwner, readOnly = 
             title: "تعديل بيانات الطالب",
             pageTitle: "تعديل بيانات الطالب",
             student: { id, name, email, phone, university_id: universityId, track, level, gender, is_active: isActive },
-            error: "الرقم الجامعي مستخدم في حساب آخر.",
+            error: "الرقم الأكاديمي مستخدم في حساب آخر.",
             saved: false,
             isStaffOwner: isOwnerMode,
           });

@@ -296,7 +296,7 @@ function forms() {
     }),
     enroll: () => openForm({
       title: "إضافة طالب",
-      intro: "أدخل بريد الطالب أو رقمه الجامعي أو رمزه على المنصة.",
+      intro: "أدخل بريد الطالب أو رقمه الأكاديمي أو رمزه على المنصة.",
       fields: [{ name: "identifier", label: "معرّف الطالب", required: true }],
       submitLabel: "إضافة إلى المقرر",
       onSubmit: async (v) => {

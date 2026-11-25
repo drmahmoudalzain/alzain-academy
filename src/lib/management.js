@@ -515,7 +515,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
     } catch (error) { next(error); }
   });
 
-  /** زر الطوارئ: إضافة طالب بعينه إلى أي مقرر أصلي أو فرعي برمزه المنصّي أو الجامعي. */
+  /** زر الطوارئ: إضافة طالب بعينه إلى أي مقرر أصلي أو فرعي برمزه المنصّي أو الأكاديمي. */
   router.post("/courses/:id/enroll/by-code", guard, async (req, res, next) => {
     try {
       if (!isOwnerMode) return ownerOnly(res);
@@ -594,7 +594,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
       if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return fail("صيغة البريد الإلكتروني غير صحيحة.");
 
       for (const [field, value, message] of [
-        ["university_id", universityId, "الرقم الجامعي مستخدم في حساب آخر."],
+        ["university_id", universityId, "الرقم الأكاديمي مستخدم في حساب آخر."],
         ["email", email, "البريد الإلكتروني مستخدم في حساب آخر."],
       ]) {
         if (!value) continue;
@@ -608,7 +608,7 @@ export function createManagementRouter({ portalKey, basePath, isOwner }) {
         provisioned = await provisionUser({ role: "student", name, track, level, universityId, email, position: null });
       } catch (error) {
         const message = String(error?.message ?? error);
-        if (message.includes("university_id")) return fail("الرقم الجامعي مستخدم في حساب آخر.");
+        if (message.includes("university_id")) return fail("الرقم الأكاديمي مستخدم في حساب آخر.");
         if (message.includes("email")) return fail("البريد الإلكتروني مستخدم في حساب آخر.");
         throw error;
       }

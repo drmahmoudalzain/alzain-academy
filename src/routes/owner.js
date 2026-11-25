@@ -92,7 +92,7 @@ router.get("/users", requirePortal("owner"), async (req, res, next) => {
       users,
       role,
       searchAction: "/owner/users",
-      searchPlaceholder: "ابحث باسم أو رمز أو رقم جامعي...",
+      searchPlaceholder: "ابحث باسم أو رمز أو رقم أكاديمي...",
       searchValue: req.query.q ?? "",
     });
   } catch (error) {
@@ -138,7 +138,7 @@ router.post("/users", requirePortal("owner"), async (req, res, next) => {
     if (universityId) {
       const clash = await db.from("users").select("id").eq("university_id", universityId).maybeSingle();
       if (clash.error) throw clash.error;
-      if (clash.data) return fail("الرقم الجامعي مستخدم في حساب آخر.");
+      if (clash.data) return fail("الرقم الأكاديمي مستخدم في حساب آخر.");
     }
     if (email) {
       const clash = await db.from("users").select("id").eq("email", email).maybeSingle();
@@ -159,7 +159,7 @@ router.post("/users", requirePortal("owner"), async (req, res, next) => {
       });
     } catch (error) {
       const message = String(error?.message ?? error);
-      if (message.includes("university_id")) return fail("الرقم الجامعي مستخدم في حساب آخر.");
+      if (message.includes("university_id")) return fail("الرقم الأكاديمي مستخدم في حساب آخر.");
       if (message.includes("email")) return fail("البريد الإلكتروني مستخدم في حساب آخر.");
       throw error;
     }
@@ -227,7 +227,7 @@ router.post("/users/:id/reset-password", requirePortal("owner"), async (req, res
 });
 
 // ================= استيراد دفعات (CSV) =================
-// كل سطر: الاسم الرباعي، المسار، الرقم الجامعي (اختياري) — الفواصل أو الجدولة أو الفاصلة المنقوطة
+// كل سطر: الاسم الرباعي، المسار، الرقم الأكاديمي (اختياري) — الفواصل أو الجدولة أو الفاصلة المنقوطة
 router.get("/users/import", requirePortal("owner"), async (req, res, next) => {
   try {
     return ownerPage(res, "owner/users-import", {
@@ -261,7 +261,7 @@ router.post("/users/import", requirePortal("owner"), async (req, res, next) => {
       .map((line) => line.trim())
       .filter((line) => line && !line.startsWith("#"));
 
-    if (lines.length === 0) return fail("الصق سطوراً تحتوي بيانات الطلاب (الاسم، المسار، [رقم جامعي]).");
+    if (lines.length === 0) return fail("الصق سطوراً تحتوي بيانات الطلاب (الاسم، المسار، [رقم أكاديمي]).");
     if (lines.length > 300) return fail("الحد الأقصى 300 سطر في الدفعة الواحدة.");
 
     const results = [];
@@ -309,7 +309,7 @@ router.post("/users/import", requirePortal("owner"), async (req, res, next) => {
         results.push({ name, platformId, password, track: TRACK_PROFILES[trackRaw].label, trackKey: trackRaw, level: 1 });
       } catch (error) {
         const message = String(error?.message ?? error);
-        failures.push({ line: index + 1, text: line, reason: message.includes("university_id") ? "الرقم الجامعي مكرر" : "تعذر الإنشاء" });
+        failures.push({ line: index + 1, text: line, reason: message.includes("university_id") ? "الرقم الأكاديمي مكرر" : "تعذر الإنشاء" });
       }
     }
 
@@ -724,7 +724,7 @@ router.get("/report/csv", requirePortal("owner"), async (req, res, next) => {
 
     for (const section of sections) {
       lines.push(`"${section.title}"`);
-      lines.push("الاسم,الرقم الجامعي,القسم,المستوى,المقررات,متوسط الدرجات,نسبة الحضور,النقاط");
+      lines.push("الاسم,الرقم الأكاديمي,القسم,المستوى,المقررات,متوسط الدرجات,نسبة الحضور,النقاط");
       for (const student of section.rows) {
         lines.push(
           [student.name, student.code, student.trackLabel, student.level, student.courses, student.average, student.attendanceRate, student.points]

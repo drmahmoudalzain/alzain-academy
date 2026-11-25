@@ -359,7 +359,7 @@
       padding-inline-end: 46px;
     }
 
-    /* حقل الرقم الجامعي (مخصص للطالب) */
+    /* حقل الرقم الأكاديمي (مخصص للطالب) */
     .input-wrap.university-id input {
       font-family: 'Tajawal', monospace;
       letter-spacing: 1px;

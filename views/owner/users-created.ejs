@@ -22,7 +22,7 @@
       </div>
       <% if (newUser.university_id) { %>
       <div class="credential-row">
-        <span class="credential-label">الرقم الجامعي</span>
+        <span class="credential-label">الرقم الأكاديمي</span>
         <code class="credential-value code" dir="ltr"><%= newUser.university_id %></code>
       </div>
       <% } %>
@@ -87,7 +87,7 @@
       "أكاديمية آل الزين للعلوم القانونية والعدلية — بطاقة الدخول",
       "الاسم: <%= newUser.name %>",
       "الرمز: <%= newUser.platform_id ?? '—' %>",
-      "<% if (newUser.university_id) { %>الرقم الجامعي: <%= newUser.university_id %>\n<% } %>كلمة المرور المؤقتة: <%= tempPassword %>",
+      "<% if (newUser.university_id) { %>الرقم الأكاديمي: <%= newUser.university_id %>\n<% } %>كلمة المرور المؤقتة: <%= tempPassword %>",
       "ملاحظة: عند أول دخول غيّر كلمة المرور وأدخل بريدك الإلكتروني.",
     ].join("\n");
     btn.addEventListener("click", function () {

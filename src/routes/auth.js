@@ -103,7 +103,7 @@ function guideReturnTarget(req) {
   return null;
 }
 
-// البحث عن حساب بالرمز الموحد للمنصة فقط (لا بريد، لا رقم جامعي).
+// البحث عن حساب بالرمز الموحد للمنصة فقط (لا بريد، لا رقم أكاديمي).
 async function findUserByIdentifier(identifier) {
   const value = String(identifier ?? "").trim();
   if (!value) return null;

@@ -31,7 +31,7 @@
       <table class="data-table">
         <tbody>
           <tr><th scope="row">الرمز</th><td dir="ltr" style="text-align:left;"><code><%= student.platform_id ?? '—' %></code></td></tr>
-          <tr><th scope="row">الرقم الجامعي</th><td dir="ltr" style="text-align:left;"><code><%= student.university_id ?? '—' %></code></td></tr>
+          <tr><th scope="row">الرقم الأكاديمي</th><td dir="ltr" style="text-align:left;"><code><%= student.university_id ?? '—' %></code></td></tr>
           <tr><th scope="row">البريد</th><td dir="ltr" style="text-align:left;"><code><%= student.email ?? '—' %></code></td></tr>
           <tr><th scope="row">رقم الجوال</th><td dir="ltr" style="text-align:left;"><code><%= student.phone ?? '—' %></code></td></tr>
           <tr><th scope="row">الجنس</th><td><%= student.gender === 'M' ? 'ذكر' : (student.gender === 'F' ? 'أنثى' : '—') %></td></tr>

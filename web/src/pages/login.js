@@ -74,7 +74,7 @@ form.addEventListener("submit", async (e) => {
 
   const email = await resolveEmail(identifier);
   if (!email) {
-    msg.textContent = "رمز غير معروف. تأكد من الرمز الجامعي أو الوظيفي.";
+    msg.textContent = "رمز غير معروف. تأكد من الرمز الأكاديمي أو الوظيفي.";
     submit.disabled = false;
     return;
   }

@@ -373,7 +373,7 @@
       padding-inline-end: 46px;
     }
 
-    /* حقل الرقم الجامعي (مخصص للطالب) */
+    /* حقل الرقم الأكاديمي (مخصص للطالب) */
     .input-wrap.university-id input {
       font-family: 'Tajawal', monospace;
       letter-spacing: 1px;
@@ -1143,7 +1143,7 @@
           </svg>
           <div>
             <strong id="errorTitle">تعذر تسجيل الدخول</strong>
-            <span id="errorMsg">تأكد من صحة الرقم الجامعي وكلمة المرور.</span>
+            <span id="errorMsg">تأكد من صحة الرقم الأكاديمي وكلمة المرور.</span>
           </div>
         </div>
 
@@ -1176,7 +1176,7 @@
 
           <div class="field">
             <label for="identifier">
-              الرقم الجامعي
+              الرقم الأكاديمي
               <span class="label-hint">أو البريد الإلكتروني</span>
             </label>
             <div class="input-wrap university-id">
@@ -1199,7 +1199,7 @@
                 aria-describedby="identifierHint"
               />
             </div>
-            <span id="identifierHint" style="display:none;">الرقم الجامعي المكوّن من 7 أرقام أو البريد الإلكتروني</span>
+            <span id="identifierHint" style="display:none;">الرقم الأكاديمي المكوّن من 7 أرقام أو البريد الإلكتروني</span>
           </div>
 
           <div class="field">
@@ -1282,7 +1282,7 @@
           </summary>
           <div class="demo-content">
             <p>
-              للتجربة فقط — استخدم الرقم الجامعي <code>2024001</code> وكلمة المرور <code>Student1234</code>
+              للتجربة فقط — استخدم الرقم الأكاديمي <code>2024001</code> وكلمة المرور <code>Student1234</code>
             </p>
             <button
               type="button"
@@ -1485,7 +1485,7 @@
       }
       if (params.get('error') === 'invalid') {
         errorTitle.textContent = 'بيانات الدخول غير صحيحة';
-        errorMsg.textContent = 'تحقق من الرقم الجامعي وكلمة المرور ثم أعد المحاولة.';
+        errorMsg.textContent = 'تحقق من الرقم الأكاديمي وكلمة المرور ثم أعد المحاولة.';
         errorAlert.hidden = false;
       }
       if (params.get('error') === 'inactive') {
@@ -1511,7 +1511,7 @@
         const pwd = pwdInput.value;
 
         if (!id) {
-          showError('حقل مطلوب', 'يرجى إدخال الرقم الجامعي أو البريد الإلكتروني.');
+          showError('حقل مطلوب', 'يرجى إدخال الرقم الأكاديمي أو البريد الإلكتروني.');
           identifierInput.focus();
           return false;
         }
@@ -1520,15 +1520,15 @@
         if (id.includes('@')) {
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           if (!emailRegex.test(id)) {
-            showError('بريد غير صالح', 'يرجى إدخال بريد إلكتروني بصيغة صحيحة أو رقم جامعي.');
+            showError('بريد غير صالح', 'يرجى إدخال بريد إلكتروني بصيغة صحيحة أو رقم أكاديمي.');
             identifierInput.focus();
             return false;
           }
         } else {
-          // الرقم الجامعي: أرقام فقط (يمكن أن يكون 7 أو 8 أو 9 أرقام)
+          // الرقم الأكاديمي: أرقام فقط (يمكن أن يكون 7 أو 8 أو 9 أرقام)
           const idRegex = /^\d{5,12}$/;
           if (!idRegex.test(id)) {
-            showError('رقم جامعي غير صالح', 'الرقم الجامعي يجب أن يتكون من أرقام فقط (5 إلى 12 رقماً).');
+            showError('رقم أكاديمي غير صالح', 'الرقم الأكاديمي يجب أن يتكون من أرقام فقط (5 إلى 12 رقماً).');
             identifierInput.focus();
             return false;
           }
