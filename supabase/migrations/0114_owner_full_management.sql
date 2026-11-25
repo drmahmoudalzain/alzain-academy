@@ -98,7 +98,7 @@ $$;
 -- ---------------------------------------------------------------------------
 create or replace function public.management_create_user_profile(
   p_auth_id uuid, p_platform_id text, p_name text, p_email text,
-  p_phone text default null, p_role text, p_track text default null,
+  p_role text, p_phone text default null, p_track text default null,
   p_level smallint default null, p_university_id text default null,
   p_gender text default null, p_position text default null
 )

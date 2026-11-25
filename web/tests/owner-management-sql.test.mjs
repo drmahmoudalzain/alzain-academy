@@ -99,6 +99,23 @@ test("course delete preflight counts every dependent group", () => {
   }
 });
 
+test("parameters with defaults come last in every function signature", () => {
+  const sql = migration();
+  const signatures = [...sql.matchAll(/create or replace function public\.\w+\(([^)]*)\)/g)];
+  assert.ok(signatures.length > 0, "expected function signatures to inspect");
+  for (const [, signature] of signatures) {
+    let seenDefault = false;
+    for (const param of signature.split(",").map((p) => p.trim()).filter(Boolean)) {
+      const hasDefault = /\bdefault\b/i.test(param);
+      assert.ok(
+        !seenDefault || hasDefault,
+        `parameter after a default must also have a default: ${param}`,
+      );
+      seenDefault ||= hasDefault;
+    }
+  }
+});
+
 test("the old update_course signature is dropped and grants are scoped", () => {
   const sql = migration();
   assert.match(

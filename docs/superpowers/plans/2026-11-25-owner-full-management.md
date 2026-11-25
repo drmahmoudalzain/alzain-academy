@@ -47,7 +47,7 @@
 - Produces (تواقيع نهائية يعتمد عليها باقي التنفيذ):
   - `public.is_owner_by_auth_uid(p_auth_uid uuid) returns boolean` — لـ `service_role` فقط.
   - `public.management_allocate_platform_id(p_role text, p_track text) returns text`
-  - `public.management_create_user_profile(p_auth_id uuid, p_platform_id text, p_name text, p_email text, p_phone text default null, p_role text, p_track text default null, p_level smallint default null, p_university_id text default null, p_gender text default null, p_position text default null) returns jsonb`
+  - `public.management_create_user_profile(p_auth_id uuid, p_platform_id text, p_name text, p_email text, p_role text, p_phone text default null, p_track text default null, p_level smallint default null, p_university_id text default null, p_gender text default null, p_position text default null) returns jsonb`
   - `public.management_update_user(p_user_id bigint, p_name text, p_email text, p_phone text default null, p_university_id text default null, p_platform_id text default null, p_role text default null, p_track text default null, p_level smallint default null, p_gender text default null, p_position text default null) returns jsonb`
   - `public.management_set_user_active(p_user_id bigint, p_active boolean) returns jsonb`
   - `public.management_flag_password_change(p_user_id bigint, p_value boolean) returns jsonb`
