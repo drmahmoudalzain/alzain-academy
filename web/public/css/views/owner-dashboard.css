@@ -368,7 +368,7 @@
   .od-stat:hover, .od-action:hover { transform: none; }
 }
 
-/* === od-btn variants ===
+/* === od-btn variants === */
 .od-btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:9px 16px; border:1px solid var(--border,#E3E9F0); border-radius:12px; background:var(--bg-surface,#fff); color:var(--text-primary,var(--navy,#0B2545)); font-size:.82rem; font-weight:700; cursor:pointer; transition:transform .18s,box-shadow .18s,background .18s,border-color .18s,opacity .18s; white-space:nowrap; }
 .od-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 16px rgba(11,37,69,.10);}
 .od-btn:active:not(:disabled){transform:translateY(0);}
@@ -404,3 +404,20 @@
 .od-btn-row{gap:14px;}
 .od-btn-group{gap:12px;}
 .od-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+
+/* === Owner management forms and tables === */
+.od-btn{font:inherit;}
+.od-actions-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
+.od-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;}
+.od-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;align-items:end;}
+.od-field{display:flex;flex-direction:column;gap:6px;min-width:0;}
+.od-field label{font-size:.78rem;font-weight:700;color:var(--text-secondary,#5B6B7F);}
+.od-input,.od-select,.od-textarea{width:100%;padding:9px 12px;border:1px solid var(--border,#E3E9F0);border-radius:10px;background:var(--bg-surface,#fff);color:var(--text-primary,#0B2545);font-size:.84rem;}
+.od-table{width:100%;border-collapse:collapse;font-size:.82rem;}
+.od-table th,.od-table td{padding:10px 12px;border-block-end:1px solid var(--border,#E3E9F0);text-align:start;vertical-align:middle;}
+.od-table th{background:var(--bg-subtle,#F5F7FA);font-weight:700;color:var(--text-secondary,#5B6B7F);}
+.od-inline-msg{padding:10px 12px;border-radius:10px;font-size:.82rem;line-height:1.7;background:#EEF4FF;color:#123A63;border:1px solid #CFDDF5;margin-block-start:10px;}
+.od-inline-msg--error{background:#FDECEA;color:#B00020;border-color:#F5C6CB;}
+.od-inline-msg--success{background:#E8F6EE;color:#17663A;border-color:#BFE4CC;}
+.od-form-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;grid-column:1/-1;}
+@media (max-width:640px){.od-form,.od-grid,.od-actions-grid{grid-template-columns:minmax(0,1fr);}.od-table{display:block;overflow-x:auto;white-space:nowrap;}}

@@ -15,8 +15,8 @@ const STATS = [
 ];
 
 const ACTIONS = [
-  { label: "إضافة مستخدم", ico: "plus", href: "pages/owner/users.html" },
-  { label: "إنشاء مقرر", ico: "courses", href: "pages/owner/courses.html" },
+  { label: "إضافة مستخدم", ico: "plus", href: "pages/owner/users.html?new=1" },
+  { label: "إنشاء مقرر", ico: "courses", href: "pages/owner/courses.html?new=1" },
   { label: "التقرير الشامل", ico: "grades", href: "pages/owner/report.html" },
   { label: "دليل المستخدم", ico: "file", href: "guide.html" },
 ];

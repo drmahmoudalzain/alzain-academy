@@ -43,6 +43,22 @@ const INVALIDATES = new Set([
   "management_enroll_student",
   "management_set_attendance",
   "management_post_announcement",
+  "management_allocate_platform_id",
+  "management_create_user_profile",
+  "management_update_user",
+  "management_set_user_active",
+  "management_flag_password_change",
+  "management_preflight_delete_user",
+  "management_delete_user_finalize",
+  "management_preflight_delete_course",
+  "management_delete_course",
+  "management_change_student_track",
+  "management_enroll_student_in_track",
+  "management_transfer_student",
+  "management_set_enrollment_status",
+  "management_remove_enrollment",
+  "management_link_auth_id",
+  "management_log_auth_delete",
 ]);
 
 const PROFILE_TTL = 300000;
