@@ -6,7 +6,7 @@ const ROLES = [
 ];
 
 export function devLogins(env) {
-  if (!env || env.DEV === false) return [];
+  if (!env || env.DEV !== true) return [];
   return ROLES.map((role) => ({
     key: role.key,
     id: env[`${role.prefix}_ID`] || "",

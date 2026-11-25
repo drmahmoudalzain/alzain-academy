@@ -18,6 +18,14 @@ test("production never exposes dev credentials", () => {
   assert.doesNotMatch(JSON.stringify(entries), /do-not-ship/);
 });
 
+test("an explicit DEV flag is required even when credentials exist", () => {
+  const entries = devLogins({
+    VITE_DEV_STUDENT_ID: "BM9001",
+    VITE_DEV_STUDENT_PASSWORD: "local-only",
+  });
+  assert.deepEqual(entries, []);
+});
+
 test("development credentials are returned only for complete pairs", () => {
   const entries = devLogins({
     DEV: true,

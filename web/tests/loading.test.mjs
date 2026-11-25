@@ -1,7 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 
 const { skeleton, runTask, busy, routeProgress } = await import("../src/lib/loading.js");
+const css = readFileSync(new URL("../public/css/views/loading.css", import.meta.url), "utf8");
 
 test("stats skeleton renders the requested number of stat placeholders", () => {
   const html = skeleton("stats", 3);
@@ -48,4 +50,9 @@ test("routeProgress is safe without a DOM", () => {
   const bar = routeProgress();
   bar.start();
   bar.end();
+});
+
+test("busy spinner keeps a visible border colour instead of hiding currentColor", () => {
+  assert.doesNotMatch(css, /button\.is-busy\s*\{[^}]*color:\s*transparent/);
+  assert.match(css, /button\.is-busy::after\s*\{[^}]*currentColor/);
 });

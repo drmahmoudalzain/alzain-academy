@@ -1,6 +1,5 @@
 import { requireProfile, portalOf, homeOf } from "./auth.js";
 import { renderShell, bindShell, shellPortal, syncActiveNav, updateShellTitle } from "./layout.js";
-import { disposeAll } from "./lifecycle.js";
 import { registerPage, takePendingPreset, isSoftNav } from "./page-registry.js";
 import { initNavigator } from "./navigator.js";
 
@@ -22,10 +21,8 @@ export async function boot(portalOrOptions, title, render) {
   const allowed = opts.portals || (opts.portal ? [opts.portal] : []);
 
   const mount = async () => {
-    // في التنقّل الناعم يحدث التنظيف في navigator.js قبل استيراد الوحدة،
-    // كي لا تُزال تسجيلات الوحدة الجديدة. في التحميل المباشر لا يوجد ما يُزال.
-    if (!isSoftNav()) disposeAll();
-
+    // التنظيف يتم في navigator.js قبل استيراد وحدة الصفحة التالية فقط.
+    // هنا لا يُنظَّف شيء: تسجيلات الوحدة الحالية أُضيفت قبل استدعاء boot().
     const { profile } = await requireProfile();
     if (!profile) return;
 

@@ -64,7 +64,8 @@
 
 button.is-busy {
   position: relative;
-  color: transparent !important;
+  font-size: 0;
+  line-height: 0;
   pointer-events: none;
 }
 

@@ -37,3 +37,8 @@ test("pages with document-level listeners register cleanup", () => {
     assert.match(source, /onDispose\(/, `${file} must register disposal`);
   }
 });
+
+test("direct boot never clears registrations made while its module was imported", () => {
+  const source = readFileSync(new URL("../src/lib/portal.js", import.meta.url), "utf8");
+  assert.doesNotMatch(source, /disposeAll/);
+});
