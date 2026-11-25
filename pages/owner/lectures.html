@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/alzain-academy/css/views/owner-dashboard.css" />
   <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
-  <script type="module" crossorigin src="/alzain-academy/assets/pages-owner-lectures-BVaaQkiX.js"></script>
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-owner-lectures-ByHbONVm.js"></script>
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/base-CCmrW03f.js">
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-DXIz8ObO.js">
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-ByCz9Nvk.js">
@@ -45,7 +45,7 @@
         <section class="od-panel" aria-labelledby="olListTitle">
           <div class="od-panel-head">
             <h2 class="od-section-title" id="olListTitle">القائمة</h2>
-            <button class="od-btn od-btn-primary" id="olNewBtn">+ إضافة محاضرة</button>
+            <button class="od-btn od-btn--primary" id="olNewBtn"><span class="od-btn-spinner"></span> + إضافة محاضرة</button>
           </div>
           <div id="olTable" aria-live="polite"></div>
         </section>
@@ -64,7 +64,7 @@
             <div class="od-field"><label>رابط YouTube</label><input name="youtube_url" /></div>
             <div class="od-field"><label>رابط Live</label><input name="live_url" /></div>
             <div class="od-field"><label>موعد (ISO)</label><input name="scheduled_at" type="datetime-local" /></div>
-            <div class="od-actions"><button type="submit" class="od-btn od-btn-primary">حفظ</button><button type="button" class="od-btn" id="olCancel">إلغاء</button></div>
+            <div class="od-btn-row"><button type="submit" class="od-btn od-btn--primary" id="olSubmitBtn"><span class="od-btn-spinner"></span> حفظ</button><button type="button" class="od-btn od-btn--ghost" id="olCancel">إلغاء</button></div>
             <div id="olMsg" aria-live="polite"></div>
           </form>
         </section>
