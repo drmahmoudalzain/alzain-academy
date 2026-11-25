@@ -502,3 +502,77 @@ body:not(.sidebar-open) .sidebar-overlay {
 .exam-timer.danger .exam-timer-value { color: #C73838 !important; }
 
 .modal-overlay.open { display: flex !important; }
+
+/* هيدر البوابات — mobile-first */
+.topbar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  height: 64px;
+  min-height: 64px;
+  padding: 0 12px;
+}
+
+.topbar-title {
+  align-items: center;
+  min-width: 0;
+}
+
+.topbar-title h1 {
+  font-size: 0.95rem;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.topbar-title .breadcrumb { display: none; }
+
+.menu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-width: 0;
+  height: 40px;
+  padding: 0 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.topbar-end {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.topbar-notif {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+}
+
+.topbar-end .topbar-back {
+  height: 40px;
+  padding: 0 10px;
+  white-space: nowrap;
+}
+
+@media (min-width: 640px) {
+  .topbar {
+    gap: 16px;
+    height: 76px;
+    min-height: 76px;
+    padding: 0 20px;
+  }
+  .topbar-title h1 { font-size: 1.15rem; }
+  .topbar-title .breadcrumb { display: flex; }
+  .topbar-end { gap: 8px; }
+}
+
+@media (min-width: 900px) {
+  .topbar { padding: 0 28px; }
+  .topbar-title h1 { font-size: 1.35rem; }
+}

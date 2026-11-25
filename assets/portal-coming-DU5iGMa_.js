@@ -1,4 +1,4 @@
-import{b as l,i as s,e as a}from"./portal-CrSS4adt.js";import{p as t}from"./auth-CiwDk5OQ.js";const d={student:"الطالب",teacher:"الأستاذ",assistant:"المساعد",owner:"الإدارة"},n=String(document.title||"").split(" — ")[0]||"قيد التطوير";l({portals:["student","teacher","assistant","owner"],title:n,render:async({profile:i,portal:c,content:o})=>{const r=String((i==null?void 0:i.name)||"").split(" ")[0]||"أستاذي",e=d[c]||"البوابة";o.innerHTML=`
+import{b as l,i as s,e as a}from"./portal-GZvzOKub.js";import{p as t}from"./auth-CiwDk5OQ.js";const d={student:"الطالب",teacher:"الأستاذ",assistant:"المساعد",owner:"الإدارة"},n=String(document.title||"").split(" — ")[0]||"قيد التطوير";l({portals:["student","teacher","assistant","owner"],title:n,render:async({profile:i,portal:c,content:o})=>{const r=String((i==null?void 0:i.name)||"").split(" ")[0]||"أستاذي",e=d[c]||"البوابة";o.innerHTML=`
       <section class="welcome-card">
         <div class="welcome-content">
           <div class="welcome-tag">${s("sparkles")} بوابة ${a(e)}</div>
