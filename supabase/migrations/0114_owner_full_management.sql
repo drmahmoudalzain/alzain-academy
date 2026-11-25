@@ -1022,6 +1022,81 @@ end;
 $$;
 
 -- ---------------------------------------------------------------------------
+-- 8ب) ربط حساب دخول قديم وسجل ما قبل حذف حساب Auth
+-- ---------------------------------------------------------------------------
+create or replace function public.management_link_auth_id(
+  p_user_id bigint, p_auth_id uuid
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_uid bigint := public.current_user_id();
+  v_old uuid;
+begin
+  if v_uid is null or not public.is_owner() then
+    return jsonb_build_object('ok', false, 'error', 'not allowed');
+  end if;
+  if p_auth_id is null then
+    return jsonb_build_object('ok', false, 'error', 'معرّف حساب الدخول مطلوب');
+  end if;
+  select auth_id into v_old from public.users where id = p_user_id;
+  if not found then
+    return jsonb_build_object('ok', false, 'error', 'المستخدم غير موجود');
+  end if;
+  if v_old is not null and v_old <> p_auth_id then
+    return jsonb_build_object('ok', false, 'error', 'المستخدم مرتبط بحساب دخول بالفعل');
+  end if;
+  if exists (
+    select 1 from public.users u where u.auth_id = p_auth_id and u.id <> p_user_id
+  ) then
+    return jsonb_build_object('ok', false, 'error', 'حساب الدخول مرتبط بمستخدم آخر');
+  end if;
+
+  update public.users set auth_id = p_auth_id where id = p_user_id;
+
+  insert into public.audit_logs (actor_id, action, table_name, record_id, old_data, new_data)
+  values (
+    v_uid, 'management_link_auth_id', 'users', p_user_id,
+    jsonb_build_object('auth_id', v_old),
+    jsonb_build_object('auth_id', p_auth_id)
+  );
+
+  return jsonb_build_object('ok', true, 'data', jsonb_build_object('id', p_user_id, 'auth_id', p_auth_id));
+end;
+$$;
+
+create or replace function public.management_log_auth_delete(
+  p_user_id bigint, p_auth_id uuid
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_uid bigint := public.current_user_id();
+begin
+  if v_uid is null or not public.is_owner() then
+    return jsonb_build_object('ok', false, 'error', 'not allowed');
+  end if;
+  if not exists (select 1 from public.users where id = p_user_id) then
+    return jsonb_build_object('ok', false, 'error', 'المستخدم غير موجود');
+  end if;
+
+  insert into public.audit_logs (actor_id, action, table_name, record_id, new_data)
+  values (
+    v_uid, 'management_log_auth_delete', 'users', p_user_id,
+    jsonb_build_object('auth_id', p_auth_id, 'stage', 'before_auth_delete')
+  );
+
+  return jsonb_build_object('ok', true, 'data', jsonb_build_object('id', p_user_id));
+end;
+$$;
+
+-- ---------------------------------------------------------------------------
 -- 9) إعادة تعريف دوال 0112/0113 بالتواقيع نفسها لإضافة سجل التدقيق
 -- ---------------------------------------------------------------------------
 create or replace function public.management_create_course(
@@ -1398,6 +1473,8 @@ begin
     'management_transfer_student(bigint,bigint,bigint)',
     'management_set_enrollment_status(bigint,bigint,text)',
     'management_remove_enrollment(bigint,bigint)',
+    'management_link_auth_id(bigint,uuid)',
+    'management_log_auth_delete(bigint,uuid)',
     'management_create_course(text,text,text,text,smallint,text,numeric,numeric,numeric,bigint)',
     'management_assign_course_teacher(bigint,bigint)',
     'management_add_lecture(bigint,text,text,text,timestamptz,integer,text,text)',

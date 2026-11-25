@@ -22,6 +22,8 @@ drop function if exists public.management_enroll_student_in_track(bigint, text, 
 drop function if exists public.management_transfer_student(bigint, bigint, bigint);
 drop function if exists public.management_set_enrollment_status(bigint, bigint, text);
 drop function if exists public.management_remove_enrollment(bigint, bigint);
+drop function if exists public.management_link_auth_id(bigint, uuid);
+drop function if exists public.management_log_auth_delete(bigint, uuid);
 
 -- إعادة التوقيع السابق المُسقَط في 0114 (السلوك كما في 0113، بلا سجل تدقيق جديد)
 create or replace function public.management_update_course(
@@ -107,7 +109,9 @@ begin
     'management_enroll_student_in_track(bigint,text,smallint)',
     'management_transfer_student(bigint,bigint,bigint)',
     'management_set_enrollment_status(bigint,bigint,text)',
-    'management_remove_enrollment(bigint,bigint)'
+    'management_remove_enrollment(bigint,bigint)',
+    'management_link_auth_id(bigint,uuid)',
+    'management_log_auth_delete(bigint,uuid)'
   ] loop
     execute format('revoke all on function public.%s from public, anon, authenticated', f);
   end loop;

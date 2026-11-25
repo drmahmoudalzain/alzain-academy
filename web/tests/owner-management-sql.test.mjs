@@ -30,6 +30,8 @@ const functions = [
   "management_transfer_student",
   "management_set_enrollment_status",
   "management_remove_enrollment",
+  "management_link_auth_id",
+  "management_log_auth_delete",
 ];
 
 function bodyOf(name) {
