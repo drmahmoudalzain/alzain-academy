@@ -16,12 +16,12 @@
   <link rel="stylesheet" href="/alzain-academy/css/views/teacher-course.css" />
   <link rel="stylesheet" href="/alzain-academy/css/views/loading.css" />
   <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
-  <script type="module" crossorigin src="/alzain-academy/assets/pages-teacher-course-C-OCoVgP.js"></script>
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-teacher-course-BOsCiLQt.js"></script>
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/modulepreload-polyfill-B5Qt9EMX.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-CiwDk5OQ.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-GZvzOKub.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/api-DvV83kVs.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/common-U7Hjp8Eu.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-BoGIE3PA.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-DKRVLX1f.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/api-E-OWc22n.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/common-DZC5ELq4.js">
 </head>
 <body class="portal">
   <div id="app">
@@ -56,30 +56,28 @@
             <div class="tdc-toolbar">
               <label class="tdc-sr-only" for="tdcStudentSearch">بحث في الطلاب</label>
               <input class="tdc-input" id="tdcStudentSearch" type="search" placeholder="ابحث عن طالب..." autocomplete="off" />
-              <button class="tt-btn tt-btn-primary" type="button" id="tdcEnroll">إضافة طالب</button>
+              <span class="tdc-hint">تسجيل الطلاب من بوابة الإدارة.</span>
             </div>
             <div id="tdcStudents" aria-live="polite"></div>
           </section>
 
           <section class="tdc-pane" data-pane="lectures" aria-label="المحاضرات" hidden>
             <div class="tdc-toolbar">
-              <span class="tdc-hint">إدارة محاضرات المقرر وفتح باب الحضور.</span>
-              <button class="tt-btn tt-btn-primary" type="button" id="tdcAddLecture">محاضرة جديدة</button>
+              <span class="tdc-hint">المحاضرات وباب الحضور من بوابة الإدارة.</span>
             </div>
             <div class="tdc-list" id="tdcLectures" aria-live="polite"></div>
           </section>
 
           <section class="tdc-pane" data-pane="exams" aria-label="الاختبارات" hidden>
             <div class="tdc-toolbar">
-              <span class="tdc-hint">الاختبارات غير المنشورة لا تظهر للطلاب.</span>
-              <button class="tt-btn tt-btn-primary" type="button" id="tdcAddExam">اختبار جديد</button>
+              <span class="tdc-hint">الاختبارات تُدار من بوابة الإدارة.</span>
             </div>
             <div class="tdc-list" id="tdcExams" aria-live="polite"></div>
           </section>
 
           <section class="tdc-pane" data-pane="assignments" aria-label="الواجبات" hidden>
             <div class="tdc-toolbar">
-              <span class="tdc-hint">تُصحَّح تسليمات الواجبات من تبويب نظرة عامة.</span>
+              <span class="tdc-hint">يمكنك إنشاء الواجبات هنا؛ التصحيح من بوابة الإدارة.</span>
               <button class="tt-btn tt-btn-primary" type="button" id="tdcAddAssignment">واجب جديد</button>
             </div>
             <div class="tdc-list" id="tdcAssignments" aria-live="polite"></div>
