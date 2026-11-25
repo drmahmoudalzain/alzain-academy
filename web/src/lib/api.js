@@ -1,7 +1,9 @@
 import { supabase } from "./supabase.js";
+import { remember, clear } from "./cache.js";
+import { isCacheable, isInvalidating, ttlFor } from "./cache-policy.js";
 
 // عقد استدعاء موحّد. كل RPC يعيد { ok, data } أو { ok:false, error, code }.
-export async function call(fn, params = {}) {
+async function rawCall(fn, params) {
   const { data, error } = await supabase.rpc(fn, params ?? {});
   if (error) {
     return { ok: false, error: error.message, code: error.code };
@@ -11,6 +13,33 @@ export async function call(fn, params = {}) {
     return { ok: true, data: data.data ?? data };
   }
   return { ok: true, data };
+}
+
+// مفتاح ثابت الترتيب حتى لا يتغير كاش نفس الاستدعاء بترتيب الخصائص.
+function paramsKey(params) {
+  const source = params ?? {};
+  const sorted = Object.fromEntries(Object.keys(source).sort().map((k) => [k, source[k]]));
+  return JSON.stringify(sorted);
+}
+
+export async function call(fn, params = {}) {
+  // أي كتابة تُبطل كل النطاق: لوحة التحكم والإحصاءات تعتمد على أكثر من RPC.
+  if (isInvalidating(fn)) clear();
+
+  if (!isCacheable(fn)) return rawCall(fn, params);
+
+  const key = `${fn}:${paramsKey(params)}`;
+  let failure;
+  const result = await remember(key, ttlFor(fn), async () => {
+    const res = await rawCall(fn, params);
+    if (!res.ok) {
+      // الأخطاء المؤقتة لا تُخزَّن؛ تُعاد كما هي بعد انتهاء الدالة.
+      failure = res;
+      return undefined;
+    }
+    return res;
+  });
+  return failure ?? result;
 }
 
 // قراءة مباشرة محمية بـ RLS مع معالجة أخطاء شائعة.
