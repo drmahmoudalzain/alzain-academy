@@ -75,14 +75,16 @@ test("disposeAll runs registered cleanups once and forgets them", () => {
 
 const { isCacheable, isInvalidating } = await import("../src/lib/cache-policy.js");
 
-test("read whitelist contains dashboards but never the grading write", () => {
+test("read whitelist contains dashboards but never the management writes", () => {
   assert.equal(isCacheable("teacher_dashboard"), true);
   assert.equal(isCacheable("my_profile"), true);
-  assert.equal(isCacheable("teacher_grade_submission"), false);
+  assert.equal(isCacheable("management_grade_submission"), false);
+  assert.equal(isCacheable("teacher_create_assignment"), false);
 });
 
-test("write list invalidates grading and submission calls but leaves unknown RPCs alone", () => {
-  assert.equal(isInvalidating("teacher_grade_submission"), true);
+test("write list invalidates management writes and submission calls but leaves unknown RPCs alone", () => {
+  assert.equal(isInvalidating("management_grade_submission"), true);
+  assert.equal(isInvalidating("teacher_create_assignment"), true);
   assert.equal(isInvalidating("student_exam_submit"), true);
   assert.equal(isInvalidating("unknown_rpc"), false);
 });

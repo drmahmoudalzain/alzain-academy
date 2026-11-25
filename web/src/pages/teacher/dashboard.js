@@ -4,7 +4,7 @@ import { esc, fmtDateTime, fmtNum, rel } from "../../lib/fmt.js";
 import { icon } from "../../lib/icons.js";
 import { p } from "../../lib/base.js";
 import { skeleton } from "../../lib/loading.js";
-import { $, emptyState, initial, openForm, safeColor } from "./common.js";
+import { $, emptyState, initial, safeColor } from "./common.js";
 
 function stat(label, value, unit, ico, cls = "") {
   return `<div class="td-stat ${cls}">
@@ -35,9 +35,7 @@ function submissionRow(s) {
       <span class="td-item-title">${esc(s.student_name || "طالب")} — ${esc(s.assignment_title || "واجب")}</span>
       <span class="td-item-sub">${esc(course)} · ${esc(fmtDateTime(s.submitted_at))}${s.submitted_at ? ` · ${esc(rel(s.submitted_at))}` : ""}</span>
     </span>
-    <button class="tt-btn tt-btn-ghost" type="button" data-grade="${esc(s.id)}"
-      data-name="${esc(s.student_name || "الطالب")}" data-title="${esc(s.assignment_title || "الواجب")}"
-      data-max="${esc(s.max_points ?? 10)}">تصحيح</button>
+    <span class="td-badge">للإدارة</span>
   </div>`;
 }
 
@@ -62,24 +60,6 @@ function renderError(message) {
   $("tdPendingCount").textContent = "—";
 }
 
-async function grade(id, name, title, max) {
-  openForm({
-    title: "تصحيح تسليم",
-    intro: `${name} — ${title}`,
-    fields: [
-      { name: "points", label: `الدرجة (من ${max})`, type: "number", min: 0, max: Number(max) || 0, step: "0.5", value: "", required: true, placeholder: "0" },
-      { name: "feedback", label: "ملاحظات للطالب", type: "textarea", value: "", placeholder: "اختياري" },
-    ],
-    submitLabel: "حفظ الدرجة",
-    onSubmit: async (v) => {
-      const res = await call("teacher_grade_submission", {
-        p_submission_id: Number(id), p_points: Number(v.points), p_feedback: v.feedback || null,
-      });
-      return res.ok ? { ok: true, message: "تم حفظ الدرجة" } : { ok: false, error: res.error };
-    },
-  });
-}
-
 boot({
   portal: "teacher",
   title: "لوحة التحكم",
@@ -89,11 +69,6 @@ boot({
     $("tdCourses").innerHTML = skeleton("cards", 2);
     $("tdSubmissions").innerHTML = skeleton("rows", 2);
     $("tdSchedule").innerHTML = skeleton("rows", 2);
-
-    content.addEventListener("click", (e) => {
-      const btn = e.target.closest("[data-grade]");
-      if (btn) grade(btn.dataset.grade, btn.dataset.name, btn.dataset.title, btn.dataset.max);
-    });
 
     const res = await call("teacher_dashboard");
     if (!res.ok) {
@@ -120,7 +95,7 @@ boot({
     $("tdPendingCount").textContent = fmtNum(pending);
     $("tdCourses").innerHTML = courses.length
       ? `<div class="td-course-list">${courses.map(courseCard).join("")}</div>`
-      : emptyState("لا توجد مقررات بعد", "ستظهر مقرراتك هنا فور إنشائها من صفحة مقرراتي.", "courses");
+      : emptyState("لا توجد مقررات بعد", "تُنشأ المقررات من بوابة الإدارة.", "courses");
     $("tdSubmissions").innerHTML = submissions.length
       ? `<div class="td-item-list">${submissions.map(submissionRow).join("")}</div>`
       : emptyState("كل شيء مُصحَّح", "لا توجد تسليمات بانتظار التصحيح حالياً.", "checks");

@@ -33,15 +33,15 @@ const INVALIDATES = new Set([
   "student_exam_submit",
   "student_assignment_submit",
   "student_lecture_attendance",
-  "teacher_create_course",
-  "teacher_update_course",
-  "teacher_add_lecture",
-  "teacher_create_exam",
+  "management_create_course",
+  "management_update_course",
+  "management_add_lecture",
+  "management_create_exam",
   "teacher_create_assignment",
-  "teacher_grade_submission",
-  "teacher_enroll_student",
-  "teacher_set_attendance",
-  "teacher_post_announcement",
+  "management_grade_submission",
+  "management_enroll_student",
+  "management_set_attendance",
+  "management_post_announcement",
 ]);
 
 const PROFILE_TTL = 300000;

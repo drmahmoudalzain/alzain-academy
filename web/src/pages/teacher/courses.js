@@ -4,20 +4,7 @@ import { esc, fmtDate, fmtNum } from "../../lib/fmt.js";
 import { icon } from "../../lib/icons.js";
 import { p } from "../../lib/base.js";
 import { skeleton } from "../../lib/loading.js";
-import { $, emptyState, initial, openForm, safeColor } from "./common.js";
-
-const TRACKS = [
-  { value: "bachelor", label: "بكالوريوس (عام)" },
-  { value: "bachelor_m", label: "بكالوريوس — ذكور" },
-  { value: "bachelor_f", label: "بكالوريوس — إناث" },
-  { value: "equiv", label: "معادل" },
-  { value: "external", label: "خارجي" },
-  { value: "grad", label: "دراسات عليا" },
-];
-const LEVELS = [
-  { value: "1", label: "الأول" }, { value: "2", label: "الثاني" },
-  { value: "3", label: "الثالث" }, { value: "4", label: "الرابع" },
-];
+import { $, emptyState, initial, safeColor } from "./common.js";
 
 const state = { courses: [], filter: "all", level: "all", sort: "code", query: "" };
 
@@ -49,67 +36,8 @@ function card(c) {
     </div>
     <div class="tc-card-actions">
       <a class="tt-btn tt-btn-ghost" href="${esc(href)}">${icon("details")}فتح المقرر</a>
-      <button class="tt-btn tt-btn-secondary" type="button" data-edit="${esc(c.id)}">${icon("edit")}تعديل</button>
     </div>
   </article>`;
-}
-
-function fields(c = null) {
-  return [
-    { name: "title", label: "عنوان المقرر", value: c?.title || "", required: true, placeholder: "مثال: القانون المدني" },
-    { name: "code", label: "رمز المقرر", value: c?.code || "", required: true, dir: "ltr", placeholder: "LAW101" },
-    { name: "description", label: "وصف المقرر", type: "textarea", value: c?.description || "", placeholder: "وصف مختصر", fieldClass: "tt-field-wide" },
-    { name: "track", label: "المسار", type: "select", value: c?.track || "bachelor_m", options: TRACKS },
-    { name: "level", label: "المستوى", type: "select", value: c?.level ? String(c.level) : "1", options: LEVELS },
-    { name: "color", label: "لون المقرر", type: "color", value: c?.color || "#123A63" },
-    { name: "attendance_weight", label: "وزن الحضور %", type: "number", min: 0, max: 100, value: c?.attendance_weight ?? 10, required: true },
-    { name: "exams_weight", label: "وزن الاختبارات %", type: "number", min: 0, max: 100, value: c?.exams_weight ?? 60, required: true },
-    { name: "assignments_weight", label: "وزن الواجبات %", type: "number", min: 0, max: 100, value: c?.assignments_weight ?? 30, required: true, hint: "مجموع الأوزان = 100" },
-  ];
-}
-
-function newCourse() {
-  openForm({
-    title: "مقرر جديد",
-    intro: "أضف مقرراً جديداً إلى بوابتك. يمكنك تعديل بياناته لاحقاً.",
-    fields: fields(),
-    submitLabel: "إنشاء المقرر",
-    onSubmit: async (v) => {
-      const res = await call("teacher_create_course", {
-        p_title: v.title, p_code: v.code, p_description: v.description || null,
-        p_track: v.track, p_level: Number(v.level), p_color: v.color,
-        p_attendance_weight: Number(v.attendance_weight),
-        p_exams_weight: Number(v.exams_weight),
-        p_assignments_weight: Number(v.assignments_weight),
-      });
-      if (!res.ok) return { ok: false, error: res.error };
-      await load();
-      return { ok: true, message: "تم إنشاء المقرر" };
-    },
-  });
-}
-
-function editCourse(id) {
-  const c = state.courses.find((x) => String(x.id) === String(id));
-  if (!c) return;
-  openForm({
-    title: "تعديل المقرر",
-    intro: `${c.code || ""} — ${c.title || ""}`,
-    fields: fields(c),
-    submitLabel: "حفظ التعديلات",
-    onSubmit: async (v) => {
-      const res = await call("teacher_update_course", {
-        p_course_id: c.id, p_title: v.title, p_description: v.description || null,
-        p_color: v.color, p_archived: c.archived, p_track: v.track, p_level: Number(v.level),
-        p_attendance_weight: Number(v.attendance_weight),
-        p_exams_weight: Number(v.exams_weight),
-        p_assignments_weight: Number(v.assignments_weight),
-      });
-      if (!res.ok) return { ok: false, error: res.error };
-      await load();
-      return { ok: true, message: "تم حفظ التعديلات" };
-    },
-  });
 }
 
 function renderStats(d) {
@@ -145,7 +73,7 @@ function renderCards() {
   if (!list.length) {
     $("tcGrid").innerHTML = emptyState(
       state.courses.length ? "لا مقررات مطابقة" : "لا توجد مقررات بعد",
-      state.courses.length ? "جرّب تغيير التصفية أو كلمة البحث." : "أنشئ مقررك الأول باستخدام زر «مقرر جديد».",
+      state.courses.length ? "جرّب تغيير التصفية أو كلمة البحث." : "تُنشأ المقررات من بوابة الإدارة.",
       "courses"
     );
     return;
@@ -188,10 +116,7 @@ boot({
         renderCards();
         return;
       }
-      const edit = e.target.closest("[data-edit]");
-      if (edit) editCourse(edit.dataset.edit);
     });
-    $("tcNewCourse").addEventListener("click", newCourse);
     $("tcLevel").addEventListener("change", (e) => { state.level = e.target.value; renderCards(); });
     $("tcSort").addEventListener("change", (e) => { state.sort = e.target.value; renderCards(); });
     $("tcSearch").addEventListener("input", (e) => { state.query = e.target.value; renderCards(); });

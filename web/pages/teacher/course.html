@@ -50,30 +50,28 @@
             <div class="tdc-toolbar">
               <label class="tdc-sr-only" for="tdcStudentSearch">بحث في الطلاب</label>
               <input class="tdc-input" id="tdcStudentSearch" type="search" placeholder="ابحث عن طالب..." autocomplete="off" />
-              <button class="tt-btn tt-btn-primary" type="button" id="tdcEnroll">إضافة طالب</button>
+              <span class="tdc-hint">تسجيل الطلاب من بوابة الإدارة.</span>
             </div>
             <div id="tdcStudents" aria-live="polite"></div>
           </section>
 
           <section class="tdc-pane" data-pane="lectures" aria-label="المحاضرات" hidden>
             <div class="tdc-toolbar">
-              <span class="tdc-hint">إدارة محاضرات المقرر وفتح باب الحضور.</span>
-              <button class="tt-btn tt-btn-primary" type="button" id="tdcAddLecture">محاضرة جديدة</button>
+              <span class="tdc-hint">المحاضرات وباب الحضور من بوابة الإدارة.</span>
             </div>
             <div class="tdc-list" id="tdcLectures" aria-live="polite"></div>
           </section>
 
           <section class="tdc-pane" data-pane="exams" aria-label="الاختبارات" hidden>
             <div class="tdc-toolbar">
-              <span class="tdc-hint">الاختبارات غير المنشورة لا تظهر للطلاب.</span>
-              <button class="tt-btn tt-btn-primary" type="button" id="tdcAddExam">اختبار جديد</button>
+              <span class="tdc-hint">الاختبارات تُدار من بوابة الإدارة.</span>
             </div>
             <div class="tdc-list" id="tdcExams" aria-live="polite"></div>
           </section>
 
           <section class="tdc-pane" data-pane="assignments" aria-label="الواجبات" hidden>
             <div class="tdc-toolbar">
-              <span class="tdc-hint">تُصحَّح تسليمات الواجبات من تبويب نظرة عامة.</span>
+              <span class="tdc-hint">يمكنك إنشاء الواجبات هنا؛ التصحيح من بوابة الإدارة.</span>
               <button class="tt-btn tt-btn-primary" type="button" id="tdcAddAssignment">واجب جديد</button>
             </div>
             <div class="tdc-list" id="tdcAssignments" aria-live="polite"></div>

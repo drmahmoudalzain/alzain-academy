@@ -4,7 +4,7 @@ import { esc, fmtDate, fmtDateTime, fmtNum, fmtPoints, rel } from "../../lib/fmt
 import { icon } from "../../lib/icons.js";
 import { p } from "../../lib/base.js";
 import { skeleton } from "../../lib/loading.js";
-import { $, emptyState, openForm, safeColor, toast } from "./common.js";
+import { $, emptyState, openForm, safeColor } from "./common.js";
 
 const id = Number(new URLSearchParams(location.search).get("id"));
 const state = { course: null, data: null };
@@ -58,9 +58,7 @@ function hero(c, s) {
     </div>
   </div>
   <div class="tdc-actions">
-    <button class="tt-btn" type="button" id="tdcEdit">${icon("edit")}تعديل المقرر</button>
-    <button class="tt-btn" type="button" data-goto="lectures">${icon("plus")}محاضرة جديدة</button>
-    <button class="tt-btn" type="button" data-goto="students">${icon("users")}إضافة طالب</button>
+    <button class="tt-btn" type="button" data-goto="assignments">${icon("plus")}واجب جديد</button>
   </div>
   <div class="tdc-stats">
     <div class="tdc-stat"><span class="tdc-stat-value">${esc(fmtNum(s.students))}</span><span class="tdc-stat-label">طالب</span></div>
@@ -87,9 +85,7 @@ function submissionRow(s) {
       <span class="tdc-row-sub">${esc(fmtDateTime(s.submitted_at))} · ${esc(s.feedback || "لا توجد ملاحظات")}</span>
     </span>
     <span class="tdc-badge ${s.points === null ? "tdc-warn" : "tdc-good"}">${s.points === null ? "بانتظار التصحيح" : `${esc(fmtPoints(s.points))}/${esc(fmtPoints(s.max_points))}`}</span>
-    <button class="tt-btn tt-btn-ghost" type="button" data-grade="${esc(s.id)}"
-      data-name="${esc(s.student_name || "الطالب")}" data-title="${esc(s.assignment_title || "الواجب")}"
-      data-max="${esc(s.max_points ?? 10)}" data-points="${s.points ?? ""}" data-feedback="${esc(s.feedback || "")}">${s.points === null ? "تصحيح" : "تعديل"}</button>
+    <span class="tdc-hint">التصحيح للإدارة</span>
   </div>`;
 }
 
@@ -106,11 +102,6 @@ function lectureCard(l) {
       <span>${icon("clock")}${esc(fmtNum(l.duration_min))} دقيقة</span>
       <span>${icon("users")}${esc(fmtNum(l.attendance_count))} حاضر</span>
       <span>${icon("file")}${esc(fmtNum(l.questions_count))} سؤال</span>
-    </div>
-    <div class="tdc-item-actions">
-      <button class="tt-btn tt-btn-secondary" type="button" data-attendance="${esc(l.id)}" data-open="${l.attendance_open ? "1" : "0"}">
-        ${icon(l.attendance_open ? "close" : "check")}${l.attendance_open ? "إغلاق الحضور" : "فتح الحضور"}
-      </button>
     </div>
   </article>`;
 }
@@ -159,7 +150,7 @@ function renderStudents(list) {
       <td>${esc(s.letter)}</td><td>${esc(fmtNum(s.points))}</td>
     </tr>`);
   $("#tdcStudents").innerHTML = table(["الطالب", "الاختبارات", "الحضور", "الواجبات", "النهائي", "التقدير", "النقاط"], rows)
-    || emptyState("لا طلاب مسجلين", "أضف طالباً باستخدام زر «إضافة طالب».", "users");
+    || emptyState("لا طلاب مسجلين", "تسجيل الطلاب من بوابة الإدارة.", "users");
 }
 
 function renderGradebook(list) {
@@ -173,108 +164,8 @@ function renderGradebook(list) {
     || emptyState("لا درجات محسوبة", "ستظهر الدرجات فور تسجيل الطلاب وإدخال نتائج التقييمات.", "grades");
 }
 
-function openGrade(id, name, title, max, points, feedback) {
-  openForm({
-    title: points === "" ? "تصحيح تسليم" : "تعديل الدرجة",
-    intro: `${name} — ${title}`,
-    fields: [
-      { name: "points", label: `الدرجة (من ${max})`, type: "number", min: 0, max: Number(max) || 0, step: "0.5", value: points, required: true },
-      { name: "feedback", label: "ملاحظات للطالب", type: "textarea", value: feedback, fieldClass: "tt-field-wide" },
-    ],
-    submitLabel: "حفظ الدرجة",
-    onSubmit: async (v) => {
-      const res = await call("teacher_grade_submission", {
-        p_submission_id: Number(id), p_points: Number(v.points), p_feedback: v.feedback || null,
-      });
-      if (!res.ok) return { ok: false, error: res.error };
-      await load();
-      return { ok: true, message: "تم حفظ الدرجة" };
-    },
-  });
-}
-
 function forms() {
-  const c = state.course || {};
   return {
-    edit: () => openForm({
-      title: "تعديل المقرر",
-      fields: [
-        { name: "title", label: "عنوان المقرر", value: c.title || "", required: true },
-        { name: "description", label: "الوصف", type: "textarea", value: c.description || "", fieldClass: "tt-field-wide" },
-        { name: "track", label: "المسار", type: "select", value: c.track || "bachelor_m", options: TRACKS },
-        { name: "level", label: "المستوى", type: "select", value: c.level ? String(c.level) : "1", options: LEVELS },
-        { name: "color", label: "اللون", type: "color", value: c.color || "#123A63" },
-        { name: "archived", label: "الحالة", type: "select", value: c.archived ? "1" : "0", options: [{ value: "0", label: "نشط" }, { value: "1", label: "مؤرشف" }] },
-        { name: "attendance_weight", label: "وزن الحضور %", type: "number", value: c.attendance_weight ?? 10, required: true },
-        { name: "exams_weight", label: "وزن الاختبارات %", type: "number", value: c.exams_weight ?? 60, required: true },
-        { name: "assignments_weight", label: "وزن الواجبات %", type: "number", value: c.assignments_weight ?? 30, required: true, hint: "المجموع = 100" },
-      ],
-      submitLabel: "حفظ التعديلات",
-      onSubmit: async (v) => {
-        const res = await call("teacher_update_course", {
-          p_course_id: id, p_title: v.title, p_description: v.description || null, p_color: v.color,
-          p_archived: v.archived === "1", p_track: v.track, p_level: Number(v.level),
-          p_attendance_weight: Number(v.attendance_weight), p_exams_weight: Number(v.exams_weight),
-          p_assignments_weight: Number(v.assignments_weight),
-        });
-        if (!res.ok) return { ok: false, error: res.error };
-        await load();
-        return { ok: true, message: "تم حفظ التعديلات" };
-      },
-    }),
-    lecture: () => openForm({
-      title: "محاضرة جديدة",
-      fields: [
-        { name: "title", label: "عنوان المحاضرة", required: true },
-        { name: "lecture_type", label: "النوع", type: "select", value: "direct", options: [
-          { value: "direct", label: "مباشر" }, { value: "online", label: "أونلاين" }, { value: "recorded", label: "مسجل" },
-        ] },
-        { name: "scheduled_at", label: "الموعد", type: "datetime-local" },
-        { name: "duration_min", label: "المدة (دقيقة)", type: "number", value: 120, min: 1 },
-        { name: "description", label: "الوصف", type: "textarea", fieldClass: "tt-field-wide" },
-        { name: "youtube_url", label: "رابط يوتيوب" },
-        { name: "live_url", label: "رابط البث" },
-      ],
-      submitLabel: "إضافة المحاضرة",
-      onSubmit: async (v) => {
-        const res = await call("teacher_add_lecture", {
-          p_course_id: id, p_title: v.title, p_description: v.description || null,
-          p_lecture_type: v.lecture_type, p_scheduled_at: isoOrNull(v.scheduled_at),
-          p_duration_min: Number(v.duration_min) || 120,
-          p_youtube_url: v.youtube_url || null, p_live_url: v.live_url || null,
-        });
-        if (!res.ok) return { ok: false, error: res.error };
-        await load();
-        return { ok: true, message: "تمت إضافة المحاضرة" };
-      },
-    }),
-    exam: () => openForm({
-      title: "اختبار جديد",
-      fields: [
-        { name: "title", label: "عنوان الاختبار", required: true },
-        { name: "exam_kind", label: "النوع", type: "select", value: "exam", options: [
-          { value: "exam", label: "اختبار" }, { value: "assignment", label: "واجب كاختبار" },
-        ] },
-        { name: "starts_at", label: "وقت البدء", type: "datetime-local" },
-        { name: "ends_at", label: "وقت الانتهاء", type: "datetime-local" },
-        { name: "duration_min", label: "المدة (دقيقة)", type: "number", min: 1 },
-        { name: "is_published", label: "الحالة", type: "select", value: "0", options: [
-          { value: "0", label: "مسودة" }, { value: "1", label: "منشور" },
-        ] },
-        { name: "description", label: "الوصف", type: "textarea", fieldClass: "tt-field-wide" },
-      ],
-      submitLabel: "إضافة الاختبار",
-      onSubmit: async (v) => {
-        const res = await call("teacher_create_exam", {
-          p_course_id: id, p_title: v.title, p_description: v.description || null,
-          p_exam_kind: v.exam_kind, p_starts_at: isoOrNull(v.starts_at), p_ends_at: isoOrNull(v.ends_at),
-          p_duration_min: v.duration_min ? Number(v.duration_min) : null, p_is_published: v.is_published === "1",
-        });
-        if (!res.ok) return { ok: false, error: res.error };
-        await load();
-        return { ok: true, message: "تمت إضافة الاختبار" };
-      },
-    }),
     assignment: () => openForm({
       title: "واجب جديد",
       fields: [
@@ -292,18 +183,6 @@ function forms() {
         if (!res.ok) return { ok: false, error: res.error };
         await load();
         return { ok: true, message: "تمت إضافة الواجب" };
-      },
-    }),
-    enroll: () => openForm({
-      title: "إضافة طالب",
-      intro: "أدخل بريد الطالب أو رقمه الأكاديمي أو رمزه على المنصة.",
-      fields: [{ name: "identifier", label: "معرّف الطالب", required: true }],
-      submitLabel: "إضافة إلى المقرر",
-      onSubmit: async (v) => {
-        const res = await call("teacher_enroll_student", { p_course_id: id, p_identifier: v.identifier });
-        if (!res.ok) return { ok: false, error: res.error };
-        await load();
-        return { ok: true, message: `تمت إضافة ${res.data?.name || "الطالب"}` };
       },
     }),
   };
@@ -341,7 +220,7 @@ async function load() {
   $("#tdcActivity").innerHTML = (d.activity || []).length
     ? (d.activity || []).slice(0, 10).map(activityRow).join("")
     : emptyState("لا نشاط بعد", "ستظهر أحداث المقرر هنا فور تسجيل الطلاب أو إضافة المحتوى.", "history");
-  $("#tdcPendingCount").textContent = `${fmtNum(s.pending)} بانتظار التصحيح`;
+  $("#tdcPendingCount").textContent = `${fmtNum(s.pending)} بانتظار التصحيح — للإدارة`;
   $("#tdcSubmissions").innerHTML = (d.submissions || []).length
     ? (d.submissions || []).map(submissionRow).join("")
     : emptyState("لا تسليمات بعد", "ستظهر تسليمات الطلاب هنا فور وصولها.", "file");
@@ -349,10 +228,10 @@ async function load() {
   renderGradebook(d.gradebook || []);
   $("#tdcLectures").innerHTML = (d.lectures || []).length
     ? (d.lectures || []).map(lectureCard).join("")
-    : emptyState("لا محاضرات بعد", "أضف محاضرتك الأولى من زر «محاضرة جديدة».", "lectures");
+    : emptyState("لا محاضرات بعد", "المحاضرات تُضاف من بوابة الإدارة.", "lectures");
   $("#tdcExams").innerHTML = (d.exams || []).length
     ? (d.exams || []).map(examCard).join("")
-    : emptyState("لا اختبارات بعد", "أضف اختبارك الأول من زر «اختبار جديد».", "exams");
+    : emptyState("لا اختبارات بعد", "الاختبارات تُضاف من بوابة الإدارة.", "exams");
   $("#tdcAssignments").innerHTML = (d.assignments || []).length
     ? (d.assignments || []).map(assignmentCard).join("")
     : emptyState("لا واجبات بعد", "أضف واجبك الأول من زر «واجب جديد».", "assignments");
@@ -374,39 +253,8 @@ boot({
       if (tab) { switchTab(tab.dataset.tab); return; }
       const go = e.target.closest("[data-goto]");
       if (go) { switchTab(go.dataset.goto); return; }
-      const grade = e.target.closest("[data-grade]");
-      if (grade) {
-        openGrade(grade.dataset.grade, grade.dataset.name, grade.dataset.title, grade.dataset.max, grade.dataset.points, grade.dataset.feedback);
-        return;
-      }
-      const attendance = e.target.closest("[data-attendance]");
-      if (attendance) {
-        const lid = Number(attendance.dataset.attendance);
-        if (attendance.dataset.open === "1") {
-          call("teacher_set_attendance", { p_lecture_id: lid, p_open: false }).then((res) => {
-            if (res.ok) { toast("تم إغلاق باب الحضور"); load(); } else toast(res.error, "error");
-          });
-        } else {
-          openForm({
-            title: "فتح باب الحضور",
-            intro: "سيظهر رمز الحضور للطلاب المسجلين في المقرر.",
-            fields: [{ name: "code", label: "رمز الحضور", required: true, placeholder: "مثال: 4821" }],
-            submitLabel: "فتح الحضور",
-            onSubmit: async (v) => {
-              const res = await call("teacher_set_attendance", { p_lecture_id: lid, p_open: true, p_code: v.code });
-              if (!res.ok) return { ok: false, error: res.error };
-              await load();
-              return { ok: true, message: "تم فتح باب الحضور" };
-            },
-          });
-        }
-      }
     });
 
-    content.addEventListener("click", (e) => { if (e.target.closest("#tdcEdit")) f.edit(); });
-    $("#tdcEnroll").addEventListener("click", f.enroll);
-    $("#tdcAddLecture").addEventListener("click", f.lecture);
-    $("#tdcAddExam").addEventListener("click", f.exam);
     $("#tdcAddAssignment").addEventListener("click", f.assignment);
     $("#tdcStudentSearch").addEventListener("input", () => renderStudents(state.data?.students || []));
 
