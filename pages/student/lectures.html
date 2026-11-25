@@ -14,11 +14,11 @@
   <link rel="stylesheet" href="/alzain-academy/css/views/student-dashboard.css" />
   <link rel="stylesheet" href="/alzain-academy/css/views/student-lectures.css" />
   <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
-  <script type="module" crossorigin src="/alzain-academy/assets/pages-student-lectures-BsEzimBh.js"></script>
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/modulepreload-polyfill-B5Qt9EMX.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth--t_y884W.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-CVSJHjlk.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/api-CMkmAA4T.js">
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-student-lectures-RQJVfW2k.js"></script>
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/base-CCmrW03f.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-DXIz8ObO.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-BGrs2lRg.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/api-BJFMNRHJ.js">
 </head>
 <body class="portal">
   <div id="app">
@@ -26,7 +26,7 @@
       <div class="lcs-page">
         <section class="lcs-header">
           <h1>محاضراتي</h1>
-          <p>تابع محاضراتك حسب المقرر والحالة، وافتح تفاصيل كل محاضرة لمعرفة موعدها ومادتها.</p>
+          <p>صفِّ المحاضرات حسب المقرر أو النوع أو الحالة، وافتح التفاصيل لمعرفة موعدها ومادتها.</p>
         </section>
 
         <section class="lcs-stats" id="lcsStats" aria-label="إحصاءات المحاضرات" aria-live="polite">
@@ -53,10 +53,27 @@
                 <option value="missed">فائتة</option>
               </select>
             </div>
+            <div class="lcs-field">
+              <label class="lcs-sr-only" for="lcsType">تصفية حسب نوع المحاضرة</label>
+              <select class="lcs-select" id="lcsType" disabled>
+                <option value="all">كل الأنواع</option>
+                <option value="direct">مباشر</option>
+                <option value="online">أونلاين</option>
+                <option value="recorded">مسجل</option>
+              </select>
+            </div>
             <div class="lcs-field lcs-search">
               <label class="lcs-sr-only" for="lcsSearch">بحث في المحاضرات</label>
               <span class="lcs-search-icon" data-icon="search" aria-hidden="true"></span>
               <input class="lcs-input" id="lcsSearch" type="search" placeholder="ابحث عن محاضرة..." autocomplete="off" disabled />
+            </div>
+            <div class="lcs-view-toggle" role="group" aria-label="طريقة عرض المحاضرات">
+              <button class="lcs-view-btn is-active" type="button" data-view="grid" aria-label="عرض شبكي" aria-pressed="true" disabled>
+                <span data-icon="grid" aria-hidden="true"></span>
+              </button>
+              <button class="lcs-view-btn" type="button" data-view="list" aria-label="عرض قائمة" aria-pressed="false" disabled>
+                <span data-icon="list" aria-hidden="true"></span>
+              </button>
             </div>
           </div>
         </section>

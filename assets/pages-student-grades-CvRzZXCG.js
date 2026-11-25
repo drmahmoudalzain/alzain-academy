@@ -1,4 +1,4 @@
-import"./modulepreload-polyfill-B5Qt9EMX.js";import{b as y,i as o,c,d as $,e as l}from"./portal-CVSJHjlk.js";import{c as f}from"./api-CMkmAA4T.js";import{p as k}from"./auth--t_y884W.js";import"https://esm.sh/@supabase/supabase-js@2";const b=[{key:"excellent",label:"ممتاز"},{key:"very_good",label:"جيد جداً"},{key:"good",label:"جيد"},{key:"pass",label:"مقبول"},{key:"low",label:"منخفض"}],d=s=>{const t=Number(s);return Number.isFinite(t)?t:0},_=s=>Math.min(100,Math.max(0,d(s))),M=(s,t="#123A63")=>{const a=String(s??"").trim();return/^#[\da-f]{3,8}$/i.test(a)?a:t},x=s=>String(s??"").replace(/[^A-Za-z0-9\u0600-\u06FF]/g,"").slice(0,2)||"—",u=s=>s==null||s===""?"—":`${$(s)}%`,p=s=>s==null||s===""?"—":$(s),T=()=>`
+import{p as y}from"./base-CCmrW03f.js";import{b as f,i as o,c,d as $,e as l}from"./portal-BGrs2lRg.js";import{c as k}from"./api-BJFMNRHJ.js";import"./auth-DXIz8ObO.js";import"https://esm.sh/@supabase/supabase-js@2";const b=[{key:"excellent",label:"ممتاز"},{key:"very_good",label:"جيد جداً"},{key:"good",label:"جيد"},{key:"pass",label:"مقبول"},{key:"low",label:"منخفض"}],d=s=>{const t=Number(s);return Number.isFinite(t)?t:0},_=s=>Math.min(100,Math.max(0,d(s))),M=(s,t="#123A63")=>{const a=String(s??"").trim();return/^#[\da-f]{3,8}$/i.test(a)?a:t},x=s=>String(s??"").replace(/[^A-Za-z0-9\u0600-\u06FF]/g,"").slice(0,2)||"—",u=s=>s==null||s===""?"—":`${$(s)}%`,p=s=>s==null||s===""?"—":$(s),T=()=>`
   <div class="gr-skeleton gr-skeleton-hero"></div>
   <div class="gr-stats">
     <div class="gr-skeleton gr-skeleton-stat"></div>
@@ -62,7 +62,7 @@ import"./modulepreload-polyfill-B5Qt9EMX.js";import{b as y,i as o,c,d as $,e as 
         <span class="gr-hero-tag">${o("grades")} سجلك الأكاديمي</span>
         <h2>معدلك التراكمي</h2>
         <p>تُحسب الدرجات من الاختبارات المنشورة والواجبات المقيّمة وسجل الحضور، وتُحدَّث فور اعتماد أي نتيجة جديدة.</p>
-        <a class="gr-hero-link" href="${k("pages/student/points.html")}">نقاطي ${o("arrow")}</a>
+        <a class="gr-hero-link" href="${y("pages/student/points.html")}">نقاطي ${o("arrow")}</a>
       </div>
       <div class="gr-ring" role="img" aria-label="المعدل التراكمي ${p(t.gpa)} من أربعة" style="--gr-ring:${g}deg">
         <div class="gr-ring-inner">
@@ -95,4 +95,4 @@ import"./modulepreload-polyfill-B5Qt9EMX.js";import{b as y,i as o,c,d as $,e as 
       ${a.length?`<div class="gr-courses">${a.map(L).join("")}</div>`:h("لا توجد درجات مقررات بعد","ستظهر درجات كل مقرر هنا بعد نشر الاختبارات وتقييم الواجبات وتسجيل الحضور.","courses")}
     </section>
 
-    ${j(t.distribution)}`}y("student","درجاتي",async({content:s})=>{const t=document.getElementById("grView")||s,a=document.getElementById("grReload");async function r(){t.innerHTML=T(),a&&(a.disabled=!0);try{const n=await f("student_grades");if(!n.ok){console.error("[student_grades]",n.error),t.innerHTML=v();return}t.innerHTML=A(n.data)}catch(n){console.error("[student_grades]",n),t.innerHTML=v()}finally{a&&(a.disabled=!1)}}t.addEventListener("click",n=>{n.target.closest("[data-reload]")&&r()}),a&&a.addEventListener("click",r),await r()});
+    ${j(t.distribution)}`}f("student","درجاتي",async({content:s})=>{const t=document.getElementById("grView")||s,a=document.getElementById("grReload");async function r(){t.innerHTML=T(),a&&(a.disabled=!0);try{const n=await k("student_grades");if(!n.ok){console.error("[student_grades]",n.error),t.innerHTML=v();return}t.innerHTML=A(n.data)}catch(n){console.error("[student_grades]",n),t.innerHTML=v()}finally{a&&(a.disabled=!1)}}t.addEventListener("click",n=>{n.target.closest("[data-reload]")&&r()}),a&&a.addEventListener("click",r),await r()});

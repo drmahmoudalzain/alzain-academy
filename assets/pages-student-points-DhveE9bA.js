@@ -1,4 +1,4 @@
-import"./modulepreload-polyfill-B5Qt9EMX.js";import{b as _,i as r,e as o,f as w,r as A,d as b,c as m}from"./portal-CVSJHjlk.js";import{c as T}from"./api-CMkmAA4T.js";import{p as L}from"./auth--t_y884W.js";import"https://esm.sh/@supabase/supabase-js@2";const h={attendance:{label:"حضور",icon:"check"},interaction:{label:"تفاعل",icon:"forum"},assignment:{label:"واجب",icon:"assignments"}},B=[{key:"all",label:"الكل"},{key:"attendance",label:"الحضور"},{key:"interaction",label:"التفاعل"},{key:"assignment",label:"الواجبات"}],p=t=>{const e=Number(t);return Number.isFinite(e)?e:0},M=(t,e="#123A63")=>{const s=String(t??"").trim();return/^#[\da-f]{3,8}$/i.test(s)?s:e},d=t=>t==null||t===""?"—":b(t),E=()=>`
+import{p as _}from"./base-CCmrW03f.js";import{b as w,i as r,e as o,f as A,r as T,d as b,c as m}from"./portal-BGrs2lRg.js";import{c as L}from"./api-BJFMNRHJ.js";import"./auth-DXIz8ObO.js";import"https://esm.sh/@supabase/supabase-js@2";const h={attendance:{label:"حضور",icon:"check"},interaction:{label:"تفاعل",icon:"forum"},assignment:{label:"واجب",icon:"assignments"}},B=[{key:"all",label:"الكل"},{key:"attendance",label:"الحضور"},{key:"interaction",label:"التفاعل"},{key:"assignment",label:"الواجبات"}],p=t=>{const e=Number(t);return Number.isFinite(e)?e:0},M=(t,e="#123A63")=>{const s=String(t??"").trim();return/^#[\da-f]{3,8}$/i.test(s)?s:e},d=t=>t==null||t===""?"—":b(t),E=()=>`
   <div class="pts-skeleton pts-skeleton-hero"></div>
   <div class="pts-skeleton pts-skeleton-card"></div>
   <div class="pts-skeleton pts-skeleton-card"></div>`,y=(t,e,s="points")=>`
@@ -27,7 +27,7 @@ import"./modulepreload-polyfill-B5Qt9EMX.js";import{b as _,i as r,e as o,f as w,
         <span class="pts-pill">${r("calendar")} هذا الأسبوع: <strong>${d(t.week)}</strong> نقطة</span>
         <span class="pts-pill">${r("users")} ${o(a)}</span>
       </div>
-      <a class="pts-hero-link" href="${L("pages/student/grades.html")}">درجاتي ${r("arrow")}</a>
+      <a class="pts-hero-link" href="${_("pages/student/grades.html")}">درجاتي ${r("arrow")}</a>
     </div>
     <div class="pts-total">
       <span class="pts-total-icon">${r("points")}</span>
@@ -59,7 +59,7 @@ import"./modulepreload-polyfill-B5Qt9EMX.js";import{b as _,i as r,e as o,f as w,
         <span class="pts-avatar">${o(String(s.name||"?").trim().charAt(0)||"?")}</span>
         <span class="pts-board-name"><strong>${o(s.name||"طالب")}${s.is_me?" (أنت)":""}</strong><small>${s.is_me?"حسابك":`المرتبة ${m(a+1)}`}</small></span>
         <span class="pts-board-points">${r("points")} ${d(s.points)}</span>
-      </li>`).join("")}</ol>`:y("لوحة الشرف غير متاحة بعد","ستظهر هنا أعلى عشرة طلاب بعد تسجيل نقاطهم في النظام.","users")}function D(t){const e=h[t.source_type]?t.source_type:"interaction",s=h[e],a=p(t.points),n=a>=0?"+":"−",u=t.created_at?`${w(t.created_at)} · ${A(t.created_at)}`:"—";return`<li class="pts-entry ${e}">
+      </li>`).join("")}</ol>`:y("لوحة الشرف غير متاحة بعد","ستظهر هنا أعلى عشرة طلاب بعد تسجيل نقاطهم في النظام.","users")}function D(t){const e=h[t.source_type]?t.source_type:"interaction",s=h[e],a=p(t.points),n=a>=0?"+":"−",u=t.created_at?`${A(t.created_at)} · ${T(t.created_at)}`:"—";return`<li class="pts-entry ${e}">
     <span class="pts-entry-icon">${r(s.icon)}</span>
     <div class="pts-entry-body">
       <div class="pts-entry-top">
@@ -105,4 +105,4 @@ import"./modulepreload-polyfill-B5Qt9EMX.js";import{b as _,i as r,e as o,f as w,
         ${B.map(l=>`<button class="pts-filter${e===l.key?" active":""}" type="button" data-filter="${l.key}" aria-pressed="${e===l.key}">${o(l.label)}</button>`).join("")}
       </div>
       <div id="ptsLedgerList" aria-live="polite">${k(n,e)}</div>
-    </section>`:j()}_("student","نقاطي",async({content:t})=>{const e=document.getElementById("ptsView")||t,s=document.getElementById("ptsReload");let a=[],n="all";function u(i){n=i,e.querySelectorAll("[data-filter]").forEach(l=>{const v=l.dataset.filter===n;l.classList.toggle("active",v),l.setAttribute("aria-pressed",String(v))});const c=document.getElementById("ptsLedgerList");c&&(c.innerHTML=k(a,n))}async function $(){var i;e.innerHTML=E(),s&&(s.disabled=!0);try{const c=await T("student_points");if(!c.ok){console.error("[student_points]",c.error),a=[],e.innerHTML=f();return}a=Array.isArray((i=c.data)==null?void 0:i.ledger)?c.data.ledger:[],e.innerHTML=I(c.data,n)}catch(c){console.error("[student_points]",c),a=[],e.innerHTML=f()}finally{s&&(s.disabled=!1)}}e.addEventListener("click",i=>{if(i.target.closest("[data-reload]")){$();return}const l=i.target.closest("[data-filter]");l&&l.dataset.filter!==n&&u(l.dataset.filter)}),s&&s.addEventListener("click",$),await $()});
+    </section>`:j()}w("student","نقاطي",async({content:t})=>{const e=document.getElementById("ptsView")||t,s=document.getElementById("ptsReload");let a=[],n="all";function u(i){n=i,e.querySelectorAll("[data-filter]").forEach(l=>{const v=l.dataset.filter===n;l.classList.toggle("active",v),l.setAttribute("aria-pressed",String(v))});const c=document.getElementById("ptsLedgerList");c&&(c.innerHTML=k(a,n))}async function $(){var i;e.innerHTML=E(),s&&(s.disabled=!0);try{const c=await L("student_points");if(!c.ok){console.error("[student_points]",c.error),a=[],e.innerHTML=f();return}a=Array.isArray((i=c.data)==null?void 0:i.ledger)?c.data.ledger:[],e.innerHTML=I(c.data,n)}catch(c){console.error("[student_points]",c),a=[],e.innerHTML=f()}finally{s&&(s.disabled=!1)}}e.addEventListener("click",i=>{if(i.target.closest("[data-reload]")){$();return}const l=i.target.closest("[data-filter]");l&&l.dataset.filter!==n&&u(l.dataset.filter)}),s&&s.addEventListener("click",$),await $()});

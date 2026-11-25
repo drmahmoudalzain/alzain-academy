@@ -343,6 +343,7 @@
 .tk-q__foot {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 12px;
   padding-top: 10px;
@@ -350,6 +351,31 @@
 }
 
 .tk-q__foot > span:first-child { flex: 1 1 auto; font-size: 0.72rem; color: var(--text-muted); }
+
+.tk-review-toggle {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.tk-review-toggle:hover { border-color: var(--gold); color: var(--text-primary); }
+.tk-review-toggle:active { transform: translateY(1px); }
+.tk-review-toggle.is-flagged {
+  border-color: var(--warning-border);
+  background: var(--warning-bg);
+  color: var(--warning);
+}
+.tk-review-toggle:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
 .tk-step {
   display: inline-flex;
@@ -400,6 +426,7 @@
 
 .tk-chip.is-answered { border-color: var(--success-border); background: var(--success-bg); color: var(--success); }
 .tk-chip.is-current { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.18); color: var(--gold-dark); }
+.tk-chip.is-flagged { border-style: dashed; border-color: var(--gold-dark); }
 .tk-chip.is-pending::after {
   content: "";
   position: absolute;

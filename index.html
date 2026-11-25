@@ -1,20 +1,165 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B2545" />
+  <meta name="description" content="أكاديمية آل الزين للعلوم القانونية والعدلية. مقررات ومحاضرات واختبارات وواجبات في بوابة تعليمية واحدة." />
   <title>أكاديمية آل الزين للعلوم القانونية والعدلية</title>
-  <link rel="stylesheet" href="/alzain-academy/css/app.css" />
-  <script type="module" crossorigin src="/alzain-academy/assets/index-B6NUtgYo.js"></script>
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="stylesheet" href="/alzain-academy/css/public-home.css" />
+  <script type="module" crossorigin src="/alzain-academy/assets/index-BLzH7YEW.js"></script>
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/base-CCmrW03f.js">
 </head>
 <body>
-  <main style="min-height:100vh;display:grid;place-items:center;text-align:center;padding:40px;">
-    <div>
-      <h1 style="font-family:Amiri,serif;color:#D4A017;">أكاديمية آل الزين</h1>
-      <p>منصة تعليمية قانونية — نسخة BaaS (معاينة)</p>
-      <p><a href="login.html">تسجيل الدخول</a></p>
+  <a class="skip-link" href="#mainContent">انتقل إلى المحتوى</a>
+
+  <header class="site-header">
+    <div class="site-wrap site-header__inner">
+      <a class="brand" href="index.html" data-site-path="index.html" aria-label="أكاديمية آل الزين، الصفحة الرئيسية">
+        <svg class="brand__mark" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M32 7v44M20 52h24M10 19h44M10 19 4 32h12L10 19Zm44 0-6 13h12l-6-13Z"/>
+          <path d="M4 32a6 6 0 0 0 12 0m32 0a6 6 0 0 0 12 0"/>
+          <circle cx="32" cy="10" r="2.5" fill="currentColor" stroke="none"/>
+        </svg>
+        <span class="brand__text"><strong>أكاديمية آل الزين</strong><small>للعلوم القانونية والعدلية</small></span>
+      </a>
+
+      <button class="menu-toggle" id="mobileMenuToggle" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="فتح القائمة">
+        <span></span><span></span><span></span>
+      </button>
+
+      <nav class="site-nav" id="mobileNav" aria-label="التنقل الرئيسي">
+        <a href="#about">عن الأكاديمية</a>
+        <a href="#features">التعلّم</a>
+        <a href="#tracks">المسارات</a>
+        <a href="#portals">البوابات</a>
+      </nav>
+
+      <a class="header-cta" href="login.html" data-site-path="login.html">دخول المنصة</a>
     </div>
+  </header>
+
+  <main id="mainContent">
+    <section class="hero" aria-labelledby="heroTitle">
+      <div class="site-wrap hero__inner">
+        <div class="hero__copy">
+          <p class="hero__eyebrow">أكاديمية آل الزين للعلوم القانونية والعدلية</p>
+          <h1 id="heroTitle">تعليم قانوني<br /><span>في بوابة واحدة</span></h1>
+          <p class="hero__lead">تابع مقرراتك ومحاضراتك، وأدِّ الاختبارات والواجبات من منصة الأكاديمية.</p>
+          <div class="hero__actions">
+            <a class="button button--gold" href="login.html" data-site-path="login.html">دخول المنصة</a>
+            <a class="button button--outline" href="guide.html" data-site-path="guide.html">اقرأ دليل المستخدم</a>
+          </div>
+          <ul class="hero__summary" aria-label="أقسام المنصة">
+            <li>المقررات</li>
+            <li>المحاضرات</li>
+            <li>التقييم</li>
+          </ul>
+        </div>
+
+        <div class="hero__seal" aria-hidden="true">
+          <div class="seal-frame">
+            <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M32 5v46M19 53h26M9 17h46M9 17 3 31h12L9 17Zm46 0-6 14h12l-6-14Z"/>
+              <path d="M3 31a6 6 0 0 0 12 0m32 0a6 6 0 0 0 12 0"/>
+              <circle cx="32" cy="9" r="2.5" fill="currentColor" stroke="none"/>
+            </svg>
+            <span>العلم والعدالة</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="intro-section" id="about" aria-labelledby="aboutTitle">
+      <div class="site-wrap intro-section__inner">
+        <p class="section-index">01 / الأكاديمية</p>
+        <div class="intro-section__content">
+          <h2 id="aboutTitle">مسار دراسي واضح للعلوم القانونية والعدلية</h2>
+          <p>تجمع المنصة أدوات الدراسة والمتابعة في حساب الطالب، وتعرض لكل مستخدم الأقسام المناسبة لدوره ومساره الأكاديمي.</p>
+        </div>
+        <a class="text-link" href="guide.html" data-site-path="guide.html">تعرّف على استخدام المنصة</a>
+      </div>
+    </section>
+
+    <section class="learning-section" id="features" aria-labelledby="featuresTitle">
+      <div class="site-wrap">
+        <div class="section-heading">
+          <p class="section-index">02 / التعلّم</p>
+          <h2 id="featuresTitle">أدوات الدراسة في مكان واحد</h2>
+          <p>تظهر المواد والأنشطة المرتبطة بحسابك ومقرراتك.</p>
+        </div>
+        <div class="learning-list">
+          <article class="learning-row">
+            <span class="learning-row__number">01</span>
+            <h3>المقررات</h3>
+            <p>راجع المقررات المسجلة وتفاصيلها من حسابك.</p>
+          </article>
+          <article class="learning-row">
+            <span class="learning-row__number">02</span>
+            <h3>المحاضرات</h3>
+            <p>تابع مواعيد المحاضرات ومصادرها وموادها.</p>
+          </article>
+          <article class="learning-row">
+            <span class="learning-row__number">03</span>
+            <h3>الاختبارات والواجبات</h3>
+            <p>استخدم أداة التقييم المتاحة لمسارك الأكاديمي.</p>
+          </article>
+          <article class="learning-row">
+            <span class="learning-row__number">04</span>
+            <h3>متابعة الأداء</h3>
+            <p>راجع الحضور والدرجات والنقاط المرتبطة بدراستك.</p>
+          </article>
+        </div>
+        <div class="library-entry">
+          <p>المكتبة القانونية متاحة للمستخدمين المسجلين.</p>
+          <a class="text-link" href="pages/library.html" data-site-path="pages/library.html">دخول المكتبة القانونية</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="tracks-section" id="tracks" aria-labelledby="tracksTitle">
+      <div class="site-wrap tracks-section__inner">
+        <div class="section-heading">
+          <p class="section-index">03 / المسارات</p>
+          <h2 id="tracksTitle">مسارات أكاديمية متعددة</h2>
+          <p>ادخل بالرمز المرتبط بحسابك، وستظهر لك واجهة المسار المسجل لك.</p>
+        </div>
+        <ul class="tracks-list">
+          <li><span>البكالوريوس</span><bdi>BM / BF</bdi></li>
+          <li><span>المعادلة</span><bdi>EQ</bdi></li>
+          <li><span>الدراسة الخارجية</span><bdi>EX</bdi></li>
+          <li><span>الدراسات العليا</span><bdi>PG</bdi></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="portals-section" id="portals" aria-labelledby="portalsTitle">
+      <div class="site-wrap portals-section__inner">
+        <div>
+          <p class="section-index">04 / الدخول</p>
+          <h2 id="portalsTitle">بوابات الأكاديمية</h2>
+          <p>الدخول موحد بالرمز الأكاديمي أو الوظيفي وكلمة المرور.</p>
+        </div>
+        <div class="portal-roles" aria-label="المستخدمون">
+          <span>المدير</span>
+          <span>الأستاذ</span>
+          <span>المساعد الإداري</span>
+          <span>الطلاب</span>
+        </div>
+        <a class="button button--gold" href="login.html" data-site-path="login.html">الانتقال إلى تسجيل الدخول</a>
+      </div>
+    </section>
   </main>
+
+  <footer class="site-footer">
+    <div class="site-wrap site-footer__inner">
+      <span>أكاديمية آل الزين للعلوم القانونية والعدلية</span>
+      <nav aria-label="روابط إضافية">
+        <a href="guide.html" data-site-path="guide.html">دليل المستخدم</a>
+        <a href="login.html" data-site-path="login.html">دخول المنصة</a>
+      </nav>
+    </div>
+  </footer>
+
 </body>
 </html>

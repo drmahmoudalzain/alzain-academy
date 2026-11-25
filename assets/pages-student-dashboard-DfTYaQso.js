@@ -1,25 +1,25 @@
-import"./modulepreload-polyfill-B5Qt9EMX.js";import{b as f,e,f as b,i as t,r as w,c as o,d as y}from"./portal-CVSJHjlk.js";import{c as k}from"./api-CMkmAA4T.js";import{p as i}from"./auth--t_y884W.js";import"https://esm.sh/@supabase/supabase-js@2";const _={direct:"مباشر",online:"أونلاين",recorded:"مسجل"};f("student","لوحة التحكم",async({profile:d})=>{var r;const c=await k("student_dashboard");if(!c.ok){document.getElementById("content").innerHTML=`<div class="empty">تعذّر تحميل البيانات: ${e(c.error)}</div>`;return}const a=c.data,p=String(((r=a.user)==null?void 0:r.name)||"").split(" ")[0],n=x(d.track),m=(a.lectures||[]).map(s=>{const v=new Date(s.scheduled_at),$=v.getDate(),g=new Intl.DateTimeFormat("ar",{month:"short"}).format(v);return`<a class="lecture-item ${s.attendance_open?"live":""}" href="${i("pages/student/lecture.html")}?id=${s.id}">
+import{p as e}from"./base-CCmrW03f.js";import{b as f,e as i,f as b,i as t,r as w,c as o,d as y}from"./portal-BGrs2lRg.js";import{c as k}from"./api-BJFMNRHJ.js";import"./auth-DXIz8ObO.js";import"https://esm.sh/@supabase/supabase-js@2";const _={direct:"مباشر",online:"أونلاين",recorded:"مسجل"};f("student","لوحة التحكم",async({profile:d})=>{var r;const c=await k("student_dashboard");if(!c.ok){document.getElementById("content").innerHTML=`<div class="empty">تعذّر تحميل البيانات: ${i(c.error)}</div>`;return}const a=c.data,p=String(((r=a.user)==null?void 0:r.name)||"").split(" ")[0],n=x(d.track),m=(a.lectures||[]).map(s=>{const v=new Date(s.scheduled_at),$=v.getDate(),g=new Intl.DateTimeFormat("ar",{month:"short"}).format(v);return`<a class="lecture-item ${s.attendance_open?"live":""}" href="${e("pages/student/lecture.html")}?id=${s.id}">
         <div class="lecture-date"><span class="day">${$}</span><span class="month">${g}</span></div>
-        <div class="lecture-info"><h4>${e(s.title)}</h4>
-          <div class="lecture-sub"><span>${b(s.scheduled_at)}</span><span>${e(s.course||"")}</span></div></div>
-        <span class="lecture-type ${s.lecture_type}">${_[s.lecture_type]||e(s.lecture_type)}</span>
+        <div class="lecture-info"><h4>${i(s.title)}</h4>
+          <div class="lecture-sub"><span>${b(s.scheduled_at)}</span><span>${i(s.course||"")}</span></div></div>
+        <span class="lecture-type ${s.lecture_type}">${_[s.lecture_type]||i(s.lecture_type)}</span>
       </a>`}).join(""),u=(a.courses||[]).map(s=>`<div class="course-item">
-      <div class="course-icon" style="--course-color:${e(s.color||"#123A63")};"><span>${e(String(s.code||"").slice(0,2))}</span></div>
-      <div class="course-info"><h4>${e(s.title)}</h4><div class="course-meta"><span>${e(s.code||"")}</span><span>${e(s.teacher||"")}</span></div></div>
+      <div class="course-icon" style="--course-color:${i(s.color||"#123A63")};"><span>${i(String(s.code||"").slice(0,2))}</span></div>
+      <div class="course-info"><h4>${i(s.title)}</h4><div class="course-meta"><span>${i(s.code||"")}</span><span>${i(s.teacher||"")}</span></div></div>
       <div class="course-progress"><span class="progress-label">${s.progress??0}%</span><div class="progress-bar"><span style="width:${s.progress??0}%"></span></div></div>
     </div>`).join(""),h=(a.notifications||[]).map(s=>`<div class="notif-item unread">
       <div class="notif-icon gold">${t("file")}</div>
-      <div class="notif-content"><h5>${e(s.title)}</h5><p>${e(s.body)}</p><time>${w(s.created_at)}</time></div>
+      <div class="notif-content"><h5>${i(s.title)}</h5><p>${i(s.body)}</p><time>${w(s.created_at)}</time></div>
     </div>`).join(""),l=a.points_breakdown||{};document.getElementById("content").innerHTML=`
   <section class="welcome-card">
     <div class="welcome-content">
       <div class="welcome-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>يوم دراسي موفق</div>
-      <h2>أهلاً بعودتك، <span class="name">${e(p)}</span></h2>
+      <h2>أهلاً بعودتك، <span class="name">${i(p)}</span></h2>
       <p>لديك <strong>${a.today_lectures??0} محاضرات</strong> اليوم، ${n==="exam"?`و<strong>${a.upcoming_exams??0} اختبارات</strong> قادمة.`:`و<strong>${a.pending_assignments??0} واجبات</strong> بانتظار تسليمك.`}</p>
       <div class="welcome-actions">
-        ${(a.lectures||[]).length?`<a class="btn btn-gold" href="${i("pages/student/lecture.html")}?id=${a.lectures[0].id}">ابدأ التعلّم ${t("arrow")}</a>`:""}
-        <a class="btn btn-outline" href="${i("pages/student/lectures.html")}">الجدول الأسبوعي</a>
-        <a class="btn btn-outline" href="${i("pages/notifications.html")}">الإشعارات${(a.notifications||[]).length?` (${a.notifications.length})`:""}</a>
+        ${(a.lectures||[]).length?`<a class="btn btn-gold" href="${e("pages/student/lecture.html")}?id=${a.lectures[0].id}">ابدأ التعلّم ${t("arrow")}</a>`:""}
+        <a class="btn btn-outline" href="${e("pages/student/lectures.html")}">الجدول الأسبوعي</a>
+        <a class="btn btn-outline" href="${e("pages/notifications.html")}">الإشعارات${(a.notifications||[]).length?` (${a.notifications.length})`:""}</a>
       </div>
     </div>
     <div class="welcome-illustration" aria-hidden="true"><svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M32 6v46"/><path d="M20 52h24"/><circle cx="32" cy="10" r="3.2" fill="currentColor" stroke="none"/><path d="M10 18h44"/><path d="M10 18L4 32h12L10 18z"/><path d="M54 18L48 32h12L54 18z"/><path d="M4 32a6 6 0 0 0 12 0"/><path d="M48 32a6 6 0 0 0 12 0"/></svg></div>
@@ -34,9 +34,9 @@ import"./modulepreload-polyfill-B5Qt9EMX.js";import{b as f,e,f as b,i as t,r as 
 
   <section class="dashboard-grid">
     <div class="stack">
-      <div class="card"><div class="card-header"><div class="card-title">${t("courses")} مقرراتي النشطة</div><a href="${i("pages/student/grades.html")}" class="card-link">الدرجات ${t("arrow")}</a></div>
+      <div class="card"><div class="card-header"><div class="card-title">${t("courses")} مقرراتي النشطة</div><a href="${e("pages/student/grades.html")}" class="card-link">الدرجات ${t("arrow")}</a></div>
         <div class="card-body">${u||'<div class="empty-state"><h3>لا توجد مقررات مسجلة</h3><p>تواصل مع إدارة الأكاديمية لتسجيل مقرراتك.</p></div>'}</div></div>
-      <div class="card"><div class="card-header"><div class="card-title">${t("calendar")} المحاضرات القادمة</div><a href="${i("pages/student/lectures.html")}" class="card-link">الكل ${t("arrow")}</a></div>
+      <div class="card"><div class="card-header"><div class="card-title">${t("calendar")} المحاضرات القادمة</div><a href="${e("pages/student/lectures.html")}" class="card-link">الكل ${t("arrow")}</a></div>
         <div class="card-body no-pad">${m||'<div class="empty-state" style="border:0;"><h3>لا توجد محاضرات قادمة</h3><p>ستظهر هنا المحاضرات المجدولة قريباً.</p></div>'}</div></div>
     </div>
 
@@ -48,17 +48,17 @@ import"./modulepreload-polyfill-B5Qt9EMX.js";import{b as f,e,f as b,i as t,r as 
           <div class="points-row"><span class="label"><span class="dot int"></span>التفاعل</span><strong>${l.interaction??0}</strong></div>
           <div class="points-row"><span class="label"><span class="dot asg"></span>الواجبات</span><strong>${l.assignment??0}</strong></div>
         </div>
-        <a class="btn btn-outline btn-block mt-0" href="${i("pages/student/points.html")}">سجل النقاط الكامل</a></div>
+        <a class="btn btn-outline btn-block mt-0" href="${e("pages/student/points.html")}">سجل النقاط الكامل</a></div>
 
-      <div class="card"><div class="card-header"><div class="card-title">${t("bell")} الإشعارات</div><a href="${i("pages/notifications.html")}" style="font-size:0.78rem;font-weight:600;color:var(--green);">عرض الكل ←</a></div>
+      <div class="card"><div class="card-header"><div class="card-title">${t("bell")} الإشعارات</div><a href="${e("pages/notifications.html")}" style="font-size:0.78rem;font-weight:600;color:var(--green);">عرض الكل ←</a></div>
         <div class="card-body no-pad">${h||'<div class="empty-state" style="border:0;"><p>لا توجد إشعارات جديدة.</p></div>'}</div></div>
 
       <div class="card"><div class="card-header"><div class="card-title">${t("assistant")} إجراءات سريعة</div></div>
         <div class="quick-actions">
-          ${n==="assignment"?`<a class="action-btn" href="${i("pages/student/assignments.html")}"><div class="icon-wrap">${t("assignments")}</div><span>تسليم واجب</span></a>`:""}
-          ${n==="exam"?`<a class="action-btn green" href="${i("pages/student/exams.html")}"><div class="icon-wrap">${t("exams")}</div><span>الاختبارات</span></a>`:""}
-          <a class="action-btn blue" href="${i("pages/student/points.html")}"><div class="icon-wrap">${t("points")}</div><span>نقاطي</span></a>
-          <a class="action-btn" href="${i("pages/account.html")}"><div class="icon-wrap">${t("user")}</div><span>حسابي</span></a>
+          ${n==="assignment"?`<a class="action-btn" href="${e("pages/student/assignments.html")}"><div class="icon-wrap">${t("assignments")}</div><span>تسليم واجب</span></a>`:""}
+          ${n==="exam"?`<a class="action-btn green" href="${e("pages/student/exams.html")}"><div class="icon-wrap">${t("exams")}</div><span>الاختبارات</span></a>`:""}
+          <a class="action-btn blue" href="${e("pages/student/points.html")}"><div class="icon-wrap">${t("points")}</div><span>نقاطي</span></a>
+          <a class="action-btn" href="${e("pages/account.html")}"><div class="icon-wrap">${t("user")}</div><span>حسابي</span></a>
         </div></div>
     </div>
   </section>`});function x(d){return d&&["bachelor","bachelor_m","equiv","external"].includes(d)?"exam":"assignment"}
