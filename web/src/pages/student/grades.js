@@ -12,6 +12,9 @@ const DISTRIBUTION = [
   { key: "low", label: "منخفض" },
 ];
 
+const isBachelorTrack = (track) =>
+  ["bachelor", "bachelor_m", "bachelor_f"].includes(String(track ?? "").trim());
+
 const num = (v) => {
   const n = Number(v);
   return Number.isFinite(n) ? n : 0;
@@ -76,7 +79,7 @@ function metric(label, value, kind) {
   </div>`;
 }
 
-function courseCard(course) {
+function courseCard(course, metrics) {
   const title = esc(course.title || "مقرر بدون عنوان");
   const code = esc(course.code || "");
   const letterRaw = String(course.letter ?? "").trim();
@@ -99,13 +102,17 @@ function courseCard(course) {
       <span class="gr-letter gr-letter-${esc(letterTone)}" aria-label="التقدير: ${letter}">${letter}</span>
     </div>
     <div class="gr-metrics">
-      ${metric("الاختبارات", course.exam_pct, "exams")}
-      ${metric("الواجبات", course.assignment_pct, "assignments")}
-      ${metric("الحضور", course.attendance_pct, "attendance")}
+      ${
+        metrics
+          ? `${metric("الحضور", course.attendance_pct, "attendance")}
+             ${metric("التفاعل", course.interaction_pct, "interaction")}
+             ${metric("الاختبارات", course.exam_pct, "exams")}`
+          : metric("الواجبات", course.assignment_pct, "assignments")
+      }
     </div>
     <div class="gr-course-foot">
       <span>الدرجة النهائية</span>
-      <strong>${valueOrDash(course.final_pct)}<small>/100</small></strong>
+      <strong>${valueOrDash(course.total_pct ?? course.final_pct)}<small>/100</small></strong>
     </div>
   </article>`;
 }
@@ -136,7 +143,7 @@ function distributionBlock(distribution) {
   </section>`;
 }
 
-function renderGrades(data) {
+function renderGrades(data, metrics) {
   const d = data && typeof data === "object" ? data : {};
   const courses = Array.isArray(d.courses) ? d.courses : [];
 
@@ -189,7 +196,7 @@ function renderGrades(data) {
       </div>
       ${
         courses.length
-          ? `<div class="gr-courses">${courses.map(courseCard).join("")}</div>`
+          ? `<div class="gr-courses">${courses.map((course) => courseCard(course, metrics)).join("")}</div>`
           : emptyBlock("لا توجد درجات مقررات بعد", "ستظهر درجات كل مقرر هنا بعد نشر الاختبارات وتقييم الواجبات وتسجيل الحضور.", "courses")
       }
     </section>
@@ -197,9 +204,10 @@ function renderGrades(data) {
     ${distributionBlock(d.distribution)}`;
 }
 
-boot("student", "درجاتي", async ({ content }) => {
-  const view = document.getElementById("grView") || content;
+boot("student", "درجاتي", async ({ profile }) => {
+  const view = document.getElementById("grView") || document.getElementById("content");
   const reloadBtn = document.getElementById("grReload");
+  const metrics = isBachelorTrack(profile?.track);
 
   async function load() {
     view.innerHTML = skeleton();
@@ -211,7 +219,7 @@ boot("student", "درجاتي", async ({ content }) => {
         view.innerHTML = errorBlock();
         return;
       }
-      view.innerHTML = renderGrades(res.data);
+      view.innerHTML = renderGrades(res.data, metrics);
     } catch (err) {
       console.error("[student_grades]", err);
       view.innerHTML = errorBlock();

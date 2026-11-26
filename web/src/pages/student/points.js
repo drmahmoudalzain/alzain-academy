@@ -8,6 +8,7 @@ const SOURCE = {
   attendance: { label: "حضور", icon: "check" },
   interaction: { label: "تفاعل", icon: "forum" },
   assignment: { label: "واجب", icon: "assignments" },
+  exam: { label: "اختبارات", icon: "points" },
 };
 
 const FILTERS = [
@@ -15,7 +16,11 @@ const FILTERS = [
   { key: "attendance", label: "الحضور" },
   { key: "interaction", label: "التفاعل" },
   { key: "assignment", label: "الواجبات" },
+  { key: "exam", label: "الاختبارات" },
 ];
+
+const isBachelorTrack = (track) =>
+  ["bachelor", "bachelor_m", "bachelor_f"].includes(String(track ?? "").trim());
 
 const num = (v) => {
   const n = Number(v);
@@ -171,13 +176,16 @@ function ledgerBlock(ledger, filter) {
   return `<ol class="pts-ledger">${visible.map(ledgerRow).join("")}</ol>`;
 }
 
-function renderPoints(data, filter) {
+function renderPoints(data, filter, kinds) {
   const d = data && typeof data === "object" ? data : {};
   const breakdown = d.breakdown && typeof d.breakdown === "object" ? d.breakdown : {};
   const ledger = Array.isArray(d.ledger) ? d.ledger : [];
   const board = Array.isArray(d.leaderboard) ? d.leaderboard : [];
   const courses = Array.isArray(d.by_course) ? d.by_course : [];
   const total = num(d.total);
+  const visibleFilters = kinds
+    ? FILTERS.filter((f) => f.key !== "assignment")
+    : FILTERS.filter((f) => f.key === "all" || f.key === "assignment");
 
   const hasData = total > 0 || num(d.week) > 0 || ledger.length > 0 || board.length > 0 || courses.length > 0 || Object.values(breakdown).some((v) => num(v) > 0);
   if (!hasData) return emptyPage();
@@ -191,9 +199,13 @@ function renderPoints(data, filter) {
         <span>نسب من إجمالي رصيدك الحالي</span>
       </div>
       <div class="pts-sources">
-        ${breakdownCard("attendance", breakdown.attendance, total)}
-        ${breakdownCard("interaction", breakdown.interaction, total)}
-        ${breakdownCard("assignment", breakdown.assignment, total)}
+        ${
+          kinds
+            ? `${breakdownCard("attendance", breakdown.attendance, total)}
+               ${breakdownCard("interaction", breakdown.interaction, total)}
+               ${breakdownCard("exam", breakdown.exam, total)}`
+            : breakdownCard("assignment", breakdown.assignment, total)
+        }
       </div>
     </section>
 
@@ -212,7 +224,7 @@ function renderPoints(data, filter) {
     <section class="pts-card" aria-labelledby="ptsLedgerTitle">
       <h2 id="ptsLedgerTitle">${icon("history")} سجل النقاط</h2>
       <div class="pts-filters" role="group" aria-label="تصفية سجل النقاط">
-        ${FILTERS.map(
+        ${visibleFilters.map(
           (f) => `<button class="pts-filter${filter === f.key ? " active" : ""}" type="button" data-filter="${f.key}" aria-pressed="${filter === f.key}">${esc(f.label)}</button>`
         ).join("")}
       </div>
@@ -220,9 +232,10 @@ function renderPoints(data, filter) {
     </section>`;
 }
 
-boot("student", "نقاطي", async ({ content }) => {
-  const view = document.getElementById("ptsView") || content;
+boot("student", "نقاطي", async ({ profile }) => {
+  const view = document.getElementById("ptsView") || document.getElementById("content");
   const reloadBtn = document.getElementById("ptsReload");
+  const kinds = isBachelorTrack(profile?.track);
   let ledgerCache = [];
   let filter = "all";
 
@@ -249,7 +262,7 @@ boot("student", "نقاطي", async ({ content }) => {
         return;
       }
       ledgerCache = Array.isArray(res.data?.ledger) ? res.data.ledger : [];
-      view.innerHTML = renderPoints(res.data, filter);
+      view.innerHTML = renderPoints(res.data, filter, kinds);
     } catch (err) {
       console.error("[student_points]", err);
       ledgerCache = [];
