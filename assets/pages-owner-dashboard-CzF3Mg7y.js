@@ -1,0 +1,25 @@
+import"./modulepreload-polyfill-B5Qt9EMX.js";import{b as k,a as u,e as a,i as d,r as H,f as S}from"./portal-DWIJxEh3.js";import{e as v}from"./identity-rules-DVz3p2Gs.js";import{p}from"./base-CLcZMpw2.js";import"./first-visit-BDQ6DJqx.js";import"https://esm.sh/@supabase/supabase-js@2";const o=s=>document.getElementById(s),T=[{key:"students",label:"إجمالي الطلاب",ico:"users",href:"pages/owner/students.html"},{key:"courses",label:"المقررات النشطة",ico:"courses",href:"pages/owner/courses.html"},{key:"lectures",label:"المحاضرات",ico:"lectures",href:"pages/owner/lectures.html"},{key:"assessments",label:"الاختبارات والواجبات",ico:"exams",href:"pages/owner/report.html"}],A=[{label:"إضافة مستخدم",ico:"plus",href:"pages/owner/users.html?new=1"},{label:"إنشاء مقرر",ico:"courses",href:"pages/owner/courses.html?new=1"},{label:"التقرير الشامل",ico:"grades",href:"pages/owner/report.html"},{label:"دليل المستخدم",ico:"file",href:"guide.html"}];function f(s,e){return Array.from({length:e},()=>`<div class="od-skeleton od-skeleton-${s}" aria-hidden="true"></div>`).join("")}async function r(s,e=[]){let n=v.from(s).select("id",{count:"exact",head:!0});for(const t of e)t.op==="in"?n=n.in(t.column,t.value):n=n.eq(t.column,t.value);const{count:m,error:c}=await n;if(c)throw c;return Number(m||0)}async function x(){const{data:s,error:e}=await v.from("notifications").select("id, title, body, created_at").order("created_at",{ascending:!1}).limit(4);if(e)throw e;return Array.isArray(s)?s:[]}function N(s,e){const n=e===null?"—":u(e),m=`${s.label}: ${e===null?"بيانات غير متاحة":n}`;return`<a class="od-stat" href="${a(p(s.href))}" aria-label="${a(m)}">
+    <span class="od-stat-icon">${d(s.ico)}</span>
+    <span class="od-stat-value">${a(n)}</span>
+    <span class="od-stat-label">${a(s.label)}</span>
+  </a>`}function b(s,e,n){return`<div class="od-mini">
+    <span class="od-mini-icon">${d(n)}</span>
+    <span class="od-mini-body">
+      <span class="od-mini-value">${a(e===null?"—":u(e))}</span>
+      <span class="od-mini-label">${a(s)}</span>
+    </span>
+  </div>`}function L(s){return`<a class="od-action" href="${a(p(s.href))}">
+    <span class="od-action-icon">${d(s.ico)}</span>
+    <span class="od-action-label">${a(s.label)}</span>
+  </a>`}function M(s){const e=p("pages/notifications.html"),n=s.created_at?`${H(s.created_at)} · ${S(s.created_at)}`:"بدون تاريخ";return`<a class="od-activity" href="${a(e)}">
+    <span class="od-activity-icon">${d("bell")}</span>
+    <span class="od-activity-body">
+      <span class="od-activity-title">${a(s.title||"إشعار")}</span>
+      ${s.body?`<span class="od-activity-text">${a(s.body)}</span>`:""}
+      <span class="od-activity-time">${d("clock")}<span>${a(n)}</span></span>
+    </span>
+  </a>`}function $(s,e,n){return`<div class="od-empty" role="status">
+    <span class="od-empty-icon">${d(n)}</span>
+    <h3>${a(s)}</h3>
+    <p>${a(e)}</p>
+  </div>`}k({portal:"owner",title:"لوحة التحكم",render:async({profile:s})=>{o("odAllNotifications").href=p("pages/notifications.html"),o("odGreeting").textContent=`أهلاً بك، ${String((s==null?void 0:s.name)||"").trim().split(/\s+/)[0]||"أستاذي"}`,o("odStats").innerHTML=f("stat",4),o("odSecondary").innerHTML=f("mini",2),o("odActivity").innerHTML=f("row",3),o("odActions").innerHTML=A.map(L).join("");const e={students:r("users",[{column:"role",value:"student"}]),activeStudents:r("users",[{column:"role",value:"student"},{column:"is_active",value:!0}]),courses:r("courses",[{column:"archived",value:!1}]),lectures:r("lectures"),exams:r("exams"),assignments:r("assignments"),teachers:r("users",[{column:"role",value:"teacher"}]),assistants:r("users",[{column:"role",value:"assistant"}]),notifications:x()},n=Object.keys(e),m=await Promise.allSettled(n.map(i=>e[i])),c=Object.fromEntries(n.map((i,w)=>[i,m[w]])),t=i=>c[i].status==="fulfilled"?c[i].value:null,l={students:t("students"),courses:t("courses"),lectures:t("lectures"),assessments:t("exams")===null||t("assignments")===null?null:Number(t("exams"))+Number(t("assignments"))},g=t("teachers")===null||t("assistants")===null?null:Number(t("teachers"))+Number(t("assistants"));o("odStats").innerHTML=T.map(i=>N(i,l[i.key])).join(""),o("odSecondary").innerHTML=b("الطلاب النشطون",t("activeStudents"),"checks")+b("الأساتذة والمساعدون",g,"users");const h=[l.students===null?null:`${u(l.students)} طالباً`,l.courses===null?null:`${u(l.courses)} مقرراً نشطاً`,l.lectures===null?null:`${u(l.lectures)} محاضرة`,l.assessments===null?null:`${u(l.assessments)} اختباراً وواجباً`].filter(Boolean);if(o("odIntro").textContent=h.length?`نظرة عامة على البوابات الأربع: ${h.join(" · ")}.`:"تعذّر تحميل الإحصاءات من قاعدة البيانات. تحقّق من الاتصال ثم أعد المحاولة.",c.notifications.status!=="fulfilled"){o("odActivity").innerHTML=$("تعذّر تحميل النشاطات","لم نتمكن من قراءة الإشعارات الآن.","bell");return}const y=c.notifications.value||[];o("odActivity").innerHTML=y.length?y.map(M).join(""):$("لا توجد نشاطات حديثة","ستظهر هنا آخر الإشعارات المسجلة في المنصة.","bell")}});
