@@ -28,6 +28,7 @@ const TRACKS = [
 
 let allStudents = [];
 let allCourses = [];
+let allSemesters = [];
 let enrollmentMap = new Map();
 
 const BACHELOR_TRACKS = ["bachelor_m", "bachelor_f"];
@@ -114,6 +115,60 @@ function syncCourseSelects() {
   $("ostNewTrackEnroll").innerHTML = trackOptions("", true);
   $("ostEnrollTrack").innerHTML = trackOptions("", true);
   $("ostTransferTo").innerHTML = courseOptions();
+}
+
+function semesterOptions() {
+  return allSemesters.map((semester) => (
+    `<option value="${semester.id}">الفصل ${semester.term_no === 2 ? "الثاني" : "الأول"}</option>`
+  )).join("") || `<option value="">— لا يوجد فصل مفتوح —</option>`;
+}
+
+function syncSemesterSelects() {
+  for (const id of ["ostNewSemester", "ostEnrollSemester"]) {
+    const select = $(id);
+    if (!select) continue;
+    const previous = select.value;
+    select.innerHTML = `<option value="">— الفصل المفتوح الحالي —</option>` + semesterOptions();
+    if ([...select.options].some((option) => option.value === previous)) select.value = previous;
+  }
+}
+
+function syncSemesterFields() {
+  const newTrack = $("ostNewTrack").value;
+  const enrollTrack = $("ostEnrollTrack").value;
+  const enrollCourse = allCourses.find((c) => String(c.id) === $("ostCourse").value);
+  const newBachelor = BACHELOR_TRACKS.includes(newTrack);
+  const enrollBachelor = BACHELOR_TRACKS.includes(enrollTrack)
+    || (!enrollTrack && !!enrollCourse && BACHELOR_TRACKS.includes(enrollCourse.track));
+  $("ostNewSemesterField").hidden = !newBachelor;
+  $("ostEnrollSemesterField").hidden = !enrollBachelor;
+  if (!newBachelor) $("ostNewSemester").value = "";
+  if (!enrollBachelor) $("ostEnrollSemester").value = "";
+}
+
+async function loadSemesters() {
+  allSemesters = [];
+  try {
+    const { data: years } = await supabase
+      .from("academic_years")
+      .select("id, status")
+      .eq("status", "open")
+      .order("id", { ascending: false });
+    const year = years?.[0];
+    if (year) {
+      const { data: semesters } = await supabase
+        .from("semesters")
+        .select("id, year_id, term_no, status")
+        .eq("year_id", year.id)
+        .eq("status", "open")
+        .order("term_no");
+      allSemesters = semesters || [];
+    }
+  } catch (error) {
+    console.warn("تعذّر تحميل الفصول:", error);
+  }
+  syncSemesterSelects();
+  syncSemesterFields();
 }
 
 async function loadCourses() {
@@ -436,19 +491,40 @@ async function createStudent(form) {
 
     const courseId = form.elements.course_id.value;
     const targetTrack = form.elements.enroll_track.value;
+    const semesterId = form.elements.semester_id.value;
+    const inBachelorSemester = BACHELOR_TRACKS.includes(track) && !!semesterId;
+    if (inBachelorSemester && !created.data?.id) {
+      throw new Error("تعذّر تحديد الطالب للتسجيل في الفصل المحدد");
+    }
     let enrollmentNote = "";
     if (courseId) {
-      const enrolled = await call("management_enroll_student", {
-        p_course_id: Number(courseId),
-        p_identifier: platformId,
-      });
+      const params = inBachelorSemester
+        ? {
+          p_semester_id: Number(semesterId),
+          p_student_id: created.data?.id,
+          p_course_id: Number(courseId),
+        }
+        : { p_course_id: Number(courseId), p_identifier: platformId };
+      const rpc = inBachelorSemester ? "academic_owner_enroll_in_semester" : "management_enroll_student";
+      const enrolled = await call(rpc, params);
       enrollmentNote = enrolled.ok ? "تم التسجيل في المقرر المحدد." : `تعذّر التسجيل في المقرر: ${enrolled.error || ""}`;
     } else if (targetTrack && created.data?.id) {
-      const enrolled = await call("management_enroll_student_in_track", {
-        p_student_id: created.data.id,
-        p_track: targetTrack,
-        p_level: level,
-      });
+      const rpc = inBachelorSemester
+        ? "academic_owner_enroll_in_semester"
+        : "management_enroll_student_in_track";
+      const params = inBachelorSemester
+        ? {
+          p_semester_id: Number(semesterId),
+          p_student_id: created.data.id,
+          p_track: targetTrack,
+          p_level: level,
+        }
+        : {
+          p_student_id: created.data.id,
+          p_track: targetTrack,
+          p_level: level,
+        };
+      const enrolled = await call(rpc, params);
       enrollmentNote = enrolled.ok ? `تم التسجيل في ${trackLabel(targetTrack)} (${enrolled.data?.added ?? 0} مقرر).` : `تعذّر التسجيل في المسار: ${enrolled.error || ""}`;
     }
 
@@ -468,16 +544,39 @@ async function enrollStudent(form) {
   setButton(btn, true);
   try {
     const track = form.elements.enroll_track.value;
+    const semesterId = form.elements.semester_id.value;
+    const inBachelorSemester = !!semesterId && BACHELOR_TRACKS.includes(track || allCourses.find((c) => String(c.id) === form.elements.course_id.value)?.track);
     if (track) {
       const student = findStudentByIdentifier(form.elements.identifier.value);
       if (!student) throw new Error("لم يُعثر على الطالب؛ استخدم التسجيل بمقرر محدد.");
-      const res = await call("management_enroll_student_in_track", {
-        p_student_id: student.id,
-        p_track: track,
-        p_level: student.level ?? null,
-      });
+      const params = inBachelorSemester
+        ? {
+          p_semester_id: Number(semesterId),
+          p_student_id: student.id,
+          p_track: track,
+          p_level: student.level ?? null,
+        }
+        : {
+          p_student_id: student.id,
+          p_track: track,
+          p_level: student.level ?? null,
+        };
+      const res = await call(
+        inBachelorSemester ? "academic_owner_enroll_in_semester" : "management_enroll_student_in_track",
+        params,
+      );
       if (!res.ok) throw new Error(res.error || "تعذّر التسجيل في المسار");
       showMessage("ostEnrollMsg", `تم التسجيل في ${trackLabel(track)} (${res.data?.added ?? 0} مقرر).`, "success");
+    } else if (inBachelorSemester) {
+      const student = findStudentByIdentifier(form.elements.identifier.value);
+      if (!student) throw new Error("للتسجيل في فصل محدد، اختر طالباً بمعرّف معروف في القائمة.");
+      const res = await call("academic_owner_enroll_in_semester", {
+        p_semester_id: Number(semesterId),
+        p_student_id: student.id,
+        p_course_id: Number(form.elements.course_id.value),
+      });
+      if (!res.ok) throw new Error(res.error || "تعذّر التسجيل في الفصل");
+      showMessage("ostEnrollMsg", `تم تسجيل ${student.name} في الفصل المحدد.`, "success");
     } else {
       const res = await call("management_enroll_student", {
         p_course_id: Number(form.elements.course_id.value),
@@ -537,6 +636,7 @@ async function handleListAction(event) {
       break;
     case "enroll":
       $("ostIdentifier").value = student.platform_id || student.email || "";
+      syncSemesterFields();
       showPanel("ostEnrollPanel");
       $("ostIdentifier").focus();
       break;
@@ -570,19 +670,25 @@ boot({
     if ($("ostSubmitBtn")) $("ostSubmitBtn").innerHTML = `<span class="od-btn-spinner"></span>${icon("check")} تسجيل`;
 
     await loadCourses();
+    await loadSemesters();
     await loadStudents();
 
+    $("ostNewTrack").addEventListener("change", syncSemesterFields);
+    $("ostEnrollTrack").addEventListener("change", syncSemesterFields);
+    $("ostCourse").addEventListener("change", syncSemesterFields);
     $("ostNewBtn").addEventListener("click", () => {
       $("ostNewForm").reset();
       $("ostNewPasswordField").hidden = true;
       $("ostNewPassword").value = "";
       $("ostNewTrackEnrollField").hidden = false;
+      syncSemesterFields();
       showMessage("ostNewMsg", "");
       showPanel("ostNewPanel");
       $("ostNewName").focus();
     });
     $("ostNewCancel").addEventListener("click", () => { $("ostNewPanel").hidden = true; });
     $("ostEnrollBtn").addEventListener("click", () => {
+      syncSemesterFields();
       showPanel("ostEnrollPanel");
       $("ostIdentifier").focus();
     });

@@ -11,6 +11,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import crypto from 'node:crypto'
+import { Buffer } from 'node:buffer'
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -32,21 +33,25 @@ const P = 1;
 const MAX_MEM = 64 * 1024 * 1024;
 
 function verifyScrypt(password: string, stored: string): boolean {
-  if (typeof stored !== 'string') return false;
-  const parts = stored.split('$');
-  if (parts.length !== 6) return false;
-  const [scheme, nStr, rStr, pStr, saltPart, hashPart] = parts;
-  if (scheme !== SCHEME) return false;
-  const n = Number(nStr);
-  const r = Number(rStr);
-  const p = Number(pStr);
-  if (!n || !r || !p) return false;
-  const salt = Buffer.from(saltPart, 'hex');
-  const expected = Buffer.from(hashPart, 'hex');
-  if (salt.length === 0 || expected.length === 0) return false;
-  const actual = crypto.scryptSync(password, salt, expected.length, { N: n, r, p, maxmem: MAX_MEM });
-  if (actual.length !== expected.length) return false;
-  return crypto.timingSafeEqual(actual, expected);
+  try {
+    if (typeof stored !== 'string') return false;
+    const parts = stored.split('$');
+    if (parts.length !== 6) return false;
+    const [scheme, nStr, rStr, pStr, saltPart, hashPart] = parts;
+    if (scheme !== SCHEME) return false;
+    const n = Number(nStr);
+    const r = Number(rStr);
+    const p = Number(pStr);
+    if (!n || !r || !p) return false;
+    const salt = Buffer.from(saltPart, 'hex');
+    const expected = Buffer.from(hashPart, 'hex');
+    if (salt.length === 0 || expected.length === 0) return false;
+    const actual = crypto.scryptSync(password, salt, expected.length, { N: n, r, p, maxmem: MAX_MEM });
+    if (actual.length !== expected.length) return false;
+    return crypto.timingSafeEqual(actual, expected);
+  } catch {
+    return false;
+  }
 }
 
 function errorResponse(error: string) {
@@ -57,6 +62,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   if (req.method !== 'POST') return json(405, { ok: false, error: 'method_not_allowed' });
 
+  try {
   let body: { platformId?: string; password?: string };
   try {
     body = await req.json();
@@ -166,6 +172,9 @@ Deno.serve(async (req: Request): Promise<Response> => {
   if (linkError) return errorResponse('link_failed');
 
   return json(200, { ok: true, auth_user_id: authUserId });
+  } catch {
+    return errorResponse('internal_error');
+  }
 });
 
 async function findAuthUserByEmail(admin: ReturnType<typeof createClient>, email: string): Promise<string | null> {

@@ -46,9 +46,22 @@ test("student script imports Auth admin and calls every enrollment RPC", () => {
     "management_change_student_track",
     "management_set_enrollment_status",
     "management_remove_enrollment",
+    "academic_owner_enroll_in_semester",
   ]) {
     assert.ok(js.includes(rpc), `missing RPC call: ${rpc}`);
   }
+});
+
+test("student registration can choose an open semester for bachelor students only", () => {
+  for (const id of ["ostNewSemester", "ostEnrollSemester"]) {
+    assert.ok(html.includes(`id="${id}"`), `missing semester control: ${id}`);
+  }
+  assert.match(js, /BACHELOR_TRACKS\s*=\s*\["bachelor_m", "bachelor_f"\]/);
+  assert.match(js, /academic_years[\s\S]*eq\("status", "open"\)/);
+  assert.match(js, /semesters[\s\S]*eq\("status", "open"\)/);
+  assert.match(js, /syncSemesterFields\(\)/);
+  assert.match(js, /p_semester_id: Number\(semesterId\)/);
+  assert.doesNotMatch(js, /p_semester_id:\s*1\b/);
 });
 
 test("new student flow creates the Auth account with the student profile fields", () => {

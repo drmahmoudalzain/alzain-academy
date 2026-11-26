@@ -11,7 +11,8 @@
     "sql": "node scripts/run-sql.mjs",
     "phase1:users": "node scripts/phase1-auth-users.mjs",
     "phase1:users:apply": "node scripts/phase1-auth-users.mjs --apply",
-    "verify:logins": "node scripts/verify-test-logins.mjs"
+    "verify:logins": "node scripts/verify-test-logins.mjs",
+    "verify:login": "node scripts/verify-login-flow.mjs"
   },
   "engines": {
     "node": ">=20"

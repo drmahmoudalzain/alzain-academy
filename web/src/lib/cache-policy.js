@@ -39,6 +39,7 @@ const INVALIDATES = new Set([
   "management_add_lecture",
   "management_create_exam",
   "teacher_create_assignment",
+  "teacher_record_result_recommendation",
   "management_grade_submission",
   "management_enroll_student",
   "management_set_attendance",
@@ -59,6 +60,13 @@ const INVALIDATES = new Set([
   "management_remove_enrollment",
   "management_link_auth_id",
   "management_log_auth_delete",
+  "academic_owner_enroll_in_semester",
+  "academic_owner_set_academic_status",
+  "academic_rebuild_course_results",
+  "academic_owner_decide_course_result",
+  "academic_owner_decide_graduation",
+  "academic_open_second_semester",
+  "academic_close_year_and_open_next",
 ]);
 
 const PROFILE_TTL = 300000;

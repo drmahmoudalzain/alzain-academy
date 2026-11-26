@@ -1,6 +1,9 @@
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import { resolve, relative } from "node:path";
 import { readdirSync, statSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+
+const rootDir = fileURLToPath(new URL(".", import.meta.url));
 
 // يكتشف كل صفحات HTML (الجذر + مجلد pages) تلقائياً، فلا حاجة لتسجيل كل صفحة يدوياً.
 function htmlInputs(root) {
@@ -24,14 +27,29 @@ function htmlInputs(root) {
   return input;
 }
 
-export default defineConfig({
-  base: "/alzain-academy/",
-  publicDir: "public",
-  build: {
-    outDir: "dist",
-    rollupOptions: {
-      input: htmlInputs(__dirname),
+// البناء يفشل صراحةً إن غابت القيم العامة؛ لا وجود لوضع معاينة صامت في النسخة المنشورة.
+export function buildConfig(env) {
+  const url = env.VITE_SUPABASE_URL;
+  const anonKey = env.VITE_SUPABASE_ANON_KEY;
+
+  if (!url || !/^https:\/\/.+\.supabase\.co\/?$/.test(url) || /YOUR-|example/i.test(url)) {
+    throw new Error("VITE_SUPABASE_URL missing or invalid: a valid Supabase project URL is required to build");
+  }
+  if (!anonKey || /YOUR-|example/i.test(anonKey) || anonKey.startsWith("sb_secret_")) {
+    throw new Error("VITE_SUPABASE_ANON_KEY missing or invalid: only the public anon key is allowed");
+  }
+
+  return {
+    base: "/alzain-academy/",
+    publicDir: "public",
+    build: {
+      outDir: "dist",
+      rollupOptions: {
+        input: htmlInputs(rootDir),
+      },
     },
-  },
-  server: { port: 5173, open: true },
-});
+    server: { port: 5173, open: true },
+  };
+}
+
+export default defineConfig(({ mode }) => buildConfig(loadEnv(mode, rootDir, "VITE_")));
