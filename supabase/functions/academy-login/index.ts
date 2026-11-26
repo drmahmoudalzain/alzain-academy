@@ -97,11 +97,14 @@ Deno.serve(async (req: Request): Promise<Response> => {
 
   if (!password) return errorResponse('missing_password');
 
-  const admin = createClient<never>(
-    Deno.env.get('SUPABASE_URL') ?? '',
-    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-    { auth: { autoRefreshToken: false, persistSession: false } },
-  );
+  const supabaseUrl = Deno.env.get('SUPABASE_URL') ?? '';
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
+  const clientOptions = { auth: { autoRefreshToken: false, persistSession: false } };
+  const admin = createClient<never>(supabaseUrl, serviceRoleKey, clientOptions);
+  // جلسة المستخدم تبقى على عميل منفصل: signInWithPassword يبدّل الـ Authorization
+  // في العميل نفسه، فلو استُخدم admin بعده لعادت RPC كـ authenticated بدل service_role
+  // ورُفض تنفيذ auth_record_login_attempt (0123) مع أن كلمة المرور صحيحة.
+  const authClient = createClient<never>(supabaseUrl, serviceRoleKey, clientOptions);
 
   // 0123: البريد والقفل يُرفضان هنا قبل أي بحث عن المستخدم أو تحقق من التجزئة.
   const { data: guardData, error: guardError } = await admin.rpc('auth_login_guard_check', {
@@ -172,7 +175,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     if (!authError && authData?.user?.email) {
       authEmail = String(authData.user.email);
 
-      const { data: authSession, error: authSignInError } = await admin.auth.signInWithPassword({
+      const { data: authSession, error: authSignInError } = await authClient.auth.signInWithPassword({
         email: authEmail,
         password,
       });
@@ -264,7 +267,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   }
 
   // تسجيل الدخول نفسه يتم على الخادم؛ المتصفح لا يرى سوى الجلسة الناتجة.
-  const { data: sessionData, error: signInError } = await admin.auth.signInWithPassword({
+  const { data: sessionData, error: signInError } = await authClient.auth.signInWithPassword({
     email: authEmail,
     password,
   });

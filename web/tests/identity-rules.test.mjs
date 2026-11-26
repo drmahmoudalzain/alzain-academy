@@ -142,10 +142,10 @@ test("five consecutive failures lock for fifteen minutes, a sixth is refused, an
   // The proxy must fail-record after verification and success-record after each sign-in.
   const proxy = read(proxyPath, "academy-login");
   const guardAt = proxy.indexOf(".rpc('auth_login_guard_check'");
-  const authSignInAt = proxy.indexOf("admin.auth.signInWithPassword({");
+  const authSignInAt = proxy.indexOf("authClient.auth.signInWithPassword({");
   const authSuccessAt = proxy.indexOf("p_success: true", authSignInAt);
   const verifyAt = proxy.indexOf("if (!verifyScrypt(password");
-  const legacySignInAt = proxy.indexOf("admin.auth.signInWithPassword({", verifyAt);
+  const legacySignInAt = proxy.indexOf("authClient.auth.signInWithPassword({", verifyAt);
   const legacySuccessAt = proxy.indexOf("p_success: true", verifyAt);
   const recordCalls = [...proxy.matchAll(/\.rpc\('auth_record_login_attempt'/g)].map((m) => m.index);
   assert.ok(guardAt > -1 && authSignInAt > -1 && verifyAt > -1 && legacySignInAt > -1);
@@ -153,6 +153,21 @@ test("five consecutive failures lock for fifteen minutes, a sixth is refused, an
   assert.ok(authSuccessAt > authSignInAt && authSuccessAt < verifyAt, "Auth success is recorded before any scrypt path");
   assert.ok(recordCalls.some((at) => at > verifyAt && at < legacySignInAt), "failure must be recorded after scrypt verification");
   assert.ok(legacySuccessAt > legacySignInAt, "legacy success must be recorded after the server-side sign-in");
+});
+
+test("success recording never downgrades the service-role RPC client to a user session", () => {
+  const proxy = read(proxyPath, "academy-login");
+  assert.doesNotMatch(
+    proxy,
+    /admin\.auth\.signInWithPassword/,
+    "signing in on the RPC client makes later RPCs run as authenticated, which cannot execute 0123",
+  );
+  assert.match(proxy, /const authClient = createClient<never>/);
+  assert.equal(
+    (proxy.match(/authClient\.auth\.signInWithPassword\(\{/g) ?? []).length,
+    2,
+    "both sign-ins must use the dedicated auth client",
+  );
 });
 
 test("rejected attempts are logged in a service-role-only table and every lock is audited", () => {
@@ -249,7 +264,7 @@ test("academy-login is the only browser login path and carries no service creden
   assert.match(login, /refresh_token: body\.refresh_token/);
   assert.doesNotMatch(login, /signInWithPassword|legacy-login|resolveEmail|legacyLogin/);
   assert.match(proxy, /Deno\.env\.get\('SUPABASE_SERVICE_ROLE_KEY'\)/);
-  assert.match(proxy, /admin\.auth\.signInWithPassword\(\{/);
+  assert.match(proxy, /authClient\.auth\.signInWithPassword\(\{/);
   assert.doesNotMatch(proxy, /console\.(log|info|warn|error)/);
 
   const config = read(configPath, "supabase/config.toml");
@@ -326,7 +341,7 @@ test("linked Auth credentials take priority over a stale password_hash with no l
 
   const authBranchAt = proxy.indexOf("if (user.auth_id) {");
   const resolveAt = proxy.indexOf("getUserById(String(user.auth_id))", authBranchAt);
-  const authSignInAt = proxy.indexOf("admin.auth.signInWithPassword({", authBranchAt);
+  const authSignInAt = proxy.indexOf("authClient.auth.signInWithPassword({", authBranchAt);
   const authFailureRecordAt = proxy.indexOf("p_success: false", authSignInAt);
   const authFailureReturnAt = proxy.indexOf("return errorResponse(", authFailureRecordAt);
   const authSuccessAt = proxy.indexOf("p_success: true", authSignInAt);
