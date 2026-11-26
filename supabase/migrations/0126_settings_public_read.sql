@@ -12,6 +12,8 @@ create policy settings_select_public on public.settings
   for select to authenticated
   using (key <> 'ai_api_key');
 
+grant select on public.settings to authenticated;
+
 notify pgrst, 'reload schema';
 
 commit;
