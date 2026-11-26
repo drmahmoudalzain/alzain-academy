@@ -116,7 +116,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
         p_auth_id: authUserId,
         p_platform_id: platformId,
         p_name: String(body.name ?? ''),
-        p_email: String(body.email ?? ''),
+        p_email: body.email ? String(body.email).trim() : null,
         p_phone: body.phone ?? null,
         p_role: role,
         p_track: body.track ?? null,
