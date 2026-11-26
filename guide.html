@@ -119,7 +119,7 @@
         <a href="index.html#portals">البوابات</a>
         <a href="guide.html" aria-current="page">دليل المستخدم</a>
       </nav>
-      <button class="header-cta" type="button" onclick="if (document.referrer && new URL(document.referrer).origin === location.origin) history.back(); else location.assign('index.html');">العودة</button>
+      <button class="header-cta" type="button" onclick="if (history.length > 1) history.back(); else { const r = sessionStorage.getItem('alzain_guide_return'); if (r) location.assign(r); else location.assign('index.html'); }">العودة</button>
       <a class="header-cta" href="login.html?v=2">دخول المنصة</a>
     </div>
   </header>
