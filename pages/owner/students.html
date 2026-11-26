@@ -11,12 +11,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/alzain-academy/css/views/owner-dashboard.css" />
   <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
-  <script type="module" crossorigin src="/alzain-academy/assets/pages-owner-students-C66dzddg.js"></script>
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-owner-students-C-BzGbTN.js"></script>
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/base-CCmrW03f.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-BSie1sbi.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-DVAgBO-i.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/api-B-zYhhb4.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/owner-admin-97r4Pq1m.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-39CNNLuZ.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-SoFHdmLY.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/api-BSXaKdAH.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/owner-admin-CRw8Y5Uo.js">
 </head>
 <body class="portal">
   <div id="app">
@@ -74,6 +74,7 @@
             <div class="od-field"><label for="ostNewGender">النوع</label><select class="od-select" id="ostNewGender" name="gender">
               <option value="">—</option><option value="M">ذكر</option><option value="F">أنثى</option>
             </select></div>
+            <div class="od-field" id="ostNewSemesterField" hidden><label for="ostNewSemester">فصل التسجيل (لبكالوريوس)</label><select class="od-select" id="ostNewSemester" name="semester_id"><option value="">— الفصل المفتوح الحالي —</option></select><small>يظهر الفصل الثاني فقط بعد فتحه لطلاب البكالوريوس.</small></div>
             <div class="od-field"><label for="ostNewCourse">تسجيل فوري في مقرر (اختياري)</label><select class="od-select" id="ostNewCourse" name="course_id"><option value="">— لا شيء —</option></select></div>
             <div class="od-field" id="ostNewTrackEnrollField" hidden><label for="ostNewTrackEnroll">أو تسجيل في مسار (اختياري)</label><select class="od-select" id="ostNewTrackEnroll" name="enroll_track"><option value="">— لا شيء —</option></select></div>
             <div class="od-field" id="ostNewPasswordField" hidden><label for="ostNewPassword">كلمة المرور المؤقتة</label><input class="od-input" id="ostNewPassword" name="temporary_password" type="text" dir="ltr" readonly /></div>
@@ -89,6 +90,7 @@
           <h2 class="od-section-title" id="ostEnrollTitle">تسجيل طالب في مقرر</h2>
           <form id="ostEnrollForm" class="od-form">
             <div class="od-field"><label for="ostCourse">المقرر</label><select class="od-select" name="course_id" id="ostCourse" required></select></div>
+            <div class="od-field" id="ostEnrollSemesterField" hidden><label for="ostEnrollSemester">فصل التسجيل (لبكالوريوس)</label><select class="od-select" id="ostEnrollSemester" name="semester_id"><option value="">— الفصل المفتوح الحالي —</option></select><small>يظهر الفصل الثاني فقط بعد فتحه لطلاب البكالوريوس.</small></div>
             <div class="od-field"><label for="ostIdentifier">معرّف الطالب (بريد/رقم جامعي/منصة)</label><input class="od-input" id="ostIdentifier" name="identifier" required /></div>
             <div class="od-field"><label for="ostEnrollTrack">أو تسجيل في مسار كامل (اختياري)</label><select class="od-select" id="ostEnrollTrack" name="enroll_track"><option value="">— لا شيء —</option></select></div>
             <button type="submit" class="od-btn od-btn--primary" id="ostSubmitBtn"><span class="od-btn-spinner"></span> تسجيل</button>

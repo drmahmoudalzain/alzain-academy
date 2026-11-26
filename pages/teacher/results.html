@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B2545" />
+  <meta name="description" content="توصيات نتائج المقررات — بوابة الأستاذ، أكاديمية آل الزين للعلوم القانونية والعدلية" />
+  <title>توصيات نتائج المقررات — أكاديمية آل الزين</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="/alzain-academy/css/views/student-dashboard.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/views/teacher-common.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/views/teacher-results.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/views/loading.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-teacher-results-B6CKDCDC.js"></script>
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/base-CCmrW03f.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-39CNNLuZ.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-SoFHdmLY.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/api-BSXaKdAH.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/common-BG0tGU7o.js">
+</head>
+<body class="portal">
+  <div id="app">
+    <main class="content" id="content">
+      <div class="tr-page">
+        <header class="tr-head">
+          <div>
+            <span class="tr-kicker">بوابة الأستاذ · نتائج المقررات</span>
+            <h1 id="trTitle">توصيات نتائج مقرراتي</h1>
+            <p id="trIntro">نتائج مقرراتك المسندة في العام المفتوح. تسجيل التوصية فقط، والقرار النهائي بيد المالك.</p>
+          </div>
+          <button class="tt-btn tt-btn-ghost" id="trRefreshBtn" type="button">تحديث</button>
+        </header>
+
+        <p class="tr-note">التوصية فقط: لا تُعدّل الدرجات أو النقاط أو حالة النتيجة من هنا. أقل من حد النجاح لا يُعدّ رسوباً تلقائياً، والمالك يتجاوز التوصية بقرار موثّق.</p>
+
+        <div class="tr-filters">
+          <label class="tr-label" for="trTerm">الفصل</label>
+          <select class="tt-input" id="trTerm" aria-label="الفصل">
+            <option value="">كل الفصول</option>
+            <option value="1">الفصل الأول</option>
+            <option value="2">الفصل الثاني</option>
+          </select>
+          <button class="tt-btn tt-btn-primary" id="trLoadBtn" type="button">عرض النتائج</button>
+        </div>
+
+        <p class="tr-summary" id="trSummary" role="status"></p>
+        <p class="tr-msg" id="trMsg" role="status" hidden></p>
+        <div id="trResults" aria-live="polite"></div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
