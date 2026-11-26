@@ -66,7 +66,7 @@ export function renderShell({ portal, title, profile }) {
           <button class="topbar-back" id="backBtn" data-fallback="${esc(homeOf(profile))}" aria-label="رجوع" title="رجوع"><span class="back-label">رجوع</span></button>
         </div>
       </header>
-      ${profile?.is_preview ? `<div class="preview-banner" role="status" style="margin:12px 16px 0;padding:10px 14px;border-radius:10px;background:#fff8e1;border:1px solid #e6c65c;color:#6b4f00;font-size:13px;font-weight:700;text-align:center;">وضع المعاينة — هذه واجهة عرض فقط ولا تعرض بيانات حقيقية. <a href="${p("login.html")}" style="color:#0B2545;text-decoration:underline;margin-inline-start:8px;">العودة لتسجيل الدخول</a></div>` : ""}
+      ${profile?.is_preview ? `<div class="preview-banner" role="status" style="margin:12px 16px 0;padding:10px 14px;border-radius:10px;background:#fff8e1;border:1px solid #e6c65c;color:#6b4f00;font-size:13px;font-weight:700;text-align:center;">وضع المعاينة — هذه واجهة عرض فقط ولا تعرض بيانات حقيقية. <a href="${p("login.html?v=2")}" style="color:#0B2545;text-decoration:underline;margin-inline-start:8px;">العودة لتسجيل الدخول</a></div>` : ""}
       <main class="content" id="content"></main>
     </div>
   </div>`;

@@ -73,13 +73,13 @@ export async function requireProfile() {
     const preview = previewProfileFor(previewRole);
     if (preview) return { profile: preview, preview: true };
     const next = encodeURIComponent(location.pathname + location.search);
-    location.replace(p(`login.html?next=${next}`));
+    location.replace(p(`login.html?v=2&next=${next}`));
     return { profile: null };
   }
   const profile = await getProfile(user);
   if (!profile) {
     await supabase.auth.signOut();
-    location.replace(p("login.html"));
+    location.replace(p("login.html?v=2"));
     return { profile: null };
   }
   return { profile };
@@ -90,5 +90,5 @@ export async function signOut() {
   clearNavHistory();
   await supabase.auth.signOut();
   clear();
-  location.assign(p("login.html"));
+  location.assign(p("login.html?v=2"));
 }
