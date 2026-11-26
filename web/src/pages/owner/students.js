@@ -472,8 +472,8 @@ async function createStudent(form) {
   const name = form.elements.name.value.trim();
   const email = form.elements.email.value.trim();
   const track = form.elements.track.value;
-  if (!name || !email || !track) {
-    showMessage("ostNewMsg", "الاسم والبريد والمسار مطلوبة.", "error");
+  if (!name || !track) {
+    showMessage("ostNewMsg", "الاسم والمسار مطلوبان.", "error");
     return;
   }
   const level = form.elements.level.value ? Number(form.elements.level.value) : null;
