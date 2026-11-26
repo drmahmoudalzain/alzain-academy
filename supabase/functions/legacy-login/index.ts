@@ -58,6 +58,13 @@ function errorResponse(error: string) {
   return json(200, { ok: false, error });
 }
 
+// رفض بيانات الدخول يبقى 200 {ok:false}؛ أما أعطال RPC أو Auth فتُسجَّل وتُعاد 503
+// حتى لا يُظنّ أن الخدمة تعمل عندما تكون بياناتها أو اتصالها معطوباً.
+function serviceUnavailable(kind: string) {
+  console.error('legacy-login service error:', kind);
+  return json(503, { ok: false, error: 'service_unavailable' });
+}
+
 Deno.serve(async (req: Request): Promise<Response> => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors });
   if (req.method !== 'POST') return json(405, { ok: false, error: 'method_not_allowed' });
@@ -87,7 +94,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
   const { data: guardData, error: guardError } = await admin.rpc('auth_login_guard_check', {
     p_identifier: platformId,
   });
-  if (guardError) return errorResponse('login_guard_unavailable');
+  if (guardError) return serviceUnavailable('login_guard_unavailable');
   const guard = (guardData ?? null) as
     | { ok?: boolean; error?: string; remaining_minutes?: number }
     | null;
@@ -114,13 +121,13 @@ Deno.serve(async (req: Request): Promise<Response> => {
   const user = (usersData ?? null) as
     | { id: number; role: string; name: string; platform_id: string | null; password_hash: string | null; is_active: boolean }
     | null;
-  if (usersError) return errorResponse('db_error');
+  if (usersError) return serviceUnavailable('db_error');
   if (!user) {
     const { error: recordError } = await admin.rpc('auth_record_login_attempt', {
       p_identifier: platformId,
       p_success: false,
     });
-    if (recordError) return errorResponse('attempt_log_failed');
+    if (recordError) return serviceUnavailable('attempt_log_failed');
     return errorResponse('invalid_credentials');
   }
   if (!user.is_active) return errorResponse('account_suspended');
@@ -131,7 +138,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
       p_identifier: platformId,
       p_success: false,
     });
-    if (recordError) return errorResponse('attempt_log_failed');
+    if (recordError) return serviceUnavailable('attempt_log_failed');
     const attempt = (attemptData ?? null) as { locked?: boolean } | null;
     return errorResponse(attempt?.locked === true ? 'account_locked' : 'invalid_credentials');
   }
@@ -140,7 +147,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     p_identifier: platformId,
     p_success: true,
   });
-  if (successRecordError) return errorResponse('attempt_log_failed');
+  if (successRecordError) return serviceUnavailable('attempt_log_failed');
 
   const domain = user.role === 'student' ? 'students.local' : 'staff.local';
   const authEmail = `${platformId}@${domain}`;
@@ -158,22 +165,23 @@ Deno.serve(async (req: Request): Promise<Response> => {
     const msg = String(createError.message ?? '');
     if (/already|registered|exists/i.test(msg)) {
       authUserId = await findAuthUserByEmail(admin, authEmail);
-      if (!authUserId) return errorResponse('auth_lookup_failed');
+      if (!authUserId) return serviceUnavailable('auth_lookup_failed');
     } else {
-      return errorResponse('auth_create_failed');
+      return serviceUnavailable('auth_create_failed');
     }
   } else if (created?.user) {
     authUserId = created.user.id;
   } else {
-    return errorResponse('auth_create_failed');
+    return serviceUnavailable('auth_create_failed');
   }
 
   const { error: linkError } = await admin.from('users').update({ auth_id: authUserId }).eq('id', user.id);
-  if (linkError) return errorResponse('link_failed');
+  if (linkError) return serviceUnavailable('link_failed');
 
   return json(200, { ok: true, auth_user_id: authUserId });
-  } catch {
-    return errorResponse('internal_error');
+  } catch (err) {
+    console.error('legacy-login unexpected error:', err instanceof Error ? err.name : 'unknown');
+    return serviceUnavailable('unexpected');
   }
 });
 

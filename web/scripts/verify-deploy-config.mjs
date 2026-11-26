@@ -2,6 +2,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadEnv } from "vite";
+import { assertPublicAnonKey } from "../vite.config.js";
 
 const webDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const distDir = resolve(webDir, "dist");
@@ -12,6 +13,12 @@ const failures = [];
 
 if (!url || !anonKey) {
   failures.push("public Supabase config is missing from the build environment");
+} else {
+  try {
+    assertPublicAnonKey(anonKey);
+  } catch {
+    failures.push("the configured key is not the public anon key (non-anon role)");
+  }
 }
 
 function jsFiles(dir) {

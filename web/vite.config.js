@@ -27,17 +27,35 @@ function htmlInputs(root) {
   return input;
 }
 
+const ANON_KEY_ERROR = "VITE_SUPABASE_ANON_KEY missing or invalid: only the public anon key is allowed";
+
+// فحص الحمولة فقط: لا توقيع ولا مفتاح سري في المتصفح. أي JWT بدور غير anon يُرفض،
+// حتى لو لم يبدأ بـ sb_secret_، فلا يُضمَّن مفتاح service_role في الحزمة.
+export function assertPublicAnonKey(anonKey) {
+  if (!anonKey || /YOUR-|example/i.test(anonKey) || anonKey.startsWith("sb_secret_")) {
+    throw new Error(ANON_KEY_ERROR);
+  }
+  const parts = String(anonKey).split(".");
+  if (parts.length !== 3 || !/^[A-Za-z0-9_-]+$/.test(parts[1])) {
+    throw new Error(ANON_KEY_ERROR);
+  }
+  try {
+    const payload = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
+    if (payload?.role !== "anon") throw new Error(ANON_KEY_ERROR);
+  } catch {
+    throw new Error(ANON_KEY_ERROR);
+  }
+  return anonKey;
+}
+
 // البناء يفشل صراحةً إن غابت القيم العامة؛ لا وجود لوضع معاينة صامت في النسخة المنشورة.
 export function buildConfig(env) {
   const url = env.VITE_SUPABASE_URL;
-  const anonKey = env.VITE_SUPABASE_ANON_KEY;
 
   if (!url || !/^https:\/\/.+\.supabase\.co\/?$/.test(url) || /YOUR-|example/i.test(url)) {
     throw new Error("VITE_SUPABASE_URL missing or invalid: a valid Supabase project URL is required to build");
   }
-  if (!anonKey || /YOUR-|example/i.test(anonKey) || anonKey.startsWith("sb_secret_")) {
-    throw new Error("VITE_SUPABASE_ANON_KEY missing or invalid: only the public anon key is allowed");
-  }
+  const anonKey = assertPublicAnonKey(env.VITE_SUPABASE_ANON_KEY);
 
   return {
     base: "/alzain-academy/",
