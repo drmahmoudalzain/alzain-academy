@@ -117,6 +117,15 @@ function syncCourseSelects() {
   $("ostTransferTo").innerHTML = courseOptions();
 }
 
+function syncStudentSelects() {
+  const select = $("ostEnrollStudent");
+  if (select) select.innerHTML = `<option value="">— استخدم المعرّف أدناه —</option>` + studentOptions("");
+  const transfer = $("ostTransferStudent");
+  if (transfer) transfer.innerHTML = studentOptions(transfer.value);
+  const track = $("ostTrackStudent");
+  if (track) track.innerHTML = studentOptions(track.value);
+}
+
 function semesterOptions() {
   return allSemesters.map((semester) => (
     `<option value="${semester.id}">الفصل ${semester.term_no === 2 ? "الثاني" : "الأول"}</option>`
@@ -180,6 +189,7 @@ async function loadCourses() {
     console.warn("تعذّر تحميل المقررات:", error);
   }
   syncCourseSelects();
+  syncStudentSelects();
 }
 
 function showTableError(message) {
@@ -212,6 +222,7 @@ async function loadStudents() {
     showTableError(error?.message || String(error));
     return;
   }
+  syncStudentSelects();
   renderTable();
 }
 
@@ -545,9 +556,15 @@ async function enrollStudent(form) {
   try {
     const track = form.elements.enroll_track.value;
     const semesterId = form.elements.semester_id.value;
+    const selectedStudent = form.elements.student_id?.value
+      ? allStudents.find((u) => String(u.id) === String(form.elements.student_id.value))
+      : findStudentByIdentifier(form.elements.identifier.value);
+    const identifier = selectedStudent
+      ? (selectedStudent.platform_id || selectedStudent.email || selectedStudent.university_id || "")
+      : form.elements.identifier.value.trim();
     const inBachelorSemester = !!semesterId && BACHELOR_TRACKS.includes(track || allCourses.find((c) => String(c.id) === form.elements.course_id.value)?.track);
     if (track) {
-      const student = findStudentByIdentifier(form.elements.identifier.value);
+      const student = selectedStudent || findStudentByIdentifier(identifier);
       if (!student) throw new Error("لم يُعثر على الطالب؛ استخدم التسجيل بمقرر محدد.");
       const params = inBachelorSemester
         ? {
@@ -568,7 +585,7 @@ async function enrollStudent(form) {
       if (!res.ok) throw new Error(res.error || "تعذّر التسجيل في المسار");
       showMessage("ostEnrollMsg", `تم التسجيل في ${trackLabel(track)} (${res.data?.added ?? 0} مقرر).`, "success");
     } else if (inBachelorSemester) {
-      const student = findStudentByIdentifier(form.elements.identifier.value);
+      const student = selectedStudent || findStudentByIdentifier(identifier);
       if (!student) throw new Error("للتسجيل في فصل محدد، اختر طالباً بمعرّف معروف في القائمة.");
       const res = await call("academic_owner_enroll_in_semester", {
         p_semester_id: Number(semesterId),
@@ -580,7 +597,7 @@ async function enrollStudent(form) {
     } else {
       const res = await call("management_enroll_student", {
         p_course_id: Number(form.elements.course_id.value),
-        p_identifier: form.elements.identifier.value.trim(),
+        p_identifier: identifier,
       });
       if (!res.ok) throw new Error(res.error || "تعذّر التسجيل");
       showMessage("ostEnrollMsg", `تم تسجيل: ${res.data?.name || ""}`, "success");
