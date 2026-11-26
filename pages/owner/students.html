@@ -37,7 +37,7 @@
     .ost-details dd { margin: 0; font-weight: 700; }
     .ost-details ul { margin: 8px 0 0; padding-inline-start: 20px; }
   </style>
-  <script type="module" crossorigin src="/alzain-academy/assets/pages-owner-students-CKqRSWou.js"></script>
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-owner-students-DC8ltziM.js"></script>
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/base-CLcZMpw2.js">
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/identity-rules-Cp64wFaG.js">
@@ -119,7 +119,8 @@
           <form id="ostEnrollForm" class="od-form">
             <div class="od-field"><label for="ostCourse">المقرر</label><select class="od-select" name="course_id" id="ostCourse" required></select></div>
             <div class="od-field" id="ostEnrollSemesterField" hidden><label for="ostEnrollSemester">فصل التسجيل (لبكالوريوس)</label><select class="od-select" id="ostEnrollSemester" name="semester_id"><option value="">— الفصل المفتوح الحالي —</option></select><small>يظهر الفصل الثاني فقط بعد فتحه لطلاب البكالوريوس.</small></div>
-            <div class="od-field"><label for="ostIdentifier">معرّف الطالب (بريد/رقم جامعي/منصة)</label><input class="od-input" id="ostIdentifier" name="identifier" required /></div>
+            <div class="od-field"><label for="ostEnrollStudent">أو اختر طالباً (اختياري)</label><select class="od-select" id="ostEnrollStudent" name="student_id"><option value="">— استخدم المعرّف أدناه —</option></select></div>
+<div class="od-field"><label for="ostIdentifier">معرّف الطالب (بريد/رقم جامعي/منصة)</label><input class="od-input" id="ostIdentifier" name="identifier" /></div>
             <div class="od-field"><label for="ostEnrollTrack">أو تسجيل في مسار كامل (اختياري)</label><select class="od-select" id="ostEnrollTrack" name="enroll_track"><option value="">— لا شيء —</option></select></div>
             <button type="submit" class="od-btn od-btn--primary" id="ostSubmitBtn"><span class="od-btn-spinner"></span> تسجيل</button>
             <div id="ostEnrollMsg" class="od-inline-msg" role="status" hidden></div>
