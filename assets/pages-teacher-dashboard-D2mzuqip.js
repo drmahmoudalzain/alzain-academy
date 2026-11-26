@@ -1,4 +1,4 @@
-import"./modulepreload-polyfill-B5Qt9EMX.js";import{b as f,s as d,a as o,i as u,e,f as $,r as b}from"./portal-CbIpfvfB.js";import{c as g}from"./api--00KnVIC.js";import{p as h}from"./base-CLcZMpw2.js";import{$ as t,e as l,s as v,i as _}from"./common-Dbt9rSHp.js";import"./identity-rules-Cp64wFaG.js";import"https://esm.sh/@supabase/supabase-js@2";import"./first-visit-BDQ6DJqx.js";function c(s,a,n,i,r=""){return`<div class="td-stat ${r}">
+import"./modulepreload-polyfill-B5Qt9EMX.js";import{b as f,s as d,a as o,i as u,e,f as $,r as b}from"./portal-CbIpfvfB.js";import{c as g}from"./api-DQI-AaeE.js";import{p as h}from"./base-CLcZMpw2.js";import{$ as t,e as l,s as v,i as _}from"./common-Dbt9rSHp.js";import"./identity-rules-Cp64wFaG.js";import"https://esm.sh/@supabase/supabase-js@2";import"./first-visit-BDQ6DJqx.js";function c(s,a,n,i,r=""){return`<div class="td-stat ${r}">
     <span class="td-stat-icon">${u(i)}</span>
     <span class="td-stat-label">${e(s)}</span>
     <span class="td-stat-value">${e(o(a))}<small>${e(n)}</small></span>

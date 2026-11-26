@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B2545" />
+  <meta name="description" content="إدارة محاضرة — بوابة المالك، أكاديمية آل الزين" />
+  <title>إدارة المحاضرة — أكاديمية آل الزين</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/alzain-academy/css/views/owner-dashboard.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-owner-lecture-manage-CcYx3xpy.js"></script>
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/base-CLcZMpw2.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/identity-rules-Cp64wFaG.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/first-visit-BDQ6DJqx.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-CbIpfvfB.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/api-DQI-AaeE.js">
+</head>
+<body class="portal">
+  <div id="app">
+    <main class="content" id="content">
+      <div class="od-page">
+        <section class="od-hero" aria-labelledby="olmTitle">
+          <div class="od-hero-head">
+            <div class="od-hero-body">
+              <span class="od-tag">بوابة المالك · إدارة المحاضرة</span>
+              <h1 id="olmTitle">إدارة المحاضرة</h1>
+              <p id="olmIntro">عرض تفاصيل المحاضرة وإدارتها وحذفها.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="od-panel" id="olmDetailPanel" hidden aria-labelledby="olmDetailTitle">
+          <div class="od-panel-head">
+            <h2 class="od-section-title" id="olmDetailTitle">تفاصيل المحاضرة</h2>
+          </div>
+          <input type="hidden" id="olmLectureId" name="lecture_id" />
+          <div id="olmDetail" aria-live="polite"></div>
+        </section>
+
+        <section class="od-panel" id="olmDeletePanel" hidden aria-labelledby="olmDeleteTitle">
+          <div class="od-panel-head">
+            <h2 class="od-section-title" id="olmDeleteTitle">حذف المحاضرة</h2>
+          </div>
+          <p id="olmDeleteText">سيتم حذف المحاضرة وجميع السجلات المرتبطة بها نهائياً. لا يمكن التراجع عن هذا الإجراء.</p>
+          <div class="od-btn-row">
+            <button type="button" class="od-btn od-btn--danger" id="olmDeleteBtn"><span class="od-btn-spinner"></span> حذف المحاضرة</button>
+            <button type="button" class="od-btn od-btn--ghost" id="olmCancelBtn">إلغاء</button>
+          </div>
+          <div id="olmDeleteMsg" class="od-inline-msg" hidden aria-live="polite"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
