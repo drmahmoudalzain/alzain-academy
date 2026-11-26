@@ -67,9 +67,6 @@ Deno.serve(async (req: Request): Promise<Response> => {
   const platformId = String(body.platformId ?? '').trim().toLowerCase();
   const password = String(body.password ?? '');
 
-  if (!/^[a-z]{2}[0-9]{3,4}$/.test(platformId)) {
-    return errorResponse('invalid_platform_id');
-  }
   if (!password) {
     return errorResponse('missing_password');
   }
@@ -79,6 +76,27 @@ Deno.serve(async (req: Request): Promise<Response> => {
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     { auth: { autoRefreshToken: false, persistSession: false } },
   );
+
+  // 0123: البريد والقفل يُرفضان هنا قبل قراءة التجزئة أو التحقق منها.
+  const { data: guardData, error: guardError } = await admin.rpc('auth_login_guard_check', {
+    p_identifier: platformId,
+  });
+  if (guardError) return errorResponse('login_guard_unavailable');
+  const guard = (guardData ?? null) as
+    | { ok?: boolean; error?: string; remaining_minutes?: number }
+    | null;
+  if (guard?.ok === false) {
+    const error = guard.error === 'account_locked'
+      ? `account_locked:${Number(guard.remaining_minutes ?? 15)}`
+      : String(guard.error ?? 'login_rejected');
+    return errorResponse(error);
+  }
+  if (guard?.ok !== true) return errorResponse('login_guard_failed');
+
+  // بعد رفض البريد والقفل فقط تُفحص صيغة الرمز.
+  if (!/^[a-z]{2}[0-9]{3,4}$/.test(platformId)) {
+    return errorResponse('invalid_platform_id');
+  }
 
   const { data: usersData, error: usersError } = await admin
     .from('users')
@@ -91,13 +109,32 @@ Deno.serve(async (req: Request): Promise<Response> => {
     | { id: number; role: string; name: string; platform_id: string | null; password_hash: string | null; is_active: boolean }
     | null;
   if (usersError) return errorResponse('db_error');
-  if (!user) return errorResponse('invalid_credentials');
+  if (!user) {
+    const { error: recordError } = await admin.rpc('auth_record_login_attempt', {
+      p_identifier: platformId,
+      p_success: false,
+    });
+    if (recordError) return errorResponse('attempt_log_failed');
+    return errorResponse('invalid_credentials');
+  }
   if (!user.is_active) return errorResponse('account_suspended');
   if (!user.password_hash) return errorResponse('no_legacy_password');
 
   if (!verifyScrypt(password, user.password_hash)) {
-    return errorResponse('invalid_credentials');
+    const { data: attemptData, error: recordError } = await admin.rpc('auth_record_login_attempt', {
+      p_identifier: platformId,
+      p_success: false,
+    });
+    if (recordError) return errorResponse('attempt_log_failed');
+    const attempt = (attemptData ?? null) as { locked?: boolean } | null;
+    return errorResponse(attempt?.locked === true ? 'account_locked' : 'invalid_credentials');
   }
+
+  const { error: successRecordError } = await admin.rpc('auth_record_login_attempt', {
+    p_identifier: platformId,
+    p_success: true,
+  });
+  if (successRecordError) return errorResponse('attempt_log_failed');
 
   const domain = user.role === 'student' ? 'students.local' : 'staff.local';
   const authEmail = `${platformId}@${domain}`;

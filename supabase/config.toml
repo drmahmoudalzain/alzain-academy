@@ -1,0 +1,5 @@
+# تسجيل الدخول عام (غير مصادَق عليه): المتصفح يرسل الرمز وكلمة المرور مرة واحدة
+# إلى الدالة، والدالة وحدها تملك مفتاح service_role وتُعيد جلسة Supabase Auth.
+
+[functions.academy-login]
+verify_jwt = false

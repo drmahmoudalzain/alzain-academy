@@ -1,4 +1,6 @@
 import { requireProfile, portalOf, homeOf } from "./auth.js";
+import { p } from "./base.js";
+import { firstLoginDestination } from "./identity-rules.js";
 import { renderShell, bindShell, shellPortal, syncActiveNav, updateShellTitle } from "./layout.js";
 import { registerPage, takePendingPreset, isSoftNav } from "./page-registry.js";
 import { initNavigator } from "./navigator.js";
@@ -24,8 +26,15 @@ export async function boot(portalOrOptions, title, render) {
   const mount = async () => {
     // التنظيف يتم في navigator.js قبل استيراد وحدة الصفحة التالية فقط.
     // هنا لا يُنظَّف شيء: تسجيلات الوحدة الحالية أُضيفت قبل استدعاء boot().
-    const { profile } = await requireProfile();
+    const { profile, preview } = await requireProfile();
     if (!profile) return;
+
+    // أول دخول يُلزم بتغيير كلمة المرور وإدخال البريد قبل فتح أي بوابة.
+    const firstLogin = firstLoginDestination(profile, { preview, pathname: location.pathname });
+    if (firstLogin) {
+      location.assign(p(firstLogin));
+      return;
+    }
 
     const actual = portalOf(profile);
     if (allowed.length && !allowed.includes(actual)) {
