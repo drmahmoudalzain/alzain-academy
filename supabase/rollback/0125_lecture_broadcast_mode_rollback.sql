@@ -1,5 +1,6 @@
 -- 0125_lecture_broadcast_mode_rollback.sql
 begin;
+drop function if exists public.management_add_lecture(bigint,text,text,text,timestamptz,integer,text,text,text,text);
 create or replace function public.management_add_lecture(
   p_course_id bigint, p_title text, p_description text default null,
   p_lecture_type text default 'direct', p_scheduled_at timestamptz default null,
