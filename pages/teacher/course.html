@@ -16,12 +16,14 @@
   <link rel="stylesheet" href="/alzain-academy/css/views/teacher-course.css" />
   <link rel="stylesheet" href="/alzain-academy/css/views/loading.css" />
   <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
-  <script type="module" crossorigin src="/alzain-academy/assets/pages-teacher-course-D46PZQqx.js"></script>
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/base-CCmrW03f.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/auth-BSie1sbi.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-Dovf_Yw9.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/api-a_g5aMSg.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/common-BFajHHnf.js">
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-teacher-course-Dl3XpUGy.js"></script>
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/base-CLcZMpw2.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/identity-rules-DVz3p2Gs.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/first-visit-BDQ6DJqx.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-CirgJEFP.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/api-rUQmnFmR.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/common-PnjW3H2x.js">
 </head>
 <body class="portal">
   <div id="app">
@@ -59,6 +61,13 @@
               <span class="tdc-hint">تسجيل الطلاب من بوابة الإدارة.</span>
             </div>
             <div id="tdcStudents" aria-live="polite"></div>
+            <section class="tdc-panel" id="tdcStudentDetails" hidden aria-labelledby="tdcStudentDetailsTitle">
+              <div class="tdc-panel-head">
+                <h2 id="tdcStudentDetailsTitle">بيانات الطالب</h2>
+                <button class="tt-btn" type="button" id="tdcStudentDetailsClose">إغلاق</button>
+              </div>
+              <div id="tdcStudentDetailsBody" aria-live="polite"></div>
+            </section>
           </section>
 
           <section class="tdc-pane" data-pane="lectures" aria-label="المحاضرات" hidden>
