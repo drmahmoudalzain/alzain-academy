@@ -326,6 +326,7 @@ function renderTable() {
       <td>
         <div class="od-btn-group">
           <button type="button" class="od-btn od-btn--small od-btn--ghost" data-action="details" data-id="${u.id}">${icon("user")} بيانات الطالب</button>
+          <button type="button" class="od-btn od-btn--small od-btn--ghost" data-action="level" data-id="${u.id}">${icon("grades")} المستوى ${u.level ? esc(String(u.level)) : "—"}</button>
           <button type="button" class="od-btn od-btn--small od-btn--ghost" data-action="enroll" data-id="${u.id}">${icon("plus")} تسجيل</button>
           <button type="button" class="od-btn od-btn--small od-btn--ghost" data-action="transfer" data-id="${u.id}">${icon("arrow")} نقل</button>
           <button type="button" class="od-btn od-btn--small od-btn--ghost" data-action="track" data-id="${u.id}">${icon("courses")} مسار</button>
@@ -650,6 +651,9 @@ async function handleListAction(event) {
   switch (button.dataset.action) {
     case "details":
       showStudentDetails(student);
+      break;
+    case "level":
+      window.alert("المستوى: " + (student.level ? student.level : "غير محدد") + "\nالمسار: " + trackLabel(student.track));
       break;
     case "enroll":
       $("ostIdentifier").value = student.platform_id || student.email || "";
