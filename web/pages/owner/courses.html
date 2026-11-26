@@ -36,8 +36,18 @@
         <section class="od-panel" id="ocFormPanel" hidden aria-labelledby="ocFormTitle">
           <h2 class="od-section-title" id="ocFormTitle">إنشاء مقرر</h2>
           <form id="ocForm" class="od-form">
+            <div class="od-field"><label for="ocMode">نوع الإنشاء</label><select class="od-select" id="ocMode" name="mode">
+              <option value="new">مقرر جديد</option>
+              <option value="branch">فرع لأصل موجود</option>
+              <option value="family">أصل وفرعاه</option>
+            </select></div>
+            <div class="od-field" id="ocBranchFields" hidden><label for="ocParentInput">المقرر الأصل</label><select class="od-select" id="ocParentInput" name="parent_course_id"></select></div>
+            <div class="od-field" id="ocGenderFields" hidden><label for="ocBranchTrackInput">الفرع</label><select class="od-select" id="ocBranchTrackInput" name="branch_track">
+              <option value="bachelor_m">ذكور (-M)</option>
+              <option value="bachelor_f">إناث (-F)</option>
+            </select></div>
             <div class="od-field"><label for="ocTitleInput">العنوان</label><input class="od-input" id="ocTitleInput" name="title" required /></div>
-            <div class="od-field"><label for="ocCodeInput">الرمز</label><input class="od-input" id="ocCodeInput" name="code" required dir="ltr" /></div>
+            <div class="od-field"><label for="ocCodeInput">الرمز</label><input class="od-input" id="ocCodeInput" name="code" required readonly dir="ltr" /></div>
             <div class="od-field"><label for="ocDescriptionInput">الوصف</label><textarea class="od-textarea" id="ocDescriptionInput" name="description"></textarea></div>
             <div class="od-field"><label for="ocTrackInput">المسار</label><select class="od-select" id="ocTrackInput" name="track">
               <option value="bachelor_m">بكالوريوس (ذكور)</option>

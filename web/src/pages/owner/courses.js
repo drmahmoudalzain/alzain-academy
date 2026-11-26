@@ -25,6 +25,54 @@ async function loadTeachers() {
   if (sel) sel.innerHTML = teachers.map((t) => `<option value="${t.id}">${esc(t.name || "")}</option>`).join("") || `<option value="">لا يوجد أساتذة متاحون</option>`;
 }
 
+function fillParents() {
+  const sel = $("ocParentInput");
+  if (!sel) return;
+  const parents = allCourses.filter((c) => !c.parent_course_id && /^LAW[1-4]\d{2}$/.test(c.code || ""));
+  const current = sel.value;
+  sel.innerHTML = parents.map((c) => `<option value="${Number(c.id)}">${esc(c.code || "")} — ${esc(c.title || "")}</option>`).join("")
+    || `<option value="">لا يوجد أصل متاح</option>`;
+  if (current && parents.some((c) => String(c.id) === current)) sel.value = current;
+}
+
+function applyMode() {
+  const f = $("ocForm");
+  const editId = f.dataset.editId;
+  const mode = editId ? "edit" : f.elements.mode.value;
+  $("ocMode").closest(".od-field").hidden = Boolean(editId);
+  $("ocBranchFields").hidden = mode !== "branch";
+  $("ocGenderFields").hidden = mode !== "branch";
+  $("ocTrackInput").closest(".od-field").hidden = mode === "branch" || mode === "family";
+  $("ocCodeInput").closest(".od-field").hidden = mode === "family";
+  const bachelor = ["bachelor", "bachelor_m", "bachelor_f"].includes(f.elements.track.value);
+  f.elements.code.readOnly = mode === "edit" ? false : bachelor;
+  $("ocFormTitle").textContent = editId ? "تعديل مقرر"
+    : mode === "branch" ? "إنشاء فرع لأصل موجود"
+    : mode === "family" ? "إنشاء أصل وفرعيه" : "إنشاء مقرر";
+}
+
+async function refreshGeneratedCode() {
+  const f = $("ocForm");
+  if (f.dataset.editId) return;
+  const mode = f.elements.mode.value;
+  if (mode === "family") {
+    f.elements.code.value = "";
+    return;
+  }
+  let rpcParams;
+  if (mode === "branch") {
+    const parentId = Number(f.elements.parent_course_id.value) || null;
+    if (!parentId) { f.elements.code.value = ""; return; }
+    rpcParams = { p_level: null, p_parent_course_id: parentId, p_branch_track: f.elements.branch_track.value };
+  } else {
+    const level = Number(f.elements.level.value) || null;
+    if (!level) { f.elements.code.value = ""; return; }
+    rpcParams = { p_level: level };
+  }
+  const res = await call("management_generate_course_code", rpcParams);
+  if (res?.ok) f.elements.code.value = typeof res.data === "string" ? res.data : "";
+}
+
 function courseParams(course, overrides = {}) {
   return {
     p_title: course.title || "",
@@ -54,7 +102,7 @@ function fillForm(course) {
   f.elements.ew.value = course.exams_weight ?? 60;
   f.elements.asw.value = course.assignments_weight ?? 30;
   f.dataset.editId = course.id;
-  $("ocFormTitle").textContent = "تعديل مقرر";
+  applyMode();
   $("ocFormPanel").hidden = false;
 }
 
@@ -111,10 +159,14 @@ function renderCourses() {
     return;
   }
   const teacherMap = new Map(teachers.map((t) => [t.id, t.name]));
-  const rows = list.map((c) => `
+  const courseMap = new Map(allCourses.map((c) => [c.id, c]));
+  const rows = list.map((c) => {
+    const parent = c.parent_course_id ? courseMap.get(c.parent_course_id) : null;
+    return `
     <tr>
       <td>${esc(c.code || "—")}</td>
       <td>${esc(c.title || "—")}</td>
+      <td>${esc(parent?.code || "—")}</td>
       <td>${esc(teacherMap.get(c.teacher_id) || "—")}</td>
       <td>${esc(c.track || "—")}</td>
       <td>${c.level || "—"}</td>
@@ -127,9 +179,10 @@ function renderCourses() {
         </div>
       </td>
     </tr>
-  `).join("");
+  `;
+  }).join("");
   $("ocTable").innerHTML = `<div class="od-table-wrap"><table class="od-table">
-    <thead><tr><th>الرمز</th><th>العنوان</th><th>الأستاذ</th><th>المسار</th><th>المستوى</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+    <thead><tr><th>الرمز</th><th>العنوان</th><th>الأصل</th><th>الأستاذ</th><th>المسار</th><th>المستوى</th><th>الحالة</th><th>إجراءات</th></tr></thead>
     <tbody>${rows}</tbody>
   </table></div>`;
 
@@ -154,7 +207,7 @@ async function reload() {
   const target = $("ocTable");
   target.innerHTML = `<div class="od-skeleton od-skeleton-row" aria-hidden="true"></div>`.repeat(5);
   try {
-    const { data, error } = await supabase.from("courses").select("id, teacher_id, title, code, description, color, track, level, archived, attendance_weight, exams_weight, assignments_weight").order("title");
+    const { data, error } = await supabase.from("courses").select("id, teacher_id, title, code, description, color, track, level, archived, parent_course_id, attendance_weight, exams_weight, assignments_weight").order("title");
     if (error) {
       showTableError(target, error.message || "", "courses");
       return;
@@ -176,15 +229,23 @@ boot({
     $("ocNewBtn").addEventListener("click", () => {
       $("ocForm").reset();
       delete $("ocForm").dataset.editId;
-      $("ocFormTitle").textContent = "إنشاء مقرر";
+      applyMode();
+      fillParents();
       $("ocFormPanel").hidden = false;
       $("ocTitleInput").focus();
+      void refreshGeneratedCode();
     });
     $("ocCancel").addEventListener("click", () => { $("ocFormPanel").hidden = true; });
     $("ocShowArchived").addEventListener("change", renderCourses);
+    $("ocMode").addEventListener("change", () => { applyMode(); refreshGeneratedCode(); });
+    $("ocParentInput").addEventListener("change", refreshGeneratedCode);
+    $("ocBranchTrackInput").addEventListener("change", refreshGeneratedCode);
+    $("ocLevelInput").addEventListener("change", refreshGeneratedCode);
+    $("ocTrackInput").addEventListener("change", () => { applyMode(); void refreshGeneratedCode(); });
 
     await loadTeachers();
     await reload();
+    fillParents();
     if (new URLSearchParams(location.search).get("new") === "1") $("ocNewBtn").click();
 
     $("ocForm").addEventListener("submit", async (e) => {
@@ -209,15 +270,40 @@ boot({
         p_teacher_id: Number(f.elements.teacher_id.value) || null,
       };
       const editId = f.dataset.editId;
-      const res = editId
-        ? await call("management_update_course", { p_course_id: Number(editId), ...params })
-        : await call("management_create_course", params);
+      const mode = editId ? "edit" : f.elements.mode.value;
+      const generatedTracks = ["bachelor", "bachelor_m", "bachelor_f"];
+      const usesGeneratedCode = mode === "branch"
+        || (mode === "new" && generatedTracks.includes(f.elements.track.value));
+      let res;
+      if (mode === "edit") {
+        res = await call("management_update_course", { p_course_id: Number(editId), ...params });
+      } else if (mode === "family") {
+        res = await call("management_create_course_family", {
+          p_title: params.p_title,
+          p_level: params.p_level,
+          p_description: params.p_description,
+          p_color: params.p_color,
+          p_attendance_weight: params.p_attendance_weight,
+          p_exams_weight: params.p_exams_weight,
+          p_assignments_weight: params.p_assignments_weight,
+          p_teacher_id: params.p_teacher_id,
+        });
+      } else {
+        res = await call("management_create_course", {
+          ...params,
+          p_code: usesGeneratedCode ? null : params.p_code,
+          p_parent_course_id: mode === "branch" ? Number(f.elements.parent_course_id.value) || null : null,
+          p_branch_track: mode === "branch" ? f.elements.branch_track.value : null,
+          p_track: mode === "branch" ? null : params.p_track,
+        });
+      }
       setButton(btn, false);
       if (res?.ok) {
         msg.textContent = "تم الحفظ بنجاح.";
         msg.className = "od-inline-msg od-inline-msg--success";
         $("ocFormPanel").hidden = true;
         await reload();
+        fillParents();
       } else {
         msg.textContent = res?.error || "فشل الحفظ.";
         msg.className = "od-inline-msg od-inline-msg--error";
