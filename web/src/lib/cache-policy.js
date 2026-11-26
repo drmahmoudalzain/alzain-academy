@@ -44,6 +44,7 @@ const INVALIDATES = new Set([
   "management_enroll_student",
   "management_set_attendance",
   "management_post_announcement",
+  "management_delete_lecture",
   "management_allocate_platform_id",
   "management_create_user_profile",
   "management_update_user",

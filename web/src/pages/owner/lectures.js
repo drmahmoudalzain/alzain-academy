@@ -3,6 +3,7 @@ import { supabase } from "../../lib/supabase.js";
 import { call } from "../../lib/api.js";
 import { esc, fmtDateTime, fmtNum } from "../../lib/fmt.js";
 import { icon } from "../../lib/icons.js";
+import { p } from "../../lib/base.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -38,12 +39,25 @@ function render() {
       <td>${l.scheduled_at ? fmtDateTime(l.scheduled_at) : "—"}</td>
       <td>${l.duration_min || "—"} د</td>
       <td>${l.status || "—"}</td>
+      <td>
+        <div class="od-btn-group">
+          <button class="od-btn od-btn--small od-btn--ghost" data-action="manage" data-id="${l.id}">${icon("edit")} إدارة</button>
+        </div>
+      </td>
     </tr>
   `).join("");
   $("olTable").innerHTML = `<div class="od-table-wrap"><table class="od-table">
-    <thead><tr><th>العنوان</th><th>المقرر</th><th>النوع</th><th>الموعد</th><th>المدة</th><th>الحالة</th></tr></thead>
+    <thead><tr><th>العنوان</th><th>المقرر</th><th>النوع</th><th>الموعد</th><th>المدة</th><th>الحالة</th><th>إجراءات</th></tr></thead>
     <tbody>${rows}</tbody>
   </table></div>`;
+
+  $("olTable").querySelectorAll("[data-action]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (btn.dataset.action !== "manage") return;
+      const id = Number(btn.dataset.id);
+      location.assign(`${p("pages/owner/lecture-manage.html")}?id=${id}`);
+    });
+  });
 }
 
 async function reload() {
