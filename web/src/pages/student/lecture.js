@@ -281,6 +281,14 @@ async function attend() {
     input.focus();
     return;
   }
+  if (code.length < 4) {
+    if (status) {
+      status.textContent = "رمز الحضور يجب أن يكون 4 أحرف على الأقل.";
+      status.className = "lec-status lec-status--error";
+    }
+    input.focus();
+    return;
+  }
 
   btn.disabled = true;
   input.disabled = true;

@@ -488,7 +488,7 @@ function startClock() {
   updateClock();
 }
 
-function updateClock() {
+async function updateClock() {
   const el = contentEl?.querySelector("#tk-timer-value");
   if (!el || !S?.deadline) return;
   const left = Math.max(0, S.deadline - Date.now());
@@ -506,7 +506,8 @@ function updateClock() {
   if (left === 0 && !S.timeUp) {
     S.timeUp = true;
     clearInterval(clockId);
-    showAlert("انتهى الوقت المحدد للاختبار. يمكنك التسليم الآن، وقد يرفض الخادم الإجابات المتأخرة.");
+    showAlert("انتهى وقت الاختبار — سيتم التسليم تلقائياً.");
+    await submitExam();
   }
 }
 

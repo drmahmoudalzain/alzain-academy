@@ -4,23 +4,26 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0B2545" />
-  <meta name="description" content="الطلاب — أكاديمية آل الزين للعلوم القانونية والعدلية" />
-  <title>الطلاب — أكاديمية آل الزين</title>
-
+  <meta name="description" content="طلابي — بوابة الأستاذ، أكاديمية آل الزين" />
+  <title>طلابي — أكاديمية آل الزين</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
-
-  <link rel="stylesheet" href="/css/views/student-dashboard.css" />
+  <link rel="stylesheet" href="/css/views/teacher-dashboard.css" />
   <link rel="stylesheet" href="/css/portal-theme.css" />
 </head>
 <body class="portal">
   <div id="app">
     <main class="content" id="content">
-      <div class="empty-state" role="status">جارٍ تحميل الصفحة…</div>
+      <div class="td-page">
+        <section class="td-hero"><h1>طلابي</h1><p>الطلاب المسجّلون في مقرراتك.</p></section>
+        <section class="td-panel">
+          <div class="td-panel-head"><h2 class="td-section-title">القائمة</h2><span class="td-link" id="tsCount">—</span></div>
+          <div id="tsTable" aria-live="polite"></div>
+        </section>
+      </div>
     </main>
   </div>
-
-  <script type="module" src="/src/pages/portal-coming.js"></script>
+  <script type="module" src="/src/pages/teacher/students.js"></script>
 </body>
 </html>
