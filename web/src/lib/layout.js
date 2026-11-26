@@ -26,7 +26,8 @@ export function renderShell({ portal, title, profile }) {
         .map((item) => {
           const href = p(item.href);
           const active = current === href;
-          return `<a href="${href}" class="nav-item${active ? " active" : ""}"${active ? ' aria-current="page"' : ""}>${icon(item.icon)}<span>${esc(item.label)}</span></a>`;
+          const guideHook = item.href === "guide.html" ? " onclick=\"sessionStorage.setItem('alzain_guide_return', location.href)\"" : "";
+     return `<a href="${href}" class="nav-item${active ? " active" : ""}"${active ? ' aria-current="page"' : ""}${guideHook}>${icon(item.icon)}<span>${esc(item.label)}</span></a>`;
         })
         .join("");
       return `<div class="nav-section">${esc(section.section)}</div>${items}`;
