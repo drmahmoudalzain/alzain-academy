@@ -94,6 +94,8 @@ boot({
         p_duration_min: Number(f.elements.duration_min.value) || 120,
         p_youtube_url: f.elements.youtube_url.value || null,
         p_live_url: f.elements.live_url.value || null,
+         p_broadcast_mode: f.elements.broadcast_mode.value || null,
+         p_broadcast_media: f.elements.broadcast_media.value || null,
         p_scheduled_at: f.elements.scheduled_at.value ? new Date(f.elements.scheduled_at.value).toISOString() : null,
       });
       btn.classList.remove("is-loading");

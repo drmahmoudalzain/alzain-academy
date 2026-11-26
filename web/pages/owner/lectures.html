@@ -56,6 +56,18 @@
               <option value="recorded">مسجل</option>
             </select></div>
             <div class="od-field"><label>المدة (دقيقة)</label><input name="duration_min" type="number" value="120" /></div>
+            <div class="od-field"><label>وضع البث</label><select name="broadcast_mode">
+              <option value="">— افتراضي —</option>
+              <option value="internal">على المنصة</option>
+              <option value="youtube">YouTube</option>
+              <option value="meet">Google Meet</option>
+            </select></div>
+            <div class="od-field"><label>وسائط البث</label><select name="broadcast_media">
+              <option value="">—</option>
+              <option value="audio">صوت</option>
+              <option value="video">صوت وصورة</option>
+              <option value="both">صوت وصورة (كامل)</option>
+            </select></div>
             <div class="od-field"><label>رابط YouTube</label><input name="youtube_url" /></div>
             <div class="od-field"><label>رابط Live</label><input name="live_url" /></div>
             <div class="od-field"><label>موعد (ISO)</label><input name="scheduled_at" type="datetime-local" /></div>
