@@ -1,17 +1,37 @@
 import { boot } from "../lib/portal.js";
 import { supabase } from "../lib/supabase.js";
+import { call } from "../lib/api.js";
 import { p } from "../lib/base.js";
 import { esc } from "../lib/fmt.js";
 import { icon } from "../lib/icons.js";
 import { onDispose } from "../lib/lifecycle.js";
+import {
+  RECOMMENDATIONS,
+  SCORE_AXES,
+  publicationTotal,
+  validatePublicationScores,
+} from "../lib/publication-review.js";
 
 const KIND_LABEL = { book: "كتاب", paper: "بحث", media: "وسائط" };
 const MAX_FILE = 20 * 1024 * 1024;
+const AXIS_LABEL = {
+  originality: "الأصالة والإضافة",
+  methodology: "الإشكالية والمنهجية",
+  documentation: "التوثيق والدقة",
+  analysis: "التحليل والتطبيق",
+  writing: "الصياغة والتنظيم",
+};
+const RECOMMENDATION_LABEL = {
+  accept: "قبول دون تعديل",
+  minor: "قبول بتعديلات طفيفة",
+  major: "قبول بتعديلات جوهرية (إعادة عرض للمحكّمين)",
+  reject: "عدم القبول",
+};
 
 boot({
-  portals: ["owner", "assistant"],
+  portals: ["owner", "assistant", "teacher"],
   title: "إدارة المكتبة",
-  render: async ({ profile }) => {
+  render: async ({ profile, portal }) => {
     const $ = (id) => document.getElementById(id);
     const els = {
       browse: $("libBrowseLink"),
@@ -380,6 +400,216 @@ boot({
       if (section) deleteSection(section);
     });
 
+    /* ---------- مراجعة النشر: تعيين المالك وقرار المحكّم ---------- */
+    const canAssignReviews = portal === "owner";
+    const canReviewPublication = portal === "owner" || portal === "teacher";
+
+    function reviewHost() {
+      document.getElementById("libReviewSection")?.remove();
+      const host = document.createElement("section");
+      host.id = "libReviewSection";
+      host.className = "library-page";
+      host.innerHTML = `<div data-owner-review></div><div data-reviewer-review></div>`;
+      document.getElementById("content").appendChild(host);
+      onDispose(() => host.remove());
+      return host;
+    }
+
+    async function mountOwnerReview(container) {
+      const [queueRes, candidatesRes] = await Promise.all([
+        call("management_publication_review_queue"),
+        call("management_publication_reviewer_candidates"),
+      ]);
+      if (!queueRes.ok || !candidatesRes.ok) {
+        toast(queueRes.error || candidatesRes.error || "تعذّر تحميل طابور المراجعة", "error");
+        return;
+      }
+
+      const candidates = candidatesRes.data || [];
+      const options = (selected) =>
+        candidates
+          .map(
+            (c) =>
+              `<option value="${esc(c.id)}"${String(c.id) === String(selected) ? " selected" : ""}>${esc(c.name)} — ${esc(c.academic_rank || c.position || "—")}</option>`,
+          )
+          .join("");
+
+      container.innerHTML = `<section class="lib-review-panel">
+        <h2>تعيين محكّمي النشر</h2>
+        <p>تُسجَّل نسخة بلا أسماء أو عناوين أو مراجع تكشف الهوية قبل التعيين. مهلة البت ستة أشهر، ومهلة التعديل شهر واحد.</p>
+        <div data-review-queue></div>
+      </section>`;
+
+      const queue = container.querySelector("[data-review-queue]");
+      const rows = queueRes.data || [];
+      queue.innerHTML = rows.length
+        ? rows
+            .map(
+              (row) => `<div class="lib-review-row">
+                <div>
+                  <strong>${esc(row.title)}</strong>
+                  <div>${esc(row.status || "—")} · ${esc(row.decision_deadline_at || "—")} · ${esc(row.final_status || "")}</div>
+                </div>
+                <form data-anon-form data-pub="${esc(row.id)}">
+                  <input type="text" name="file" value="${esc(row.anonymized_file || "")}" placeholder="مسار النسخة المخفية الهوية" required />
+                  <button type="submit">حفظ النسخة</button>
+                </form>
+                <form data-assign-form data-pub="${esc(row.id)}">
+                  <select name="reviewer1" required>${options(candidates[0]?.id)}</select>
+                  <input type="text" name="rank1" value="${esc(candidates[0]?.academic_rank || "")}" placeholder="الرتبة العلمية" required />
+                  <input type="text" name="specialization1" value="${esc(candidates[0]?.specialization || "")}" placeholder="الاختصاص" required />
+                  <select name="reviewer2" required>${options(candidates[1]?.id ?? candidates[0]?.id)}</select>
+                  <input type="text" name="rank2" value="${esc(candidates[1]?.academic_rank || "")}" placeholder="الرتبة العلمية" required />
+                  <input type="text" name="specialization2" value="${esc(candidates[1]?.specialization || "")}" placeholder="الاختصاص" required />
+                  <button type="submit">تعيين محكّمين</button>
+                </form>
+              </div>`,
+            )
+            .join("")
+        : `<p>لا توجد بحوث بانتظار التعيين.</p>`;
+
+      queue.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const publicationId = Number(form.dataset.pub);
+        try {
+          if (form.matches("[data-anon-form]")) {
+            const saved = await call("management_set_publication_anonymized_file", {
+              p_publication_id: publicationId,
+              p_file: form.elements.file.value.trim(),
+            });
+            if (!saved.ok) throw new Error(saved.error);
+            toast("تم حفظ النسخة المخفية", "success");
+            await mountOwnerReview(container);
+            return;
+          }
+
+          if (form.matches("[data-assign-form]")) {
+            const pairs = [
+              ["reviewer1", "rank1", "specialization1"],
+              ["reviewer2", "rank2", "specialization2"],
+            ];
+            for (const [idKey, rankKey, specializationKey] of pairs) {
+              const credential = await call("management_set_publication_reviewer_credentials", {
+                p_reviewer_id: Number(form.elements[idKey].value),
+                p_academic_rank: form.elements[rankKey].value.trim(),
+                p_specialization: form.elements[specializationKey].value.trim(),
+              });
+              if (!credential.ok) throw new Error(credential.error);
+            }
+            const assigned = await call("management_assign_publication_reviewers", {
+              p_publication_id: publicationId,
+              p_reviewer1: Number(form.elements.reviewer1.value),
+              p_reviewer2: Number(form.elements.reviewer2.value),
+            });
+            if (!assigned.ok) throw new Error(assigned.error);
+            toast("تم تعيين المحكّمين", "success");
+            await mountOwnerReview(container);
+          }
+        } catch (err) {
+          toast(err.message || "تعذّر إكمال الطلب", "error");
+        }
+      });
+    }
+
+    async function mountReviewerReview(container) {
+      const assignments = await call("reviewer_publication_assignments");
+      if (!assignments.ok) {
+        toast(assignments.error || "تعذّر تحميل مهام التحكيم", "error");
+        return;
+      }
+
+      container.innerHTML = `<section class="lib-review-panel">
+        <h2>أوراق مُسندة للمراجعة</h2>
+        <p>تظهر الأوراق بلا أسماء أو عناوين تكشف الباحث. التوصية إلزامية، والملاحظات تحريرية سرية.</p>
+        <div data-review-packets></div>
+      </section>`;
+
+      const list = container.querySelector("[data-review-packets]");
+      const rows = assignments.data || [];
+      if (!rows.length) {
+        list.innerHTML = `<p>لا توجد أوراق مُسندة إليك.</p>`;
+        return;
+      }
+
+      for (const row of rows) {
+        const packetRes = await call("reviewer_publication_blob", {
+          p_publication_id: row.publication_id,
+        });
+        if (!packetRes.ok) {
+          toast(packetRes.error || "تعذّر تحميل الحزمة المخفية", "error");
+          continue;
+        }
+        const packet = packetRes.data || {};
+        let fileUrl = null;
+        if (packet.file) {
+          const signed = await supabase.storage.from("library").createSignedUrl(String(packet.file), 300);
+          if (!signed.error) fileUrl = signed.data?.signedUrl;
+        }
+
+        const card = document.createElement("article");
+        card.innerHTML = `<div class="lib-review-row">
+          <div>
+            <h3>${esc(packet.title || "بحث بلا عنوان")}</h3>
+            <p>${esc(packet.abstract_ar || "")}</p>
+            <p dir="ltr">${esc(packet.abstract_en || "")}</p>
+            ${fileUrl ? `<a href="${esc(fileUrl)}" target="_blank" rel="noopener">ملف البحث المخفي الهوية</a>` : `<span>الملف غير متاح</span>`}
+          </div>
+          <form data-decision-form data-pub="${esc(row.publication_id)}">
+            ${SCORE_AXES.map(
+              (axis) =>
+                `<label>${esc(AXIS_LABEL[axis])} <input type="number" name="${axis}" min="0" max="10" step="0.5" required /></label>`,
+            ).join("")}
+            <label>التوصية
+              <select name="recommendation" required>
+                ${Object.keys(RECOMMENDATIONS)
+                  .map((code) => `<option value="${code}">${esc(RECOMMENDATION_LABEL[code])}</option>`)
+                  .join("")}
+              </select>
+            </label>
+            <label>ملاحظات تحريرية (سرية)<textarea name="notes"></textarea></label>
+            <button type="submit"${row.decided ? " disabled" : ""}>${row.decided ? "تم تسجيل القرار" : "تسجيل القرار"}</button>
+          </form>
+        </div>`;
+        list.appendChild(card);
+      }
+
+      list.addEventListener("submit", async (e) => {
+        const form = e.target.closest("[data-decision-form]");
+        if (!form) return;
+        e.preventDefault();
+        const scores = {};
+        for (const axis of SCORE_AXES) {
+          scores[axis] = Number(form.elements[axis].value);
+        }
+        const invalid = validatePublicationScores(scores);
+        if (invalid) {
+          toast(invalid, "warning");
+          return;
+        }
+        try {
+          const submitted = await call("reviewer_record_publication_decision", {
+            p_publication_id: Number(form.dataset.pub),
+            p_scores: scores,
+            p_recommendation: form.elements.recommendation.value,
+            p_notes: form.elements.notes.value.trim() || null,
+          });
+          if (!submitted.ok) throw new Error(submitted.error);
+          toast(submitted.data?.status ? `تم تسجيل القرار: ${submitted.data.status}` : "تم تسجيل القرار", "success");
+          await mountReviewerReview(container);
+        } catch (err) {
+          toast(err.message || "تعذّر تسجيل القرار", "error");
+        }
+      });
+    }
+
+    async function mountReviewPanels() {
+      if (!canAssignReviews && !canReviewPublication) return;
+      const host = reviewHost();
+      if (canAssignReviews) await mountOwnerReview(host.querySelector("[data-owner-review]"));
+      if (canReviewPublication) await mountReviewerReview(host.querySelector("[data-reviewer-review]"));
+    }
+
     const onEscape = (e) => {
       if (e.key !== "Escape") return;
       if (els.formModal.classList.contains("open")) closeForm();
@@ -392,5 +622,6 @@ boot({
     onDispose(() => document.removeEventListener("keydown", onEscape));
 
     await load();
+    await mountReviewPanels();
   },
 });
