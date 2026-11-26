@@ -19,6 +19,7 @@ const ACTIONS = [
   { label: "إنشاء مقرر", ico: "courses", href: "pages/owner/courses.html?new=1" },
   { label: "التقرير الشامل", ico: "grades", href: "pages/owner/report.html" },
   { label: "دليل المستخدم", ico: "file", href: "guide.html" },
+  { label: "الإعدادات", ico: "settings", href: "pages/owner/settings.html" },
 ];
 
 function skeleton(kind, count) {

@@ -10,6 +10,7 @@ const $ = (id) => document.getElementById(id);
 let allUsers = [];
 let editingId = null;
 let busy = false;
+let suspendedOnly = false;
 
 async function callRpc(name, args) {
   const { data, error } = await supabase.rpc(name, args);
@@ -42,12 +43,17 @@ function roleLabel(role) {
   return role === "teacher" ? "أستاذ" : role === "assistant" ? "مساعد" : role === "student" ? "طالب" : role || "—";
 }
 
-function syncFormFields(role) {
+function syncFormFields(role, track = null) {
   const student = role === "student";
-  ["ouTrackField", "ouLevelField", "ouUniversityField", "ouGenderField"].forEach((id) => {
-    const field = $(id);
-    if (field) field.hidden = !student;
-  });
+  const bachelor = student && (track === "bachelor_m" || track === "bachelor_f");
+  const trackField = $("ouTrackField");
+  if (trackField) trackField.hidden = !student;
+  const levelField = $("ouLevelField");
+  if (levelField) levelField.hidden = !bachelor;
+  const universityField = $("ouUniversityField");
+  if (universityField) universityField.hidden = !student;
+  const genderField = $("ouGenderField");
+  if (genderField) genderField.hidden = !student;
   const position = $("ouPositionField");
   if (position) position.hidden = student;
 }
@@ -64,12 +70,13 @@ function openForm(user = null) {
   showMessage("ouFormMsg", "");
 
   const role = user?.role || "student";
+  const track = user?.track || "";
   $("ouFormRole").value = role;
   if (user) {
     $("ouName").value = user.name || "";
     $("ouEmail").value = user.email || "";
     $("ouPhone").value = user.phone || "";
-    $("ouTrack").value = user.track || "";
+    $("ouTrack").value = track;
     $("ouLevel").value = user.level ? String(user.level) : "";
     $("ouUniversityId").value = user.university_id || "";
     $("ouGender").value = user.gender || "";
@@ -80,7 +87,7 @@ function openForm(user = null) {
     $("ouPlatformId").value = "";
     $("ouMustChange").checked = true;
   }
-  syncFormFields(role);
+  syncFormFields(role, track);
   panel.hidden = false;
   $("ouName").focus();
 }
@@ -94,18 +101,20 @@ function closeForm() {
 function readForm() {
   const role = $("ouFormRole").value;
   const student = role === "student";
+  const track = student ? $("ouTrack").value : null;
+  const bachelor = track === "bachelor_m" || track === "bachelor_f";
   const level = $("ouLevel").value;
   return {
     userId: $("ouUserId").value ? Number($("ouUserId").value) : null,
     name: $("ouName").value.trim(),
-    email: $("ouEmail").value.trim(),
-    phone: $("ouPhone").value.trim(),
+    email: $("ouEmail").value.trim() || null,
+    phone: $("ouPhone").value.trim() || null,
     role,
-    track: student ? $("ouTrack").value : null,
-    level: student && level ? Number(level) : null,
-    universityId: student ? $("ouUniversityId").value.trim() : null,
-    gender: student ? $("ouGender").value : null,
-    position: student ? null : $("ouPosition").value.trim(),
+    track,
+    level: student && bachelor && level ? Number(level) : null,
+    universityId: student ? ($("ouUniversityId").value.trim() || null) : null,
+    gender: student ? ($("ouGender").value || null) : null,
+    position: student ? null : ($("ouPosition").value.trim() || null),
     platformId: $("ouPlatformId").value.trim().toUpperCase(),
     mustChangePassword: $("ouMustChange").checked,
   };
@@ -343,9 +352,11 @@ function applyFilters() {
   const role = $("ouRole").value;
   const q = $("ouSearch").value.trim().toLowerCase();
   const activeOnly = $("ouActiveOnly").checked;
+  if (activeOnly) suspendedOnly = false;
   const filtered = allUsers.filter((user) => {
     if (role !== "all" && user.role !== role) return false;
     if (activeOnly && !user.is_active) return false;
+    if (suspendedOnly && user.is_active) return false;
     if (q) {
       const hay = `${user.name || ""} ${user.email || ""} ${user.university_id || ""} ${user.platform_id || ""}`.toLowerCase();
       if (!hay.includes(q)) return false;
@@ -363,14 +374,16 @@ function bindActions() {
   const cancelBtn = $("ouCancelBtn");
   if (cancelBtn) cancelBtn.addEventListener("click", closeForm);
 
-  $("ouFormRole").addEventListener("change", (event) => syncFormFields(event.target.value));
+  $("ouFormRole").addEventListener("change", (event) => syncFormFields(event.target.value, $("ouTrack").value));
+  const trackSelect = $("ouTrack");
+  if (trackSelect) trackSelect.addEventListener("change", () => syncFormFields($("ouFormRole").value, trackSelect.value));
 
   $("ouForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     if (busy) return;
     const values = readForm();
-    if (!values.name || !values.email) {
-      showMessage("ouFormMsg", "الاسم والبريد مطلوبان.", "error");
+    if (!values.name) {
+      showMessage("ouFormMsg", "الاسم مطلوب.", "error");
       return;
     }
     if (values.role === "student" && !values.track) {
@@ -429,6 +442,16 @@ boot({
       const evt = (el.tagName === "INPUT" && el.type === "checkbox") ? "change" : (el.tagName === "SELECT" ? "change" : "input");
       el.addEventListener(evt, applyFilters);
     });
+    const suspendedBtn = $("ouSuspendedOnly");
+    if (suspendedBtn) suspendedBtn.addEventListener("click", () => {
+      suspendedOnly = !suspendedOnly;
+      const activeOnly = $("ouActiveOnly");
+      if (activeOnly) activeOnly.checked = false;
+      suspendedBtn.classList.toggle("is-active", suspendedOnly);
+      suspendedBtn.textContent = suspendedOnly ? "عرض الكل" : "موقوفون فقط";
+      applyFilters();
+    });
+
     const refreshBtn = $("ouRefresh");
     if (refreshBtn) refreshBtn.addEventListener("click", async () => {
       refreshBtn.classList.add("is-loading");
