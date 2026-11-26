@@ -2,6 +2,7 @@ import { requireProfile, portalOf, homeOf } from "./auth.js";
 import { renderShell, bindShell, shellPortal, syncActiveNav, updateShellTitle } from "./layout.js";
 import { registerPage, takePendingPreset, isSoftNav } from "./page-registry.js";
 import { initNavigator } from "./navigator.js";
+import { initFirstVisitModal, isPublicPath } from "./first-visit.js";
 
 // نقطة دخول موحّدة لكل صفحة بوابة. التنقّل الناعم يستورد وحدة الصفحة من جديد،
 // فتسجّل mount هنا بدل تنفيذها فوراً، ثم ينفّذها الموجّه بعد جلب HTML الهدف.
@@ -66,3 +67,6 @@ export async function boot(portalOrOptions, title, render) {
 }
 
 initNavigator();
+
+// الدليل صفحة عامة، لكن بوابات الدخول لا تعرض نافذة الزيارة الأولى.
+if (typeof location !== "undefined" && isPublicPath(location.pathname)) initFirstVisitModal();

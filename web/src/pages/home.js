@@ -1,4 +1,5 @@
 import { p } from "../lib/base.js";
+import { initFirstVisitModal } from "../lib/first-visit.js";
 
 document.querySelectorAll("[data-site-path]").forEach((link) => {
   link.href = p(link.dataset.sitePath);
@@ -40,3 +41,5 @@ document.addEventListener("click", (event) => {
     setMenuOpen(false);
   }
 });
+
+initFirstVisitModal();

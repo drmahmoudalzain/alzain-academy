@@ -11,6 +11,32 @@
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/views/owner-dashboard.css" />
   <link rel="stylesheet" href="/css/portal-theme.css" />
+  <style>
+    .ost-list-controls { display: grid; gap: 10px; margin-block-end: 14px; }
+    .ost-search { display: grid; gap: 6px; max-width: 360px; font-size: .82rem; color: var(--text-secondary, #5B6B7F); }
+    .ost-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ost-tabs[hidden] { display: none; }
+    .ost-tabs--secondary, .ost-tabs--levels { padding-inline-start: 12px; border-inline-start: 2px solid var(--border, #E3E9F0); }
+    .ost-tab {
+      display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px;
+      border: 1px solid var(--border, #E3E9F0); border-radius: 999px;
+      background: var(--bg-surface, #fff); color: var(--text, #1D2B3A);
+      font: inherit; font-size: .82rem; cursor: pointer;
+    }
+    .ost-tab[aria-current="true"] { border-color: var(--gold, #D4A017); background: rgba(212, 160, 23, .12); font-weight: 700; }
+    .ost-tab:focus-visible { outline: 2px solid var(--gold, #D4A017); outline-offset: 2px; }
+    .ost-tab-count { min-width: 1.6em; padding: 1px 6px; border-radius: 999px; background: var(--bg-subtle, #F5F7FA); font-variant-numeric: tabular-nums; }
+    .ost-tab--zero { opacity: .45; cursor: not-allowed; }
+    .ost-student-link {
+      padding: 0; border: 0; background: none; color: var(--gold-dark, #A97E0B);
+      font: inherit; font-weight: 700; text-decoration: underline; cursor: pointer;
+    }
+    .ost-details { margin-block-start: 14px; }
+    .ost-details dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px 18px; }
+    .ost-details dt { color: var(--text-secondary, #5B6B7F); font-size: .78rem; }
+    .ost-details dd { margin: 0; font-weight: 700; }
+    .ost-details ul { margin: 8px 0 0; padding-inline-start: 20px; }
+  </style>
 </head>
 <body class="portal">
   <div id="app">
@@ -131,7 +157,23 @@
             <h2 class="od-section-title" id="ostListTitle">القائمة</h2>
             <span class="od-link" id="ostCount">—</span>
           </div>
+          <div class="ost-list-controls">
+            <label class="ost-search" for="ostStudentSearch">
+              <span>بحث داخل التصفية</span>
+              <input class="od-input" id="ostStudentSearch" type="search" placeholder="الاسم أو الرمز أو البريد" autocomplete="off" />
+            </label>
+            <div class="ost-tabs" id="ostTrackTabs" role="tablist" aria-label="المسارات"></div>
+            <div class="ost-tabs ost-tabs--secondary" id="ostBachelorTabs" role="tablist" aria-label="طلاب وطالبات البكالوريوس" hidden></div>
+            <div class="ost-tabs ost-tabs--levels" id="ostLevelTabs" role="tablist" aria-label="مستويات البكالوريوس" hidden></div>
+          </div>
           <div id="ostTable" aria-live="polite"></div>
+          <section class="od-panel ost-details" id="ostDetailsPanel" hidden aria-labelledby="ostDetailsTitle">
+            <div class="od-panel-head">
+              <h3 class="od-section-title" id="ostDetailsTitle">بيانات الطالب</h3>
+              <button class="od-btn od-btn--small od-btn--ghost" id="ostDetailsClose" type="button">إغلاق</button>
+            </div>
+            <div id="ostDetailsBody"></div>
+          </section>
         </section>
       </div>
     </main>

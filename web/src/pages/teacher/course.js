@@ -139,18 +139,52 @@ function assignmentCard(a) {
   </article>`;
 }
 
+function studentDetailHref(student) {
+  const studentId = student.student_id ?? student.id;
+  return `${p("pages/teacher/course.html")}?id=${encodeURIComponent(id)}&student=${encodeURIComponent(studentId)}`;
+}
+
 function renderStudents(list) {
   const q = $("#tdcStudentSearch").value.trim().toLowerCase();
   const rows = list
     .filter((s) => !q || [s.name, s.platform_id, s.university_id, s.email].some((v) => String(v || "").toLowerCase().includes(q)))
-    .map((s) => `<tr>
-      <td><strong>${esc(s.name)}</strong><br /><small>${esc(s.platform_id || s.university_id || "—")}</small></td>
-      <td>${esc(fmtPoints(s.exam_pct))}%</td><td>${esc(fmtPoints(s.attendance_pct))}%</td>
-      <td>${esc(fmtPoints(s.assignment_pct))}%</td><td><strong>${esc(fmtPoints(s.final_pct))}%</strong></td>
-      <td>${esc(s.letter)}</td><td>${esc(fmtNum(s.points))}</td>
-    </tr>`);
-  $("#tdcStudents").innerHTML = table(["الطالب", "الاختبارات", "الحضور", "الواجبات", "النهائي", "التقدير", "النقاط"], rows)
+    .map((s) => {
+      const detailHref = studentDetailHref(s);
+      return `<tr>
+        <td><a class="tdc-student-link" href="${detailHref}"><strong>${esc(s.name)}</strong></a><br /><small>${esc(s.platform_id || s.university_id || "—")}</small></td>
+        <td>${esc(fmtPoints(s.exam_pct))}%</td><td>${esc(fmtPoints(s.attendance_pct))}%</td>
+        <td>${esc(fmtPoints(s.assignment_pct))}%</td><td><strong>${esc(fmtPoints(s.final_pct))}%</strong></td>
+        <td>${esc(s.letter)}</td><td>${esc(fmtNum(s.points))}</td>
+        <td><a class="tt-btn" href="${detailHref}">بيانات الطالب</a></td>
+      </tr>`;
+    });
+  $("#tdcStudents").innerHTML = table(["الطالب", "الاختبارات", "الحضور", "الواجبات", "النهائي", "التقدير", "النقاط", "بيانات الطالب"], rows)
     || emptyState("لا طلاب مسجلين", "تسجيل الطلاب من بوابة الإدارة.", "users");
+}
+
+function renderStudentDetails(list) {
+  const panel = $("#tdcStudentDetails");
+  if (!panel) return;
+  const requested = new URLSearchParams(location.search).get("student");
+  const student = requested && list.find((s) => String(s.id ?? s.student_id) === String(requested));
+  if (!student) {
+    panel.hidden = true;
+    return;
+  }
+  $("#tdcStudentDetailsBody").innerHTML = `<dl class="tdc-student-details">
+    <div><dt>الاسم</dt><dd>${esc(student.name || "—")}</dd></div>
+    <div><dt>رمز المنصة</dt><dd dir="ltr">${esc(student.platform_id || "—")}</dd></div>
+    <div><dt>الرقم الجامعي</dt><dd dir="ltr">${esc(student.university_id || "—")}</dd></div>
+    <div><dt>البريد</dt><dd dir="ltr">${esc(student.email || "—")}</dd></div>
+    <div><dt>حالة التسجيل</dt><dd>${esc(student.status === "active" ? "نشط" : "موقوف")}</dd></div>
+    <div><dt>تاريخ التسجيل</dt><dd>${esc(fmtDate(student.enrolled_at))}</dd></div>
+    <div><dt>الاختبارات</dt><dd>${esc(fmtPoints(student.exam_pct))}%</dd></div>
+    <div><dt>الحضور</dt><dd>${esc(fmtPoints(student.attendance_pct))}%</dd></div>
+    <div><dt>الواجبات</dt><dd>${esc(fmtPoints(student.assignment_pct))}%</dd></div>
+    <div><dt>الدرجة النهائية</dt><dd>${esc(fmtPoints(student.final_pct))}% · ${esc(student.letter)}</dd></div>
+    <div><dt>النقاط</dt><dd>${esc(fmtNum(student.points))}</dd></div>
+  </dl>`;
+  panel.hidden = false;
 }
 
 function renderGradebook(list) {
@@ -212,6 +246,7 @@ async function load() {
   $("#tdcHero").style.setProperty("--tdc-color", safeColor(state.course.color));
   $("#tdcTabs").hidden = false;
   $("#tdcPanes").hidden = false;
+  if (new URLSearchParams(location.search).get("student")) switchTab("students");
 
   document.querySelectorAll("[data-tab-count]").forEach((n) => {
     n.textContent = fmtNum(s[n.dataset.tabCount] ?? 0);
@@ -225,6 +260,7 @@ async function load() {
     ? (d.submissions || []).map(submissionRow).join("")
     : emptyState("لا تسليمات بعد", "ستظهر تسليمات الطلاب هنا فور وصولها.", "file");
   renderStudents(d.students || []);
+  renderStudentDetails(d.students || []);
   renderGradebook(d.gradebook || []);
   $("#tdcLectures").innerHTML = (d.lectures || []).length
     ? (d.lectures || []).map(lectureCard).join("")
@@ -257,6 +293,12 @@ boot({
 
     $("#tdcAddAssignment").addEventListener("click", f.assignment);
     $("#tdcStudentSearch").addEventListener("input", () => renderStudents(state.data?.students || []));
+    $("#tdcStudentDetailsClose")?.addEventListener("click", () => {
+      const url = new URL(location.href);
+      url.searchParams.delete("student");
+      history.replaceState(history.state, "", `${url.pathname}${url.search}${url.hash}`);
+      $("#tdcStudentDetails").hidden = true;
+    });
 
     await load();
   },

@@ -4,6 +4,17 @@ import { call } from "../../lib/api.js";
 import { esc, fmtNum } from "../../lib/fmt.js";
 import { icon } from "../../lib/icons.js";
 import { invokeOwnerAdmin, generateTemporaryPassword } from "../../lib/owner-admin.js";
+import { p } from "../../lib/base.js";
+import {
+  buildFilterParams,
+  countGenders,
+  countLevels,
+  countTracks,
+  filterStudents,
+  isLevelDisabled,
+  parseFilters,
+} from "../../lib/students-filters.js";
+import { onDispose } from "../../lib/lifecycle.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -18,6 +29,31 @@ const TRACKS = [
 let allStudents = [];
 let allCourses = [];
 let enrollmentMap = new Map();
+
+const BACHELOR_TRACKS = ["bachelor_m", "bachelor_f"];
+const TRACK_TABS = [
+  ["all", "الكل"],
+  ["bachelor", "بكالوريوس"],
+  ["equiv", "معادل"],
+  ["external", "خارجي"],
+  ["grad", "دراسات عليا"],
+];
+const GENDER_TABS = [
+  ["bachelor", "كل البكالوريوس"],
+  ["bachelor_m", "طلاب"],
+  ["bachelor_f", "طالبات"],
+];
+const LEVELS = [0, 1, 2, 3, 4];
+const LEVEL_LABELS = {
+  0: "المستوى صفر",
+  1: "الأول",
+  2: "الثاني",
+  3: "الثالث",
+  4: "الرابع",
+};
+function isBachelorTrack(track) {
+  return track === "bachelor" || BACHELOR_TRACKS.includes(track);
+}
 
 function trackLabel(track) {
   return TRACKS.find(([value]) => value === track)?.[1] || track || "—";
@@ -43,7 +79,7 @@ function setButton(btn, state) {
 }
 
 function showPanel(activeId) {
-  ["ostNewPanel", "ostTransferPanel", "ostTrackPanel"].forEach((id) => {
+  ["ostNewPanel", "ostTransferPanel", "ostTrackPanel", "ostDetailsPanel"].forEach((id) => {
     const panel = $(id);
     if (panel) panel.hidden = id !== activeId;
   });
@@ -136,9 +172,74 @@ function enrollmentButtons(user, enrollments) {
   }).join("");
 }
 
+function trackCount(track) {
+  return countTracks(allStudents)[track];
+}
+
+function genderCount(track, level) {
+  return countGenders(allStudents, level)[track];
+}
+
+function levelCount(level) {
+  return countLevels(allStudents)[level];
+}
+
+function tabHtml(label, count, attrs, { active = false, disabled = false, zero = false } = {}) {
+  const classes = ["ost-tab", active ? "ost-tab--active" : "", zero ? "ost-tab--zero" : ""].filter(Boolean).join(" ");
+  return `<button type="button" class="${classes}" role="tab" ${attrs}
+    ${active ? 'aria-current="true"' : ""} ${disabled ? 'disabled aria-disabled="true"' : ""}>${esc(label)}
+    <span class="ost-tab-count">${fmtNum(count)}</span></button>`;
+}
+
+function readFilters() {
+  return parseFilters(new URLSearchParams(location.search));
+}
+
+function writeFilters(filters, mode = "push") {
+  const params = buildFilterParams(filters, location.search);
+  params.delete("student");
+  const search = params.toString();
+  const url = `${location.pathname}${search ? `?${search}` : ""}${location.hash}`;
+  if (mode === "replace") history.replaceState({ ostFilters: filters }, "", url);
+  else history.pushState({ ostFilters: filters }, "", url);
+  renderTable();
+}
+
 function renderTable() {
-  const filter = $("ostTrackFilter").value;
-  const list = allStudents.filter((u) => filter === "all" || u.track === filter);
+  const filters = readFilters();
+  const isBachelor = isBachelorTrack(filters.track);
+  const search = $("ostStudentSearch");
+  if (search && search.value !== filters.q) search.value = filters.q;
+  syncDetailsFromUrl();
+
+  $("ostTrackTabs").innerHTML = TRACK_TABS.map(([value, label]) => tabHtml(
+    label, trackCount(value), `data-track="${value}"`, { active: filters.track === value },
+  )).join("");
+  $("ostBachelorTabs").hidden = !isBachelor;
+  $("ostLevelTabs").hidden = !isBachelor;
+  if (isBachelor) {
+    $("ostBachelorTabs").innerHTML = GENDER_TABS.map(([value, label]) => tabHtml(
+      label, genderCount(value, filters.level), `data-gender="${value}"`,
+      { active: filters.track === value },
+    )).join("");
+    $("ostLevelTabs").innerHTML = LEVELS.map((level) => {
+      const zero = isLevelDisabled(level);
+      return tabHtml(
+        LEVEL_LABELS[level], levelCount(level), `data-level="${level}"`,
+        { active: !zero && filters.level === String(level), disabled: zero, zero },
+      );
+    }).join("");
+  } else {
+    $("ostBachelorTabs").innerHTML = "";
+    $("ostLevelTabs").innerHTML = "";
+  }
+
+  const legacyFilter = $("ostTrackFilter");
+  if (legacyFilter) {
+    legacyFilter.value = ["bachelor_m", "bachelor_f"].includes(filters.track) ? filters.track : "all";
+  }
+
+  const list = filterStudents(allStudents, filters);
   $("ostCount").textContent = `${fmtNum(list.length)} / ${fmtNum(allStudents.length)}`;
   if (!list.length) {
     $("ostTable").innerHTML = `<div class="od-empty" role="status"><span class="od-empty-icon">${icon("users")}</span><h3>لا يوجد طلاب</h3><p>أنشئ طالباً جديداً أو غيّر التصفية.</p></div>`;
@@ -149,15 +250,16 @@ function renderTable() {
     const enrollments = enrollmentMap.get(u.id) || [];
     const active = enrollments.filter((e) => e.status === "active").length;
     return `<tr>
-      <td>${esc(u.name || "—")}<br /><span class="od-link" dir="ltr">${esc(u.platform_id || "—")}</span></td>
+      <td><button type="button" class="ost-student-link" data-action="details" data-id="${u.id}">${esc(u.name || "—")}</button><br /><span class="od-link" dir="ltr">${esc(u.platform_id || "—")}</span></td>
       <td dir="ltr">${esc(u.email || "—")}</td>
       <td dir="ltr">${esc(u.university_id || "—")}</td>
       <td>${esc(trackLabel(u.track))}</td>
-      <td>${u.level || "—"}</td>
+      <td>${u.level ? esc(String(u.level)) : "—"}</td>
       <td>${u.is_active ? "✅" : "⛔"}</td>
       <td>${active}/${enrollments.length}</td>
       <td>
         <div class="od-btn-group">
+          <button type="button" class="od-btn od-btn--small od-btn--ghost" data-action="details" data-id="${u.id}">${icon("user")} بيانات الطالب</button>
           <button type="button" class="od-btn od-btn--small od-btn--ghost" data-action="enroll" data-id="${u.id}">${icon("plus")} تسجيل</button>
           <button type="button" class="od-btn od-btn--small od-btn--ghost" data-action="transfer" data-id="${u.id}">${icon("arrow")} نقل</button>
           <button type="button" class="od-btn od-btn--small od-btn--ghost" data-action="track" data-id="${u.id}">${icon("courses")} مسار</button>
@@ -171,6 +273,62 @@ function renderTable() {
     <thead><tr><th>الاسم والرمز</th><th>البريد</th><th>الرقم الجامعي</th><th>المسار</th><th>المستوى</th><th>الحالة</th><th>تسجيلات</th><th>إجراءات</th></tr></thead>
     <tbody>${rows}</tbody>
   </table></div>`;
+}
+
+function openStudentDetails(student) {
+  showPanel(null);
+  const enrollments = enrollmentMap.get(student.id) || [];
+  const courses = enrollments.map((enrollment) => {
+    const course = allCourses.find((c) => String(c.id) === String(enrollment.course_id));
+    return `<li>${esc(course ? courseLabel(course) : `مقرر #${enrollment.course_id}`)} — ${enrollment.status === "active" ? "نشط" : "موقوف"}</li>`;
+  }).join("") || "<li>لا توجد تسجيلات.</li>";
+  $("ostDetailsBody").innerHTML = `<dl>
+    <div><dt>الاسم</dt><dd>${esc(student.name || "—")}</dd></div>
+    <div><dt>رمز المنصة</dt><dd dir="ltr">${esc(student.platform_id || "—")}</dd></div>
+    <div><dt>المسار</dt><dd>${esc(trackLabel(student.track))}</dd></div>
+    <div><dt>المستوى</dt><dd>${student.level ? esc(String(student.level)) : "—"}</dd></div>
+    <div><dt>البريد</dt><dd dir="ltr">${esc(student.email || "—")}</dd></div>
+    <div><dt>الرقم الجامعي</dt><dd dir="ltr">${esc(student.university_id || "—")}</dd></div>
+  </dl>
+  <h4>قائمة المقرر</h4>
+  <ul>${courses}</ul>`;
+  $("ostDetailsPanel").hidden = false;
+  $("ostDetailsPanel").scrollIntoView({ block: "nearest" });
+}
+
+function studentDetailLocation(student) {
+  const params = buildFilterParams(readFilters(), location.search);
+  params.set("student", String(student.id));
+  return `${p("pages/owner/students.html")}?${params.toString()}${location.hash}`;
+}
+
+function showStudentDetails(student) {
+  openStudentDetails(student);
+  history.pushState(
+    { ...history.state, ostStudent: student.id },
+    "",
+    studentDetailLocation(student),
+  );
+}
+
+function closeStudentDetails() {
+  const params = new URLSearchParams(location.search);
+  params.delete("student");
+  const search = params.toString();
+  history.replaceState(
+    history.state,
+    "",
+    `${location.pathname}${search ? `?${search}` : ""}${location.hash}`,
+  );
+  $("ostDetailsPanel").hidden = true;
+}
+
+function syncDetailsFromUrl() {
+  if (!$("ostDetailsPanel")) return;
+  const requested = new URLSearchParams(location.search).get("student");
+  const student = requested && allStudents.find((u) => String(u.id) === String(requested));
+  if (student) openStudentDetails(student);
+  else $("ostDetailsPanel").hidden = true;
 }
 
 function openTransfer(student) {
@@ -368,6 +526,43 @@ async function changeTrack(form) {
   await loadStudents();
 }
 
+async function handleListAction(event) {
+  const button = event.target.closest("button[data-action]");
+  if (!button || button.disabled) return;
+  const student = allStudents.find((u) => String(u.id) === String(button.dataset.id));
+  if (!student) return;
+  switch (button.dataset.action) {
+    case "details":
+      showStudentDetails(student);
+      break;
+    case "enroll":
+      $("ostIdentifier").value = student.platform_id || student.email || "";
+      showPanel("ostEnrollPanel");
+      $("ostIdentifier").focus();
+      break;
+    case "transfer":
+      openTransfer(student);
+      break;
+    case "track":
+      openTrack(student);
+      break;
+    case "suspend":
+      await setEnrollmentStatus(button, student, Number(button.dataset.course), true);
+      break;
+    case "resume":
+      await setEnrollmentStatus(button, student, Number(button.dataset.course), false);
+      break;
+    case "remove":
+      await removeEnrollment(button, student, Number(button.dataset.course));
+      break;
+    case "reset":
+      await resetPassword(button, student);
+      break;
+    default:
+      break;
+  }
+}
+
 boot({
   portal: "owner",
   title: "الطلاب",
@@ -377,7 +572,6 @@ boot({
     await loadCourses();
     await loadStudents();
 
-    $("ostTrackFilter").addEventListener("change", renderTable);
     $("ostNewBtn").addEventListener("click", () => {
       $("ostNewForm").reset();
       $("ostNewPasswordField").hidden = true;
@@ -424,39 +618,33 @@ boot({
       changeTrack(event.currentTarget);
     });
 
-    $("ostTable").addEventListener("click", async (event) => {
-      const button = event.target.closest("button[data-action]");
+    $("ostTable").addEventListener("click", handleListAction);
+    $("ostDetailsPanel").addEventListener("click", handleListAction);
+    $("ostDetailsClose").addEventListener("click", closeStudentDetails);
+    $("ostTrackTabs").addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-track]");
       if (!button || button.disabled) return;
-      const student = allStudents.find((u) => u.id === Number(button.dataset.id));
-      if (!student) return;
-      switch (button.dataset.action) {
-        case "enroll":
-          $("ostIdentifier").value = student.platform_id || student.email || "";
-          showPanel("ostEnrollPanel");
-          $("ostIdentifier").focus();
-          break;
-        case "transfer":
-          openTransfer(student);
-          break;
-        case "track":
-          openTrack(student);
-          break;
-        case "suspend":
-          await setEnrollmentStatus(button, student, Number(button.dataset.course), true);
-          break;
-        case "resume":
-          await setEnrollmentStatus(button, student, Number(button.dataset.course), false);
-          break;
-        case "remove":
-          await removeEnrollment(button, student, Number(button.dataset.course));
-          break;
-        case "reset":
-          await resetPassword(button, student);
-          break;
-        default:
-          break;
-      }
+      const filters = readFilters();
+      writeFilters({ ...filters, track: button.dataset.track, level: isBachelorTrack(button.dataset.track) ? filters.level : "" });
     });
+    $("ostBachelorTabs").addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-gender]");
+      if (!button || button.disabled) return;
+      writeFilters({ ...readFilters(), track: button.dataset.gender });
+    });
+    $("ostLevelTabs").addEventListener("click", (event) => {
+      const button = event.target.closest("button[data-level]");
+      if (!button || button.disabled) return;
+      writeFilters({ ...readFilters(), level: button.dataset.level });
+    });
+    $("ostStudentSearch").addEventListener("input", (event) => {
+      writeFilters({ ...readFilters(), q: event.target.value.trim() }, "replace");
+    });
+    $("ostTrackFilter").addEventListener("change", (event) => {
+      writeFilters({ ...readFilters(), track: event.target.value, level: "" });
+    });
+    window.addEventListener("popstate", renderTable);
+    onDispose(() => window.removeEventListener("popstate", renderTable));
 
     if (new URLSearchParams(location.search).get("new") === "1") $("ostNewBtn").click();
   },
