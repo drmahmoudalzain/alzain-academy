@@ -151,6 +151,22 @@ async function deleteCourse(btn, course) {
   await reload();
 }
 
+async function createAssessment(btn, course, kind) {
+  const title = window.prompt(kind === "exam" ? "عنوان الاختبار" : "عنوان الواجب");
+  if (!title) return;
+  const publish = window.confirm("نشر للطلاب الآن؟ (موافق = نشط/منشور، إلغاء = مسودة)");
+  setButton(btn, true);
+  const res = await call("management_create_exam", {
+    p_course_id: course.id,
+    p_title: title.trim(),
+    p_exam_kind: kind === "exam" ? "exam" : "assignment",
+    p_is_published: publish,
+  });
+  setButton(btn, false);
+  if (!res?.ok) { alert(res?.error || "فشل الإنشاء"); return; }
+  alert(kind === "exam" ? "تم إنشاء الاختبار." : "تم إنشاء الواجب.");
+}
+
 function renderCourses() {
   const showArchived = $("ocShowArchived").checked;
   const list = allCourses.filter((c) => showArchived || !c.archived);
@@ -175,6 +191,8 @@ function renderCourses() {
         <div class="od-btn-group">
           <button class="od-btn od-btn--small ${c.archived ? "od-btn--ghost" : "od-btn--danger"}" data-action="archive" data-id="${c.id}" data-archived="${c.archived}">${icon(c.archived ? "refresh" : "archive")} ${c.archived ? "استعادة" : "أرشفة"}</button>
           <button class="od-btn od-btn--small od-btn--ghost" data-action="edit" data-id="${c.id}">${icon("edit")} تعديل</button>
+          <button class="od-btn od-btn--small" data-action="exam" data-id="${c.id}">${icon("exams")} اختبار</button>
+          <button class="od-btn od-btn--small" data-action="assignment" data-id="${c.id}">${icon("file")} واجب</button>
           <button class="od-btn od-btn--small od-btn--danger" data-action="delete" data-id="${c.id}">${icon("trash")} حذف</button>
         </div>
       </td>
@@ -198,6 +216,8 @@ function renderCourses() {
         await deleteCourse(btn, course);
       } else if (action === "edit") {
         fillForm(course);
+      } else if (action === "exam" || action === "assignment") {
+        await createAssessment(btn, course, action === "exam" ? "exam" : "assignment");
       }
     });
   });
