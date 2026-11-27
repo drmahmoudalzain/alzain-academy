@@ -15,9 +15,13 @@
   <style>
     .ost-list-controls { display: grid; gap: 10px; margin-block-end: 14px; }
     .ost-search { display: grid; gap: 6px; max-width: 360px; font-size: .82rem; color: var(--text-secondary, #5B6B7F); }
+    .ost-filter-group { display: grid; gap: 6px; }
+    .ost-filter-label { margin: 0; color: var(--text-secondary, #5B6B7F); font-size: .76rem; font-weight: 700; }
+    .ost-filter-context { display: grid; gap: 10px; margin-inline-start: 8px; padding-inline-start: 12px; border-inline-start: 2px solid var(--border, #E3E9F0); }
+    .ost-filter-context[hidden] { display: none; }
     .ost-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
     .ost-tabs[hidden] { display: none; }
-    .ost-tabs--secondary, .ost-tabs--levels { padding-inline-start: 12px; border-inline-start: 2px solid var(--border, #E3E9F0); }
+    .ost-tabs--secondary, .ost-tabs--levels { padding-inline-start: 0; border-inline-start: 0; }
     .ost-tab {
       display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px;
       border: 1px solid var(--border, #E3E9F0); border-radius: 999px;
@@ -38,12 +42,12 @@
     .ost-details dd { margin: 0; font-weight: 700; }
     .ost-details ul { margin: 8px 0 0; padding-inline-start: 20px; }
   </style>
-  <script type="module" crossorigin src="/alzain-academy/assets/pages-owner-students-BHevE4_7.js"></script>
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-owner-students-DQeYJ7xy.js"></script>
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/base-CLcZMpw2.js">
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/identity-rules-Cp64wFaG.js">
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/first-visit-BDQ6DJqx.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-xyj4PMfy.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-75pk5vcp.js">
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/api-DQI-AaeE.js">
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/owner-admin-Bto9OelV.js">
 </head>
@@ -174,9 +178,20 @@
               <span>بحث داخل التصفية</span>
               <input class="od-input" id="ostStudentSearch" type="search" placeholder="الاسم أو الرمز أو البريد" autocomplete="off" />
             </label>
-            <div class="ost-tabs" id="ostTrackTabs" role="tablist" aria-label="المسارات"></div>
-            <div class="ost-tabs ost-tabs--secondary" id="ostBachelorTabs" role="tablist" aria-label="طلاب وطالبات البكالوريوس" hidden></div>
-            <div class="ost-tabs ost-tabs--levels" id="ostLevelTabs" role="tablist" aria-label="مستويات البكالوريوس" hidden></div>
+            <div class="ost-filter-group">
+              <h3 class="ost-filter-label" id="ostTrackFilterLabel">المسار</h3>
+              <div class="ost-tabs" id="ostTrackTabs" role="tablist" aria-labelledby="ostTrackFilterLabel"></div>
+            </div>
+            <div class="ost-filter-context" id="ostBachelorFilters" hidden>
+              <div class="ost-filter-group">
+                <h3 class="ost-filter-label" id="ostLevelFilterLabel">المستوى</h3>
+                <div class="ost-tabs ost-tabs--levels" id="ostLevelTabs" role="tablist" aria-labelledby="ostLevelFilterLabel" hidden></div>
+              </div>
+              <div class="ost-filter-group">
+                <h3 class="ost-filter-label" id="ostBachelorFilterLabel">طلاب وطالبات</h3>
+                <div class="ost-tabs ost-tabs--secondary" id="ostBachelorTabs" role="tablist" aria-labelledby="ostBachelorFilterLabel" hidden></div>
+              </div>
+            </div>
           </div>
           <div id="ostTable" aria-live="polite"></div>
           <section class="od-panel ost-details" id="ostDetailsPanel" hidden aria-labelledby="ostDetailsTitle">
