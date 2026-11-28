@@ -9,15 +9,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/alzain-academy/css/views/student-dashboard.css" />
   <link rel="stylesheet" href="/alzain-academy/css/views/owner-dashboard.css" />
   <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
-  <script type="module" crossorigin src="/alzain-academy/assets/pages-assistant-students-D-7ZiZNo.js"></script>
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-assistant-students-Cm9UOX7P.js"></script>
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/base-CLcZMpw2.js">
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/identity-rules-Cp64wFaG.js">
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/first-visit-BDQ6DJqx.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-75pk5vcp.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-CvPpoiNp.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/csv-DOYG_5pE.js">
 </head>
 <body class="portal">
   <div id="app">
@@ -28,14 +28,17 @@
             <div class="od-hero-body">
               <span class="od-tag">بوابة المساعد · الطلاب</span>
               <h1 id="asTitle">الطلاب</h1>
-              <p id="asIntro">عرض الطلاب (قراءة).</p>
+              <p id="asIntro">عرض الطلاب (قراءة) وتصدير القائمة إلى CSV.</p>
             </div>
           </div>
         </section>
         <section class="od-panel" aria-labelledby="asListTitle">
           <div class="od-panel-head">
             <h2 class="od-section-title" id="asListTitle">القائمة</h2>
-            <span class="od-link" id="asCount">—</span>
+            <div class="od-panel-tools">
+              <button type="button" class="od-btn od-btn--small od-btn--ghost" id="asExport" disabled>تصدير CSV</button>
+              <span class="od-link" id="asCount">—</span>
+            </div>
           </div>
           <div id="asTable" aria-live="polite"></div>
         </section>

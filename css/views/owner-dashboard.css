@@ -421,3 +421,7 @@
 .od-inline-msg--success{background:#E8F6EE;color:#17663A;border-color:#BFE4CC;}
 .od-form-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;grid-column:1/-1;}
 @media (max-width:640px){.od-form,.od-grid,.od-actions-grid{grid-template-columns:minmax(0,1fr);}.od-table{display:block;overflow-x:auto;white-space:nowrap;}}
+
+/* === أدوات رأس اللوحة (تصدير/عدّاد) === */
+.od-panel-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+

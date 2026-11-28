@@ -9,16 +9,22 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/alzain-academy/css/views/student-dashboard.css" />
   <link rel="stylesheet" href="/alzain-academy/css/views/teacher-dashboard.css" />
   <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
-  <script type="module" crossorigin src="/alzain-academy/assets/pages-teacher-students-Bz7qIv60.js"></script>
+  <style>
+    .ts-toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .ts-export { padding: 7px 14px; border: 1px solid var(--border, #E3E9F0); border-radius: 10px; background: #fff; font: inherit; font-size: .78rem; font-weight: 700; cursor: pointer; }
+    .ts-export:disabled { opacity: .5; cursor: not-allowed; }
+  </style>
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-teacher-students-wIn53Qge.js"></script>
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/modulepreload-polyfill-B5Qt9EMX.js">
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/base-CLcZMpw2.js">
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/identity-rules-Cp64wFaG.js">
   <link rel="modulepreload" crossorigin href="/alzain-academy/assets/first-visit-BDQ6DJqx.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-75pk5vcp.js">
-  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/common-3QF9HtBB.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-CvPpoiNp.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/csv-DOYG_5pE.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/student-export-CGTGZkjV.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/common-CqzuVE0w.js">
 </head>
 <body class="portal">
   <div id="app">
@@ -26,7 +32,13 @@
       <div class="td-page">
         <section class="td-hero"><h1>طلابي</h1><p>الطلاب المسجّلون في مقرراتك.</p></section>
         <section class="td-panel">
-          <div class="td-panel-head"><h2 class="td-section-title">القائمة</h2><span class="td-link" id="tsCount">—</span></div>
+          <div class="td-panel-head">
+            <h2 class="td-section-title">القائمة</h2>
+            <div class="ts-toolbar">
+              <button type="button" class="ts-export" id="tsExport" disabled>تصدير CSV</button>
+              <span class="td-link" id="tsCount">—</span>
+            </div>
+          </div>
           <div id="tsTable" aria-live="polite"></div>
         </section>
       </div>

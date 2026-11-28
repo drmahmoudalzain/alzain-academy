@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0B2545" />
+  <meta name="description" content="إعلان جديد — بوابة المالك، أكاديمية آل الزين" />
+  <title>إعلان جديد — أكاديمية آل الزين</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/alzain-academy/css/views/owner-dashboard.css" />
+  <link rel="stylesheet" href="/alzain-academy/css/portal-theme.css" />
+  <style>
+    .anc-preview { display: grid; gap: 6px; padding: 14px; border: 1px solid var(--border, #E3E9F0); border-radius: 12px; background: #F8FAFC; }
+    .anc-preview h3 { margin: 0; font-size: 1rem; }
+    .anc-preview p { margin: 0; color: var(--text-secondary, #5B6B7F); line-height: 1.8; white-space: pre-wrap; }
+    .anc-preview small { color: var(--text-secondary, #5B6B7F); }
+  </style>
+  <script type="module" crossorigin src="/alzain-academy/assets/pages-owner-announcements-BURk-gZE.js"></script>
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/base-CLcZMpw2.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/identity-rules-Cp64wFaG.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/first-visit-BDQ6DJqx.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/portal-CvPpoiNp.js">
+  <link rel="modulepreload" crossorigin href="/alzain-academy/assets/api-DQI-AaeE.js">
+</head>
+<body class="portal">
+  <div id="app">
+    <main class="content" id="content">
+      <div class="od-page">
+        <section class="od-hero" aria-labelledby="ancTitle">
+          <div class="od-hero-head">
+            <div class="od-hero-body">
+              <span class="od-tag">بوابة المالك · الإشعارات</span>
+              <h1 id="ancTitle">إعلان جديد</h1>
+              <p id="ancIntro">أرسل إعلاناً لكل المستخدمين أو لمقرر محدد، مع معاينة قبل الإرسال.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="od-panel" aria-labelledby="ancFormTitle">
+          <h2 class="od-section-title" id="ancFormTitle">بيانات الإعلان</h2>
+          <form id="ancForm" class="od-form" novalidate>
+            <div class="od-field">
+              <label for="ancAudience">الجمهور</label>
+              <select class="od-select" id="ancAudience" name="audience" required>
+                <option value="all">كل المستخدمين</option>
+                <option value="course">مقرر محدد</option>
+              </select>
+            </div>
+            <div class="od-field" id="ancCourseField" hidden>
+              <label for="ancCourse">المقرر</label>
+              <select class="od-select" id="ancCourse" name="course_id">
+                <option value="">جارٍ تحميل المقررات…</option>
+              </select>
+            </div>
+            <div class="od-field">
+              <label for="ancTitleInput">العنوان</label>
+              <input class="od-input" id="ancTitleInput" name="title" maxlength="160" required placeholder="مثال: تعديل موعد محاضرة" />
+            </div>
+            <div class="od-field">
+              <label for="ancLink">رابط اختياري</label>
+              <input class="od-input" id="ancLink" name="link" dir="ltr" placeholder="pages/student/dashboard.html" />
+            </div>
+            <div class="od-field">
+              <label for="ancBody">النص</label>
+              <textarea class="od-textarea" id="ancBody" name="body" rows="5" maxlength="4000" placeholder="اكتب نص الإعلان…"></textarea>
+            </div>
+            <div class="od-form-actions">
+              <button class="od-btn od-btn--primary" id="ancSubmit" type="submit">إرسال الإعلان</button>
+              <button class="od-btn" id="ancPreviewBtn" type="button">معاينة</button>
+              <span class="od-inline-msg" id="ancMsg" role="status" aria-live="polite"></span>
+            </div>
+          </form>
+        </section>
+
+        <section class="od-panel" id="ancPreviewPanel" hidden aria-labelledby="ancPreviewTitle">
+          <h2 class="od-section-title" id="ancPreviewTitle">المعاينة</h2>
+          <article class="anc-preview" id="ancPreview"></article>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
